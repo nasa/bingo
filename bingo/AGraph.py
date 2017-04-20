@@ -472,7 +472,16 @@ class AGNodes(object):
         """|x|"""
         arity = 1
         shorthand = "absl"
-        call = np.abs
+
+        @staticmethod
+        def call(x):
+            """absolute function which handles nans"""
+            try:
+                ans = np.abs(x)
+            except (ArithmeticError, OverflowError, FloatingPointError,
+                    ValueError):
+                ans = np.nan
+            return ans
 
         @staticmethod
         def printstring(params):

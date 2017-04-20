@@ -1,16 +1,16 @@
 import time
 import pickle
 
-from AGraph import AGraphManipulator as agm
-from AGraph import AGNodes
-from FitnessPredictor import FPManipulator as fpm
-from FitnessPredictor import FitnessPredictor as fp
-from CoevolutionIsland import CoevolutionIsland as ci
-from Plotting import print_latex, print_pareto
+from bingo.AGraph import AGraphManipulator as agm
+from bingo.AGraph import AGNodes
+from bingo.FitnessPredictor import FPManipulator as fpm
+from bingo.FitnessPredictor import FitnessPredictor as fp
+from bingo.CoevolutionIsland import CoevolutionIsland as ci
+from bingo.Plotting import print_latex, print_pareto
 
 import numpy as np
 
-from Island import Island
+from bingo.Island import Island
 
 a = agm(1, 16, nloads=2)
 a.add_node_type(AGNodes.Add)

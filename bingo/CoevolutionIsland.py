@@ -17,11 +17,12 @@ class CoevolutionIsland(object):
     predictor_pop: sub sampling
     """
 
-    def __init__(self, data_x, data_y, solution_pop_size, solution_cx,
-                 solution_mut, solution_manipulator, predictor_pop_size,
-                 predictor_cx, predictor_mut, predictor_manipulator,
-                 predictor_ratio, predictor_update_freq,
-                 trainer_pop_size, trainer_update_freq,
+    def __init__(self, data_x, data_y, solution_manipulator,
+                 predictor_manipulator,
+                 solution_pop_size=64, solution_cx=0.7, solution_mut=0.01,
+                 predictor_pop_size=16, predictor_cx=0.5, predictor_mut=0.1,
+                 predictor_ratio=0.1, predictor_update_freq=50,
+                 trainer_pop_size=16, trainer_update_freq=50,
                  verbose=False):
         self.data_x = data_x
         self.data_y = data_y

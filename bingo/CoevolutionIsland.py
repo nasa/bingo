@@ -7,7 +7,7 @@ This is loosely based on the work of Schmidt and Lipson 2008?
 """
 import numpy as np
 
-from Island import Island
+from .Island import Island
 
 
 class CoevolutionIsland(object):

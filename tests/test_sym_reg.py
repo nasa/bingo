@@ -1,0 +1,167 @@
+import numpy as np
+
+
+from bingo.AGraph import AGraphManipulator as agm
+from bingo.AGraph import AGNodes
+from bingo.FitnessPredictor import FPManipulator as fpm
+from bingo.IslandManager import SerialIslandManager
+from bingo.Utils import savitzky_golay
+
+
+N_ISLANDS = 2
+MAX_STEPS = 1000
+EPSILON = 1e-8
+N_STEPS = 100
+
+
+def snake_walk():
+    """snake walk for independent data"""
+    n_samps = 200
+    step_size = 0.2
+    x_true = np.zeros([n_samps, 2])
+    for i in range(n_samps):
+        if i is 0:
+            x_true[i, 0] = step_size * 0.5
+            x_true[i, 1] = step_size / 2
+            direction = step_size
+        else:
+            if i % 20 == 0:
+                direction *= -1
+                x_true[i, 0] = -direction
+                x_true[i, 1] += step_size
+            x_true[i, 0] += x_true[i - 1, 0] + direction
+            x_true[i, 1] += x_true[i - 1, 1]
+
+    x_true[:, 0] = savitzky_golay(x_true[:, 0], 7, 2, 0)
+    x_true[:, 1] = savitzky_golay(x_true[:, 1], 7, 2, 0)
+    return x_true
+
+
+def test_sym_reg_add():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = (x_true[:, 0] + x_true[:, 1])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_sub():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = (x_true[:, 0] - x_true[:, 1])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_mul():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = (x_true[:, 0] * x_true[:, 1])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_div():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = (x_true[:, 0] / x_true[:, 1])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_cos():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = np.cos(x_true[:, 0])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_sin():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = np.sin(x_true[:, 0])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_exp():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = np.exp(x_true[:, 0])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_log():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = np.log(x_true[:, 0])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def test_sym_reg_abs():
+    """test add primative in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = np.abs(x_true[:, 0])
+
+    # test solution
+    compare_sym_reg(x_true, y)
+
+
+def compare_sym_reg(X, Y):
+
+    # make solution manipulator
+    sol_manip = agm(X.shape[1], 16, nloads=2)
+    sol_manip.add_node_type(AGNodes.Add)
+    sol_manip.add_node_type(AGNodes.Subtract)
+    sol_manip.add_node_type(AGNodes.Multiply)
+    sol_manip.add_node_type(AGNodes.Divide)
+    sol_manip.add_node_type(AGNodes.Exp)
+    sol_manip.add_node_type(AGNodes.Log)
+    sol_manip.add_node_type(AGNodes.Sin)
+    sol_manip.add_node_type(AGNodes.Cos)
+    sol_manip.add_node_type(AGNodes.Abs)
+
+    # make predictor manipulator
+    pred_manip = fpm(32, Y.shape[0])
+
+    # make and run island manager
+    IM = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
+    assert IM.run_islands(MAX_STEPS, EPSILON, N_STEPS)

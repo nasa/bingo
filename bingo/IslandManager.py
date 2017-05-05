@@ -33,6 +33,7 @@ class IslandManager(object):
         :param epsilon: error which defines convergence
         :param step_increment: the number of steps between
                                migrations/convergence checks
+        :return converged: whether a converged solution has been found
         """
         self.do_steps(n_steps=step_increment)
         converged = self.test_convergence(epsilon)
@@ -42,6 +43,8 @@ class IslandManager(object):
             converged = self.test_convergence(epsilon)
 
         self.do_final_plots()
+
+        return converged
 
     @abc.abstractmethod
     def do_steps(self, n_steps):
@@ -359,10 +362,11 @@ class SerialIslandManager(IslandManager):
             self.pareto_isle.pareto_front[0].fitness[0]
         print_latex(self.pareto_isle.pareto_front, "eq.tif")
         print_pareto(self.pareto_isle.pareto_front, "front.tif")
-        print_1d_best_soln(self.isles[0].data_x,
-                           self.isles[0].data_y,
-                           self.pareto_isle.pareto_front[0].evaluate,
-                           "comparison.tif")
+        if self.isles[0].data_x.shape[1] == 1:
+            print_1d_best_soln(self.isles[0].data_x,
+                               self.isles[0].data_y,
+                               self.pareto_isle.pareto_front[0].evaluate,
+                               "comparison.tif")
 
         return converged
 
@@ -390,7 +394,8 @@ class SerialIslandManager(IslandManager):
             print "pareto>", indv.fitness, indv.latexstring()
         print_latex(self.isles[0].solution_island.pareto_front, "eq.tif")
         print_pareto(self.isles[0].solution_island.pareto_front, "front.tif")
-        print_1d_best_soln(
-            self.isles[0].data_x, self.isles[0].data_y,
-            self.isles[0].solution_island.pareto_front[0].evaluate,
-            "comparison.tif")
+        if self.isles[0].data_x.shape[1] == 1:
+            print_1d_best_soln(
+                self.isles[0].data_x, self.isles[0].data_y,
+                self.isles[0].solution_island.pareto_front[0].evaluate,
+                "comparison.tif")

@@ -26,6 +26,9 @@ class AGraphManipulator(object):
         self.num_node_types = 0
 
         self.namespace = {}
+        self.namespace[AGNodes.Load.shorthand_deriv] = \
+            AGNodes.Load.call_deriv
+
 
     def add_node_type(self, node_type):
         """add a node type to the set of allowed types"""
@@ -34,6 +37,9 @@ class AGraphManipulator(object):
             self.num_node_types += 1
             if node_type.shorthand is not None:
                 self.namespace[node_type.shorthand] = node_type.call
+            if node_type.shorthand_deriv is not None:
+                self.namespace[node_type.shorthand_deriv] = \
+                    node_type.call_deriv
 
     def generate(self):
         """generate random individual"""
@@ -186,6 +192,7 @@ class AGraph(object):
     def __init__(self, namespace=None):
         self.command_list = []
         self.compiled = False
+        self.compiled_deriv = False
         self.fitness = None
         if namespace is not None:
             self.namespace = namespace.copy()
@@ -214,11 +221,35 @@ class AGraph(object):
         exec compile(code_str, '<string>', 'exec') in self.namespace
         self.compiled = True
 
+    def compile_deriv(self):
+        """compile the stack of commands and derivatives"""
+        util = self.utilized_commands()
+        code_str = "def evaluate_deriv(x):\n"
+        code_str += "    n_d = len(x)\n"
+        code_str += "    stack = [None]*%d\n" % len(self.command_list)
+        code_str += "    deriv = [None]*%d\n" % len(self.command_list)
+        for i, (node, params) in enumerate(self.command_list):
+            if util[i]:
+                code_str += ("    stack[%d] = " % i +
+                             node.funcstring(params) + "\n")
+                code_str += ("    deriv[%d] = " % i +
+                             node.derivstring(params) + "\n")
+
+        code_str += "    return deriv[-1]\n"
+        exec compile(code_str, '<string>', 'exec') in self.namespace
+        self.compiled_deriv = True
+
     def evaluate(self, params):
         """evaluate the compiled stack"""
         if not self.compiled:
             self.compile()
         return self.namespace['evaluate'](params)
+
+    def evaluate_deriv(self, params):
+        """evaluate the compiled stack"""
+        if not self.compiled_deriv:
+            self.compile_deriv()
+        return self.namespace['evaluate_deriv'](params)
 
     def __str__(self):
         """overloaded string output"""
@@ -270,11 +301,18 @@ class AGNodes(object):
         terminal = False
         arity = 0
         shorthand = None
+        shorthand_deriv = None
 
         @staticmethod
         @abc.abstractmethod
         def funcstring(params):
-            """creates a sting for parsing"""
+            """creates a string for parsing"""
+            pass
+
+        @staticmethod
+        @abc.abstractmethod
+        def derivstring(params):
+            """creates a string for parsing derivatives"""
             pass
 
         @staticmethod
@@ -292,10 +330,28 @@ class AGNodes(object):
     class Load(Node):
         """load"""
         terminal = True
+        shorthand_deriv = "deriv_x"
+
+        @staticmethod
+        def call_deriv(index, length):
+            """gets derivative array of loaded value"""
+            tmp = np.zeros(length)
+            if index is not -1:
+                tmp[index] = 1
+            return tmp
 
         @staticmethod
         def funcstring(params):
             return params[0]
+
+        @staticmethod
+        def derivstring(params):
+            if "x" in params[0]:
+                index = int(params[0][2:-1])
+            else:
+                index = -1
+            dstring = "deriv_x(%d, n_d)" % index
+            return dstring
 
         @staticmethod
         def printstring(params):
@@ -321,6 +377,10 @@ class AGNodes(object):
         def funcstring(params):
             return "stack[%d] + stack[%d]" % params
 
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] + deriv[%d]" % params
+
     class Subtract(Node):
         """subtraction"""
         arity = 2
@@ -328,6 +388,10 @@ class AGNodes(object):
         @staticmethod
         def funcstring(params):
             return "stack[%d] - stack[%d]" % params
+
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] - deriv[%d]" % params
 
         @staticmethod
         def printstring(params):
@@ -352,6 +416,11 @@ class AGNodes(object):
         @staticmethod
         def funcstring(params):
             return "stack[%d] * stack[%d]" % params
+
+        @staticmethod
+        def derivstring(params):
+            return "stack[%d] * deriv[%d] + deriv[%d] * stack[%d]" % \
+                   (params[0], params[1], params[0], params[1])
 
     class Divide(Node):
         """division"""
@@ -378,11 +447,20 @@ class AGNodes(object):
         def funcstring(params):
             return "div(stack[%d], stack[%d])" % params
 
+        @staticmethod
+        def derivstring(params):
+            return "(stack[%d] * deriv[%d] - stack[%d] * deriv[%d]) * " \
+                   "div(1.0, stack[%d]*stack[%d])" % \
+                   (params[1], params[0], params[0], params[1],
+                    params[1], params[1])
+
     class Sin(Node):
         """sine"""
         arity = 1
         shorthand = "sin"
         call = np.sin
+        shorthand_deriv = "sin_deriv"
+        call_deriv = np.cos
 
         @staticmethod
         def printstring(params):
@@ -396,11 +474,17 @@ class AGNodes(object):
         def funcstring(params):
             return "sin(stack[%d])" % params
 
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] * sin_deriv(stack[%d])" % (params[0], params[0])
+
     class Cos(Node):
         """cosine"""
         arity = 1
         shorthand = "cos"
         call = np.cos
+        shorthand_deriv = "cos_deriv"
+        call_deriv = np.sin
 
         @staticmethod
         def printstring(params):
@@ -413,6 +497,11 @@ class AGNodes(object):
         @staticmethod
         def funcstring(params):
             return "cos(stack[%d])" % params
+
+        @staticmethod
+        def derivstring(params):
+            return "-deriv[%d] * cos_deriv(stack[%d])" %\
+                   (params[0], params[0])
 
     class Exp(Node):
         """e^x"""
@@ -441,6 +530,10 @@ class AGNodes(object):
         def funcstring(params):
             return "exp(stack[%d])" % params
 
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] * exp(stack[%d])" % (params[0], params[0])
+
     class Log(Node):
         """log|x|"""
         arity = 1
@@ -468,10 +561,17 @@ class AGNodes(object):
         def funcstring(params):
             return "log(stack[%d])" % params
 
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] * div(1.0, stack[%d])" % \
+                   (params[0], params[0])
+
     class Abs(Node):
         """|x|"""
         arity = 1
         shorthand = "absl"
+        shorthand_deriv = "sign"
+        call_deriv = np.sign
 
         @staticmethod
         def call(x):
@@ -494,3 +594,7 @@ class AGNodes(object):
         @staticmethod
         def funcstring(params):
             return "absl(stack[%d])" % params
+
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] * sign(stack[%d])" % (params[0], params[0])

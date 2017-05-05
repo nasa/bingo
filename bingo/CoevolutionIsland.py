@@ -233,7 +233,6 @@ class CoevolutionIsland(object):
         for indv in self.solution_island.pop:
             indv.fitness = None
 
-
     def true_fitness_plus_complexity(self, solution):
         """
         gets the true fitness and complexity of a solution individual

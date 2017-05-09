@@ -110,7 +110,6 @@ class FitnessPredictor(object):
                             1 + np.abs(np.sum(df_dx * Y[i, :]) / den))
                     else:
                         raise ValueError("Non-finite value encountered in fit")
-                        err = np.nan
                 if not n_params:
                     err = np.inf
 

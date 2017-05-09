@@ -1,6 +1,11 @@
+"""
+example of regression done using the parallel island manager (islands done
+in parallel on multiple mpi processes)
+"""
+
+import math
 from mpi4py import MPI
 import numpy as np
-import math
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
@@ -9,6 +14,7 @@ from bingo.IslandManager import ParallelIslandManager
 
 
 def main(max_steps, epsilon, data_size, data_range):
+    """main function which runs regression"""
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
@@ -51,9 +57,9 @@ def main(max_steps, epsilon, data_size, data_range):
     pred_manip = fpm(16, data_size)
 
     # make and run island manager
-    IM = ParallelIslandManager(X, Y, sol_manip, pred_manip,
-                               solution_pop_size=64)
-    IM.run_islands(max_steps, epsilon, step_increment=100)
+    islmngr = ParallelIslandManager(X, Y, sol_manip, pred_manip,
+                                    solution_pop_size=64)
+    islmngr.run_islands(max_steps, epsilon, step_increment=100)
 
 
 if __name__ == "__main__":

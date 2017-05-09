@@ -1,5 +1,8 @@
-import numpy as np
+"""
+test_sym_const tests the standard symbolic nodes in const regression
+"""
 
+import numpy as np
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
@@ -132,6 +135,7 @@ def test_sym_const_abs():
 
 
 def compare_sym_const(X, Y, epsilon):
+    """does const symbolic regression and tests convergence"""
     # convert to single array
     X = np.hstack((X, Y.reshape([-1, 1])))
     Y = None
@@ -152,5 +156,5 @@ def compare_sym_const(X, Y, epsilon):
     pred_manip = fpm(32, X.shape[0])
 
     # make and run island manager
-    IM = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
-    assert IM.run_islands(MAX_STEPS, epsilon, N_STEPS)
+    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
+    assert islmngr.run_islands(MAX_STEPS, epsilon, N_STEPS)

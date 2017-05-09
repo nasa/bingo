@@ -24,6 +24,7 @@ class CoevolutionIsland(object):
                  predictor_pop_size=16, predictor_cx=0.5, predictor_mut=0.1,
                  predictor_ratio=0.1, predictor_update_freq=50,
                  trainer_pop_size=16, trainer_update_freq=50,
+                 required_params=2,
                  verbose=False):
         self.verbose = verbose
 
@@ -34,10 +35,12 @@ class CoevolutionIsland(object):
             if self.data_x.shape[0] < predictor_manipulator.max_index:
                 predictor_manipulator.max_index = self.data_x.shape[0]
             self.standard_regression = False
+            self.required_params = required_params
         else:
             self.data_x = data_x
             self.data_y = data_y
             self.standard_regression = True
+            self.required_params = None
 
         # initialize solution island
         self.solution_island = Island(solution_manipulator,
@@ -66,7 +69,8 @@ class CoevolutionIsland(object):
                 for pred in self.predictor_island.pop:
                     if np.isnan(pred.fit_func(sol, self.data_x,
                                               self.data_y,
-                                              self.standard_regression)):
+                                              self.standard_regression,
+                                              self.required_params)):
                         legal_trainer_found = False
             self.trainers.append(self.solution_island.pop[ind].copy())
             self.trainers_true_fitness.append(true_fitness)
@@ -93,7 +97,8 @@ class CoevolutionIsland(object):
         """estimated fitness for solution pop based on the best predictor"""
         fit = self.best_predictor.fit_func(solution, self.data_x,
                                            self.data_y,
-                                           self.standard_regression)
+                                           self.standard_regression,
+                                           self.required_params)
         return fit, solution.complexity()
 
     def predictor_fitness(self, predictor):
@@ -102,7 +107,8 @@ class CoevolutionIsland(object):
         for train, true_fit in zip(self.trainers, self.trainers_true_fitness):
             predicted_fit = predictor.fit_func(train, self.data_x,
                                                self.data_y,
-                                               self.standard_regression)
+                                               self.standard_regression,
+                                               self.required_params)
             err += abs(true_fit - predicted_fit)
         return err/len(self.trainers)
 
@@ -111,6 +117,7 @@ class CoevolutionIsland(object):
         err = 0.0
         nan_count = 0
         tot_n = self.data_x.shape[0]
+        n_params = False
         for x, y in zip(self.data_x, self.data_y):
 
             try:
@@ -121,11 +128,17 @@ class CoevolutionIsland(object):
                 # regression to find constant combinations/laws
                 else:
                     df_dx = solution.evaluate_deriv(x)
+                    if not n_params:
+                        tmp = np.count_nonzero(abs(df_dx) > 1e-16)
+                        if tmp >= self.required_params:
+                            n_params = True
                     den = np.linalg.norm(df_dx)
                     if np.isfinite(den) or abs(den) < 1e-16:
                         diff = np.log(1 + np.abs(np.sum(df_dx * y) / den))
                     else:
                         diff = np.nan
+                    # print diff, df_dx, x, y, den, solution.latexstring()
+
             except (OverflowError, FloatingPointError):
                 diff = np.nan
 
@@ -134,8 +147,13 @@ class CoevolutionIsland(object):
             else:
                 err += diff/tot_n
 
-        if nan_count < 0.1*tot_n:
+        # not enough parameters in const regression
+        if not self.standard_regression and not n_params:
+            return np.inf
+        # ok
+        elif nan_count < 0.1*tot_n:
             return err*(tot_n/(tot_n-nan_count))
+        # too many nans
         else:
             return np.nan
 
@@ -148,7 +166,8 @@ class CoevolutionIsland(object):
             for pred in self.predictor_island.pop:
                 pfit_list.append(pred.fit_func(sol, self.data_x,
                                                self.data_y,
-                                               self.standard_regression))
+                                               self.standard_regression,
+                                               self.required_params))
             try:
                 variance = np.var(pfit_list)
             except (ArithmeticError, OverflowError, FloatingPointError,

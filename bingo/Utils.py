@@ -123,13 +123,13 @@ def snake_walk():
             x_true[i, 1] = step_size / 2
             direction = step_size
         else:
-            if i % 20 == 0:
+            if i % (n_samps/10) == 0:
                 direction *= -1
                 x_true[i, 0] = -direction
                 x_true[i, 1] += step_size
             x_true[i, 0] += x_true[i - 1, 0] + direction
             x_true[i, 1] += x_true[i - 1, 1]
 
-    x_true[:, 0] = savitzky_golay(x_true[:, 0], 7, 2, 0)
-    x_true[:, 1] = savitzky_golay(x_true[:, 1], 7, 2, 0)
+    x_true[:, 0] = savitzky_golay(x_true[:, 0], 21, 2, 0)
+    x_true[:, 1] = savitzky_golay(x_true[:, 1], 21, 2, 0)
     return x_true

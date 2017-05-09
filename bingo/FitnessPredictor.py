@@ -86,7 +86,7 @@ class FitnessPredictor(object):
     def __str__(self):
         return str(self.indices)
 
-    def fit_func(self, indv, X, Y, standard_regression):
+    def fit_func(self, indv, X, Y, standard_regression, required_params=2):
         """fitness function for standard regression type"""
         err = 0.0
         try:
@@ -97,14 +97,22 @@ class FitnessPredictor(object):
 
             # regression to find constant combinations/laws
             else:
+                n_params = False
                 for i in self.indices:
                     df_dx = indv.evaluate_deriv(X[i, :])
+                    if not n_params:
+                        tmp = np.count_nonzero(abs(df_dx) > 1e-16)
+                        if tmp >= required_params:
+                            n_params = True
                     den = np.linalg.norm(df_dx)
                     if np.isfinite(den):
                         err += np.log(
                             1 + np.abs(np.sum(df_dx * Y[i, :]) / den))
                     else:
-                        raise ValueError("Nonfinite value encountered in fit")
+                        raise ValueError("Non-finite value encountered in fit")
+                        err = np.nan
+                if not n_params:
+                    err = np.inf
 
             err /= len(self.indices)
         except (OverflowError, FloatingPointError, ValueError):

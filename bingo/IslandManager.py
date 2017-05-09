@@ -220,6 +220,8 @@ class ParallelIslandManager(IslandManager):
             # output
             print "current best true fitness: ", \
                 self.pareto_isle.pareto_front[0].fitness[0]
+            print "best solution:", \
+                self.pareto_isle.pareto_front[0].latexstring()
             print_latex(self.pareto_isle.pareto_front, "eq.tif")
             print_pareto(self.pareto_isle.pareto_front, "front.tif")
             print_1d_best_soln(self.isle.data_x,

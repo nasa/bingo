@@ -299,6 +299,7 @@ class SerialIslandManager(IslandManager):
                 "\ttime: %.1fs" % (t_2 - t_1), \
                 "\tbest fitness:", \
                 isle.solution_island.pareto_front[0].fitness
+
         t_3 = time.time()
         print "total time: %.1fs" % (t_3 - t_0)
 
@@ -360,6 +361,8 @@ class SerialIslandManager(IslandManager):
         # output
         print "current best true fitness: ", \
             self.pareto_isle.pareto_front[0].fitness[0]
+        print "best solution:", self.pareto_isle.pareto_front[0].latexstring()
+
         print_latex(self.pareto_isle.pareto_front, "eq.tif")
         print_pareto(self.pareto_isle.pareto_front, "front.tif")
         if self.isles[0].data_x.shape[1] == 1:

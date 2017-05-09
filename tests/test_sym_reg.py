@@ -1,3 +1,7 @@
+"""
+test_sym_reg tests the standard symbolic regression nodes
+"""
+
 import numpy as np
 
 
@@ -5,7 +9,7 @@ from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
-from bingo.Utils import savitzky_golay
+from bingo.Utils import snake_walk
 
 
 N_ISLANDS = 2
@@ -13,28 +17,6 @@ MAX_STEPS = 1000
 EPSILON = 1e-8
 N_STEPS = 100
 
-
-def snake_walk():
-    """snake walk for independent data"""
-    n_samps = 200
-    step_size = 0.2
-    x_true = np.zeros([n_samps, 2])
-    for i in range(n_samps):
-        if i is 0:
-            x_true[i, 0] = step_size * 0.5
-            x_true[i, 1] = step_size / 2
-            direction = step_size
-        else:
-            if i % 20 == 0:
-                direction *= -1
-                x_true[i, 0] = -direction
-                x_true[i, 1] += step_size
-            x_true[i, 0] += x_true[i - 1, 0] + direction
-            x_true[i, 1] += x_true[i - 1, 1]
-
-    x_true[:, 0] = savitzky_golay(x_true[:, 0], 7, 2, 0)
-    x_true[:, 1] = savitzky_golay(x_true[:, 1], 7, 2, 0)
-    return x_true
 
 
 def test_sym_reg_add():
@@ -146,7 +128,7 @@ def test_sym_reg_abs():
 
 
 def compare_sym_reg(X, Y):
-
+    """does the comparison"""
     # make solution manipulator
     sol_manip = agm(X.shape[1], 16, nloads=2)
     sol_manip.add_node_type(AGNodes.Add)
@@ -163,5 +145,5 @@ def compare_sym_reg(X, Y):
     pred_manip = fpm(32, Y.shape[0])
 
     # make and run island manager
-    IM = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
-    assert IM.run_islands(MAX_STEPS, EPSILON, N_STEPS)
+    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
+    assert islmngr.run_islands(MAX_STEPS, EPSILON, N_STEPS)

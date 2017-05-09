@@ -8,6 +8,7 @@ This is loosely based on the work of Schmidt and Lipson 2008?
 import numpy as np
 
 from .Island import Island
+from .Utils import calculate_partials
 
 
 class CoevolutionIsland(object):
@@ -24,9 +25,19 @@ class CoevolutionIsland(object):
                  predictor_ratio=0.1, predictor_update_freq=50,
                  trainer_pop_size=16, trainer_update_freq=50,
                  verbose=False):
-        self.data_x = data_x
-        self.data_y = data_y
         self.verbose = verbose
+
+        # if data_y is none, use derivatives of x
+        # and do unsupervised (const) algorithm
+        if data_y is None:
+            self.data_x, self.data_y = calculate_partials(data_x)
+            if self.data_x.shape[0] < predictor_manipulator.max_index:
+                predictor_manipulator.max_index = self.data_x.shape[0]
+            self.standard_regression = False
+        else:
+            self.data_x = data_x
+            self.data_y = data_y
+            self.standard_regression = True
 
         # initialize solution island
         self.solution_island = Island(solution_manipulator,
@@ -53,7 +64,9 @@ class CoevolutionIsland(object):
                 true_fitness = self.solution_fitness_true(sol)
                 legal_trainer_found = not np.isnan(true_fitness)
                 for pred in self.predictor_island.pop:
-                    if np.isnan(pred.fit_func(sol, self.data_x, self.data_y)):
+                    if np.isnan(pred.fit_func(sol, self.data_x,
+                                              self.data_y,
+                                              self.standard_regression)):
                         legal_trainer_found = False
             self.trainers.append(self.solution_island.pop[ind].copy())
             self.trainers_true_fitness.append(true_fitness)
@@ -78,14 +91,18 @@ class CoevolutionIsland(object):
 
     def solution_fitness_est(self, solution):
         """estimated fitness for solution pop based on the best predictor"""
-        fit = self.best_predictor.fit_func(solution, self.data_x, self.data_y)
+        fit = self.best_predictor.fit_func(solution, self.data_x,
+                                           self.data_y,
+                                           self.standard_regression)
         return fit, solution.complexity()
 
     def predictor_fitness(self, predictor):
         """fitness function for predictor population"""
         err = 0.0
         for train, true_fit in zip(self.trainers, self.trainers_true_fitness):
-            predicted_fit = predictor.fit_func(train, self.data_x, self.data_y)
+            predicted_fit = predictor.fit_func(train, self.data_x,
+                                               self.data_y,
+                                               self.standard_regression)
             err += abs(true_fit - predicted_fit)
         return err/len(self.trainers)
 
@@ -95,11 +112,28 @@ class CoevolutionIsland(object):
         nan_count = 0
         tot_n = self.data_x.shape[0]
         for x, y in zip(self.data_x, self.data_y):
-            diff = abs(solution.evaluate(x) - y)
+
+            try:
+                # standard symbolic regression
+                if self.standard_regression:
+                    diff = abs(solution.evaluate(x) - y)
+
+                # regression to find constant combinations/laws
+                else:
+                    df_dx = solution.evaluate_deriv(x)
+                    den = np.linalg.norm(df_dx)
+                    if np.isfinite(den) or abs(den) < 1e-16:
+                        diff = np.log(1 + np.abs(np.sum(df_dx * y) / den))
+                    else:
+                        diff = np.nan
+            except (OverflowError, FloatingPointError):
+                diff = np.nan
+
             if np.isnan(diff):
                 nan_count += 1
             else:
                 err += diff/tot_n
+
         if nan_count < 0.1*tot_n:
             return err*(tot_n/(tot_n-nan_count))
         else:
@@ -112,7 +146,9 @@ class CoevolutionIsland(object):
         for sol in self.solution_island.pop:
             pfit_list = []
             for pred in self.predictor_island.pop:
-                pfit_list.append(pred.fit_func(sol, self.data_x, self.data_y))
+                pfit_list.append(pred.fit_func(sol, self.data_x,
+                                               self.data_y,
+                                               self.standard_regression))
             try:
                 variance = np.var(pfit_list)
             except (ArithmeticError, OverflowError, FloatingPointError,

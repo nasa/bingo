@@ -86,13 +86,27 @@ class FitnessPredictor(object):
     def __str__(self):
         return str(self.indices)
 
-    def fit_func(self, indv, X, Y):
+    def fit_func(self, indv, X, Y, standard_regression):
         """fitness function for standard regression type"""
         err = 0.0
         try:
-            for i in self.indices:
-                err += abs(indv.evaluate(X[i, :]) - Y[i])
+            # standard symbolic regression
+            if standard_regression:
+                for i in self.indices:
+                    err += abs(indv.evaluate(X[i, :]) - Y[i])
+
+            # regression to find constant combinations/laws
+            else:
+                for i in self.indices:
+                    df_dx = indv.evaluate_deriv(X[i, :])
+                    den = np.linalg.norm(df_dx)
+                    if np.isfinite(den):
+                        err += np.log(
+                            1 + np.abs(np.sum(df_dx * Y[i, :]) / den))
+                    else:
+                        raise ValueError("Nonfinite value encountered in fit")
+
             err /= len(self.indices)
-        except (OverflowError, FloatingPointError):
+        except (OverflowError, FloatingPointError, ValueError):
             err = np.nan
         return err

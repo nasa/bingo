@@ -1,6 +1,39 @@
+"""
+Utils contains useful utility functions for doing and testing symbolic
+regression problems in the bingo package
+"""
 import math
 
 import numpy as np
+
+
+def calculate_partials(X):
+    """ calculate partial derivatves with respect to time (index) """
+    # find splits
+    break_points = np.where(np.any(np.isnan(X), 1))[0].tolist()
+    break_points.append(X.shape[0])
+
+    start = 0
+    for end in break_points:
+        x_seg = np.copy(X[start:end, :])
+        # calculate time derivs using filter
+        time_deriv = np.empty(x_seg.shape)
+        for i in range(x_seg.shape[1]):
+            time_deriv[:, i] = savitzky_golay(x_seg[:, i], 7, 3, 1)
+        # remove edge effects
+        time_deriv = time_deriv[3:-4, :]
+        x_seg = x_seg[3:-4, :]
+
+        if start is 0:
+            x_all = np.copy(x_seg)
+            time_deriv_all = np.copy(time_deriv)
+        else:
+            x_all = np.vstack((x_all, np.copy(x_seg)))
+            time_deriv_all = np.vstack((time_deriv_all,
+                                        np.copy(time_deriv)))
+        start = end + 1
+
+    return x_all, time_deriv_all
 
 
 def savitzky_golay(y, window_size, order, deriv=0, rate=1):
@@ -58,13 +91,13 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
         order = np.abs(np.int(order))
     except ValueError, __:
         raise ValueError(
-                "window_size and order have to be of type int")
+            "window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
         raise TypeError(
-                "window_size size must be a positive odd number")
+            "window_size size must be a positive odd number")
     if window_size < order + 2:
         raise TypeError(
-                "window_size is too small for the polynomials order")
+            "window_size is too small for the polynomials order")
     order_range = range(order + 1)
     half_window = (window_size - 1) // 2
     # precompute coefficients
@@ -77,3 +110,26 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     lastvals = y[-1] + np.abs(y[-half_window - 1:-1][::-1] - y[-1])
     y = np.concatenate((firstvals, y, lastvals))
     return np.convolve(m[::-1], y, mode='valid')
+
+
+def snake_walk():
+    """snake walk for independent data"""
+    n_samps = 200
+    step_size = 0.2
+    x_true = np.zeros([n_samps, 2])
+    for i in range(n_samps):
+        if i is 0:
+            x_true[i, 0] = step_size * 0.5
+            x_true[i, 1] = step_size / 2
+            direction = step_size
+        else:
+            if i % 20 == 0:
+                direction *= -1
+                x_true[i, 0] = -direction
+                x_true[i, 1] += step_size
+            x_true[i, 0] += x_true[i - 1, 0] + direction
+            x_true[i, 1] += x_true[i - 1, 1]
+
+    x_true[:, 0] = savitzky_golay(x_true[:, 0], 7, 2, 0)
+    x_true[:, 1] = savitzky_golay(x_true[:, 1], 7, 2, 0)
+    return x_true

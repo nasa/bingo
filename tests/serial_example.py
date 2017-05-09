@@ -1,20 +1,32 @@
+"""
+example of regression done using the serial island manager (islands done
+serially on a single process)
+"""
+
 import numpy as np
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
-
+from bingo.Utils import snake_walk
 
 def main(max_steps, epsilon, data_size, data_range, n_islands):
+    """main regression function"""
 
     # make data
-    X = np.linspace(data_range[0], data_range[1], data_size, False)
-    Y = X * X + 0.5
+    # X = np.linspace(data_range[0], data_range[1], data_size, False)
+    # Y = X * X + 0.5
     # Y = 1.5*X*X - X*X*X
     # Y = np.exp(np.abs(X))*np.sin(X)
     # Y = X*X*np.exp(np.sin(X)) + X + np.sin(3.14159/4 - X*X*X)
-    X = X.reshape([-1, 1])
+    # X = X.reshape([-1, 1])
+
+    # get independent vars
+    X = snake_walk()
+    Y = (X[:, 0] + X[:, 1]).reshape([-1, 1])
+    X = np.hstack((X, Y))
+    Y = None
 
     # make solution manipulator
     sol_manip = agm(1, 128, nloads=2)
@@ -32,8 +44,8 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     pred_manip = fpm(128, data_size)
 
     # make and run island manager
-    IM = SerialIslandManager(n_islands, X, Y, sol_manip, pred_manip)
-    IM.run_islands(max_steps, epsilon)
+    islmngr = SerialIslandManager(n_islands, X, Y, sol_manip, pred_manip)
+    islmngr.run_islands(max_steps, epsilon)
 
 
 if __name__ == "__main__":

@@ -26,7 +26,8 @@ class IslandManager(object):
         """initialization of island manager"""
         self.age = 0
 
-    def run_islands(self, max_steps, epsilon, step_increment=1000):
+    def run_islands(self, max_steps, epsilon, min_steps=0,
+                    step_increment=1000):
         """
         Runs co-evolution islands until convergence of best solution
         :param max_steps: maximum number of steps to take
@@ -37,7 +38,7 @@ class IslandManager(object):
         """
         self.do_steps(n_steps=step_increment)
         converged = self.test_convergence(epsilon)
-        while self.age < max_steps and not converged:
+        while self.age < min_steps or (self.age < max_steps and not converged):
             self.do_migration()
             self.do_steps(n_steps=step_increment)
             converged = self.test_convergence(epsilon)
@@ -224,10 +225,11 @@ class ParallelIslandManager(IslandManager):
                 self.pareto_isle.pareto_front[0].latexstring()
             print_latex(self.pareto_isle.pareto_front, "eq.tif")
             print_pareto(self.pareto_isle.pareto_front, "front.tif")
-            print_1d_best_soln(self.isle.data_x,
-                               self.isle.data_y,
-                               self.pareto_isle.pareto_front[0].evaluate,
-                               "comparison.tif")
+            if self.isle.data_x.shape[1] == 1:
+                print_1d_best_soln(self.isle.data_x,
+                                   self.isle.data_y,
+                                   self.pareto_isle.pareto_front[0].evaluate,
+                                   "comparison.tif")
         else:
             converged = None
         converged = self.comm.bcast(converged, root=0)
@@ -256,10 +258,11 @@ class ParallelIslandManager(IslandManager):
             # make plots
             print_latex(self.isle.solution_island.pareto_front, "eq.tif")
             print_pareto(self.isle.solution_island.pareto_front, "front.tif")
-            print_1d_best_soln(
-                self.isle.data_x, self.isle.data_y,
-                self.isle.solution_island.pareto_front[0].evaluate,
-                "comparison.tif")
+            if self.isle.data_x.shape[1] == 1:
+                print_1d_best_soln(
+                    self.isle.data_x, self.isle.data_y,
+                    self.isle.solution_island.pareto_front[0].evaluate,
+                    "comparison.tif")
 
 
 class SerialIslandManager(IslandManager):

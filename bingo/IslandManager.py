@@ -417,3 +417,5 @@ class SerialIslandManager(IslandManager):
                 self.isles[0].data_x, self.isles[0].data_y,
                 self.isles[0].solution_island.pareto_front[0].evaluate,
                 "comparison.tif")
+        with open("log.txt", "a") as o_file:
+            o_file.write("\n")

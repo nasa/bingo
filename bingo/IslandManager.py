@@ -230,6 +230,11 @@ class ParallelIslandManager(IslandManager):
                                    self.isle.data_y,
                                    self.pareto_isle.pareto_front[0].evaluate,
                                    "comparison.tif")
+            with open("log.txt", "a") as o_file:
+                o_file.write("%d\t" % self.age)
+                for par_indv in self.pareto_isle.pareto_front:
+                    o_file.write("%e\t" % par_indv.fitness[0])
+                o_file.write("\n")
         else:
             converged = None
         converged = self.comm.bcast(converged, root=0)
@@ -375,6 +380,11 @@ class SerialIslandManager(IslandManager):
                                self.isles[0].data_y,
                                self.pareto_isle.pareto_front[0].evaluate,
                                "comparison.tif")
+        with open("log.txt", "a") as o_file:
+            o_file.write("%d\t" % self.age)
+            for par_indv in self.pareto_isle.pareto_front:
+                o_file.write("%e\t" % par_indv.fitness[0])
+            o_file.write("\n")
 
         return converged
 

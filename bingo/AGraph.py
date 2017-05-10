@@ -598,3 +598,26 @@ class AGNodes(object):
         @staticmethod
         def derivstring(params):
             return "deriv[%d] * sign(stack[%d])" % (params[0], params[0])
+
+    class Sqrt(Node):
+        """(x)^0.5"""
+        arity = 1
+        shorthand = "sqroot"
+        call = np.sqrt
+
+        @staticmethod
+        def printstring(params):
+            return "sqrt (%d)" % params
+
+        @staticmethod
+        def latexstring(params, str_list):
+            return "\sqrt{%s}" % (str_list[params[0]])
+
+        @staticmethod
+        def funcstring(params):
+            return "sqroot(stack[%d])" % params
+
+        @staticmethod
+        def derivstring(params):
+            return "deriv[%d] * div(0.5, sqroot(stack[%d]))" % (params[0],
+                                                                params[0])

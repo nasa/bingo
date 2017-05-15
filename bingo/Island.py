@@ -33,7 +33,7 @@ class Island(object):
         self.age += 1
         # randomly pair by shuffling
         random.shuffle(self.pop)
-        for i in range(self.pop_size/2):
+        for i in range(self.pop_size//2):
             p_1 = self.pop[i*2]
             p_2 = self.pop[i*2+1]
             # see if any events occur
@@ -197,7 +197,7 @@ class Island(object):
         dumps the population to a pickleable object
         """
         if subset is None:
-            subset = range(self.pop_size)
+            subset = list(range(self.pop_size))
         pop_list = []
         for i, indv in enumerate(self.pop):
             if i in subset:
@@ -218,7 +218,7 @@ class Island(object):
         loads population from a pickleable object
         """
         if subset is None:
-            subset = range(len(pop_list))
+            subset = list(range(len(pop_list)))
             self.pop_size = len(pop_list)
             self.pop = [None]*self.pop_size
         for i, indv_list in zip(subset, pop_list):

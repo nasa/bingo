@@ -89,7 +89,7 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     try:
         window_size = np.abs(np.int(window_size))
         order = np.abs(np.int(order))
-    except ValueError, __:
+    except ValueError as __:
         raise ValueError(
             "window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
@@ -98,7 +98,7 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     if window_size < order + 2:
         raise TypeError(
             "window_size is too small for the polynomials order")
-    order_range = range(order + 1)
+    order_range = list(range(order + 1))
     half_window = (window_size - 1) // 2
     # precompute coefficients
     b = np.mat([[k ** i for i in order_range] for k in
@@ -123,7 +123,7 @@ def snake_walk():
             x_true[i, 1] = step_size / 2
             direction = step_size
         else:
-            if i % (n_samps/10) == 0:
+            if i % (n_samps//10) == 0:
                 direction *= -1
                 x_true[i, 0] = -direction
                 x_true[i, 1] += step_size

@@ -31,16 +31,16 @@ def make_norm_data(data_size):
     x_2 = np.linspace(0, 1, n_lin)
     x_3 = np.linspace(0, 1, n_lin)
     x = np.array(np.meshgrid(x_1, x_2, x_3)).T.reshape(-1, 3)
-    x[np.random.choice(x.shape[0], data_size, replace=False), :]
+    x = x[np.random.choice(x.shape[0], data_size, replace=False), :]
     # make solution
     y = (np.linalg.norm(x, axis=1))
 
     return x, y
 
 
-
 def make_1d_data(data_size, test_num):
     """makes test data for 1d standard symbolic regression"""
+    x = np.empty()
     if test_num == 1:
         x = np.linspace(-2, 2, data_size, False)
         y = x * x + 0.5
@@ -61,17 +61,17 @@ def make_sphere_data(data_size):
     """makes test data for spherical constant regression"""
     x = np.empty([data_size, 3])
     for i in range(data_size):
-            phi = (3.140*.9*i)/data_size+3.14*.05
-            theta = (3.14*20*i)/data_size+3.14/2
-            x[i, 0] = math.cos(theta)*math.sin(phi)
-            x[i, 1] = math.sin(theta)*math.sin(phi)
-            x[i, 2] = math.cos(phi)
-            i += 1
+        phi = (3.140*.9*i)/data_size+3.14*.05
+        theta = (3.14*20*i)/data_size+3.14/2
+        x[i, 0] = math.cos(theta)*math.sin(phi)
+        x[i, 1] = math.sin(theta)*math.sin(phi)
+        x[i, 2] = math.cos(phi)
+        i += 1
     y = None
     return x, y
 
 
-def make_sphere_data(data_size):
+def make_sphere_data_changing_rad(data_size):
     """makes test data for spherical constant regression with varying radius"""
     x = np.empty([data_size, 4])
     radius = 10
@@ -89,6 +89,7 @@ def make_sphere_data(data_size):
         i += 1
     y = None
     return x, y
+
 
 def main(max_steps, epsilon, data_size):
     """main function which runs regression"""

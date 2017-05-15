@@ -250,6 +250,7 @@ class ParallelIslandManager(IslandManager):
         p_pop = self.comm.gather(p_pop, root=0)
         t_pop = self.comm.gather(t_pop, root=0)
         if self.comm_rank == 0:
+            s_pop = s_pop + self.pareto_isle.dump_pareto()
             self.isle.load_populations((s_pop[0], p_pop[0], t_pop[0]))
 
             # find true pareto front
@@ -401,6 +402,7 @@ class SerialIslandManager(IslandManager):
             s_pop = s_pop + s_pop_i
             p_pop = p_pop + p_pop_i
             t_pop = t_pop + t_pop_i
+        s_pop = s_pop + self.pareto_isle.dump_population()
 
         # load them all into the first island and update
         self.isles[0].load_populations((s_pop, p_pop, t_pop))

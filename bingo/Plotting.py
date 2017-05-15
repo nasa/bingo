@@ -1,8 +1,6 @@
 """
 This module contains the functions for general plotting purposes
 """
-import matplotlib as mpl
-mpl.use('Agg')
 import matplotlib.pyplot as plt
 import pylab
 

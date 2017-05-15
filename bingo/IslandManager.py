@@ -130,7 +130,7 @@ class ParallelIslandManager(IslandManager):
         t_0 = time.time()
         for i in range(n_steps):
             self.isle.deterministic_crowding_step()
-            # print_pareto(isle.solution_island.pareto_front, "front.tif")
+            # print_pareto(isle.solution_island.pareto_front, "front.png")
         t_1 = time.time()
         print(self.comm_rank, ">\tage:", self.isle.solution_island.age,\
             "\ttime: %.1fs" % (t_1 - t_0), \
@@ -223,13 +223,13 @@ class ParallelIslandManager(IslandManager):
                   self.pareto_isle.pareto_front[0].fitness[0])
             print("best solution:",
                   self.pareto_isle.pareto_front[0].latexstring())
-            print_latex(self.pareto_isle.pareto_front, "eq.pdf")
-            print_pareto(self.pareto_isle.pareto_front, "front.pdf")
+            print_latex(self.pareto_isle.pareto_front, "eq.png")
+            print_pareto(self.pareto_isle.pareto_front, "front.png")
             if self.isle.data_x.shape[1] == 1:
                 print_1d_best_soln(self.isle.data_x,
                                    self.isle.data_y,
                                    self.pareto_isle.pareto_front[0].evaluate,
-                                   "comparison.pdf")
+                                   "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
                 for par_indv in self.pareto_isle.pareto_front:
@@ -261,13 +261,13 @@ class ParallelIslandManager(IslandManager):
                 print("pareto>", indv.fitness, indv.latexstring())
 
             # make plots
-            print_latex(self.isle.solution_island.pareto_front, "eq.pdf")
-            print_pareto(self.isle.solution_island.pareto_front, "front.pdf")
+            print_latex(self.isle.solution_island.pareto_front, "eq.png")
+            print_pareto(self.isle.solution_island.pareto_front, "front.png")
             if self.isle.data_x.shape[1] == 1:
                 print_1d_best_soln(
                     self.isle.data_x, self.isle.data_y,
                     self.isle.solution_island.pareto_front[0].evaluate,
-                    "comparison.pdf")
+                    "comparison.png")
 
 
 class SerialIslandManager(IslandManager):
@@ -373,13 +373,13 @@ class SerialIslandManager(IslandManager):
               self.pareto_isle.pareto_front[0].fitness[0])
         print("best solution:", self.pareto_isle.pareto_front[0].latexstring())
 
-        print_latex(self.pareto_isle.pareto_front, "eq.pdf")
-        print_pareto(self.pareto_isle.pareto_front, "front.pdf")
+        print_latex(self.pareto_isle.pareto_front, "eq.png")
+        print_pareto(self.pareto_isle.pareto_front, "front.png")
         if self.isles[0].data_x.shape[1] == 1:
             print_1d_best_soln(self.isles[0].data_x,
                                self.isles[0].data_y,
                                self.pareto_isle.pareto_front[0].evaluate,
-                               "comparison.pdf")
+                               "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("%d\t" % self.age)
             for par_indv in self.pareto_isle.pareto_front:
@@ -410,12 +410,12 @@ class SerialIslandManager(IslandManager):
         # output
         for indv in self.isles[0].solution_island.pareto_front:
             print("pareto>", indv.fitness, indv.latexstring())
-        print_latex(self.isles[0].solution_island.pareto_front, "eq.pdf")
-        print_pareto(self.isles[0].solution_island.pareto_front, "front.pdf")
+        print_latex(self.isles[0].solution_island.pareto_front, "eq.png")
+        print_pareto(self.isles[0].solution_island.pareto_front, "front.png")
         if self.isles[0].data_x.shape[1] == 1:
             print_1d_best_soln(
                 self.isles[0].data_x, self.isles[0].data_y,
                 self.isles[0].solution_island.pareto_front[0].evaluate,
-                "comparison.pdf")
+                "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")

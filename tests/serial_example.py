@@ -29,7 +29,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     Y = None
 
     # make solution manipulator
-    sol_manip = agm(2, 32, nloads=2)
+    sol_manip = agm(X.shape[1], 32, nloads=2)
     sol_manip.add_node_type(AGNodes.Add)
     sol_manip.add_node_type(AGNodes.Subtract)
     sol_manip.add_node_type(AGNodes.Multiply)

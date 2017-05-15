@@ -40,7 +40,7 @@ full_data_size = 100
 data_range = [-5, 5]
 
 if comm_rank == 0:
-    print "making data on proc", comm_rank
+    print("making data on proc", comm_rank)
     # make data
     X = np.linspace(data_range[0], data_range[1], full_data_size, False)
     #Y = X*X + 0.5
@@ -88,7 +88,7 @@ for i in range(1000):
     isle.deterministic_crowding_step()
     # print_pareto(isle.solution_island.pareto_front, "front.tif")
 t1 = time.time()
-print comm_rank, "/", comm_size, "> time for 1000 steps:", t1-t0
+print(comm_rank, "/", comm_size, "> time for 1000 steps:", t1-t0)
 
 
 # --do migration--
@@ -96,7 +96,7 @@ print comm_rank, "/", comm_size, "> time for 1000 steps:", t1-t0
 if comm_rank == 0:
     partners = list(range(comm_size))
     random.shuffle(partners)
-    print "Migration: partners=", partners
+    print("Migration: partners=", partners)
 else:
     partners = None
 partners = comm.bcast(partners, root=0)
@@ -107,10 +107,10 @@ if primary:
     s_send, s_receive = assign_send_receive(isle.solution_island.pop_size)
     p_send, p_receive = assign_send_receive(isle.predictor_island.pop_size)
     t_send, t_receive = assign_send_receive(len(isle.trainers))
-    print "Migration:", comm_rank, "<->", my_partner, " mixing =", \
+    print("Migration:", comm_rank, "<->", my_partner, " mixing =", \
           (float(len(s_send)) / isle.solution_island.pop_size,
            float(len(p_send)) / isle.predictor_island.pop_size,
-           float(len(t_send)) / len(isle.trainers))
+           float(len(t_send)) / len(isle.trainers)))
     comm.send((s_receive, p_receive, t_receive), dest=my_partner)
     send_package = isle.dump_populations(s_send, p_send, t_send)
     comm.send(send_package, dest=my_partner)
@@ -131,7 +131,7 @@ for i in range(1000):
     isle.deterministic_crowding_step()
     # print_pareto(isle.solution_island.pareto_front, "front.tif")
 t1 = time.time()
-print comm_rank, "/", comm_size, "> time for another 1000 steps:", t1-t0
+print(comm_rank, "/", comm_size, "> time for another 1000 steps:", t1-t0)
 
 
 
@@ -146,7 +146,7 @@ if comm_rank == 0:
     isle.solution_island.update_pareto_front()
 
     for indv in isle.solution_island.pareto_front:
-        print "pareto>", indv.fitness, indv.latexstring()
+        print("pareto>", indv.fitness, indv.latexstring())
     print_latex(isle.solution_island.pareto_front, "eq.tif")
     print_pareto(isle.solution_island.pareto_front, "front.tif")
     print_1d_best_soln(X, Y,

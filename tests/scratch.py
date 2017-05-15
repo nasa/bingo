@@ -43,8 +43,8 @@ b = fpm(32, X.shape[0])
 fp = b.generate()
 
 ag = a.generate()
-print ag.latexstring()
+print(ag.latexstring())
 for x, y in zip(X[fp.indices, :], Y[fp.indices, :]):
-    print x, y, ag.evaluate_deriv(x), ag.evaluate_deriv(x)*y
+    print(x, y, ag.evaluate_deriv(x), ag.evaluate_deriv(x)*y)
 
-print fp.fit_func(ag, X, Y, False)
+print(fp.fit_func(ag, X, Y, False))

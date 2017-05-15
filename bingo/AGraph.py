@@ -218,7 +218,7 @@ class AGraph(object):
                              node.funcstring(params) + "\n")
 
         code_str += "    return stack[-1]\n"
-        exec compile(code_str, '<string>', 'exec') in self.namespace
+        exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled = True
 
     def compile_deriv(self):
@@ -236,7 +236,7 @@ class AGraph(object):
                              node.derivstring(params) + "\n")
 
         code_str += "    return deriv[-1]\n"
-        exec compile(code_str, '<string>', 'exec') in self.namespace
+        exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
 
     def evaluate(self, params):
@@ -294,9 +294,8 @@ class AGraph(object):
 class AGNodes(object):
     """class that contains node types used in acyclic graphs"""
 
-    class Node(object):
+    class Node(object, metaclass=abc.ABCMeta):
         """node superclass"""
-        __metaclass__ = abc.ABCMeta
 
         terminal = False
         arity = 0
@@ -611,7 +610,7 @@ class AGNodes(object):
 
         @staticmethod
         def latexstring(params, str_list):
-            return "\sqrt{%s}" % (str_list[params[0]])
+            return "\\sqrt{%s}" % (str_list[params[0]])
 
         @staticmethod
         def funcstring(params):

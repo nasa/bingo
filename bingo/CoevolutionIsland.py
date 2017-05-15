@@ -87,11 +87,11 @@ class CoevolutionIsland(object):
         # initial output
         if self.verbose:
             best_pred = self.best_predictor
-            print "P>", self.predictor_island.age, best_pred.fitness, best_pred
+            print("P>", self.predictor_island.age, best_pred.fitness, best_pred)
             self.solution_island.update_pareto_front()
             best_sol = self.solution_island.pareto_front[0]
-            print "S>", self.solution_island.age, best_sol.fitness, \
-                best_sol.latexstring()
+            print("S>", self.solution_island.age, best_sol.fitness, \
+                best_sol.latexstring())
 
     def solution_fitness_est(self, solution):
         """estimated fitness for solution pop based on the best predictor"""
@@ -176,10 +176,10 @@ class CoevolutionIsland(object):
             if variance > max_variance:
                 max_variance = variance
                 s_best = sol.copy()
-        location = (self.solution_island.age / self.trainer_update_freq)\
+        location = (self.solution_island.age // self.trainer_update_freq)\
                    % len(self.trainers)
         if self.verbose:
-            print "updating trainer at location", location
+            print("updating trainer at location", location)
         self.trainers[location] = s_best
 
     def deterministic_crowding_step(self):
@@ -204,8 +204,8 @@ class CoevolutionIsland(object):
             self.predictor_island.deterministic_crowding_step()
             if self.verbose:
                 best_pred = self.predictor_island.best_indv()
-                print "P>", self.predictor_island.age,
-                print best_pred.fitness, best_pred
+                print("P>", self.predictor_island.age, end=' ')
+                print(best_pred.fitness, best_pred)
             current_ratio = (float(self.predictor_island.fitness_evals) /
                              (self.predictor_island.fitness_evals +
                               float(self.solution_island.fitness_evals) /
@@ -214,7 +214,7 @@ class CoevolutionIsland(object):
         # update fitness predictor if it is time to
         if (self.solution_island.age+1) % self.predictor_update_freq == 0:
             if self.verbose:
-                print "updating predictor"
+                print("updating predictor")
             self.best_predictor = self.predictor_island.best_indv().copy()
             for indv in self.solution_island.pop:
                 indv.fitness = None
@@ -224,8 +224,8 @@ class CoevolutionIsland(object):
         self.solution_island.update_pareto_front()
         if self.verbose:
             best_sol = self.solution_island.pareto_front[0]
-            print "S>", self.solution_island.age, best_sol.fitness, \
-                best_sol.latexstring()
+            print("S>", self.solution_island.age, best_sol.fitness, \
+                best_sol.latexstring())
 
     def dump_populations(self, s_subset=None, p_subset=None, t_subset=None):
         """
@@ -240,7 +240,7 @@ class CoevolutionIsland(object):
         # dump trainers
         trainer_list = []
         if t_subset is None:
-            t_subset = range(len(self.trainers))
+            t_subset = list(range(len(self.trainers)))
         for i, (indv, tfit) in enumerate(zip(self.trainers,
                                              self.trainers_true_fitness)):
             if i in t_subset:
@@ -264,7 +264,7 @@ class CoevolutionIsland(object):
         if t_subset is None:
             self.trainers = [None]*len(pop_lists[2])
             self.trainers_true_fitness = [None]*len(pop_lists[2])
-            t_subset = range(len(pop_lists[2]))
+            t_subset = list(range(len(pop_lists[2])))
         for ind, (indv_list, t_fit) in zip(t_subset, pop_lists[2]):
             self.trainers[ind] = \
                 self.solution_island.gene_manipulator.load(indv_list)
@@ -274,9 +274,10 @@ class CoevolutionIsland(object):
 
     def print_trainers(self):
         """for debugging: print trainers to screen"""
-        for i, train, tfit in zip(range(len(self.trainers)), self.trainers,
+        for i, train, tfit in zip(list(range(len(self.trainers))),
+                                  self.trainers,
                                   self.trainers_true_fitness):
-            print "T>", i, tfit, train.latexstring()
+            print("T>", i, tfit, train.latexstring())
 
     def use_true_fitness(self):
         """

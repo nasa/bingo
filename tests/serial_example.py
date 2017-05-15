@@ -29,7 +29,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     Y = None
 
     # make solution manipulator
-    sol_manip = agm(1, 128, nloads=2)
+    sol_manip = agm(2, 32, nloads=2)
     sol_manip.add_node_type(AGNodes.Add)
     sol_manip.add_node_type(AGNodes.Subtract)
     sol_manip.add_node_type(AGNodes.Multiply)
@@ -41,7 +41,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     sol_manip.add_node_type(AGNodes.Abs)
 
     # make predictor manipulator
-    pred_manip = fpm(128, data_size)
+    pred_manip = fpm(32, data_size)
 
     # make and run island manager
     islmngr = SerialIslandManager(n_islands, X, Y, sol_manip, pred_manip)
@@ -50,7 +50,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
 
 if __name__ == "__main__":
 
-    MAX_STEPS = 10000
+    MAX_STEPS = 2000
     CONVERGENCE_EPSILON = 0.01
     DATA_SIZE = 100
     DATA_RANGE = [-3, 3]

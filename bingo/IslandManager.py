@@ -132,16 +132,16 @@ class ParallelIslandManager(IslandManager):
             self.isle.deterministic_crowding_step()
             # print_pareto(isle.solution_island.pareto_front, "front.tif")
         t_1 = time.time()
-        print self.comm_rank, ">\tage:", self.isle.solution_island.age,\
+        print(self.comm_rank, ">\tage:", self.isle.solution_island.age,\
             "\ttime: %.1fs" % (t_1 - t_0), \
             "\tbest fitness:", \
-            self.isle.solution_island.pareto_front[0].fitness
+            self.isle.solution_island.pareto_front[0].fitness)
 
         if np.isnan(self.isle.solution_island.pareto_front[0].fitness[0]):
             for i in self.isle.solution_island.pop:
-                print i.fitness
+                print(i.fitness)
             for indv in self.isle.solution_island.pareto_front:
-                print "pareto>", indv.fitness, indv.latexstring()
+                print("pareto>", indv.fitness, indv.latexstring())
         self.age += n_steps
 
     def do_migration(self):
@@ -172,11 +172,11 @@ class ParallelIslandManager(IslandManager):
                         self.isle.predictor_island.pop_size)
                 t_send, t_receive = IslandManager.assign_send_receive(
                     len(self.isle.trainers))
-                print "Migration:", self.comm_rank, "<->", my_partner, \
+                print("Migration:", self.comm_rank, "<->", my_partner, \
                     " mixing =",\
                     (float(len(s_send)) / self.isle.solution_island.pop_size,
                      float(len(p_send)) / self.isle.predictor_island.pop_size,
-                     float(len(t_send)) / len(self.isle.trainers))
+                     float(len(t_send)) / len(self.isle.trainers)))
                 self.comm.send((s_receive, p_receive, t_receive),
                                dest=my_partner)
 
@@ -219,10 +219,10 @@ class ParallelIslandManager(IslandManager):
             converged = (self.pareto_isle.pareto_front[0].fitness[0] < epsilon)
 
             # output
-            print "current best true fitness: ", \
-                self.pareto_isle.pareto_front[0].fitness[0]
-            print "best solution:", \
-                self.pareto_isle.pareto_front[0].latexstring()
+            print("current best true fitness: ",
+                  self.pareto_isle.pareto_front[0].fitness[0])
+            print("best solution:",
+                  self.pareto_isle.pareto_front[0].latexstring())
             print_latex(self.pareto_isle.pareto_front, "eq.tif")
             print_pareto(self.pareto_isle.pareto_front, "front.tif")
             if self.isle.data_x.shape[1] == 1:
@@ -258,7 +258,7 @@ class ParallelIslandManager(IslandManager):
 
             # output the front to screen
             for indv in self.isle.solution_island.pareto_front:
-                print "pareto>", indv.fitness, indv.latexstring()
+                print("pareto>", indv.fitness, indv.latexstring())
 
             # make plots
             print_latex(self.isle.solution_island.pareto_front, "eq.tif")
@@ -305,13 +305,13 @@ class SerialIslandManager(IslandManager):
                 isle.deterministic_crowding_step()
             t_2 = time.time()
 
-            print i, ">\tage:", isle.solution_island.age, \
-                "\ttime: %.1fs" % (t_2 - t_1), \
-                "\tbest fitness:", \
-                isle.solution_island.pareto_front[0].fitness
+            print(i, ">\tage:", isle.solution_island.age,
+                  "\ttime: %.1fs" % (t_2 - t_1),
+                  "\tbest fitness:",
+                  isle.solution_island.pareto_front[0].fitness)
 
         t_3 = time.time()
-        print "total time: %.1fs" % (t_3 - t_0)
+        print("total time: %.1fs" % (t_3 - t_0))
 
         self.age += n_steps
 
@@ -329,7 +329,7 @@ class SerialIslandManager(IslandManager):
         t_pop_size = len(self.isles[0].trainers)
 
         # loop over partner pairs
-        for i in range(self.n_isles/2):
+        for i in range(self.n_isles//2):
             partner_1 = self.isles[partners[i*2]]
             partner_2 = self.isles[partners[i*2+1]]
 
@@ -337,11 +337,11 @@ class SerialIslandManager(IslandManager):
             s_to_2, s_to_1 = IslandManager.assign_send_receive(s_pop_size)
             p_to_2, p_to_1 = IslandManager.assign_send_receive(p_pop_size)
             t_to_2, t_to_1 = IslandManager.assign_send_receive(t_pop_size)
-            print "Migration:", partners[i*2], "<->", partners[i*2+1], \
-                " mixing =",\
-                (float(len(s_to_2)) / s_pop_size,
-                 float(len(p_to_2)) / p_pop_size,
-                 float(len(t_to_2)) / t_pop_size)
+            print("Migration:", partners[i*2], "<->", partners[i*2+1],
+                  " mixing =",
+                  (float(len(s_to_2)) / s_pop_size,
+                   float(len(p_to_2)) / p_pop_size,
+                   float(len(t_to_2)) / t_pop_size))
 
             # swap the individuals
             pops_to_2 = partner_1.dump_populations(s_to_2, p_to_2, t_to_2)
@@ -369,9 +369,9 @@ class SerialIslandManager(IslandManager):
         converged = (self.pareto_isle.pareto_front[0].fitness[0] < epsilon)
 
         # output
-        print "current best true fitness: ", \
-            self.pareto_isle.pareto_front[0].fitness[0]
-        print "best solution:", self.pareto_isle.pareto_front[0].latexstring()
+        print("current best true fitness: ",
+              self.pareto_isle.pareto_front[0].fitness[0])
+        print("best solution:", self.pareto_isle.pareto_front[0].latexstring())
 
         print_latex(self.pareto_isle.pareto_front, "eq.tif")
         print_pareto(self.pareto_isle.pareto_front, "front.tif")
@@ -409,7 +409,7 @@ class SerialIslandManager(IslandManager):
 
         # output
         for indv in self.isles[0].solution_island.pareto_front:
-            print "pareto>", indv.fitness, indv.latexstring()
+            print("pareto>", indv.fitness, indv.latexstring())
         print_latex(self.isles[0].solution_island.pareto_front, "eq.tif")
         print_pareto(self.isles[0].solution_island.pareto_front, "front.tif")
         if self.isles[0].data_x.shape[1] == 1:

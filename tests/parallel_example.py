@@ -27,9 +27,9 @@ def make_circle_data(data_size):
 def make_norm_data(data_size):
     """makes test data for finding 3d norm with standard regression"""
     n_lin = int(math.pow(data_size, 1.0/3)) + 1
-    x_1 = np.linspace(0, 1, n_lin)
-    x_2 = np.linspace(0, 1, n_lin)
-    x_3 = np.linspace(0, 1, n_lin)
+    x_1 = np.linspace(0, 5, n_lin)
+    x_2 = np.linspace(0, 5, n_lin)
+    x_3 = np.linspace(0, 5, n_lin)
     x = np.array(np.meshgrid(x_1, x_2, x_3)).T.reshape(-1, 3)
     x[np.random.choice(x.shape[0], data_size, replace=False), :]
     # make solution
@@ -124,23 +124,24 @@ def main(max_steps, epsilon, data_size):
     sol_manip.add_node_type(AGNodes.Divide)
     # sol_manip.add_node_type(AGNodes.Exp)
     # sol_manip.add_node_type(AGNodes.Log)
-    sol_manip.add_node_type(AGNodes.Sin)
-    sol_manip.add_node_type(AGNodes.Cos)
+    # sol_manip.add_node_type(AGNodes.Sin)
+    # sol_manip.add_node_type(AGNodes.Cos)
     # sol_manip.add_node_type(AGNodes.Abs)
+    sol_manip.add_node_type(AGNodes.Sqrt)
 
     # make predictor manipulator
-    pred_manip = fpm(32, data_size)
+    pred_manip = fpm(128, data_size)
 
     # make and run island manager
     islmngr = ParallelIslandManager(x_true, y_true, sol_manip, pred_manip,
-                                    solution_pop_size=64)
+                                    solution_pop_size=128)
     islmngr.run_islands(max_steps, epsilon, min_steps=5000,
                         step_increment=1000)
 
 
 if __name__ == "__main__":
 
-    MAX_STEPS = 10000
+    MAX_STEPS = 90000
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
 

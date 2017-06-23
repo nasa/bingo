@@ -22,7 +22,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     # Y = X*X*np.exp(np.sin(X)) + X + np.sin(3.14159/4 - X*X*X)
     # X = X.reshape([-1, 1])
 
-    # get independent vars
+    # make data
     X = snake_walk()
     Y = (X[:, 0] + X[:, 1]).reshape([-1, 1])
     X = np.hstack((X, Y))

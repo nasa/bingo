@@ -7,10 +7,11 @@ import pylab
 
 def print_latex(pop, file_name):
     """
-    makes pyplot figure with latex table on it: the table consists of equations
+    Makes pyplot figure with latex table on it: the table consists of equations
      describing the populations
-    :param pop: population containing individuals with fitnesses and
-                latexstring()
+
+    :param pop: population containing individuals with fitnesses and a
+                latexstring() member function
     :param file_name: desired output file name
     """
 
@@ -35,7 +36,8 @@ def print_latex(pop, file_name):
 
 def print_pareto(pop, file_name):
     """
-    prints the pareto front as a stair-step plot
+    Prints the pareto front as a stair-step plot
+
     :param pop: pareto population containing individuals with fitnesses
     :param file_name: desired output file name
     """
@@ -53,6 +55,7 @@ def print_pareto(pop, file_name):
 def print_1d_best_soln(X, Y, eval_func, file_name):
     """
     Prints the solution of a 1-d problem y=f(x)
+
     :param X: independent data
     :param Y: true solution
     :param eval_func: evaluation function to get y_estimated as function of X

@@ -135,14 +135,14 @@ def main(max_steps, epsilon, data_size):
 
     # make and run island manager
     islmngr = ParallelIslandManager(x_true, y_true, sol_manip, pred_manip,
-                                    solution_pop_size=128)
+                                    solution_pop_size=64)
     islmngr.run_islands(max_steps, epsilon, min_steps=5000,
                         step_increment=1000)
 
 
 if __name__ == "__main__":
 
-    MAX_STEPS = 90000
+    MAX_STEPS = 5000
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
 

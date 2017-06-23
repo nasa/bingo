@@ -12,6 +12,18 @@ class Island(object):
 
     def __init__(self, gene_manipulator, fitness_function,
                  pop_size=64, cx_prob=0.7, mut_prob=0.01):
+        """
+        Initialization of island
+
+        :param gene_manipulator: the object which is responsible for
+                                 generation, crossover, mutation and distance
+                                 operations of individuals in the island
+        :param fitness_function: the function which describes fitnesses of
+                                 individuals in the island
+        :param pop_size: number of individuals in the island
+        :param cx_prob: crossover probability
+        :param mut_prob: mutation probability
+        """
         self.gene_manipulator = gene_manipulator
         self.fitness_function = fitness_function
         self.pop_size = pop_size
@@ -24,12 +36,17 @@ class Island(object):
         self.pareto_front = []
 
     def generate_population(self):
-        """generates a new random population"""
+        """
+        Generates a new random population using the gene manipulator to fill
+        the island
+        """
         self.pop = [self.gene_manipulator.generate()
                     for _ in range(self.pop_size)]
 
     def deterministic_crowding_step(self):
-        """does the deterministic crowding generational step"""
+        """
+        Performs a deterministic crowding generational step
+        """
         self.age += 1
         # randomly pair by shuffling
         random.shuffle(self.pop)
@@ -86,7 +103,11 @@ class Island(object):
                         self.pop[i*2+1] = c_1
 
     def best_indv(self):
-        """Finds individual with best fitness"""
+        """
+        Finds individual with best (lowest) fitness
+
+        :return: fitness of best individual
+        """
         best = self.pop[0]
         if best.fitness is None:
             best.fitness = self.fitness_function(best)
@@ -101,9 +122,10 @@ class Island(object):
 
     def dominate(self, indv1, indv2):
         """
-        returns whether or not individual1 dominates individual 2 in all their
-         fitness measures: i.e. True if all values in indv1.fitness tuple are
-         less than or equal to the counterpart in individual 2 else False
+        Returns whether or not individual1 dominates individual 2 in all their
+        fitness measures: i.e. True if all values in indv1.fitness tuple are
+        less than or equal to the counterpart in individual 2 else False
+
         :param indv1: first individual with fitness member
         :param indv2: second individual with fitness member
         :return: Does indv1 dominate indv2 (boolean)
@@ -122,7 +144,8 @@ class Island(object):
 
     def similar(self, indv1, indv2):
         """
-        returns whether the fitness measures are eual for indv1 and indv2
+        Returns whether the fitness measures are equal for two individuals
+
         :param indv1: first individual with fitness member
         :param indv2: second individual with fitness member
         :return: is indv1.fitness == indv2.fitness (boolean)
@@ -194,7 +217,12 @@ class Island(object):
 
     def dump_population(self, subset=None):
         """
-        dumps the population to a pickleable object
+        Dumps the population to a pickleable object
+
+        :param subset: list of indices for the subset of the population which
+                       is dumped. A None value esults in all of the population
+                       being dumped.
+        :return: population is list form
         """
         if subset is None:
             subset = list(range(self.pop_size))
@@ -206,7 +234,9 @@ class Island(object):
 
     def dump_pareto(self):
         """
-        dumps the pareto population to a pickleable object
+        Dumps the pareto population to a pickleable object
+
+        :return: pareto front in list form
         """
         pop_list = []
         for indv in self.pareto_front:
@@ -216,6 +246,11 @@ class Island(object):
     def load_population(self, pop_list, subset=None):
         """
         loads population from a pickleable object
+
+        :param pop_list: list of population which is loaded
+        :param subset: list of indices for the subset of the population which
+                       is loaded and replaced. A None value results in all of
+                       the population being loaded/replaced.
         """
         if subset is None:
             subset = list(range(len(pop_list)))

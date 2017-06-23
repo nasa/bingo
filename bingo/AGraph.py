@@ -10,12 +10,22 @@ np.seterr(all='raise')
 
 class AGraphManipulator(object):
     """
-    manipulates AGraph objects for generation, crossover, mutation,
+    Manipulates AGraph objects for generation, crossover, mutation,
     and distance
     """
 
     def __init__(self, nvars, ag_size,
                  nloads=1, float_lim=10.0, terminal_prob=0.1):
+        """
+        Initialization of acyclic graph gene manipulator
+
+        :param nvars: number of independent variables
+        :param ag_size: length of command stack
+        :param nloads: number of load operation which are required at the start
+                       of stack
+        :param float_lim: max (-min) of floats which are generated
+        :param terminal_prob: probability that a new node will be a terminal
+        """
         self.nvars = nvars
         self.ag_size = ag_size
         self.nloads = nloads
@@ -31,7 +41,12 @@ class AGraphManipulator(object):
 
 
     def add_node_type(self, node_type):
-        """add a node type to the set of allowed types"""
+        """
+        Add a type of node to the set of allowed types
+
+        :param node_type: acyclic graph node type which will be added to the
+                          allowable set
+        """
         if node_type not in self.node_type_list:
             self.node_type_list.append(node_type)
             self.num_node_types += 1
@@ -42,7 +57,12 @@ class AGraphManipulator(object):
                     node_type.call_deriv
 
     def generate(self):
-        """generate random individual"""
+        """
+        Generates random individual. Fills stack based on random
+        nodes/terminals and random parameters
+
+        :return: new random acyclic graph individual
+        """
         indv = AGraph(self.namespace)
         for stack_loc in range(self.ag_size):
             if np.random.random() < self.terminal_prob \
@@ -53,7 +73,13 @@ class AGraphManipulator(object):
         return indv
 
     def crossover(self, parent1, parent2):
-        """single point crossover"""
+        """
+        Single point crossover
+
+        :param parent1: first parent
+        :param parent2: second parent
+        :return: two children (new copies)
+        """
         cx_point = np.random.randint(1, self.ag_size)
         child1 = parent1.copy()
         child2 = parent2.copy()
@@ -66,7 +92,12 @@ class AGraphManipulator(object):
         return child1, child2
 
     def mutation(self, indv):
-        """performs 1pt mutation, does not create copy of indv"""
+        """
+        performs 1pt mutation, does not create copy of individual
+
+        :param indv: individual which is mutated
+        :return: mutated individual (not a new copy)
+        """
         indv.compiled = False
         # pick mutation point within currently utilized commands
         util = indv.utilized_commands()
@@ -110,8 +141,11 @@ class AGraphManipulator(object):
     @staticmethod
     def distance(indv1, indv2):
         """
-        computes the distance (a measure of similarity) between
-        two individuals
+        Computes the distance (a measure of similarity) between two individuals
+
+        :param indv1: first individual
+        :param indv2: second individual
+        :return: distance
         """
         dist = 0
         for command1, command2 in zip(indv1.command_list, indv2.command_list):
@@ -126,7 +160,10 @@ class AGraphManipulator(object):
 
     def dump(self, indv):
         """
-        dumps the individual to a pickleable object
+        Dumps an individual to a pickleable object
+
+        :param indv: individual which will be dumped
+        :return: the individual in a pickleable format
         """
         indv_list = []
         for node, params in indv.command_list:
@@ -139,7 +176,10 @@ class AGraphManipulator(object):
 
     def load(self, indv_list):
         """
-        loads the individual from a pickleable object
+        Loads the individual from a pickleable object
+
+        :param indv_list: individual in pickleable form
+        :return: individual in normal form
         """
         indv = AGraph(self.namespace)
         for node_num, params in indv_list:
@@ -155,24 +195,44 @@ class AGraphManipulator(object):
 
     @staticmethod
     def rand_operator_params(arity, stack_loc):
-        """produces random tuple for use as operator parameters"""
+        """
+        Aroduces random tuple for use as operator parameters
+
+        :param arity: number of parameters needed
+        :param stack_loc: location of command in stack
+        :return: tuple of parameters
+        """
         if stack_loc > 1:
             return tuple(np.random.randint(0, stack_loc, arity))
         else:
             return (0,)*arity
 
     def rand_operator_type(self):
-        """picks a random operator from the operator list"""
+        """
+        Picks a random operator from the operator list
+
+        :return: operator (acyclic graph node type)
+        """
         return self.node_type_list[np.random.randint(self.num_node_types)]
 
     def rand_operator(self, stack_loc):
-        """produces random operator and parameters from list"""
+        """
+        Produces random operator and parameters. Chooses operator from list of
+        allowable node types
+
+        :param stack_loc: location of command in stack
+        :return: random operator with parameters
+        """
         node_type = self.rand_operator_type()
         params = self.rand_operator_params(node_type.arity, stack_loc)
         return node_type, params
 
     def rand_terminal_param(self):
-        """produces random terminal value, either input variable or float"""
+        """
+        Produces random terminal value, either input variable or float
+
+        :return: terminal parameter
+        """
         i = np.random.randint(self.nvars+1)
         if i < self.nvars:
             return "x[%d]" % i,
@@ -180,7 +240,11 @@ class AGraphManipulator(object):
             return str(np.random.random()*self.float_lim),
 
     def rand_terminal(self):
-        """produces random terminal node and value"""
+        """
+        Produces random terminal node and value
+
+        :return: Load node, value/input to load
+        """
         param = self.rand_terminal_param()
         return AGNodes.Load, param
 

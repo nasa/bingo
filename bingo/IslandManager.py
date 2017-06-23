@@ -1,6 +1,9 @@
 """
 Island managers manage a group of coevolution islands.  Specifically, they step
-through generations, coordinate migration, and test convergence
+through generations, coordinate migration, and test convergence.  Currently
+there are two implementations: ParallelIslandManger which runs islands on
+individual processors using mpi, and SerialIslandManager which runs islands one
+after one on a single processor
 """
 
 import time
@@ -23,13 +26,16 @@ class IslandManager(object):
 
     @abc.abstractmethod
     def __init__(self, *args, **kwargs):
-        """initialization of island manager"""
+        """
+        Initialization of island manager
+        """
         self.age = 0
 
     def run_islands(self, max_steps, epsilon, min_steps=0,
                     step_increment=1000):
         """
         Runs co-evolution islands until convergence of best solution
+
         :param max_steps: maximum number of steps to take
         :param epsilon: error which defines convergence
         :param step_increment: the number of steps between
@@ -50,7 +56,7 @@ class IslandManager(object):
     @abc.abstractmethod
     def do_steps(self, n_steps):
         """
-        steps through generations
+        Steps through generations.
         :param n_steps: number of generations through which to step
         """
         pass
@@ -58,14 +64,15 @@ class IslandManager(object):
     @abc.abstractmethod
     def do_migration(self):
         """
-        coordinates migration between islands
+        Coordinates migration between islands
         """
         pass
 
     @abc.abstractmethod
     def test_convergence(self, epsilon):
         """
-        tests for convergence of the island system
+        Tests for convergence of the island system
+
         :param epsilon: error which defines convergence
         :return: boolean for whether convergence has been reached
         """
@@ -74,13 +81,19 @@ class IslandManager(object):
     @abc.abstractmethod
     def do_final_plots(self):
         """
-        makes some summary output
+        Makes some summary output
         """
         pass
 
     @staticmethod
     def assign_send_receive(pop_size):
-        """assign indices for exchange through random shuffling"""
+        """
+        Assign indices for exchange through random shuffling
+
+        :param pop_size: number of individuals in the populations which will be
+                         exchanged (must be equal in population size)
+        :return: the indices that each island will be swapping
+        """
         pop_shuffle = list(range(pop_size*2))
         random.shuffle(pop_shuffle)
         indvs_to_send = []
@@ -104,6 +117,15 @@ class ParallelIslandManager(IslandManager):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialization of island manager.  The number of islands is set by the
+        number of processors in the mpi call.
+
+        :param args: arguments to be passed to initialization of coevolution
+                     islands
+        :param kwargs: keyword arguments to be passed to initialization of
+                       coevolution islands
+        """
         super(ParallelIslandManager, self).__init__(*args, **kwargs)
 
         self.comm = MPI.COMM_WORLD
@@ -124,7 +146,8 @@ class ParallelIslandManager(IslandManager):
 
     def do_steps(self, n_steps):
         """
-        steps through generations
+        Steps through generations
+
         :param n_steps: number of generations through which to step
         """
         t_0 = time.time()
@@ -146,7 +169,7 @@ class ParallelIslandManager(IslandManager):
 
     def do_migration(self):
         """
-        coordinates migration between islands
+        Coordinates migration between islands
         """
         # assign partners
         if self.comm_rank == 0:
@@ -203,13 +226,16 @@ class ParallelIslandManager(IslandManager):
 
     def test_convergence(self, epsilon):
         """
-        tests for convergence of the island system
+        Tests for convergence of the island system
+
         :param epsilon: error which defines convergence
         :return: boolean for whether convergence has been reached
         """
         # gather all pareto fronts
         par_list = self.isle.solution_island.dump_pareto()
         par_list = self.comm.gather(par_list, root=0)
+
+        print(self.comm_rank)
 
         # test combined pareto front for convergence
         if self.comm_rank == 0:
@@ -242,7 +268,7 @@ class ParallelIslandManager(IslandManager):
 
     def do_final_plots(self):
         """
-        makes some summary output
+        Makes some summary output
         """
         # gather all populations to a single island
         s_pop, p_pop, t_pop = self.isle.dump_populations()
@@ -296,7 +322,8 @@ class SerialIslandManager(IslandManager):
 
     def do_steps(self, n_steps):
         """
-        steps through generations
+        Steps through generations
+
         :param n_steps: number of generations through which to step
         """
         t_0 = time.time()
@@ -318,7 +345,7 @@ class SerialIslandManager(IslandManager):
 
     def do_migration(self):
         """
-        coordinates migration between islands
+        Coordinates migration between islands
         """
         # assign partners
         partners = list(range(self.n_isles))
@@ -352,7 +379,8 @@ class SerialIslandManager(IslandManager):
 
     def test_convergence(self, epsilon):
         """
-        tests for convergence of the island system
+        Tests for convergence of the island system
+
         :param epsilon: error which defines convergence
         :return: boolean for whether convergence has been reached
         """
@@ -391,7 +419,7 @@ class SerialIslandManager(IslandManager):
 
     def do_final_plots(self):
         """
-        makes some summary output
+        Makes some summary output
         """
         # gather all populations
         s_pop = []

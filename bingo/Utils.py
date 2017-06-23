@@ -8,7 +8,14 @@ import numpy as np
 
 
 def calculate_partials(X):
-    """ calculate partial derivatves with respect to time (index) """
+    """
+    Calculate derivatves with respect to time (first dimension).
+
+    :param X: 2d numpy array in for which derivatives will be calculated in the
+              first diminsion. Distinct trajectories can be specified by
+              separating the datasets within X by rows of np.nan
+    :return: updated X array and corresponding time derivatives
+    """
     # find splits
     break_points = np.where(np.any(np.isnan(X), 1))[0].tolist()
     break_points.append(X.shape[0])
@@ -43,48 +50,32 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     It has the advantage of preserving the original shape and
     features of the signal better than other types of filtering
     approaches, such as moving averages techniques.
-    Parameters
-    ----------
-    y : array_like, shape (N,)
-        the values of the time history of the signal.
-    window_size : int
-        the length of the window. Must be an odd integer number.
-    order : int
-        the order of the polynomial used in the filtering.
-        Must be less then `window_size` - 1.
-    deriv: int
-        the order of the derivative to compute (default = 0 means only
-        smoothing)
-    Returns
-    -------
-    ys : ndarray, shape (N)
-        the smoothed signal (or it's n-th derivative).
-    Notes
-    -----
+
     The Savitzky-Golay is a type of low-pass filter, particularly
     suited for smoothing noisy data. The main idea behind this
     approach is to make for each point a least-square fit with a
     polynomial of high order over a odd-sized window centered at
     the point.
-    Examples
-    --------
-    t = np.linspace(-4, 4, 500)
-    y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
-    ysg = savitzky_golay(y, window_size=31, order=4)
-    import matplotlib.pyplot as plt
-    plt.plot(t, y, label='Noisy signal')
-    plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
-    plt.plot(t, ysg, 'r', label='Filtered signal')
-    plt.legend()
-    plt.show()
-    References
-    ----------
+
     .. [1] A. Savitzky, M. J. E. Golay, Smoothing and Differentiation of
        Data by Simplified Least Squares Procedures. Analytical
        Chemistry, 1964, 36 (8), pp 1627-1639.
     .. [2] Numerical Recipes 3rd Edition: The Art of Scientific Computing
        W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P. Flannery
        Cambridge University Press ISBN-13: 9780521880688
+
+    :param y: array_like, shape (N,)
+        the values of the time history of the signal.
+    :param window_size: int
+        the length of the window. Must be an odd integer number.
+    :param order: int
+        the order of the polynomial used in the filtering.
+        Must be less then `window_size` - 1.
+    :param deriv: int
+        the order of the derivative to compute (default = 0 means only
+        smoothing)
+    :return: ys : ndarray, shape (N)
+            the smoothed signal (or it's n-th derivative).
     """
     try:
         window_size = np.abs(np.int(window_size))
@@ -113,7 +104,11 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
 
 
 def snake_walk():
-    """snake walk for independent data"""
+    """
+    Generates 2-d dataset which looks like a snake wiggling back and forth
+
+    :returns: 2d numpy array for data
+    """
     n_samps = 200
     step_size = 0.2
     x_true = np.zeros([n_samps, 2])

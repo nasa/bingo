@@ -16,6 +16,40 @@ class CoevolutionIsland(object):
     Coevolution island with 3 populations
     solution_pop: the solutions to symbolic regression
     predictor_pop: sub sampling
+    trainers: population of solutions which are used to train the predictors
+
+
+    :param data_x: 2d numpy array of independent data, 1st dimension
+                   corresponds to multiple datapoints and 2nd dimension
+                   corresponds to multiple x variables
+    :param data_y: 1d numpy array for the dependent variable.  a None value
+                   here indicates that implicit (constant) symbolic
+                   regression should be used on the x data
+    :param solution_manipulator: a gene manipulator for the symbolic
+                                 regression solution population
+    :param predictor_manipulator: a gene manipulator for the fitness
+                                  predictor population
+    :param solution_pop_size: size of the solution population
+    :param solution_cx: crossover probability for the solution population
+    :param solution_mut: mutation probability for the solution population
+    :param predictor_pop_size: size of the fitness predictor population
+    :param predictor_cx: crossover probability for the fitness predictor
+                         population
+    :param predictor_mut: mutation probability for the fitness predictor
+                          population
+    :param predictor_ratio: approximate ratio of time spent on fitness
+                            predictor calculations and the total
+                            computation time
+    :param predictor_update_freq: number of generations of the solution
+                                  population after which the fitness
+                                  predictor is updated
+    :param trainer_pop_size: size of the trainer population
+    :param trainer_update_freq: number of generations of the solution
+                                population after which a new trainer is
+                                added to the trainer population
+    :param required_params: number of unique parameters that are required
+                            in implicit (constant) symbolic regression
+    :param verbose: True for extra output printed to screen
     """
 
     def __init__(self, data_x, data_y, solution_manipulator,
@@ -26,6 +60,9 @@ class CoevolutionIsland(object):
                  trainer_pop_size=16, trainer_update_freq=50,
                  required_params=2,
                  verbose=False):
+        """
+        Initializes coevolution island
+        """
         self.verbose = verbose
 
         # if data_y is none, use derivatives of x
@@ -94,7 +131,13 @@ class CoevolutionIsland(object):
                 best_sol.latexstring())
 
     def solution_fitness_est(self, solution):
-        """estimated fitness for solution pop based on the best predictor"""
+        """
+        Estimated fitness for solution pop based on the best predictor
+
+        :param solution: individual of the solution population for which the
+                         fitness will be calculated
+        :return: fitness, complexity
+        """
         fit = self.best_predictor.fit_func(solution, self.data_x,
                                            self.data_y,
                                            self.standard_regression,
@@ -102,7 +145,13 @@ class CoevolutionIsland(object):
         return fit, solution.complexity()
 
     def predictor_fitness(self, predictor):
-        """fitness function for predictor population"""
+        """
+        Fitness function for predictor population, based on the ability to
+        accurately describe the true fitness of the trainer population
+
+        :param predictor: predictor for which the fitness is assessed
+        :return: fitness
+        """
         err = 0.0
         for train, true_fit in zip(self.trainers, self.trainers_true_fitness):
             predicted_fit = predictor.fit_func(train, self.data_x,
@@ -113,7 +162,13 @@ class CoevolutionIsland(object):
         return err/len(self.trainers)
 
     def solution_fitness_true(self, solution):
-        """full calculation of fitness for solution population"""
+        """
+        full calculation of fitness for solution population
+
+        :param solution: individual of the solution population for which the
+                         fitness will be calculated
+        :return: fitness
+        """
         err = 0.0
         nan_count = 0
         tot_n = self.data_x.shape[0]
@@ -158,7 +213,10 @@ class CoevolutionIsland(object):
             return np.nan
 
     def add_new_trainer(self):
-        """add/replace trainer in current trainer population"""
+        """
+        Add/replace trainer to current trainer population.  The trainer which
+        maximizes discrepancy between fitness predictors is chosen
+        """
         s_best = self.solution_island.pop[0]
         max_variance = 0
         for sol in self.solution_island.pop:
@@ -184,8 +242,9 @@ class CoevolutionIsland(object):
 
     def deterministic_crowding_step(self):
         """
-        deterministic crowding step for solution pop, and take necessary steps
-        for other pops
+        Deterministic crowding step for solution population, This function
+        takes the necessary steps for the other populations to maintain desired
+        predictor/solution computation ratio
         """
         # do some step(s) on predictor island if the ratio is low
         current_ratio = (float(self.predictor_island.fitness_evals) /
@@ -229,7 +288,18 @@ class CoevolutionIsland(object):
 
     def dump_populations(self, s_subset=None, p_subset=None, t_subset=None):
         """
-        dump 3 populations to pickleable object
+        Dump the 3 populations to a pickleable object (tuple of lists)
+
+        :param s_subset: list of indices for the subset of the solution
+                         population which is dumped. A None value results in
+                         all of the population being dumped.
+        :param p_subset: list of indices for the subset of the fitness
+                         predictor population which is dumped. A None value
+                         results in all of the population being dumped.
+        :param t_subset: list of indices for the subset of the trainer
+                         population which is dumped. A None value results in
+                         all of the population being dumped.
+        :return: tuple of lists of populations
         """
         # dump solutions
         solution_list = self.solution_island.dump_population(s_subset)
@@ -253,6 +323,20 @@ class CoevolutionIsland(object):
                          t_subset=None):
         """
         load 3 populations from pickleable object
+
+        :param pop_lists: tuple of lists of the 3 populations
+        :param s_subset: list of indices for the subset of the solution
+                         population which is loaded and replaced. A None value
+                         results in all of the population being
+                         loaded/replaced.
+        :param p_subset: list of indices for the subset of the fitness
+                         predictor population which is loaded and replaced. A
+                         None value  results in all of the population being
+                         loaded/replaced.
+        :param t_subset: list of indices for the subset of the trainer
+                         population which is loaded and replaced. A None value
+                         results in  all of the population being
+                         loaded/replaced.
         """
         # load solutions
         self.solution_island.load_population(pop_lists[0], s_subset)
@@ -273,7 +357,9 @@ class CoevolutionIsland(object):
         self.best_predictor = self.predictor_island.best_indv().copy()
 
     def print_trainers(self):
-        """for debugging: print trainers to screen"""
+        """
+        For debugging: print trainers to screen
+        """
         for i, train, tfit in zip(list(range(len(self.trainers))),
                                   self.trainers,
                                   self.trainers_true_fitness):
@@ -281,8 +367,8 @@ class CoevolutionIsland(object):
 
     def use_true_fitness(self):
         """
-        sets the fitness function for the solution population to the true
-        (full) fitness
+        Sets the fitness function for the solution population to the true
+        (full) fitness rather than using a fitness predictor.
         """
         self.solution_island.fitness_function = \
             self.true_fitness_plus_complexity
@@ -291,6 +377,10 @@ class CoevolutionIsland(object):
 
     def true_fitness_plus_complexity(self, solution):
         """
-        gets the true fitness and complexity of a solution individual
+        Gets the true (full) fitness and complexity of a solution individual
+
+        :param solution: individual of the solution population for which the
+                         fitness will be calculated
+        :return: fitness, complexity
         """
         return self.solution_fitness_true(solution), solution.complexity()

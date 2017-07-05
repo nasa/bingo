@@ -23,7 +23,7 @@ class AGraphManipulator(object):
         :param ag_size: length of command stack
         :param nloads: number of load operation which are required at the start
                        of stack
-        :param float_lim: max (-min) of floats which are generated
+        :param float_lim: (0, max)  of floats which are generated
         :param terminal_prob: probability that a new node will be a terminal
         """
         self.nvars = nvars

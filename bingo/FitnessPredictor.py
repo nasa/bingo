@@ -100,7 +100,6 @@ class FitnessPredictor(object):
                 df_dx = indv.evaluate_deriv(X[self.indices, :])
                 dot = df_dx * Y[self.indices, :]
                 n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
-                print(n_params_used, required_params)
                 if np.any(n_params_used >= required_params):
                     err_vec = np.log(1 + np.abs(np.sum(dot, axis=1) /
                                                 np.linalg.norm(df_dx, axis=1)))

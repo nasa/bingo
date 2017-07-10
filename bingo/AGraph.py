@@ -4,6 +4,7 @@ acyclic graph (linear stack) in symbolic regression
 """
 import abc
 import random
+from scipy import optimize
 
 import numpy as np
 np.seterr(all='ignore')
@@ -46,6 +47,7 @@ class AGraphManipulator(object):
         for _ in range(nvars-1):
             self.terminal_inds.append(0)
         self.add_node_type(AGNodes.Load_Const)
+        self.namespace['np'] = np
 
     def add_node_type(self, node_type):
         """
@@ -243,7 +245,10 @@ class AGraphManipulator(object):
         if terminal is AGNodes.Load_Data:
             param = np.random.randint(self.nvars)
         else:
-            param = np.random.random()*self.float_lim
+            if self.constant_optimization:
+                param = None
+            else:
+                param = np.random.random()*self.float_lim
         return param,
 
     def rand_terminal(self):
@@ -311,17 +316,107 @@ class AGraph(object):
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
 
-    def evaluate(self, params):
+    def needs_optimization(self):
+        """find out whether constants need optimization"""
+        util = self.utilized_commands()
+        for i in range(len(self.command_list)):
+            if util[i]:
+                if self.command_list[i][1][0] is None:
+                    return True
+        return False
+
+    def optimize_constants(self, X, Y):
+        """optimize constants"""
+
+        # compile fitness function for optimization
+        util = self.utilized_commands()
+        const_num = 0
+        code_str = ("def eval_for_opt(c, x, y):\n"
+                    "    stack = [None]*%d\n" % len(self.command_list))
+        for i, (node, params) in enumerate(self.command_list):
+            if util[i]:
+                if node is AGNodes.Load_Const:
+                    code_str += "    stack[%d] = c[%d]\n" % (i, const_num)
+                    const_num += 1
+                else:
+                    code_str += ("    stack[%d] = " % i +
+                                 node.funcstring(params) + "\n")
+        code_str += "    return stack[-1] - y\n"
+        exec(compile(code_str, '<string>', 'exec'), self.namespace)
+
+        # do optimization
+        sol = optimize.root(self.namespace['eval_for_opt'],
+                            np.ones(const_num),
+                            args=(X, Y),
+                            method='lm')
+
+        # put optimal values in command list
+        const_num = 0
+        for i, (node, _) in enumerate(self.command_list):
+            if util[i]:
+                if node is AGNodes.Load_Const:
+                    self.command_list[i] = (node, (sol.x[const_num],))
+                    const_num += 1
+
+    def optimize_constants_deriv(self, X, Y, required_params):
+        """optimize constants for derivative evaluations"""
+
+        # compile fitness function for optimization
+        util = self.utilized_commands()
+        const_num = 0
+        code_str = "def eval_deriv_for_opt(c, x, y):\n"
+        code_str += "    stack = [None]*%d\n" % len(self.command_list)
+        code_str += "    deriv = [None]*%d\n" % len(self.command_list)
+        for i, (node, params) in enumerate(self.command_list):
+            if util[i]:
+                if node is AGNodes.Load_Const:
+                    code_str += "    stack[%d] = c[%d]\n" % (i, const_num)
+                    const_num += 1
+                else:
+                    code_str += ("    stack[%d] = " % i +
+                                 node.funcstring(params) + "\n")
+                code_str += ("    deriv[%d] = " % i +
+                             node.derivstring(params) + "\n")
+        code_str += "    dot = deriv[-1] * y\n"
+        code_str += "    n_params_used = np.count_nonzero(abs(dot) > 1e-16, "\
+                    "axis=1)\n"
+        code_str += "    if np.any(n_params_used >= %d):\n" % required_params
+        code_str += "        err_vec = np.log(1 + np.abs(np.sum(dot, axis=1)/"\
+                    "np.linalg.norm(deriv[-1], axis=1)))\n"
+        code_str += "    else:\n"
+        code_str += "        err_vec = np.inf*np.ones(x.shape[0])\n"
+        code_str += "    return err_vec\n"
+        exec(compile(code_str, '<string>', 'exec'), self.namespace)
+
+        # do optimization
+        sol = optimize.root(self.namespace['eval_deriv_for_opt'],
+                            np.ones(const_num),
+                            args=(X, Y),
+                            method='lm')
+
+        # put optimal values in command list
+        const_num = 0
+        for i, (node, _) in enumerate(self.command_list):
+            if util[i]:
+                if node is AGNodes.Load_Const:
+                    self.command_list[i] = (node, (sol.x[const_num],))
+                    const_num += 1
+
+    def evaluate(self, X, Y):
         """evaluate the compiled stack"""
         if not self.compiled:
+            if self.needs_optimization():
+                self.optimize_constants(X, Y)
             self.compile()
-        return self.namespace['evaluate'](params)
+        return self.namespace['evaluate'](X)
 
-    def evaluate_deriv(self, params):
+    def evaluate_deriv(self, X, Y, required_params):
         """evaluate the compiled stack"""
         if not self.compiled_deriv:
+            if self.needs_optimization():
+                self.optimize_constants_deriv(X, Y, required_params)
             self.compile_deriv()
-        return self.namespace['evaluate_deriv'](params)
+        return self.namespace['evaluate_deriv'](X)
 
     def __str__(self):
         """overloaded string output"""

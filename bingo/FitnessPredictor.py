@@ -91,13 +91,16 @@ class FitnessPredictor(object):
         try:
             # standard symbolic regression
             if standard_regression:
-                err_vec = np.abs(indv.evaluate(X[self.indices, :])
-                                 - Y[self.indices])
+                Y_eval = indv.evaluate(X[self.indices, :],
+                                       Y[self.indices])
+                err_vec = np.abs(Y_eval - Y[self.indices])
                 err = np.mean(err_vec)
 
             # regression to find constant combinations/laws
             else:
-                df_dx = indv.evaluate_deriv(X[self.indices, :])
+                df_dx = indv.evaluate_deriv(X[self.indices, :],
+                                            Y[self.indices, :],
+                                            required_params)
                 dot = df_dx * Y[self.indices, :]
                 n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
                 if np.any(n_params_used >= required_params):

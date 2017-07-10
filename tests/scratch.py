@@ -21,15 +21,15 @@ import numpy as np
 
 
 X = snake_walk()
-Y = (X[:, 0] + X[:, 1])
+Y = (X[:, 0] + X[:, 1]*0.5)
 X = np.hstack((X, Y.reshape([-1, 1])))
 X, Y = calculate_partials(X)
 
 # make solution manipulator
-a = agm(2, 16, nloads=2)
+a = agm(2, 16, nloads=2, constant_optimization=True)
 a.add_node_type(AGNodes.Add)
 a.add_node_type(AGNodes.Subtract)
-# a.add_node_type(AGNodes.Multiply)
+a.add_node_type(AGNodes.Multiply)
 # a.add_node_type(AGNodes.Divide)
 # a.add_node_type(AGNodes.Exp)
 # a.add_node_type(AGNodes.Log)
@@ -44,6 +44,15 @@ fp = b.generate()
 print(fp)
 
 ag = a.generate()
+
+ag.command_list[0] = (AGNodes.Load_Data, (0,))
+ag.command_list[1] = (AGNodes.Load_Data, (1,))
+ag.command_list[2] = (AGNodes.Load_Const, (None,))
+ag.command_list[3] = (AGNodes.Multiply, (1, 2))
+ag.command_list[4] = (AGNodes.Add, (0, 3))
+ag.command_list[5] = (AGNodes.Load_Data, (2,))
+ag.command_list[-1] = (AGNodes.Subtract, (5, 4))
+
 print(ag)
 print(ag.latexstring())
 # for x, y in zip(X[fp.indices, :], Y[fp.indices, :]):

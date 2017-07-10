@@ -172,11 +172,14 @@ class CoevolutionIsland(object):
         tot_n = self.data_x.shape[0]
         # standard symbolic regression
         if self.standard_regression:
-            diff = abs(solution.evaluate(self.data_x) - self.data_y)
+            diff = abs(solution.evaluate(self.data_x, self.data_y)
+                       - self.data_y)
 
         # regression to find constant combinations/laws
         else:
-            df_dx = solution.evaluate_deriv(self.data_x)
+            df_dx = solution.evaluate_deriv(self.data_x,
+                                            self.data_y,
+                                            self.required_params)
             dot = df_dx * self.data_y
             n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
             if np.any(n_params_used >= self.required_params):

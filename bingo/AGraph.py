@@ -3,6 +3,7 @@ This module contains most of the code necessary for the representation of an
 acyclic graph (linear stack) in symbolic regression
 """
 import abc
+import random
 
 import numpy as np
 np.seterr(all='ignore')
@@ -15,7 +16,8 @@ class AGraphManipulator(object):
     """
 
     def __init__(self, nvars, ag_size,
-                 nloads=1, float_lim=10.0, terminal_prob=0.1):
+                 nloads=1, float_lim=10.0, terminal_prob=0.1,
+                 constant_optimization=False):
         """
         Initialization of acyclic graph gene manipulator
 
@@ -31,15 +33,19 @@ class AGraphManipulator(object):
         self.nloads = nloads
         self.float_lim = float_lim
         self.terminal_prob = terminal_prob
-        self.constant_optimization = False
+        self.constant_optimization = constant_optimization
 
         self.node_type_list = []
+        self.terminal_inds = []
+        self.operator_inds = []
         self.num_node_types = 0
 
         self.namespace = {}
-        self.namespace[AGNodes.Load.shorthand_deriv] = \
-            AGNodes.Load.call_deriv
 
+        self.add_node_type(AGNodes.Load_Data)
+        for _ in range(nvars-1):
+            self.terminal_inds.append(0)
+        self.add_node_type(AGNodes.Load_Const)
 
     def add_node_type(self, node_type):
         """
@@ -50,6 +56,10 @@ class AGraphManipulator(object):
         """
         if node_type not in self.node_type_list:
             self.node_type_list.append(node_type)
+            if node_type.terminal:
+                self.terminal_inds.append(self.num_node_types)
+            else:
+                self.operator_inds.append(self.num_node_types)
             self.num_node_types += 1
             if node_type.shorthand is not None:
                 self.namespace[node_type.shorthand] = node_type.call
@@ -129,8 +139,8 @@ class AGraphManipulator(object):
         else:  # parameter change
             new_node_type = orig_node_type
             if orig_node_type.terminal:  # terminals
-                new_params = self.rand_terminal_param()
-            else: # operators
+                new_params = self.rand_terminal_param(new_node_type)
+            else:  # operators
                 new_params = self.rand_operator_params(new_node_type.arity,
                                                        mut_point)
 
@@ -168,10 +178,7 @@ class AGraphManipulator(object):
         """
         indv_list = []
         for node, params in indv.command_list:
-            if node in self.node_type_list: #node
-                ind = self.node_type_list.index(node)
-            else: # terminal
-                ind = -1
+            ind = self.node_type_list.index(node)
             indv_list.append((ind, params))
         return indv_list
 
@@ -187,8 +194,6 @@ class AGraphManipulator(object):
             if node_num in range(len(self.node_type_list)):  # node
                 indv.command_list.append((self.node_type_list[node_num],
                                           params))
-            elif node_num == -1:  # terminal
-                indv.command_list.append((AGNodes.Load, params))
             else:
                 raise RuntimeError
         return indv
@@ -214,7 +219,8 @@ class AGraphManipulator(object):
 
         :return: operator (acyclic graph node type)
         """
-        return self.node_type_list[np.random.randint(self.num_node_types)]
+        node = self.node_type_list[random.choice(self.operator_inds)]
+        return node
 
     def rand_operator(self, stack_loc):
         """
@@ -228,26 +234,27 @@ class AGraphManipulator(object):
         params = self.rand_operator_params(node_type.arity, stack_loc)
         return node_type, params
 
-    def rand_terminal_param(self):
+    def rand_terminal_param(self, terminal):
         """
         Produces random terminal value, either input variable or float
 
         :return: terminal parameter
         """
-        i = np.random.randint(self.nvars+1)
-        if i < self.nvars:
-            return "x[:,%d]" % i,
+        if terminal is AGNodes.Load_Data:
+            param = np.random.randint(self.nvars)
         else:
-            return str(np.random.random()*self.float_lim),
+            param = np.random.random()*self.float_lim
+        return param,
 
     def rand_terminal(self):
         """
         Produces random terminal node and value
 
-        :return: Load node, value/input to load
+        :return: Load node, data index or constant index
         """
-        param = self.rand_terminal_param()
-        return AGNodes.Load, param
+        node = self.node_type_list[random.choice(self.terminal_inds)]
+        param = self.rand_terminal_param(node)
+        return node, param
 
 
 class AGraph(object):
@@ -281,7 +288,6 @@ class AGraph(object):
             if util[i]:
                 code_str += ("    stack[%d] = " % i +
                              node.funcstring(params) + "\n")
-
         code_str += "    return stack[-1]\n"
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled = True
@@ -301,9 +307,9 @@ class AGraph(object):
                 # code_str += ("    print(%d)\n" % i)
 
         code_str += "    return deriv[-1]\n"
+        # print(code_str)
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
-        # print(code_str)
 
     def evaluate(self, params):
         """evaluate the compiled stack"""
@@ -340,8 +346,7 @@ class AGraph(object):
         str_list = []
         for node, params in self.command_list:
             str_list.append(node.latexstring(params, str_list))
-        return str_list[-1].replace('[', '_').replace(']', '').\
-            replace(',', '').replace(':', '')
+        return str_list[-1]
 
     def utilized_commands(self):
         """find which commands are utilized"""
@@ -393,7 +398,7 @@ class AGNodes(object):
             """creates a string for outputting latex"""
             pass
 
-    class Load(Node):
+    class Load_Data(Node):
         """load"""
         terminal = True
         shorthand_deriv = "deriv_x"
@@ -402,30 +407,50 @@ class AGNodes(object):
         def call_deriv(index, xshape):
             """gets derivative array of loaded value"""
             tmp = np.zeros(xshape)
-            if index is not -1:
-                tmp[:, index] = 1
+            tmp[:, index] = 1
             return tmp
 
         @staticmethod
         def funcstring(params):
-            return params[0]
+            return "x[:, %d]" % params[0]
 
         @staticmethod
         def derivstring(params):
-            if "x" in params[0]:
-                index = int(params[0][4:-1])
-            else:
-                index = -1
-            dstring = "deriv_x(%d, x.shape)" % index
-            return dstring
+            return "deriv_x(%d, x.shape)" % params
 
         @staticmethod
         def printstring(params):
-            return params[0]
+            return "x[:, %d]" % params[0]
 
         @staticmethod
         def latexstring(params, str_list):
-            return params[0]
+            return "x_%d" % params
+
+    class Load_Const(Node):
+        """load constant for optimization"""
+        terminal = True
+        shorthand_deriv = "deriv_c"
+
+        @staticmethod
+        def call_deriv(xshape):
+            """gets derivative array of loaded value"""
+            return np.zeros(xshape)
+
+        @staticmethod
+        def funcstring(params):
+            return str(params[0])
+
+        @staticmethod
+        def derivstring(params):
+            return "deriv_c(x.shape)"
+
+        @staticmethod
+        def printstring(params):
+            return str(params[0])
+
+        @staticmethod
+        def latexstring(params, str_list):
+            return str(params[0])
 
     class Add(Node):
         """

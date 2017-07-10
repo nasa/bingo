@@ -5,7 +5,7 @@ acyclic graph (linear stack) in symbolic regression
 import abc
 
 import numpy as np
-np.seterr(all='raise')
+np.seterr(all='ignore')
 
 
 class AGraphManipulator(object):
@@ -31,6 +31,7 @@ class AGraphManipulator(object):
         self.nloads = nloads
         self.float_lim = float_lim
         self.terminal_prob = terminal_prob
+        self.constant_optimization = False
 
         self.node_type_list = []
         self.num_node_types = 0
@@ -235,7 +236,7 @@ class AGraphManipulator(object):
         """
         i = np.random.randint(self.nvars+1)
         if i < self.nvars:
-            return "x[%d]" % i,
+            return "x[:,%d]" % i,
         else:
             return str(np.random.random()*self.float_lim),
 
@@ -289,7 +290,6 @@ class AGraph(object):
         """compile the stack of commands and derivatives"""
         util = self.utilized_commands()
         code_str = "def evaluate_deriv(x):\n"
-        code_str += "    n_d = len(x)\n"
         code_str += "    stack = [None]*%d\n" % len(self.command_list)
         code_str += "    deriv = [None]*%d\n" % len(self.command_list)
         for i, (node, params) in enumerate(self.command_list):
@@ -298,10 +298,12 @@ class AGraph(object):
                              node.funcstring(params) + "\n")
                 code_str += ("    deriv[%d] = " % i +
                              node.derivstring(params) + "\n")
+                # code_str += ("    print(%d)\n" % i)
 
         code_str += "    return deriv[-1]\n"
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
+        # print(code_str)
 
     def evaluate(self, params):
         """evaluate the compiled stack"""
@@ -338,7 +340,8 @@ class AGraph(object):
         str_list = []
         for node, params in self.command_list:
             str_list.append(node.latexstring(params, str_list))
-        return str_list[-1].replace('[', '_').replace(']', '')
+        return str_list[-1].replace('[', '_').replace(']', '').\
+            replace(',', '').replace(':', '')
 
     def utilized_commands(self):
         """find which commands are utilized"""
@@ -396,11 +399,11 @@ class AGNodes(object):
         shorthand_deriv = "deriv_x"
 
         @staticmethod
-        def call_deriv(index, length):
+        def call_deriv(index, xshape):
             """gets derivative array of loaded value"""
-            tmp = np.zeros(length)
+            tmp = np.zeros(xshape)
             if index is not -1:
-                tmp[index] = 1
+                tmp[:, index] = 1
             return tmp
 
         @staticmethod
@@ -410,10 +413,10 @@ class AGNodes(object):
         @staticmethod
         def derivstring(params):
             if "x" in params[0]:
-                index = int(params[0][2:-1])
+                index = int(params[0][4:-1])
             else:
                 index = -1
-            dstring = "deriv_x(%d, n_d)" % index
+            dstring = "deriv_x(%d, x.shape)" % index
             return dstring
 
         @staticmethod
@@ -425,8 +428,12 @@ class AGNodes(object):
             return params[0]
 
     class Add(Node):
-        """addition"""
+        """
+        addition
+        """
         arity = 2
+        shorthand = "add"
+        call = np.add
 
         @staticmethod
         def printstring(params):
@@ -438,23 +445,27 @@ class AGNodes(object):
 
         @staticmethod
         def funcstring(params):
-            return "stack[%d] + stack[%d]" % params
+            return "add(stack[%d], stack[%d])" % params
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] + deriv[%d]" % params
+            return "add(deriv[%d], deriv[%d])" % params
 
     class Subtract(Node):
-        """subtraction"""
+        """
+        subtraction
+        """
         arity = 2
+        shorthand = "subtract"
+        call = np.subtract
 
         @staticmethod
         def funcstring(params):
-            return "stack[%d] - stack[%d]" % params
+            return "subtract(stack[%d], stack[%d])" % params
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] - deriv[%d]" % params
+            return "subtract(deriv[%d], deriv[%d])" % params
 
         @staticmethod
         def printstring(params):
@@ -465,8 +476,13 @@ class AGNodes(object):
             return "%s - (%s)" % (str_list[params[0]], str_list[params[1]])
 
     class Multiply(Node):
-        """multiplication"""
+        """
+        multiplication
+        derivative calculation needs: add
+        """
         arity = 2
+        shorthand = "multiply"
+        call = np.multiply
 
         @staticmethod
         def printstring(params):
@@ -478,25 +494,23 @@ class AGNodes(object):
 
         @staticmethod
         def funcstring(params):
-            return "stack[%d] * stack[%d]" % params
+            return "multiply(stack[%d], stack[%d])" % params
 
         @staticmethod
         def derivstring(params):
-            return "stack[%d] * deriv[%d] + deriv[%d] * stack[%d]" % \
-                   (params[0], params[1], params[0], params[1])
+            return "add("\
+                   "multiply(deriv[%d].transpose(), stack[%d]).transpose(),"\
+                   "multiply(deriv[%d].transpose(), stack[%d]).transpose())" %\
+                   (params[1], params[0], params[0], params[1])
 
     class Divide(Node):
-        """division"""
+        """
+        division
+        derivative calculation needs: multiply, subtract
+        """
         arity = 2
-        shorthand = "div"
-
-        @staticmethod
-        def call(num, den):
-            """version of divide safe against zero division"""
-            if abs(den) > 1e-16:
-                return num / den
-            else:
-                return np.nan
+        shorthand = "divide"
+        call = np.divide
 
         @staticmethod
         def printstring(params):
@@ -508,17 +522,22 @@ class AGNodes(object):
 
         @staticmethod
         def funcstring(params):
-            return "div(stack[%d], stack[%d])" % params
+            return "divide(stack[%d], stack[%d])" % params
 
         @staticmethod
         def derivstring(params):
-            return "(stack[%d] * deriv[%d] - stack[%d] * deriv[%d]) * " \
-                   "div(1.0, stack[%d]*stack[%d])" % \
-                   (params[1], params[0], params[0], params[1],
+            return "divide(subtract("\
+                   "multiply(deriv[%d].transpose(), stack[%d]), "\
+                   "multiply(deriv[%d].transpose(), stack[%d])),"\
+                   "multiply(stack[%d], stack[%d])).transpose()" % \
+                   (params[0], params[1], params[1], params[0],
                     params[1], params[1])
 
     class Sin(Node):
-        """sine"""
+        """
+        sine
+        derivative calculation needs: multiply
+        """
         arity = 1
         shorthand = "sin"
         call = np.sin
@@ -539,10 +558,14 @@ class AGNodes(object):
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] * sin_deriv(stack[%d])" % (params[0], params[0])
+            return "multiply(deriv[%d].transpose(), "\
+                   "sin_deriv(stack[%d])).transpose()" % (params[0], params[0])
 
     class Cos(Node):
-        """cosine"""
+        """
+        cosine
+        derivative calculation needs: multiply
+        """
         arity = 1
         shorthand = "cos"
         call = np.cos
@@ -563,23 +586,18 @@ class AGNodes(object):
 
         @staticmethod
         def derivstring(params):
-            return "-deriv[%d] * cos_deriv(stack[%d])" %\
+            return "multiply(-deriv[%d].transpose(), "\
+                   "cos_deriv(stack[%d])).transpose()" %\
                    (params[0], params[0])
 
     class Exp(Node):
-        """e^x"""
+        """
+        e^x
+        derivative calculation needs: multiply
+        """
         arity = 1
         shorthand = "exp"
-
-        @staticmethod
-        def call(x):
-            """safe exponential function"""
-            try:
-                ans = np.exp(x)
-            except (ArithmeticError, OverflowError, FloatingPointError,
-                    ValueError):
-                ans = np.nan
-            return ans
+        call = np.exp
 
         @staticmethod
         def printstring(params):
@@ -595,22 +613,18 @@ class AGNodes(object):
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] * exp(stack[%d])" % (params[0], params[0])
+            return "multiply(deriv[%d].transpose(), "\
+                   "exp(stack[%d])).transpose()" %\
+                   (params[0], params[0])
 
     class Log(Node):
-        """log|x|"""
+        """
+        log|x|
+        derivative calculation needs: divide
+        """
         arity = 1
         shorthand = "log"
-
-        @staticmethod
-        def call(x):
-            """safe log function"""
-            try:
-                ans = np.log(abs(x))
-            except (ArithmeticError, OverflowError, FloatingPointError,
-                    ValueError):
-                ans = np.nan
-            return ans
+        call = np.log
 
         @staticmethod
         def printstring(params):
@@ -626,25 +640,19 @@ class AGNodes(object):
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] * div(1.0, stack[%d])" % \
+            return "divide(deriv[%d].transpose(), stack[%d]).transpose()" % \
                    (params[0], params[0])
 
     class Abs(Node):
-        """|x|"""
+        """
+        |x|
+        derivative calculation needs: multiply
+        """
         arity = 1
         shorthand = "absl"
         shorthand_deriv = "sign"
         call_deriv = np.sign
-
-        @staticmethod
-        def call(x):
-            """absolute function which handles nans"""
-            try:
-                ans = np.abs(x)
-            except (ArithmeticError, OverflowError, FloatingPointError,
-                    ValueError):
-                ans = np.nan
-            return ans
+        call = np.abs
 
         @staticmethod
         def printstring(params):
@@ -660,10 +668,15 @@ class AGNodes(object):
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] * sign(stack[%d])" % (params[0], params[0])
+            return "multiply(deriv[%d].transpose(), "\
+                   "sign(stack[%d])).transpose()" %\
+                   (params[0], params[0])
 
     class Sqrt(Node):
-        """(x)^0.5"""
+        """
+        (x)^0.5
+        derivative calculation needs: multiply, divide
+        """
         arity = 1
         shorthand = "sqroot"
         call = np.sqrt
@@ -682,5 +695,6 @@ class AGNodes(object):
 
         @staticmethod
         def derivstring(params):
-            return "deriv[%d] * div(0.5, sqroot(stack[%d]))" % (params[0],
-                                                                params[0])
+            return "multiply(deriv[%d].transpose(), "\
+                   "divide(0.5, sqroot(stack[%d]))).transpose()" %\
+                   (params[0], params[0])

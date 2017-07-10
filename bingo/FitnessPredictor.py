@@ -88,32 +88,27 @@ class FitnessPredictor(object):
 
     def fit_func(self, indv, X, Y, standard_regression, required_params=2):
         """fitness function for standard regression type"""
-        err = 0.0
         try:
             # standard symbolic regression
             if standard_regression:
-                for i in self.indices:
-                    err += abs(indv.evaluate(X[i, :]) - Y[i])
+                err_vec = np.abs(indv.evaluate(X[self.indices, :])
+                                 - Y[self.indices])
+                err = np.mean(err_vec)
 
             # regression to find constant combinations/laws
             else:
-                n_params = False
-                for i in self.indices:
-                    df_dx = indv.evaluate_deriv(X[i, :])
-                    if not n_params:
-                        tmp = np.count_nonzero(abs(df_dx) > 1e-16)
-                        if tmp >= required_params:
-                            n_params = True
-                    den = np.linalg.norm(df_dx)
-                    if np.isfinite(den):
-                        err += np.log(
-                            1 + np.abs(np.sum(df_dx * Y[i, :]) / den))
-                    else:
-                        raise ValueError("Non-finite value encountered in fit")
-                if not n_params:
+                df_dx = indv.evaluate_deriv(X[self.indices, :])
+                dot = df_dx * Y[self.indices, :]
+                n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
+                print(n_params_used, required_params)
+                if np.any(n_params_used >= required_params):
+                    err_vec = np.log(1 + np.abs(np.sum(dot, axis=1) /
+                                                np.linalg.norm(df_dx, axis=1)))
+                    err = np.mean(err_vec)
+                else:
                     err = np.inf
-
-            err /= len(self.indices)
         except (OverflowError, FloatingPointError, ValueError):
+            print("fit_func error")
             err = np.nan
+
         return err

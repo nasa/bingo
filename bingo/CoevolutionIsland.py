@@ -169,45 +169,27 @@ class CoevolutionIsland(object):
                          fitness will be calculated
         :return: fitness
         """
-        err = 0.0
-        nan_count = 0
         tot_n = self.data_x.shape[0]
-        n_params = False
-        for x, y in zip(self.data_x, self.data_y):
+        # standard symbolic regression
+        if self.standard_regression:
+            diff = abs(solution.evaluate(self.data_x) - self.data_y)
 
-            try:
-                # standard symbolic regression
-                if self.standard_regression:
-                    diff = abs(solution.evaluate(x) - y)
+        # regression to find constant combinations/laws
+        else:
+            df_dx = solution.evaluate_deriv(self.data_x)
+            dot = df_dx * self.data_y
+            n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
+            if np.any(n_params_used >= self.required_params):
+                diff = np.log(1 + np.abs(np.sum(dot, axis=1) /
+                                         np.linalg.norm(df_dx, axis=1)))
+            else:  # not enough parameters in const regression
+                diff = np.inf
 
-                # regression to find constant combinations/laws
-                else:
-                    df_dx = solution.evaluate_deriv(x)
-                    if not n_params:
-                        tmp = np.count_nonzero(abs(df_dx) > 1e-16)
-                        if tmp >= self.required_params:
-                            n_params = True
-                    den = np.linalg.norm(df_dx)
-                    if np.isfinite(den) or abs(den) < 1e-16:
-                        diff = np.log(1 + np.abs(np.sum(df_dx * y) / den))
-                    else:
-                        diff = np.nan
-                    # print diff, df_dx, x, y, den, solution.latexstring()
+        nan_count = np.count_nonzero(np.isnan(diff))
 
-            except (OverflowError, FloatingPointError):
-                diff = np.nan
-
-            if np.isnan(diff):
-                nan_count += 1
-            else:
-                err += diff/tot_n
-
-        # not enough parameters in const regression
-        if not self.standard_regression and not n_params:
-            return np.inf
         # ok
-        elif nan_count < 0.1*tot_n:
-            return err*(tot_n/(tot_n-nan_count))
+        if nan_count < 0.1*tot_n:
+            return np.nanmean(diff)
         # too many nans
         else:
             return np.nan

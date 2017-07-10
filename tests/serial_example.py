@@ -24,12 +24,12 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
 
     # make data
     X = snake_walk()
-    Y = (X[:, 0] + X[:, 1]).reshape([-1, 1])
-    X = np.hstack((X, Y))
+    Y = (X[:, 0] + X[:, 1])
+    X = np.hstack((X, Y.reshape([-1, 1])))
     Y = None
 
     # make solution manipulator
-    sol_manip = agm(X.shape[1], 32, nloads=2)
+    sol_manip = agm(X.shape[1], 16, nloads=2)
     sol_manip.add_node_type(AGNodes.Add)
     sol_manip.add_node_type(AGNodes.Subtract)
     sol_manip.add_node_type(AGNodes.Multiply)
@@ -45,13 +45,13 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
 
     # make and run island manager
     islmngr = SerialIslandManager(n_islands, X, Y, sol_manip, pred_manip)
-    islmngr.run_islands(max_steps, epsilon)
+    islmngr.run_islands(max_steps, epsilon, step_increment=100)
 
 
 if __name__ == "__main__":
 
     MAX_STEPS = 2000
-    CONVERGENCE_EPSILON = 0.01
+    CONVERGENCE_EPSILON = 1.0e-8
     DATA_SIZE = 100
     DATA_RANGE = [-3, 3]
     N_ISLANDS = 2

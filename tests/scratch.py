@@ -26,7 +26,7 @@ X = np.hstack((X, Y.reshape([-1, 1])))
 X, Y = calculate_partials(X)
 
 # make solution manipulator
-a = agm(3, 8, nloads=2)
+a = agm(2, 16, nloads=2)
 a.add_node_type(AGNodes.Add)
 a.add_node_type(AGNodes.Subtract)
 # a.add_node_type(AGNodes.Multiply)
@@ -41,10 +41,12 @@ a.add_node_type(AGNodes.Subtract)
 # make predictor manipulator
 b = fpm(32, X.shape[0])
 fp = b.generate()
+print(fp)
 
 ag = a.generate()
+print(ag)
 print(ag.latexstring())
-for x, y in zip(X[fp.indices, :], Y[fp.indices, :]):
-    print(x, y, ag.evaluate_deriv(x), ag.evaluate_deriv(x)*y)
+# for x, y in zip(X[fp.indices, :], Y[fp.indices, :]):
+#     print(x, y, ag.evaluate_deriv(x), ag.evaluate_deriv(x)*y)
 
 print(fp.fit_func(ag, X, Y, False))

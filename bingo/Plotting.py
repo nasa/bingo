@@ -61,9 +61,7 @@ def print_1d_best_soln(X, Y, eval_func, file_name):
     :param eval_func: evaluation function to get y_estimated as function of X
     :param file_name: desired output filename
     """
-    y_est = []
-    for x in X:
-        y_est.append(eval_func(x))
+    y_est = eval_func(X, Y)
     plt.scatter(X, Y)
     plt.plot(X, y_est)
     pylab.savefig(file_name)

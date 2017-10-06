@@ -86,29 +86,30 @@ class FitnessPredictor(object):
     def __str__(self):
         return str(self.indices)
 
-    def fit_func(self, indv, X, Y, standard_regression, required_params=2):
+    def fit_func(self, indv, fitness_metric, **kwargs):
         """fitness function for standard regression type"""
         try:
-            # standard symbolic regression
-            if standard_regression:
-                Y_eval = indv.evaluate(X[self.indices, :],
-                                       Y[self.indices])
-                err_vec = np.abs(Y_eval - Y[self.indices])
-                err = np.mean(err_vec)
+            temp_args = dict(kwargs)
+            # get subsets of inputs
+            for var in ['x', 'dx_dt', 'y']:
+                if var in temp_args:
+                    temp_args[var] = temp_args[var][self.indices, ...]
 
-            # regression to find constant combinations/laws
-            else:
-                df_dx = indv.evaluate_deriv(X[self.indices, :],
-                                            Y[self.indices, :],
-                                            required_params)
-                dot = df_dx * Y[self.indices, :]
-                n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
-                if np.any(n_params_used >= required_params):
-                    err_vec = np.log(1 + np.abs(np.sum(dot, axis=1) /
-                                                np.linalg.norm(df_dx, axis=1)))
-                    err = np.mean(err_vec)
-                else:
-                    err = np.inf
+            # calculate what is needed for the
+            metric_args = dict(temp_args)
+            if fitness_metric.need_df_dx:
+                f_of_x, df_dx = indv.evaluate_deriv(fitness_metric,
+                                                    **temp_args)
+                metric_args['df_dx'] = df_dx
+                if fitness_metric.need_f:
+                    metric_args['f'] = f_of_x
+
+            elif fitness_metric.need_f:
+                metric_args['f'] = indv.evaluate(fitness_metric,
+                                                 **temp_args)
+
+            err = fitness_metric.evaluate_metric(**metric_args)
+
         except (OverflowError, FloatingPointError, ValueError):
             print("fit_func error")
             err = np.nan

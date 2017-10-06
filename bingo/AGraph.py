@@ -309,10 +309,8 @@ class AGraph(object):
                              node.funcstring(params) + "\n")
                 code_str += ("    deriv[%d] = " % i +
                              node.derivstring(params) + "\n")
-                # code_str += ("    print(%d)\n" % i)
+        code_str += "    return stack[-1], deriv[-1]\n"
 
-        code_str += "    return deriv[-1]\n"
-        # print(code_str)
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
 
@@ -325,13 +323,13 @@ class AGraph(object):
                     return True
         return False
 
-    def optimize_constants(self, X, Y):
+    def optimize_constants(self, fitness_metric, **kwargs):
         """optimize constants"""
 
         # compile fitness function for optimization
         util = self.utilized_commands()
         const_num = 0
-        code_str = ("def eval_for_opt(c, x, y):\n"
+        code_str = ("def eval_for_opt(c, x):\n"
                     "    stack = [None]*%d\n" % len(self.command_list))
         for i, (node, params) in enumerate(self.command_list):
             if util[i]:
@@ -341,13 +339,21 @@ class AGraph(object):
                 else:
                     code_str += ("    stack[%d] = " % i +
                                  node.funcstring(params) + "\n")
-        code_str += "    return stack[-1] - y\n"
+        code_str += "    return stack[-1]\n"
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
 
+        temp_args = dict(kwargs)
+
+        # define fitness function for optimization
+        def const_opt_fitness(consts):
+            """ fitness function for constant optimization"""
+            temp_args['f'] = self.namespace['eval_for_opt'](consts,
+                                                            kwargs['x'])
+            return fitness_metric.evaluate_vector(**temp_args)
+
         # do optimization
-        sol = optimize.root(self.namespace['eval_for_opt'],
-                            np.ones(const_num),
-                            args=(X, Y),
+        sol = optimize.root(const_opt_fitness,
+                            np.random.random(const_num),
                             method='lm')
 
         # put optimal values in command list
@@ -358,13 +364,13 @@ class AGraph(object):
                     self.command_list[i] = (node, (sol.x[const_num],))
                     const_num += 1
 
-    def optimize_constants_deriv(self, X, Y, required_params):
+    def optimize_constants_deriv(self, fitness_metric, **kwargs):
         """optimize constants for derivative evaluations"""
 
         # compile fitness function for optimization
         util = self.utilized_commands()
         const_num = 0
-        code_str = "def eval_deriv_for_opt(c, x, y):\n"
+        code_str = "def eval_deriv_for_opt(c, x):\n"
         code_str += "    stack = [None]*%d\n" % len(self.command_list)
         code_str += "    deriv = [None]*%d\n" % len(self.command_list)
         for i, (node, params) in enumerate(self.command_list):
@@ -377,21 +383,25 @@ class AGraph(object):
                                  node.funcstring(params) + "\n")
                 code_str += ("    deriv[%d] = " % i +
                              node.derivstring(params) + "\n")
-        code_str += "    dot = deriv[-1] * y\n"
-        code_str += "    n_params_used = np.count_nonzero(abs(dot) > 1e-16, "\
-                    "axis=1)\n"
-        code_str += "    if np.any(n_params_used >= %d):\n" % required_params
-        code_str += "        err_vec = np.log(1 + np.abs(np.sum(dot, axis=1)/"\
-                    "np.linalg.norm(deriv[-1], axis=1)))\n"
-        code_str += "    else:\n"
-        code_str += "        err_vec = np.inf*np.ones(x.shape[0])\n"
-        code_str += "    return err_vec\n"
+        code_str += "    return stack[-1], deriv[-1]\n"
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
 
+        temp_args = dict(kwargs)
+
+        # define fitness function for optimization
+        def const_opt_fitness(consts):
+            """ fitness function for constant optimization (deriv)"""
+            f_of_x, df_dx = self.namespace['eval_deriv_for_opt'](consts,
+                                                            kwargs['x'])
+            temp_args['df_dx'] = df_dx
+            if fitness_metric.need_f:
+                temp_args['f'] = f_of_x
+            fit_vec = fitness_metric.evaluate_vector(**temp_args)
+            return fit_vec
+
         # do optimization
-        sol = optimize.root(self.namespace['eval_deriv_for_opt'],
-                            np.ones(const_num),
-                            args=(X, Y),
+        sol = optimize.root(const_opt_fitness,
+                            np.random.random(const_num),
                             method='lm')
 
         # put optimal values in command list
@@ -402,21 +412,33 @@ class AGraph(object):
                     self.command_list[i] = (node, (sol.x[const_num],))
                     const_num += 1
 
-    def evaluate(self, X, Y):
+    def evaluate(self, fitness_metric, **kwargs):
         """evaluate the compiled stack"""
         if not self.compiled:
             if self.needs_optimization():
-                self.optimize_constants(X, Y)
+                self.optimize_constants(fitness_metric, **kwargs)
             self.compile()
-        return self.namespace['evaluate'](X)
+        try:
+            f_of_x = self.namespace['evaluate'](kwargs['x'])
+        except:
+            print("***ERROR***")
+            print(self)
+            exit(-1)
+        return f_of_x
 
-    def evaluate_deriv(self, X, Y, required_params):
+    def evaluate_deriv(self, fitness_metric, **kwargs):
         """evaluate the compiled stack"""
         if not self.compiled_deriv:
             if self.needs_optimization():
-                self.optimize_constants_deriv(X, Y, required_params)
+                self.optimize_constants_deriv(fitness_metric, **kwargs)
             self.compile_deriv()
-        return self.namespace['evaluate_deriv'](X)
+        try:
+            f_of_x, df_dx = self.namespace['evaluate_deriv'](kwargs['x'])
+        except:
+            print("***ERROR***")
+            print(self)
+            exit(-1)
+        return f_of_x, df_dx
 
     def __str__(self):
         """overloaded string output"""

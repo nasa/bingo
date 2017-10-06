@@ -53,31 +53,33 @@ class CoevolutionIsland(object):
     """
 
     def __init__(self, data_x, data_y, solution_manipulator,
-                 predictor_manipulator,
+                 predictor_manipulator, fitness_metric,
                  solution_pop_size=64, solution_cx=0.7, solution_mut=0.01,
                  predictor_pop_size=16, predictor_cx=0.5, predictor_mut=0.1,
                  predictor_ratio=0.1, predictor_update_freq=50,
                  trainer_pop_size=16, trainer_update_freq=50,
-                 required_params=2,
-                 verbose=False):
+                 verbose=False,
+                 **fitness_metric_args):
         """
         Initializes coevolution island
         """
         self.verbose = verbose
+        self.fitness_metric = fitness_metric
+        self.fitness_metric_args = fitness_metric_args
 
-        # if data_y is none, use derivatives of x
-        # and do unsupervised (const) algorithm
-        if data_y is None:
-            self.data_x, self.data_y = calculate_partials(data_x)
-            if self.data_x.shape[0] < predictor_manipulator.max_index:
-                predictor_manipulator.max_index = self.data_x.shape[0]
-            self.standard_regression = False
-            self.required_params = required_params
-        else:
-            self.data_x = data_x
-            self.data_y = data_y
-            self.standard_regression = True
-            self.required_params = None
+        # fill fitness metric args
+        if self.fitness_metric.need_dx_dt:
+            data_x, fitness_metric_args['dx_dt'], inds = \
+                calculate_partials(data_x)
+            data_y = data_y[inds, ...]
+        if self.fitness_metric.need_x:
+            fitness_metric_args['x'] = data_x
+        if self.fitness_metric.need_y:
+            fitness_metric_args['y'] = data_y
+
+        # check if fitness predictors are valid range
+        if data_x.shape[0] < predictor_manipulator.max_index:
+            predictor_manipulator.max_index = data_x.shape[0]
 
         # initialize solution island
         self.solution_island = Island(solution_manipulator,
@@ -104,10 +106,8 @@ class CoevolutionIsland(object):
                 true_fitness = self.solution_fitness_true(sol)
                 legal_trainer_found = not np.isnan(true_fitness)
                 for pred in self.predictor_island.pop:
-                    if np.isnan(pred.fit_func(sol, self.data_x,
-                                              self.data_y,
-                                              self.standard_regression,
-                                              self.required_params)):
+                    if np.isnan(pred.fit_func(sol, self.fitness_metric,
+                                              **self.fitness_metric_args)):
                         legal_trainer_found = False
             self.trainers.append(self.solution_island.pop[ind].copy())
             self.trainers_true_fitness.append(true_fitness)
@@ -138,10 +138,8 @@ class CoevolutionIsland(object):
                          fitness will be calculated
         :return: fitness, complexity
         """
-        fit = self.best_predictor.fit_func(solution, self.data_x,
-                                           self.data_y,
-                                           self.standard_regression,
-                                           self.required_params)
+        fit = self.best_predictor.fit_func(solution, self.fitness_metric,
+                                           **self.fitness_metric_args)
         return fit, solution.complexity()
 
     def predictor_fitness(self, predictor):
@@ -154,10 +152,8 @@ class CoevolutionIsland(object):
         """
         err = 0.0
         for train, true_fit in zip(self.trainers, self.trainers_true_fitness):
-            predicted_fit = predictor.fit_func(train, self.data_x,
-                                               self.data_y,
-                                               self.standard_regression,
-                                               self.required_params)
+            predicted_fit = predictor.fit_func(train, self.fitness_metric,
+                                               **self.fitness_metric_args)
             err += abs(true_fit - predicted_fit)
         return err/len(self.trainers)
 
@@ -169,33 +165,23 @@ class CoevolutionIsland(object):
                          fitness will be calculated
         :return: fitness
         """
-        tot_n = self.data_x.shape[0]
-        # standard symbolic regression
-        if self.standard_regression:
-            diff = abs(solution.evaluate(self.data_x, self.data_y)
-                       - self.data_y)
 
-        # regression to find constant combinations/laws
-        else:
-            df_dx = solution.evaluate_deriv(self.data_x,
-                                            self.data_y,
-                                            self.required_params)
-            dot = df_dx * self.data_y
-            n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
-            if np.any(n_params_used >= self.required_params):
-                diff = np.log(1 + np.abs(np.sum(dot, axis=1) /
-                                         np.linalg.norm(df_dx, axis=1)))
-            else:  # not enough parameters in const regression
-                diff = np.inf
+        # calculate what is needed from individual (f and/or df_dx)
+        metric_args = dict(self.fitness_metric_args)
+        if self.fitness_metric.need_df_dx:
+            f_of_x, df_dx = solution.evaluate_deriv(self.fitness_metric,
+                                               **self.fitness_metric_args)
+            metric_args['df_dx'] = df_dx
+            if self.fitness_metric.need_f:
+                metric_args['f'] = f_of_x
+        elif self.fitness_metric.need_f:
+            metric_args['f'] = solution.evaluate(self.fitness_metric,
+                                                 **self.fitness_metric_args)
 
-        nan_count = np.count_nonzero(np.isnan(diff))
+        # calculate fitness metric
+        err = self.fitness_metric.evaluate_metric(**metric_args)
 
-        # ok
-        if nan_count < 0.1*tot_n:
-            return np.nanmean(diff)
-        # too many nans
-        else:
-            return np.nan
+        return err
 
     def add_new_trainer(self):
         """
@@ -207,10 +193,8 @@ class CoevolutionIsland(object):
         for sol in self.solution_island.pop:
             pfit_list = []
             for pred in self.predictor_island.pop:
-                pfit_list.append(pred.fit_func(sol, self.data_x,
-                                               self.data_y,
-                                               self.standard_regression,
-                                               self.required_params))
+                pfit_list.append(pred.fit_func(sol, self.fitness_metric,
+                                               **self.fitness_metric_args))
             try:
                 variance = np.var(pfit_list)
             except (ArithmeticError, OverflowError, FloatingPointError,

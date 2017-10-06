@@ -3,13 +3,13 @@ example of regression done using the serial island manager (islands done
 serially on a single process)
 """
 
-import numpy as np
-
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
+from bingo.FitnessMetric import StandardRegression
+
 
 def main(max_steps, epsilon, data_size, data_range, n_islands):
     """main regression function"""
@@ -44,7 +44,8 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     pred_manip = fpm(32, data_size)
 
     # make and run island manager
-    islmngr = SerialIslandManager(n_islands, X, Y, sol_manip, pred_manip)
+    islmngr = SerialIslandManager(n_islands, X, Y, sol_manip, pred_manip,
+                                  fitness_metric=StandardRegression)
     islmngr.run_islands(max_steps, epsilon, step_increment=1000)
 
 
@@ -54,6 +55,6 @@ if __name__ == "__main__":
     CONVERGENCE_EPSILON = 1.0e-8
     DATA_SIZE = 100
     DATA_RANGE = [-3, 3]
-    N_ISLANDS = 2
+    N_ISLANDS = 10
 
     main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE, DATA_RANGE, N_ISLANDS)

@@ -34,13 +34,17 @@ def calculate_partials(X):
         if start is 0:
             x_all = np.copy(x_seg)
             time_deriv_all = np.copy(time_deriv)
+            inds_all = np.arange(start+3, end-4)
         else:
             x_all = np.vstack((x_all, np.copy(x_seg)))
             time_deriv_all = np.vstack((time_deriv_all,
                                         np.copy(time_deriv)))
+
+            inds_all = np.hstack((inds_all,
+                                  np.arange(start+3, end-4)))
         start = end + 1
 
-    return x_all, time_deriv_all
+    return x_all, time_deriv_all, inds_all
 
 
 def savitzky_golay(y, window_size, order, deriv=0, rate=1):

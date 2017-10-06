@@ -249,11 +249,12 @@ class ParallelIslandManager(IslandManager):
                   self.pareto_isle.pareto_front[0].latexstring())
             print_latex(self.pareto_isle.pareto_front, "eq.png")
             print_pareto(self.pareto_isle.pareto_front, "front.png")
-            if self.isle.data_x.shape[1] == 1:
-                print_1d_best_soln(self.isle.data_x,
-                                   self.isle.data_y,
-                                   self.pareto_isle.pareto_front[0].evaluate,
-                                   "comparison.png")
+            # TODO fix plotting
+            # if self.isle.data_x.shape[1] == 1:
+            #     print_1d_best_soln(self.isle.data_x,
+            #                        self.isle.data_y,
+            #                        self.pareto_isle.pareto_front[0].evaluate,
+            #                        "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
                 for par_indv in self.pareto_isle.pareto_front:
@@ -288,11 +289,12 @@ class ParallelIslandManager(IslandManager):
             # make plots
             print_latex(self.isle.solution_island.pareto_front, "eq.png")
             print_pareto(self.isle.solution_island.pareto_front, "front.png")
-            if self.isle.data_x.shape[1] == 1:
-                print_1d_best_soln(
-                    self.isle.data_x, self.isle.data_y,
-                    self.isle.solution_island.pareto_front[0].evaluate,
-                    "comparison.png")
+            # TODO fix plotting
+            # if self.isle.data_x.shape[1] == 1:
+            #     print_1d_best_soln(
+            #         self.isle.data_x, self.isle.data_y,
+            #         self.isle.solution_island.pareto_front[0].evaluate,
+            #         "comparison.png")
 
 
 class SerialIslandManager(IslandManager):
@@ -402,11 +404,12 @@ class SerialIslandManager(IslandManager):
 
         print_latex(self.pareto_isle.pareto_front, "eq.png")
         print_pareto(self.pareto_isle.pareto_front, "front.png")
-        if self.isles[0].data_x.shape[1] == 1:
-            print_1d_best_soln(self.isles[0].data_x,
-                               self.isles[0].data_y,
-                               self.pareto_isle.pareto_front[0].evaluate,
-                               "comparison.png")
+        # TODO fix this plotting
+        # if self.isles[0].x_dimension == 1:
+        #     print_1d_best_soln(self.isles[0].data_x,
+        #                        self.isles[0].data_y,
+        #                        self.pareto_isle.pareto_front[0].evaluate,
+        #                        "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("%d\t" % self.age)
             for par_indv in self.pareto_isle.pareto_front:
@@ -440,10 +443,11 @@ class SerialIslandManager(IslandManager):
             print("pareto>", indv.fitness, indv.latexstring())
         print_latex(self.isles[0].solution_island.pareto_front, "eq.png")
         print_pareto(self.isles[0].solution_island.pareto_front, "front.png")
-        if self.isles[0].data_x.shape[1] == 1:
-            print_1d_best_soln(
-                self.isles[0].data_x, self.isles[0].data_y,
-                self.isles[0].solution_island.pareto_front[0].evaluate,
-                "comparison.png")
+        # TODO fix this plotting
+        # if self.isles[0].data_x.shape[1] == 1:
+        #     print_1d_best_soln(
+        #         self.isles[0].data_x, self.isles[0].data_y,
+        #         self.isles[0].solution_island.pareto_front[0].evaluate,
+        #         "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")

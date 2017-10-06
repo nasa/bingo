@@ -9,7 +9,7 @@ from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
-
+from bingo.FitnessMetric import ImplicitRegression
 
 N_ISLANDS = 2
 MAX_STEPS = 1000
@@ -18,7 +18,7 @@ N_STEPS = 100
 
 
 def test_sym_const_add():
-    """test add primative in sym reg"""
+    """test add primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -31,7 +31,7 @@ def test_sym_const_add():
 
 
 def test_sym_const_sub():
-    """test add primative in sym reg"""
+    """test subtract primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -44,7 +44,7 @@ def test_sym_const_sub():
 
 
 def test_sym_const_mul():
-    """test add primative in sym reg"""
+    """test multiply primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -52,12 +52,12 @@ def test_sym_const_mul():
     y = (x_true[:, 0] * x_true[:, 1])
 
     # test solution
-    epsilon = 2e-4
+    epsilon = 7e-4
     compare_sym_const(x_true, y, epsilon)
 
 
 def test_sym_const_div():
-    """test add primative in sym reg"""
+    """test divide primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -65,12 +65,12 @@ def test_sym_const_div():
     y = (x_true[:, 0] / x_true[:, 1])
 
     # test solution
-    epsilon = 2e-4
+    epsilon = 6e-4
     compare_sym_const(x_true, y, epsilon)
 
 
 def test_sym_const_cos():
-    """test add primative in sym reg"""
+    """test cosine primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -78,12 +78,12 @@ def test_sym_const_cos():
     y = np.cos(x_true[:, 0])
 
     # test solution
-    epsilon = 5e-4
+    epsilon = 3e-3
     compare_sym_const(x_true, y, epsilon)
 
 
 def test_sym_const_sin():
-    """test add primative in sym reg"""
+    """test sine primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -91,12 +91,12 @@ def test_sym_const_sin():
     y = np.sin(x_true[:, 0])
 
     # test solution
-    epsilon = 5e-4
+    epsilon = 2.3e-3
     compare_sym_const(x_true, y, epsilon)
 
 
 def test_sym_const_exp():
-    """test add primative in sym reg"""
+    """test exponential primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -109,7 +109,7 @@ def test_sym_const_exp():
 
 
 def test_sym_const_log():
-    """test add primative in sym reg"""
+    """test logarithm primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -117,12 +117,12 @@ def test_sym_const_log():
     y = np.log(x_true[:, 0])
 
     # test solution
-    epsilon = 5e-4
+    epsilon = 2.2e-3
     compare_sym_const(x_true, y, epsilon)
 
 
 def test_sym_const_abs():
-    """test add primative in sym reg"""
+    """test absolute value primitive in sym reg"""
     # get independent vars
     x_true = snake_walk()
 
@@ -156,5 +156,6 @@ def compare_sym_const(X, Y, epsilon):
     pred_manip = fpm(32, X.shape[0])
 
     # make and run island manager
-    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
+    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip,
+                                  fitness_metric=ImplicitRegression)
     assert islmngr.run_islands(MAX_STEPS, epsilon, N_STEPS)

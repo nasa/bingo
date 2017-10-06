@@ -71,7 +71,8 @@ class CoevolutionIsland(object):
         if self.fitness_metric.need_dx_dt:
             data_x, fitness_metric_args['dx_dt'], inds = \
                 calculate_partials(data_x)
-            data_y = data_y[inds, ...]
+            if data_y is not None:
+                data_y = data_y[inds, ...]
         if self.fitness_metric.need_x:
             fitness_metric_args['x'] = data_x
         if self.fitness_metric.need_y:

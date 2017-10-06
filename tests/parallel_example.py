@@ -12,6 +12,7 @@ from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
+from bingo.FitnessMetric import StandardRegression, ImplicitRegression
 
 
 def make_circle_data(data_size):
@@ -135,7 +136,8 @@ def main(max_steps, epsilon, data_size):
 
     # make and run island manager
     islmngr = ParallelIslandManager(x_true, y_true, sol_manip, pred_manip,
-                                    solution_pop_size=64)
+                                    solution_pop_size=64,
+                                    fitness_metric=StandardRegression)
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,
                         step_increment=1000)
 

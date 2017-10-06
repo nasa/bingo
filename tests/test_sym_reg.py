@@ -10,13 +10,13 @@ from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
+from bingo.FitnessMetric import StandardRegression
 
 
 N_ISLANDS = 2
 MAX_STEPS = 1000
 EPSILON = 1e-8
 N_STEPS = 100
-
 
 
 def test_sym_reg_add():
@@ -145,5 +145,6 @@ def compare_sym_reg(X, Y):
     pred_manip = fpm(32, Y.shape[0])
 
     # make and run island manager
-    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip)
+    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip,
+                                  fitness_metric=StandardRegression)
     assert islmngr.run_islands(MAX_STEPS, EPSILON, N_STEPS)

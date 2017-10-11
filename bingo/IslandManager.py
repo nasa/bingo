@@ -32,7 +32,7 @@ class IslandManager(object):
         self.age = 0
 
     def run_islands(self, max_steps, epsilon, min_steps=0,
-                    step_increment=1000):
+                    step_increment=1000, make_plots=True):
         """
         Runs co-evolution islands until convergence of best solution
 
@@ -43,13 +43,13 @@ class IslandManager(object):
         :return converged: whether a converged solution has been found
         """
         self.do_steps(n_steps=step_increment)
-        converged = self.test_convergence(epsilon)
+        converged = self.test_convergence(epsilon, make_plots)
         while self.age < min_steps or (self.age < max_steps and not converged):
             self.do_migration()
             self.do_steps(n_steps=step_increment)
-            converged = self.test_convergence(epsilon)
+            converged = self.test_convergence(epsilon, make_plots)
 
-        self.do_final_plots()
+        self.do_final_plots(make_plots)
 
         return converged
 
@@ -69,17 +69,18 @@ class IslandManager(object):
         pass
 
     @abc.abstractmethod
-    def test_convergence(self, epsilon):
+    def test_convergence(self, epsilon, make_plots):
         """
         Tests for convergence of the island system
 
         :param epsilon: error which defines convergence
+        :param make_plots: boolean for whetehr to produce plots
         :return: boolean for whether convergence has been reached
         """
         pass
 
     @abc.abstractmethod
-    def do_final_plots(self):
+    def do_final_plots(self, make_plots):
         """
         Makes some summary output
         """
@@ -224,7 +225,7 @@ class ParallelIslandManager(IslandManager):
             self.comm.send(send_package, dest=my_partner)
             self.isle.load_populations(recv_package, s_send, p_send, t_send)
 
-    def test_convergence(self, epsilon):
+    def test_convergence(self, epsilon, make_plots):
         """
         Tests for convergence of the island system
 
@@ -247,14 +248,15 @@ class ParallelIslandManager(IslandManager):
                   self.pareto_isle.pareto_front[0].fitness[0])
             print("best solution:",
                   self.pareto_isle.pareto_front[0].latexstring())
-            print_latex(self.pareto_isle.pareto_front, "eq.png")
-            print_pareto(self.pareto_isle.pareto_front, "front.png")
-            # TODO fix plotting
-            # if self.isle.data_x.shape[1] == 1:
-            #     print_1d_best_soln(self.isle.data_x,
-            #                        self.isle.data_y,
-            #                        self.pareto_isle.pareto_front[0].evaluate,
-            #                        "comparison.png")
+            if make_plots:
+                print_latex(self.pareto_isle.pareto_front, "eq.png")
+                print_pareto(self.pareto_isle.pareto_front, "front.png")
+                # TODO fix plotting
+                # if self.isle.data_x.shape[1] == 1:
+                #     print_1d_best_soln(self.isle.data_x,
+                #                        self.isle.data_y,
+                #                        self.pareto_isle.pareto_front[0].evaluate,
+                #                        "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
                 for par_indv in self.pareto_isle.pareto_front:
@@ -265,7 +267,7 @@ class ParallelIslandManager(IslandManager):
         converged = self.comm.bcast(converged, root=0)
         return converged
 
-    def do_final_plots(self):
+    def do_final_plots(self, make_plots):
         """
         Makes some summary output
         """
@@ -287,14 +289,15 @@ class ParallelIslandManager(IslandManager):
                 print("pareto>", indv.fitness, indv.latexstring())
 
             # make plots
-            print_latex(self.isle.solution_island.pareto_front, "eq.png")
-            print_pareto(self.isle.solution_island.pareto_front, "front.png")
-            # TODO fix plotting
-            # if self.isle.data_x.shape[1] == 1:
-            #     print_1d_best_soln(
-            #         self.isle.data_x, self.isle.data_y,
-            #         self.isle.solution_island.pareto_front[0].evaluate,
-            #         "comparison.png")
+            if make_plots:
+                print_latex(self.isle.solution_island.pareto_front, "eq.png")
+                print_pareto(self.isle.solution_island.pareto_front, "front.png")
+                # TODO fix plotting
+                # if self.isle.data_x.shape[1] == 1:
+                #     print_1d_best_soln(
+                #         self.isle.data_x, self.isle.data_y,
+                #         self.isle.solution_island.pareto_front[0].evaluate,
+                #         "comparison.png")
 
 
 class SerialIslandManager(IslandManager):
@@ -377,7 +380,7 @@ class SerialIslandManager(IslandManager):
             partner_1.load_populations(pops_to_1, s_to_2, p_to_2, t_to_2)
             partner_2.load_populations(pops_to_2, s_to_1, p_to_1, t_to_1)
 
-    def test_convergence(self, epsilon):
+    def test_convergence(self, epsilon, make_plots):
         """
         Tests for convergence of the island system
 
@@ -402,14 +405,15 @@ class SerialIslandManager(IslandManager):
               self.pareto_isle.pareto_front[0].fitness[0])
         print("best solution:", self.pareto_isle.pareto_front[0].latexstring())
 
-        print_latex(self.pareto_isle.pareto_front, "eq.png")
-        print_pareto(self.pareto_isle.pareto_front, "front.png")
-        # TODO fix this plotting
-        # if self.isles[0].x_dimension == 1:
-        #     print_1d_best_soln(self.isles[0].data_x,
-        #                        self.isles[0].data_y,
-        #                        self.pareto_isle.pareto_front[0].evaluate,
-        #                        "comparison.png")
+        if make_plots:
+            print_latex(self.pareto_isle.pareto_front, "eq.png")
+            print_pareto(self.pareto_isle.pareto_front, "front.png")
+            # TODO fix this plotting
+            # if self.isles[0].x_dimension == 1:
+            #     print_1d_best_soln(self.isles[0].data_x,
+            #                        self.isles[0].data_y,
+            #                        self.pareto_isle.pareto_front[0].evaluate,
+            #                        "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("%d\t" % self.age)
             for par_indv in self.pareto_isle.pareto_front:
@@ -418,7 +422,7 @@ class SerialIslandManager(IslandManager):
 
         return converged
 
-    def do_final_plots(self):
+    def do_final_plots(self, make_plots):
         """
         Makes some summary output
         """
@@ -441,13 +445,15 @@ class SerialIslandManager(IslandManager):
         # output
         for indv in self.isles[0].solution_island.pareto_front:
             print("pareto>", indv.fitness, indv.latexstring())
-        print_latex(self.isles[0].solution_island.pareto_front, "eq.png")
-        print_pareto(self.isles[0].solution_island.pareto_front, "front.png")
-        # TODO fix this plotting
-        # if self.isles[0].data_x.shape[1] == 1:
-        #     print_1d_best_soln(
-        #         self.isles[0].data_x, self.isles[0].data_y,
-        #         self.isles[0].solution_island.pareto_front[0].evaluate,
-        #         "comparison.png")
+
+        if make_plots:
+            print_latex(self.isles[0].solution_island.pareto_front, "eq.png")
+            print_pareto(self.isles[0].solution_island.pareto_front, "front.png")
+            # TODO fix this plotting
+            # if self.isles[0].data_x.shape[1] == 1:
+            #     print_1d_best_soln(
+            #         self.isles[0].data_x, self.isles[0].data_y,
+            #         self.isles[0].solution_island.pareto_front[0].evaluate,
+            #         "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")

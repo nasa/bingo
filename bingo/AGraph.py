@@ -141,7 +141,8 @@ class AGraphManipulator(object):
         else:  # parameter change
             new_node_type = orig_node_type
             if orig_node_type.terminal:  # terminals
-                new_params = self.rand_terminal_param(new_node_type)
+                new_params = self.mutate_terminal_param(new_node_type,
+                                                        orig_params)
             else:  # operators
                 new_params = self.rand_operator_params(new_node_type.arity,
                                                        mut_point)
@@ -251,6 +252,22 @@ class AGraphManipulator(object):
                 param = np.random.random()*self.float_lim
         return param,
 
+    def mutate_terminal_param(self, terminal, old_params):
+        """
+        Produces random terminal value, either input variable or float
+        Mutates floats by getting random variation of old param
+
+        :return: terminal parameter
+        """
+        if terminal is AGNodes.Load_Data:
+            param = np.random.randint(self.nvars)
+        else:
+            if self.constant_optimization:
+                param = None
+            else:
+                param = np.random.normal(old_params[0], self.float_lim*0.05)
+        return param,
+
     def rand_terminal(self):
         """
         Produces random terminal node and value
@@ -353,7 +370,7 @@ class AGraph(object):
 
         # do optimization
         sol = optimize.root(const_opt_fitness,
-                            np.random.random(const_num),
+                            np.random.uniform(-100, 100, const_num),
                             method='lm')
 
         # put optimal values in command list
@@ -392,7 +409,7 @@ class AGraph(object):
         def const_opt_fitness(consts):
             """ fitness function for constant optimization (deriv)"""
             f_of_x, df_dx = self.namespace['eval_deriv_for_opt'](consts,
-                                                            kwargs['x'])
+                                                                 kwargs['x'])
             temp_args['df_dx'] = df_dx
             if fitness_metric.need_f:
                 temp_args['f'] = f_of_x
@@ -401,7 +418,7 @@ class AGraph(object):
 
         # do optimization
         sol = optimize.root(const_opt_fitness,
-                            np.random.random(const_num),
+                            np.random.uniform(-100, 100, const_num),
                             method='lm')
 
         # put optimal values in command list

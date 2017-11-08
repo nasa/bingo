@@ -1,5 +1,6 @@
 """
-This module encapsulates different fitness metrics that can be used
+This module encapsulates different fitness metrics that can be used for
+symbolic regression in bingo
 """
 
 import abc
@@ -35,21 +36,39 @@ class StandardRegression(FitnessMetric):
 
     @staticmethod
     def evaluate_vector(x, f, y):
-        return f - y
+        """
+        :param x: independent variable
+        :param f: test function evaluated at x
+        :param y: target values of the test function
+
+        :return f - y
+        """
+        return (f - y).flatten()
 
 
 class ImplicitRegression(FitnessMetric):
-    """ Implicit Regression, version """
+    """ Implicit Regression, version 1"""
 
     need_df_dx = True
     need_dx_dt = True
 
     @staticmethod
     def evaluate_vector(x, df_dx, dx_dt, required_params=2):
-        """ error = cos of angle between between df_dx and dx_dt """
+        """
+        error = cos of angle between between df_dx and dx_dt
+
+        :param x: independent variable
+        :param df_dx: partial derivatives of the test function wrt x
+        :param dx_dt: time derivative of x along trajectories
+        :param required_params: minimum number of nonzero components of dot
+
+        :return: the fitness for each row
+        """
         dot = df_dx * dx_dt
-        n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
-        if np.any(n_params_used >= required_params):
+        # n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
+        n_params_used = (abs(dot) > 1e-16).sum(1)
+        enough_params_used = np.any(n_params_used >= required_params)
+        if enough_params_used:
             diff = np.log(1 + np.abs(np.sum(dot, axis=1)))
         else:  # not enough parameters in const regression
             diff = np.full((x.shape[0], ), np.inf)
@@ -57,15 +76,25 @@ class ImplicitRegression(FitnessMetric):
 
     @classmethod
     def evaluate_metric(cls, x, df_dx, dx_dt, required_params=2):
-        """ evaluate metric but ignore some nans in vector
-            error = cos of angle between between df_dx and dx_dt """
+        """
+        error = cos of angle between between df_dx and dx_dt
+
+        :param x: independent variable
+        :param df_dx: partial derivatives of the test function wrt x
+        :param dx_dt: time derivative of x along trajectories
+        :param required_params: minimum number of nonzero components of dot
+
+        :return: nanmean of metric but ignore some nans in vector
+        """
         dot = (df_dx/np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
               (dx_dt/np.linalg.norm(dx_dt, axis=1).reshape((-1, 1)))
-        n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
-        if np.any(n_params_used >= required_params):
+        # n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
+        n_params_used = (abs(dot) > 1e-16).sum(1)
+        enough_params_used = np.any(n_params_used >= required_params)
+        if enough_params_used:
             vec = np.log(1 + np.abs(np.sum(dot, axis=1)))
         else:  # not enough parameters in const regression
-            vec = np.full((x.shape[0], ), np.inf)
+            return np.inf
         nan_count = np.count_nonzero(np.isnan(vec))
         # ok
         if nan_count < 0.1 * len(vec):
@@ -73,6 +102,56 @@ class ImplicitRegression(FitnessMetric):
         # too many nans
         else:
             return np.nan
+
+
+class ImplicitRegressionTest(FitnessMetric):
+    """ Implicit Regression, version 2"""
+
+    need_df_dx = True
+    need_dx_dt = True
+
+    @staticmethod
+    def evaluate_vector(x, df_dx, dx_dt,
+                        required_params=None,
+                        normalize_dot=True):
+        """
+        Fitness of this metric is related cos of angle between between df_dx
+        and dx_dt. Different normalization and erorr checking are available.
+
+        :param x: independent variable
+        :param df_dx: partial derivatives of the test function wrt x
+        :param dx_dt: time derivative of x along trajectories
+        :param required_params: minimum number of nonzero components of dot
+        :param normalize_dot: normalize the terms in the dot product
+
+        :return: the fitness for each row
+        """
+        if normalize_dot:
+            dot = (df_dx/np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
+                  (dx_dt/np.linalg.norm(dx_dt, axis=1).reshape((-1, 1)))
+        else:
+            dot = df_dx * dx_dt
+
+        if required_params is not None:
+            n_params_used = (abs(dot) > 1e-16).sum(1)
+            enough_params_used = np.any(n_params_used >= required_params)
+            if not enough_params_used:  # not enough parameters
+                return np.full((x.shape[0],), np.inf)
+
+        new = np.abs(np.sum(dot, axis=1)) / np.sum(np.abs(dot), axis=1)
+        return new
+
+    @classmethod
+    def evaluate_metric(cls, **kwargs):
+        """
+        Fitness of this metric is related cos of angle between between df_dx
+        and dx_dt. Different normalization and erorr checking are available.
+
+        :param kwargs: dictionary of keyword args used in vector evaluation
+        :return: the mean of the fitness vector, ignoring nans
+        """
+        vec = cls.evaluate_vector(**kwargs)
+        return np.nanmean(np.abs(vec))
 
 
 # I DONT THINK THIS ONE WORKS BECAUSE IT FAILS TO CONSIDER ELASTIC STRAIN
@@ -127,27 +206,39 @@ class ImplicitRegressionSchmidt(FitnessMetric):
 
     @staticmethod
     def evaluate_vector(x, df_dx, dx_dt):
-        """ from schmidt and lipson's papers """
+        """
+        from schmidt and lipson's papers
 
-        # NOTE: this doesnt work right now, and couldn't reproduce the papers
+        :param x: independent variable
+        :param df_dx: partial derivatives of the test function wrt x
+        :param dx_dt: time derivative of x along trajectories
+
+        :return: the fitness for each row
+        """
+
+        # NOTE: this doesnt work well right now
+        #       importantly, it couldn't reproduce the papers
         n_params = x.shape[1]
-
+        # print("----------------------------------")
         worst_fit = 0
         diff_worst = np.full((x.shape[0], ), np.inf)
         for i in range(n_params):
             for j in range(n_params):
                 if i != j:
                     df_dxi = np.copy(df_dx[:, i])
-                    df_dxj = np.copy(df_dx[:, i])
+                    df_dxj = np.copy(df_dx[:, j])
                     dxi_dxj_2 = dx_dt[:, i]/dx_dt[:, j]
+                    # print("independent:", i, "-", j)
                     for k in range(n_params):
                         if k != i and k != j:
-                            df_dxi += df_dx[:, k]*dx_dt[:, k]/dx_dt[:, i]
+                            # print("  dependent:", i, "-", k)
+                            # df_dxi += df_dx[:, k]*dx_dt[:, k]/dx_dt[:, i]
                             df_dxj += df_dx[:, k]*dx_dt[:, k]/dx_dt[:, j]
 
                     dxi_dxj_1 = df_dxj / df_dxi
-                    diff = np.log(1. + np.abs(dxi_dxj_1 - dxi_dxj_2))
+                    diff = np.log(1. + np.abs(dxi_dxj_1 + dxi_dxj_2))
                     fit = np.mean(diff)
+                    # print("        fit:", fit)
                     if np.isfinite(fit) and fit > worst_fit:
                         # print(i, j)
                         diff_worst = np.copy(diff)
@@ -157,12 +248,11 @@ class ImplicitRegressionSchmidt(FitnessMetric):
 
     @classmethod
     def evaluate_metric(cls, **kwargs):
-        """ evaluate metric but ignore some nans in vector"""
+        """
+        from schmidt and lipson's papers
+
+        :param kwargs: dictionary of keyword args used in vector evaluation
+        :return: the mean of the fitness vector, ignoring nans
+        """
         vec = cls.evaluate_vector(**kwargs)
-        nan_count = np.count_nonzero(np.isnan(vec))
-        # ok
-        if nan_count < 0.1 * len(vec):
-            return np.nanmean(np.abs(vec))
-        # too many nans
-        else:
-            return np.nan
+        return np.mean(np.abs(vec))

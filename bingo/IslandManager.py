@@ -9,6 +9,8 @@ after one on a single processor
 import time
 import random
 import abc
+import copy
+import pickle
 
 from mpi4py import MPI
 import numpy as np
@@ -29,24 +31,35 @@ class IslandManager(object):
         """
         Initialization of island manager
         """
+        self.sim_time = 0
+        self.start_time = 0
         self.age = 0
 
     def run_islands(self, max_steps, epsilon, min_steps=0,
-                    step_increment=1000, make_plots=True):
+                    step_increment=1000, make_plots=True,
+                    checkpoint_file=None):
         """
         Runs co-evolution islands until convergence of best solution
 
         :param max_steps: maximum number of steps to take
         :param epsilon: error which defines convergence
+        :param min_steps: minimum number of steps to take
         :param step_increment: the number of steps between
                                migrations/convergence checks
+        :param make_plots: boolean for whether to produce plots
+        :param checkpoint_file: base file name for checkpoint files
         :return converged: whether a converged solution has been found
         """
+        self.start_time = time.time()
         self.do_steps(n_steps=step_increment)
+        if checkpoint_file is not None:
+            self.save_state(checkpoint_file + "_%d.p" % self.age)
         converged = self.test_convergence(epsilon, make_plots)
         while self.age < min_steps or (self.age < max_steps and not converged):
             self.do_migration()
             self.do_steps(n_steps=step_increment)
+            if checkpoint_file is not None:
+                self.save_state(checkpoint_file + "_%d.p" % self.age)
             converged = self.test_convergence(epsilon, make_plots)
 
         self.do_final_plots(make_plots)
@@ -74,7 +87,7 @@ class IslandManager(object):
         Tests for convergence of the island system
 
         :param epsilon: error which defines convergence
-        :param make_plots: boolean for whetehr to produce plots
+        :param make_plots: boolean for whether to produce plots
         :return: boolean for whether convergence has been reached
         """
         pass
@@ -83,6 +96,26 @@ class IslandManager(object):
     def do_final_plots(self, make_plots):
         """
         Makes some summary output
+
+        :param make_plots: boolean for whether to produce plots
+        """
+        pass
+
+    @abc.abstractmethod
+    def save_state(self, filename):
+        """
+        Saves all information in the sim
+
+        :param filename: full name of file to save pickle
+        """
+        pass
+
+    @abc.abstractmethod
+    def load_state(self, filename):
+        """
+        loads island manager information from file
+
+        :param filename: full name of file to load pickle
         """
         pass
 
@@ -117,11 +150,12 @@ class ParallelIslandManager(IslandManager):
     coevolution islands in parallel
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, restart_file=None, *args, **kwargs):
         """
         Initialization of island manager.  The number of islands is set by the
         number of processors in the mpi call.
 
+        :param restart_file: file name from which to load the island manager
         :param args: arguments to be passed to initialization of coevolution
                      islands
         :param kwargs: keyword arguments to be passed to initialization of
@@ -133,17 +167,20 @@ class ParallelIslandManager(IslandManager):
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
 
-        # make coevolution islands
-        self.isle = ci(*args, **kwargs)
+        if restart_file is None:
+            # make coevolution islands
+            self.isle = ci(*args, **kwargs)
 
-        # make dummy island for joint pareto front calculations
-        if self.comm_rank == 0:
-            self.pareto_isle = Island(
-                self.isle.solution_island.gene_manipulator,
-                self.isle.true_fitness_plus_complexity,
-                0, 0, 0)
+            # make dummy island for joint pareto front calculations
+            if self.comm_rank == 0:
+                self.pareto_isle = Island(
+                    self.isle.solution_island.gene_manipulator,
+                    self.isle.true_fitness_plus_complexity,
+                    0, 0, 0)
+            else:
+                self.pareto_isle = None
         else:
-            self.pareto_isle = None
+            self.load_state(restart_file)
 
     def do_steps(self, n_steps):
         """
@@ -156,10 +193,10 @@ class ParallelIslandManager(IslandManager):
             self.isle.deterministic_crowding_step()
             # print_pareto(isle.solution_island.pareto_front, "front.png")
         t_1 = time.time()
-        print(self.comm_rank, ">\tage:", self.isle.solution_island.age,\
-            "\ttime: %.1fs" % (t_1 - t_0), \
-            "\tbest fitness:", \
-            self.isle.solution_island.pareto_front[0].fitness)
+        print(self.comm_rank, ">\tage:", self.isle.solution_island.age,
+              "\ttime: %.1fs" % (t_1 - t_0),
+              "\tbest fitness:",
+              self.isle.solution_island.pareto_front[0].fitness)
 
         if np.isnan(self.isle.solution_island.pareto_front[0].fitness[0]):
             for i in self.isle.solution_island.pop:
@@ -196,11 +233,11 @@ class ParallelIslandManager(IslandManager):
                         self.isle.predictor_island.pop_size)
                 t_send, t_receive = IslandManager.assign_send_receive(
                     len(self.isle.trainers))
-                print("Migration:", self.comm_rank, "<->", my_partner, \
-                    " mixing =",\
-                    (float(len(s_send)) / self.isle.solution_island.pop_size,
-                     float(len(p_send)) / self.isle.predictor_island.pop_size,
-                     float(len(t_send)) / len(self.isle.trainers)))
+                print("Migration:", self.comm_rank, "<->", my_partner,
+                      " mixing =",
+                      (float(len(s_send)) / self.isle.solution_island.pop_size,
+                       float(len(p_send)) / self.isle.predictor_island.pop_size,
+                       float(len(t_send)) / len(self.isle.trainers)))
                 self.comm.send((s_receive, p_receive, t_receive),
                                dest=my_partner)
 
@@ -230,6 +267,7 @@ class ParallelIslandManager(IslandManager):
         Tests for convergence of the island system
 
         :param epsilon: error which defines convergence
+        :param make_plots: boolean for whether to produce plots
         :return: boolean for whether convergence has been reached
         """
         # gather all pareto fronts
@@ -253,15 +291,18 @@ class ParallelIslandManager(IslandManager):
                 print_pareto(self.pareto_isle.pareto_front, "front.png")
                 # TODO fix plotting
                 # if self.isle.data_x.shape[1] == 1:
-                #     print_1d_best_soln(self.isle.data_x,
-                #                        self.isle.data_y,
-                #                        self.pareto_isle.pareto_front[0].evaluate,
-                #                        "comparison.png")
+                #   print_1d_best_soln(self.isle.data_x,
+                #                      self.isle.data_y,
+                #                    self.pareto_isle.pareto_front[0].evaluate,
+                #                      "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
+                o_file.write("%le\t" % (time.time() - self.start_time))
                 for par_indv in self.pareto_isle.pareto_front:
                     o_file.write("%e\t" % par_indv.fitness[0])
                 o_file.write("\n")
+                if converged:
+                    o_file.write("\n")
         else:
             converged = None
         converged = self.comm.bcast(converged, root=0)
@@ -270,6 +311,8 @@ class ParallelIslandManager(IslandManager):
     def do_final_plots(self, make_plots):
         """
         Makes some summary output
+
+        :param make_plots: boolean for whether to produce plots
         """
         # gather all populations to a single island
         s_pop, p_pop, t_pop = self.isle.dump_populations()
@@ -278,26 +321,73 @@ class ParallelIslandManager(IslandManager):
         t_pop = self.comm.gather(t_pop, root=0)
         if self.comm_rank == 0:
             s_pop[0] = s_pop[0] + self.pareto_isle.dump_pareto()
-            self.isle.load_populations((s_pop[0], p_pop[0], t_pop[0]))
+            temp_isle = copy.deepcopy(self.isle)
+            temp_isle.load_populations((s_pop[0], p_pop[0], t_pop[0]))
 
             # find true pareto front
-            self.isle.use_true_fitness()
-            self.isle.solution_island.update_pareto_front()
+            temp_isle.use_true_fitness()
+            temp_isle.solution_island.update_pareto_front()
 
             # output the front to screen
-            for indv in self.isle.solution_island.pareto_front:
+            for indv in temp_isle.solution_island.pareto_front:
                 print("pareto>", indv.fitness, indv.latexstring())
+            print("BEST_SOLUTION> ",
+                  temp_isle.solution_island.pareto_front[0].latexstring())
 
             # make plots
             if make_plots:
-                print_latex(self.isle.solution_island.pareto_front, "eq.png")
-                print_pareto(self.isle.solution_island.pareto_front, "front.png")
+                print_latex(temp_isle.solution_island.pareto_front, "eq.png")
+                print_pareto(temp_isle.solution_island.pareto_front,
+                             "front.png")
                 # TODO fix plotting
                 # if self.isle.data_x.shape[1] == 1:
                 #     print_1d_best_soln(
                 #         self.isle.data_x, self.isle.data_y,
                 #         self.isle.solution_island.pareto_front[0].evaluate,
                 #         "comparison.png")
+
+    def save_state(self, filename):
+        """
+        Currently this relies on everything being serializable and small
+        enough to fit in memory on 1 proc
+
+        :param filename: full name of file to save pickle
+        """
+
+        if self.comm_rank == 0:
+            isles = [self.isle, ]
+            for i in range(1, self.comm_size):
+                isles.append(self.comm.recv(source=i))
+
+            with open(filename, "wb") as out_file:
+                pickle.dump((isles, self.pareto_isle, self.age), out_file)
+        else:
+            self.comm.send(self.isle, dest=0)
+
+    def load_state(self, filename):
+        """
+        Currently this relies on everything being serializable and small
+        enough to fit in memory on 1 proc
+
+        :param filename: full name of file to load pickle
+        """
+
+        if self.comm_rank == 0:
+            with open(filename, "rb") as in_file:
+                isles, pareto, age = pickle.load(in_file)
+
+            self.isle = isles[0]
+            self.age = age
+            self.pareto_isle = pareto
+            for i in range(1, self.comm_size):
+                if i < len(isles):
+                    isle_to_send = isles[i]
+                else:
+                    isle_to_send = random.choice(isles)
+                self.comm.send((isle_to_send, age), dest=i)
+        else:
+            self.pareto_isle = None
+            self.isle, self.age = self.comm.recv(source=0)
 
 
 class SerialIslandManager(IslandManager):
@@ -307,21 +397,35 @@ class SerialIslandManager(IslandManager):
     operations in serial
     """
 
-    def __init__(self, n_islands=2, *args, **kwargs):
+    def __init__(self, n_islands=2, restart_file=None,
+                 *args, **kwargs):
+        """
+        Initialization of serial island manager.
+
+        :param n_islands: number of coevolution islands to be managed
+        :param restart_file: file name from which to load the island manager
+        :param args: arguments to be passed to initialization of coevolution
+                     islands
+        :param kwargs: keyword arguments to be passed to initialization of
+                       coevolution islands
+        """
         super(SerialIslandManager, self).__init__(*args, **kwargs)
 
-        self.n_isles = n_islands
+        if restart_file is None:
+            self.n_isles = n_islands
 
-        # make coevolution islands
-        self.isles = []
-        for _ in range(self.n_isles):
-            self.isles.append(ci(*args, **kwargs))
+            # make coevolution islands
+            self.isles = []
+            for _ in range(self.n_isles):
+                self.isles.append(ci(*args, **kwargs))
 
-        # make dummy island for joint pareto front calculations
-        self.pareto_isle = Island(
-            self.isles[0].solution_island.gene_manipulator,
-            self.isles[0].true_fitness_plus_complexity,
-            0, 0, 0)
+            # make dummy island for joint pareto front calculations
+            self.pareto_isle = Island(
+                self.isles[0].solution_island.gene_manipulator,
+                self.isles[0].true_fitness_plus_complexity,
+                0, 0, 0)
+        else:
+            self.load_state(restart_file)
 
     def do_steps(self, n_steps):
         """
@@ -385,6 +489,7 @@ class SerialIslandManager(IslandManager):
         Tests for convergence of the island system
 
         :param epsilon: error which defines convergence
+        :param make_plots: boolean for whether to produce plots
         :return: boolean for whether convergence has been reached
         """
         # get list of all pareto individuals
@@ -425,6 +530,8 @@ class SerialIslandManager(IslandManager):
     def do_final_plots(self, make_plots):
         """
         Makes some summary output
+
+        :param make_plots: boolean for whether to produce plots
         """
         # gather all populations
         s_pop = []
@@ -437,18 +544,19 @@ class SerialIslandManager(IslandManager):
             t_pop = t_pop + t_pop_i
         s_pop = s_pop + self.pareto_isle.dump_population()
 
-        # load them all into the first island and update
-        self.isles[0].load_populations((s_pop, p_pop, t_pop))
-        self.isles[0].use_true_fitness()
-        self.isles[0].solution_island.update_pareto_front()
+        # load them all into a temporary island
+        temp_isle = copy.deepcopy(self.isles[0])
+        temp_isle.load_populations((s_pop, p_pop, t_pop))
+        temp_isle.use_true_fitness()
+        temp_isle.solution_island.update_pareto_front()
 
         # output
-        for indv in self.isles[0].solution_island.pareto_front:
+        for indv in temp_isle.solution_island.pareto_front:
             print("pareto>", indv.fitness, indv.latexstring())
 
         if make_plots:
-            print_latex(self.isles[0].solution_island.pareto_front, "eq.png")
-            print_pareto(self.isles[0].solution_island.pareto_front, "front.png")
+            print_latex(temp_isle.solution_island.pareto_front, "eq.png")
+            print_pareto(temp_isle.solution_island.pareto_front, "front.png")
             # TODO fix this plotting
             # if self.isles[0].data_x.shape[1] == 1:
             #     print_1d_best_soln(
@@ -457,3 +565,23 @@ class SerialIslandManager(IslandManager):
             #         "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")
+
+    def save_state(self, filename):
+        """
+        currently this relies on everything being serializable
+
+        :param filename: full name of file to save pickle
+        """
+
+        with open(filename, "wb") as out_file:
+            pickle.dump((self.isles, self.pareto_isle, self.age), out_file)
+
+    def load_state(self, filename):
+        """
+        currently this relies on everything being serializable
+
+        :param filename: full name of file to load pickle
+        """
+
+        with open(filename, "rb") as in_file:
+            self.isles, self.pareto_isle, self.age = pickle.load(in_file)

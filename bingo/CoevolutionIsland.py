@@ -233,7 +233,7 @@ class CoevolutionIsland(object):
             self.predictor_island.deterministic_crowding_step()
             if self.verbose:
                 best_pred = self.predictor_island.best_indv()
-                print("P>", self.predictor_island.age, end=' ')
+                print("P>", self.predictor_island.age, ' ')
                 print(best_pred.fitness, best_pred)
             current_ratio = (float(self.predictor_island.fitness_evals) /
                              (self.predictor_island.fitness_evals +

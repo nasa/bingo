@@ -12,8 +12,6 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
 
     need_x = True  # required to be true at the moment
     need_dx_dt = False
-    need_f = False
-    need_df_dx = False
     need_y = False
 
     @classmethod
@@ -31,11 +29,10 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
 class StandardRegression(FitnessMetric):
     """ Traditional fitness evaluation """
 
-    need_f = True
     need_y = True
 
     @staticmethod
-    def evaluate_vector(x, f, y):
+    def evaluate_vector(indv, x, y):
         """
         :param x: independent variable
         :param f: test function evaluated at x
@@ -43,17 +40,18 @@ class StandardRegression(FitnessMetric):
 
         :return f - y
         """
+        f = indv.evaluate(StandardRegression, x=x, y=y)
+
         return (f - y).flatten()
 
 
 class ImplicitRegression(FitnessMetric):
     """ Implicit Regression, version 1"""
 
-    need_df_dx = True
     need_dx_dt = True
 
     @staticmethod
-    def evaluate_vector(x, df_dx, dx_dt, required_params=2):
+    def evaluate_vector(indv, x, dx_dt, required_params=2):
         """
         error = cos of angle between between df_dx and dx_dt
 
@@ -64,6 +62,11 @@ class ImplicitRegression(FitnessMetric):
 
         :return: the fitness for each row
         """
+
+        f, df_dx = indv.evaluate_deriv(ImplicitRegression,
+                                       x=x, dx_dt=dx_dt,
+                                       required_params=required_params)
+
         dot = df_dx * dx_dt
         # n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
         n_params_used = (abs(dot) > 1e-16).sum(1)
@@ -75,7 +78,7 @@ class ImplicitRegression(FitnessMetric):
         return diff
 
     @classmethod
-    def evaluate_metric(cls, x, df_dx, dx_dt, required_params=2):
+    def evaluate_metric(cls, indv, x, dx_dt, required_params=2):
         """
         error = cos of angle between between df_dx and dx_dt
 
@@ -86,6 +89,10 @@ class ImplicitRegression(FitnessMetric):
 
         :return: nanmean of metric but ignore some nans in vector
         """
+        f, df_dx = indv.evaluate_deriv(ImplicitRegression,
+                                       x=x, dx_dt=dx_dt,
+                                       required_params=required_params)
+
         dot = (df_dx/np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
               (dx_dt/np.linalg.norm(dx_dt, axis=1).reshape((-1, 1)))
         # n_params_used = np.count_nonzero(abs(dot) > 1e-16, axis=1)
@@ -107,11 +114,10 @@ class ImplicitRegression(FitnessMetric):
 class ImplicitRegressionTest(FitnessMetric):
     """ Implicit Regression, version 2"""
 
-    need_df_dx = True
     need_dx_dt = True
 
     @staticmethod
-    def evaluate_vector(x, df_dx, dx_dt,
+    def evaluate_vector(indv, x, dx_dt,
                         required_params=None,
                         normalize_dot=True):
         """
@@ -126,6 +132,11 @@ class ImplicitRegressionTest(FitnessMetric):
 
         :return: the fitness for each row
         """
+        f, df_dx = indv.evaluate_deriv(ImplicitRegressionTest,
+                                       x=x, dx_dt=dx_dt,
+                                       required_params=required_params,
+                                       normalize_dit=normalize_dot)
+
         if normalize_dot:
             dot = (df_dx/np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
                   (dx_dt/np.linalg.norm(dx_dt, axis=1).reshape((-1, 1)))

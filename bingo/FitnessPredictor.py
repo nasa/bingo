@@ -95,23 +95,11 @@ class FitnessPredictor(object):
                 if var in temp_args:
                     temp_args[var] = temp_args[var][self.indices, ...]
 
-            # calculate what is needed for the
-            metric_args = dict(temp_args)
-            if fitness_metric.need_df_dx:
-                f_of_x, df_dx = indv.evaluate_deriv(fitness_metric,
-                                                    **temp_args)
-                metric_args['df_dx'] = df_dx
-                if fitness_metric.need_f:
-                    metric_args['f'] = f_of_x
-
-            elif fitness_metric.need_f:
-                metric_args['f'] = indv.evaluate(fitness_metric,
-                                                 **temp_args)
-
-            err = fitness_metric.evaluate_metric(**metric_args)
+            err = fitness_metric.evaluate_metric(indv=indv, **temp_args)
 
         except (OverflowError, FloatingPointError, ValueError):
             print("fit_func error")
             err = np.nan
+
 
         return err

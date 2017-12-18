@@ -167,20 +167,9 @@ class CoevolutionIsland(object):
         :return: fitness
         """
 
-        # calculate what is needed from individual (f and/or df_dx)
-        metric_args = dict(self.fitness_metric_args)
-        if self.fitness_metric.need_df_dx:
-            f_of_x, df_dx = solution.evaluate_deriv(self.fitness_metric,
-                                               **self.fitness_metric_args)
-            metric_args['df_dx'] = df_dx
-            if self.fitness_metric.need_f:
-                metric_args['f'] = f_of_x
-        elif self.fitness_metric.need_f:
-            metric_args['f'] = solution.evaluate(self.fitness_metric,
-                                                 **self.fitness_metric_args)
-
         # calculate fitness metric
-        err = self.fitness_metric.evaluate_metric(**metric_args)
+        err = self.fitness_metric.evaluate_metric(indv=solution,
+                                                  **self.fitness_metric_args)
 
         return err
 

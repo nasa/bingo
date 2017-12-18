@@ -193,7 +193,7 @@ class AGraphCppManipulator(object):
 
         return dist
 
-    def dump(self, indv):                            # TODO need to update this
+    def dump(self, indv):
         """
         Dumps an individual to a pickleable object
 
@@ -206,7 +206,7 @@ class AGraphCppManipulator(object):
             command_list.append((ind, params))
         return command_list, indv.constants
 
-    def load(self, indv_list):                       # TODO need to update this
+    def load(self, indv_list):
         """
         Loads the individual from a pickleable object
 
@@ -334,49 +334,11 @@ class AGraphCpp(object):
                     self.command_list[i] = (1, (const_num,))
                     const_num += 1
 
-        temp_args = dict(kwargs)
-
         # define fitness function for optimization
         def const_opt_fitness(consts):
             """ fitness function for constant optimization"""
-            # stack = bingocpp.CommandStack(self.command_list)
-            temp_args['f'] = bingocpp.simplify_and_evauluate(self.command_list,
-                                                             kwargs['x'],
-                                                             consts)
-            vec = fitness_metric.evaluate_vector(**temp_args)
-            return vec
-
-        # do optimization
-        sol = optimize.root(const_opt_fitness,
-                            np.random.uniform(-100, 100, const_num),
-                            method='lm')
-
-        # put optimal values in command list
-        self.constants = sol.x
-
-    def optimize_constants_deriv(self, fitness_metric, **kwargs):
-        """optimize constants for derivative evaluations"""
-        # compile fitness function for optimization
-        util = self.utilized_commands()
-        const_num = 0
-        for i in range(len(self.command_list)):
-            if util[i]:
-                if self.command_list[i][0] == 1:  # TODO hard coded
-                    self.command_list[i] = (1, (const_num,))
-                    const_num += 1
-
-        temp_args = dict(kwargs)
-
-        # define fitness function for optimization
-        def const_opt_fitness(consts):
-            """ fitness function for constant optimization"""
-            f_of_x, df_dx = bingocpp.simplify_and_evauluate_with_derivative(
-                self.command_list, kwargs['x'], consts)
-            temp_args['df_dx'] = df_dx
-            if fitness_metric.need_f:
-                temp_args['f'] = f_of_x
-            fit_vec = fitness_metric.evaluate_vector(**temp_args)
-            return fit_vec
+            self.constants = consts
+            return fitness_metric.evaluate_vector(indv=self, **kwargs)
 
         # do optimization
         sol = optimize.root(const_opt_fitness,
@@ -404,7 +366,7 @@ class AGraphCpp(object):
     def evaluate_deriv(self, fitness_metric, **kwargs):
         """evaluate the compiled stack"""
         if self.needs_optimization():
-            self.optimize_constants_deriv(fitness_metric, **kwargs)
+            self.optimize_constants(fitness_metric, **kwargs)
         try:
             f_of_x, df_dx = bingocpp.simplify_and_evauluate_with_derivative(
                 self.command_list, kwargs['x'], self.constants)

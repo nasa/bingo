@@ -18,7 +18,8 @@ class AGraphManipulator(object):
 
     def __init__(self, nvars, ag_size,
                  nloads=1, float_lim=10.0, terminal_prob=0.1,
-                 constant_optimization=False):
+                 # constant_optimization=False
+                ):
         """
         Initialization of acyclic graph gene manipulator
 
@@ -34,7 +35,6 @@ class AGraphManipulator(object):
         self.nloads = nloads
         self.float_lim = float_lim
         self.terminal_prob = terminal_prob
-        self.constant_optimization = constant_optimization
 
         self.node_type_list = []
         self.terminal_inds = []
@@ -179,11 +179,11 @@ class AGraphManipulator(object):
         :param indv: individual which will be dumped
         :return: the individual in a pickleable format
         """
-        indv_list = []
+        command_list = []
         for node, params in indv.command_list:
             ind = self.node_type_list.index(node)
-            indv_list.append((ind, params))
-        return indv_list
+            command_list.append((ind, params))
+        return command_list, indv.constants
 
     def load(self, indv_list):
         """
@@ -193,7 +193,8 @@ class AGraphManipulator(object):
         :return: individual in normal form
         """
         indv = AGraph(self.namespace)
-        for node_num, params in indv_list:
+        indv.constants = indv_list[1]
+        for node_num, params in indv_list[0]:
             if node_num in range(len(self.node_type_list)):  # node
                 indv.command_list.append((self.node_type_list[node_num],
                                           params))
@@ -246,10 +247,7 @@ class AGraphManipulator(object):
         if terminal is AGNodes.Load_Data:
             param = np.random.randint(self.nvars)
         else:
-            if self.constant_optimization:
-                param = None
-            else:
-                param = np.random.random()*self.float_lim
+            param = None
         return param,
 
     def mutate_terminal_param(self, terminal, old_params):
@@ -262,10 +260,7 @@ class AGraphManipulator(object):
         if terminal is AGNodes.Load_Data:
             param = np.random.randint(self.nvars)
         else:
-            if self.constant_optimization:
-                param = None
-            else:
-                param = np.random.normal(old_params[0], self.float_lim*0.05)
+            param = None
         return param,
 
     def rand_terminal(self):
@@ -285,6 +280,7 @@ class AGraph(object):
     """
     def __init__(self, namespace=None):
         self.command_list = []
+        self.constants = []
         self.compiled = False
         self.compiled_deriv = False
         self.fitness = None
@@ -298,13 +294,14 @@ class AGraph(object):
         dup = AGraph(self.namespace)
         dup.compiled = self.compiled
         dup.fitness = self.fitness
+        dup.constants = list(self.constants)
         dup.command_list = list(self.command_list)
         return dup
 
     def compile(self):
         """compile the stack of commands"""
         util = self.utilized_commands()
-        code_str = ("def evaluate(x):\n"
+        code_str = ("def evaluate(x, consts):\n"
                     "    stack = [None]*%d\n" % len(self.command_list))
         for i, (node, params) in enumerate(self.command_list):
             if util[i]:
@@ -317,7 +314,7 @@ class AGraph(object):
     def compile_deriv(self):
         """compile the stack of commands and derivatives"""
         util = self.utilized_commands()
-        code_str = "def evaluate_deriv(x):\n"
+        code_str = "def evaluate_deriv(x, consts):\n"
         code_str += "    stack = [None]*%d\n" % len(self.command_list)
         code_str += "    deriv = [None]*%d\n" % len(self.command_list)
         for i, (node, params) in enumerate(self.command_list):
@@ -336,8 +333,11 @@ class AGraph(object):
         util = self.utilized_commands()
         for i in range(len(self.command_list)):
             if util[i]:
-                if self.command_list[i][1][0] is None:
-                    return True
+                if self.command_list[i][0] == AGNodes.Load_Const:
+                    if self.command_list[i][1][0] is None:
+                        return True
+                    elif self.command_list[i][1][0] >= len(self.constants):
+                        return True
         return False
 
     def optimize_constants(self, fitness_metric, **kwargs):
@@ -346,27 +346,17 @@ class AGraph(object):
         # compile fitness function for optimization
         util = self.utilized_commands()
         const_num = 0
-        code_str = ("def eval_for_opt(c, x):\n"
-                    "    stack = [None]*%d\n" % len(self.command_list))
         for i, (node, params) in enumerate(self.command_list):
             if util[i]:
                 if node is AGNodes.Load_Const:
-                    code_str += "    stack[%d] = c[%d]\n" % (i, const_num)
+                    self.command_list[i] = (node, (const_num,))
                     const_num += 1
-                else:
-                    code_str += ("    stack[%d] = " % i +
-                                 node.funcstring(params) + "\n")
-        code_str += "    return stack[-1]\n"
-        exec(compile(code_str, '<string>', 'exec'), self.namespace)
-
-        temp_args = dict(kwargs)
 
         # define fitness function for optimization
         def const_opt_fitness(consts):
             """ fitness function for constant optimization"""
-            temp_args['f'] = self.namespace['eval_for_opt'](consts,
-                                                            kwargs['x'])
-            return fitness_metric.evaluate_vector(**temp_args)
+            self.constants = consts
+            return fitness_metric.evaluate_vector(indv=self, **kwargs)
 
         # do optimization
         sol = optimize.root(const_opt_fitness,
@@ -374,60 +364,7 @@ class AGraph(object):
                             method='lm')
 
         # put optimal values in command list
-        const_num = 0
-        for i, (node, _) in enumerate(self.command_list):
-            if util[i]:
-                if node is AGNodes.Load_Const:
-                    self.command_list[i] = (node, (sol.x[const_num],))
-                    const_num += 1
-
-    def optimize_constants_deriv(self, fitness_metric, **kwargs):
-        """optimize constants for derivative evaluations"""
-
-        # compile fitness function for optimization
-        util = self.utilized_commands()
-        const_num = 0
-        code_str = "def eval_deriv_for_opt(c, x):\n"
-        code_str += "    stack = [None]*%d\n" % len(self.command_list)
-        code_str += "    deriv = [None]*%d\n" % len(self.command_list)
-        for i, (node, params) in enumerate(self.command_list):
-            if util[i]:
-                if node is AGNodes.Load_Const:
-                    code_str += "    stack[%d] = c[%d]\n" % (i, const_num)
-                    const_num += 1
-                else:
-                    code_str += ("    stack[%d] = " % i +
-                                 node.funcstring(params) + "\n")
-                code_str += ("    deriv[%d] = " % i +
-                             node.derivstring(params) + "\n")
-        code_str += "    return stack[-1], deriv[-1]\n"
-        exec(compile(code_str, '<string>', 'exec'), self.namespace)
-
-        temp_args = dict(kwargs)
-
-        # define fitness function for optimization
-        def const_opt_fitness(consts):
-            """ fitness function for constant optimization (deriv)"""
-            f_of_x, df_dx = self.namespace['eval_deriv_for_opt'](consts,
-                                                                 kwargs['x'])
-            temp_args['df_dx'] = df_dx
-            if fitness_metric.need_f:
-                temp_args['f'] = f_of_x
-            fit_vec = fitness_metric.evaluate_vector(**temp_args)
-            return fit_vec
-
-        # do optimization
-        sol = optimize.root(const_opt_fitness,
-                            np.random.uniform(-100, 100, const_num),
-                            method='lm')
-
-        # put optimal values in command list
-        const_num = 0
-        for i, (node, _) in enumerate(self.command_list):
-            if util[i]:
-                if node is AGNodes.Load_Const:
-                    self.command_list[i] = (node, (sol.x[const_num],))
-                    const_num += 1
+        self.constants = sol.x
 
     def evaluate(self, fitness_metric, **kwargs):
         """evaluate the compiled stack"""
@@ -436,7 +373,7 @@ class AGraph(object):
                 self.optimize_constants(fitness_metric, **kwargs)
             self.compile()
         try:
-            f_of_x = self.namespace['evaluate'](kwargs['x'])
+            f_of_x = self.namespace['evaluate'](kwargs['x'], self.constants)
         except:
             print("***ERROR***")
             print(self)
@@ -447,10 +384,11 @@ class AGraph(object):
         """evaluate the compiled stack"""
         if not self.compiled_deriv:
             if self.needs_optimization():
-                self.optimize_constants_deriv(fitness_metric, **kwargs)
+                self.optimize_constants(fitness_metric, **kwargs)
             self.compile_deriv()
         try:
-            f_of_x, df_dx = self.namespace['evaluate_deriv'](kwargs['x'])
+            f_of_x, df_dx = self.namespace['evaluate_deriv'](kwargs['x'],
+                                                             self.constants)
         except:
             print("***ERROR***")
             print(self)
@@ -477,9 +415,11 @@ class AGraph(object):
 
     def latexstring(self):
         """conversion to simplified latex string"""
-        str_list = []
-        for node, params in self.command_list:
-            str_list.append(node.latexstring(params, str_list))
+        util = self.utilized_commands()
+        str_list = [None]*len(self.command_list)
+        for i, (node, params) in enumerate(self.command_list):
+            if util[i]:
+                str_list[i] = node.latexstring(params, str_list)
         return str_list[-1]
 
     def utilized_commands(self):
@@ -572,7 +512,7 @@ class AGNodes(object):
 
         @staticmethod
         def funcstring(params):
-            return str(params[0])
+            return "consts[%d]" % params[0]
 
         @staticmethod
         def derivstring(params):
@@ -580,11 +520,11 @@ class AGNodes(object):
 
         @staticmethod
         def printstring(params):
-            return str(params[0])
+            return "consts[%d]" % params[0]
 
         @staticmethod
         def latexstring(params, str_list):
-            return str(params[0])
+            return "c_%d" % params[0]
 
     class Add(Node):
         """

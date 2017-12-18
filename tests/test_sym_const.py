@@ -156,6 +156,10 @@ def compare_sym_const(X, Y, epsilon):
     pred_manip = fpm(32, X.shape[0])
 
     # make and run island manager
-    islmngr = SerialIslandManager(N_ISLANDS, X, Y, sol_manip, pred_manip,
+    islmngr = SerialIslandManager(N_ISLANDS,
+                                  data_x=X,
+                                  data_y=Y,
+                                  solution_manipulator=sol_manip,
+                                  predictor_manipulator=pred_manip,
                                   fitness_metric=ImplicitRegression)
-    assert islmngr.run_islands(MAX_STEPS, epsilon, N_STEPS)
+    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)

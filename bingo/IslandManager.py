@@ -321,7 +321,7 @@ class ParallelIslandManager(IslandManager):
         t_pop = self.comm.gather(t_pop, root=0)
         if self.comm_rank == 0:
             s_pop[0] = s_pop[0] + self.pareto_isle.dump_pareto()
-            temp_isle = copy.deepcopy(self.isle)
+            temp_isle = copy.copy(self.isle)  # TODO should this be deep copy?
             temp_isle.load_populations((s_pop[0], p_pop[0], t_pop[0]))
 
             # find true pareto front
@@ -545,7 +545,7 @@ class SerialIslandManager(IslandManager):
         s_pop = s_pop + self.pareto_isle.dump_population()
 
         # load them all into a temporary island
-        temp_isle = copy.deepcopy(self.isles[0])
+        temp_isle = copy.copy(self.isles[0])  # TODO should this be deep copy?
         temp_isle.load_populations((s_pop, p_pop, t_pop))
         temp_isle.use_true_fitness()
         temp_isle.solution_island.update_pareto_front()

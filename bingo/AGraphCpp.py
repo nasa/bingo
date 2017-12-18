@@ -442,8 +442,8 @@ class AGraphCpp(object):
                     tmp_str = "(%s)(%s)" % (str_list[params[0]],
                                             str_list[params[1]])
                 elif node == 5:
-                    tmp_str = "\frac{%s}{%s}" % (str_list[params[0]],
-                                                 str_list[params[1]])
+                    tmp_str = "\\frac{%s}{%s}" % (str_list[params[0]],
+                                                  str_list[params[1]])
             str_list.append(tmp_str)
         return str_list[-1]
 

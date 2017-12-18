@@ -26,7 +26,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
 
     # make data
     Xx = snake_walk()
-    Yx = (Xx[:, 0] + Xx[:, 1]*0.5).reshape([-1, 1])
+    Yx = (Xx[:, 0] / Xx[:, 1]).reshape([-1, 1])
     Xi = np.hstack((Xx, Yx))
     Yi = None
 
@@ -59,13 +59,17 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     sol_manip2.add_node_type(2)  # +
     sol_manip2.add_node_type(3)  # -
     sol_manip2.add_node_type(4)  # *
-    #sol_manip.add_node_type(5)  # /
+    sol_manip2.add_node_type(5)  # /
 
     # make predictor manipulator
-    pred_manip = fpm(32, data_size)
+    pred_manip = fpm(32, X.shape[0])
 
     # make and run island manager
-    islmngr = SerialIslandManager(n_islands, X, Y, sol_manip2, pred_manip,
+    islmngr = SerialIslandManager(n_islands,
+                                  data_x=X,
+                                  data_y=Y,
+                                  solution_manipulator=sol_manip2,
+                                  predictor_manipulator=pred_manip,
                                   fitness_metric=fitness_metric,
                                   # required_params=3,
                                   )
@@ -74,11 +78,10 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     # print(sol.latexstring())
 
     # islmngr.load_state('test.p')
-    islmngr.run_islands(max_steps, epsilon, step_increment=1000)
+    islmngr.run_islands(max_steps, epsilon, step_increment=100)
     islmngr.save_state('test.p')
     islmngr.load_state('test.p')
-    islmngr.run_islands(max_steps, epsilon, step_increment=1000)
-
+    islmngr.run_islands(max_steps, epsilon, step_increment=100)
 
 
 if __name__ == "__main__":
@@ -87,6 +90,6 @@ if __name__ == "__main__":
     CONVERGENCE_EPSILON = 1.0e-8
     DATA_SIZE = 100
     DATA_RANGE = [-3, 3]
-    N_ISLANDS = 4
+    N_ISLANDS = 2
 
     main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE, DATA_RANGE, N_ISLANDS)

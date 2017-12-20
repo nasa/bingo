@@ -366,28 +366,28 @@ class AGraph(object):
         # put optimal values in command list
         self.constants = sol.x
 
-    def evaluate(self, fitness_metric, **kwargs):
+    def evaluate(self, eval_x, fitness_metric, **kwargs):
         """evaluate the compiled stack"""
         if not self.compiled:
             if self.needs_optimization():
                 self.optimize_constants(fitness_metric, **kwargs)
             self.compile()
         try:
-            f_of_x = self.namespace['evaluate'](kwargs['x'], self.constants)
+            f_of_x = self.namespace['evaluate'](eval_x, self.constants)
         except:
             print("***ERROR***")
             print(self)
             exit(-1)
         return f_of_x
 
-    def evaluate_deriv(self, fitness_metric, **kwargs):
+    def evaluate_deriv(self, eval_x, fitness_metric, **kwargs):
         """evaluate the compiled stack"""
         if not self.compiled_deriv:
             if self.needs_optimization():
                 self.optimize_constants(fitness_metric, **kwargs)
             self.compile_deriv()
         try:
-            f_of_x, df_dx = self.namespace['evaluate_deriv'](kwargs['x'],
+            f_of_x, df_dx = self.namespace['evaluate_deriv'](eval_x,
                                                              self.constants)
         except:
             print("***ERROR***")
@@ -520,7 +520,10 @@ class AGNodes(object):
 
         @staticmethod
         def printstring(params):
-            return "consts[%d]" % params[0]
+            if params[0] is None:
+                return "consts[None]"
+            else:
+                return "consts[%d]" % params[0]
 
         @staticmethod
         def latexstring(params, str_list):

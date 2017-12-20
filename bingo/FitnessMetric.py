@@ -40,7 +40,7 @@ class StandardRegression(FitnessMetric):
 
         :return f - y
         """
-        f = indv.evaluate(StandardRegression, x=x, y=y)
+        f = indv.evaluate(x, StandardRegression, x=x, y=y)
 
         return (f - y).flatten()
 
@@ -63,7 +63,7 @@ class ImplicitRegression(FitnessMetric):
         :return: the fitness for each row
         """
 
-        f, df_dx = indv.evaluate_deriv(ImplicitRegression,
+        f, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
                                        x=x, dx_dt=dx_dt,
                                        required_params=required_params)
 
@@ -89,7 +89,7 @@ class ImplicitRegression(FitnessMetric):
 
         :return: nanmean of metric but ignore some nans in vector
         """
-        f, df_dx = indv.evaluate_deriv(ImplicitRegression,
+        f, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
                                        x=x, dx_dt=dx_dt,
                                        required_params=required_params)
 
@@ -132,7 +132,7 @@ class ImplicitRegressionTest(FitnessMetric):
 
         :return: the fitness for each row
         """
-        f, df_dx = indv.evaluate_deriv(ImplicitRegressionTest,
+        f, df_dx = indv.evaluate_deriv(x, ImplicitRegressionTest,
                                        x=x, dx_dt=dx_dt,
                                        required_params=required_params,
                                        normalize_dit=normalize_dot)
@@ -212,16 +212,14 @@ class ImplicitRegressionTest(FitnessMetric):
 class ImplicitRegressionSchmidt(FitnessMetric):
     """ Implicit Regression, version from schmidt and lipson """
 
-    need_df_dx = True
     need_dx_dt = True
 
     @staticmethod
-    def evaluate_vector(x, df_dx, dx_dt):
+    def evaluate_vector(indv, x, dx_dt):
         """
         from schmidt and lipson's papers
 
         :param x: independent variable
-        :param df_dx: partial derivatives of the test function wrt x
         :param dx_dt: time derivative of x along trajectories
 
         :return: the fitness for each row
@@ -229,6 +227,10 @@ class ImplicitRegressionSchmidt(FitnessMetric):
 
         # NOTE: this doesnt work well right now
         #       importantly, it couldn't reproduce the papers
+
+        f, df_dx = indv.evaluate_deriv(x, ImplicitRegressionTest,
+                                       x=x, dx_dt=dx_dt)
+
         n_params = x.shape[1]
         # print("----------------------------------")
         worst_fit = 0
@@ -257,13 +259,54 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         # print(diff_worst)
         return diff_worst
 
-    @classmethod
-    def evaluate_metric(cls, **kwargs):
-        """
-        from schmidt and lipson's papers
 
-        :param kwargs: dictionary of keyword args used in vector evaluation
-        :return: the mean of the fitness vector, ignoring nans
-        """
-        vec = cls.evaluate_vector(**kwargs)
-        return np.mean(np.abs(vec))
+class AtomicPotential(FitnessMetric):
+    """ Implicit Regression, version from schmidt and lipson """
+
+    need_y = True
+
+    @staticmethod
+    def evaluate_vector(indv, x, y):
+        r_list = []
+        config_lims = [0]
+        for (structure, a, rcut), energy_true in zip(x, y):
+            # make radius list
+            natoms = structure.shape[0]
+            rcutsq = rcut**2
+            for atomi in range(0, natoms):
+                xtmp = structure[atomi, 0]
+                ytmp = structure[atomi, 1]
+                ztmp = structure[atomi, 2]
+                for atomj in range(atomi + 1, natoms):
+                    delx = structure[atomj, 0] - xtmp
+                    while delx > 0.5 * a:
+                        delx -= a
+                    while delx < -0.5 * a:
+                        delx += a
+                    dely = structure[atomj, 1] - ytmp
+                    while dely > 0.5 * a:
+                        dely -= a
+                    while dely < -0.5 * a:
+                        dely += a
+                    delz = structure[atomj, 2] - ztmp
+                    while delz > 0.5 * a:
+                        delz -= a
+                    while delz < -0.5 * a:
+                        delz += a
+
+                    rsq = delx * delx + dely * dely + delz * delz
+                    if rsq <= rcutsq:
+                        r_list.append(np.sqrt(rsq))
+            config_lims.append(len(r_list))
+
+        r_list = np.array(r_list).reshape([-1, 1])
+        pair_energies = indv.evaluate(r_list,
+                                      AtomicPotential,
+                                      x=x, y=y).flatten()
+
+        err_vec = []
+        for i, energy_true in enumerate(y):
+            energy = np.sum(pair_energies[config_lims[i]:config_lims[i+1]])
+            err_vec.append(energy - energy_true)
+
+        return np.array(err_vec).flatten()

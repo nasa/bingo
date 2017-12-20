@@ -116,7 +116,7 @@ class Island(object):
             if indv.fitness is None:
                 indv.fitness = self.fitness_function(indv)
                 self.fitness_evals += 1
-            if indv.fitness < best.fitness or np.isnan(best.fitness):
+            if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
         return best
 

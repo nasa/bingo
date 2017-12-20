@@ -28,7 +28,7 @@ def test_const_opt_agraph_explicit():
     x_true = snake_walk()
 
     # make solutions
-    consts = np.random.rand(6)*100
+    consts = np.random.rand(6)*90+10
     print("CONSTANTS: ", consts)
     y = consts[0] + consts[1] * x_true[:, 0] + consts[2] * x_true[:, 1] + \
         consts[3] * x_true[:, 0] * x_true[:, 0] + \
@@ -69,7 +69,7 @@ def test_const_opt_agraph_explicit():
     # print(sol.latexstring())
 
     # fit the constants
-    sol.evaluate(StandardRegression, x=x_true, y=y)
+    sol.evaluate(x_true, StandardRegression, x=x_true, y=y)
 
     # make sure constants are close
     c_fit = sol.constants
@@ -85,7 +85,7 @@ def test_const_opt_agraph_implicit():
     x_true = snake_walk()
 
     # make solutions
-    consts = np.random.rand(6)*100
+    consts = np.random.rand(6)*90+10
     print("CONSTANTS: ", consts[1:])
     y = consts[0] + consts[1] * x_true[:, 0] + consts[2] * x_true[:, 1] + \
         consts[3] * x_true[:, 0] * x_true[:, 0] + \
@@ -132,7 +132,7 @@ def test_const_opt_agraph_implicit():
 
     # fit the constants
     t0 = time.time()
-    _, df_dx = sol.evaluate_deriv(ImplicitRegression,
+    _, df_dx = sol.evaluate_deriv(x_true, ImplicitRegression,
                                   x=x_true, dx_dt=dx_dt, required_params=3)
     t1 = time.time()
     print("fit time: ", t1-t0, "seconds")
@@ -155,8 +155,8 @@ def test_const_opt_agraph_explicit_evo():
     x_true = snake_walk()
 
     # make solutions
-    const_1 = np.random.rand()*100
-    const_2 = np.random.rand()*100
+    const_1 = np.random.rand()*90+10
+    const_2 = np.random.rand()*90+10
     print("CONSTANTS: ", const_1, const_2)
     y = const_1*x_true[:, 0] + const_2*x_true[:, 1]
 
@@ -191,7 +191,7 @@ def test_const_opt_agraphcpp_explicit():
     x_true = snake_walk()
 
     # make solutions
-    consts = np.random.rand(6)*100
+    consts = np.random.rand(6)*90+10
     print("CONSTANTS: ", consts)
     y = consts[0] + consts[1] * x_true[:, 0] + consts[2] * x_true[:, 1] + \
         consts[3] * x_true[:, 0] * x_true[:, 0] + \
@@ -233,7 +233,7 @@ def test_const_opt_agraphcpp_explicit():
     # print(sol.latexstring())
 
     # fit the constants
-    sol.evaluate(StandardRegression, x=x_true, y=y)
+    sol.evaluate(x_true, StandardRegression, x=x_true, y=y)
 
     # make sure constants are close
     c_fit = sol.constants
@@ -249,7 +249,7 @@ def test_const_opt_agraphcpp_implicit():
     x_true = snake_walk()
 
     # make solutions
-    consts = np.random.rand(6)*100
+    consts = np.random.rand(6)*90+10
     print("CONSTANTS: ", consts[1:])
     y = consts[0] + consts[1] * x_true[:, 0] + consts[2] * x_true[:, 1] + \
         consts[3] * x_true[:, 0] * x_true[:, 0] + \
@@ -296,7 +296,7 @@ def test_const_opt_agraphcpp_implicit():
 
     # fit the constants
     t0 = time.time()
-    _, df_dx = sol.evaluate_deriv(ImplicitRegression,
+    _, df_dx = sol.evaluate_deriv(x_true, ImplicitRegression,
                                   x=x_true, dx_dt=dx_dt, required_params=3)
     t1 = time.time()
     print("fit time: ", t1-t0, "seconds")
@@ -319,8 +319,8 @@ def test_const_opt_agraphcpp_explicit_evo():
     x_true = snake_walk()
 
     # make solutions
-    const_1 = np.random.rand()*100
-    const_2 = np.random.rand()*100
+    const_1 = np.random.rand()*90+10
+    const_2 = np.random.rand()*90+10
     print("CONSTANTS: ", const_1, const_2)
     y = (const_1*x_true[:, 0] + const_2*x_true[:, 1]).reshape([-1, 1])
 

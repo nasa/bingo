@@ -348,14 +348,14 @@ class AGraphCpp(object):
         # put optimal values in command list
         self.constants = sol.x
 
-    def evaluate(self, fitness_metric, **kwargs):
+    def evaluate(self, eval_x, fitness_metric, **metric_kwargs):
         """evaluate the compiled stack"""
         if self.needs_optimization():
-            self.optimize_constants(fitness_metric, **kwargs)
+            self.optimize_constants(fitness_metric, **metric_kwargs)
         try:
             # stack = bingocpp.CommandStack(self.command_list)
             f_of_x = bingocpp.simplify_and_evauluate(self.command_list,
-                                                     kwargs['x'],
+                                                     eval_x,
                                                      self.constants)
         except:
             print("***ERROR***")
@@ -363,13 +363,13 @@ class AGraphCpp(object):
             exit(-1)
         return f_of_x
 
-    def evaluate_deriv(self, fitness_metric, **kwargs):
+    def evaluate_deriv(self, eval_x, fitness_metric, **metric_kwargs):
         """evaluate the compiled stack"""
         if self.needs_optimization():
-            self.optimize_constants(fitness_metric, **kwargs)
+            self.optimize_constants(fitness_metric, **metric_kwargs)
         try:
             f_of_x, df_dx = bingocpp.simplify_and_evauluate_with_derivative(
-                self.command_list, kwargs['x'], self.constants)
+                self.command_list, eval_x, self.constants)
         except:
             print("***ERROR***")
             print(self)

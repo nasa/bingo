@@ -15,7 +15,7 @@ the current map is:
 5: / division (currently not divide-by-zero protected)
 """
 import random
-from bingo import bingocpp
+from bingocpp.build import bingocpp
 from scipy import optimize
 
 import numpy as np

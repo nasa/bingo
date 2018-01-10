@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>bingo package &mdash; bingo 1.0 documentation</title>
+    <title>bingo package &#8212; bingo 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -17,21 +17,26 @@
         VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="bingo 1.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Welcome to bingo’s documentation!" href="index.html" />
    
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">  
+  <body role="document">
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -56,17 +61,17 @@ acyclic graph (linear stack) in symbolic regression</p>
 <dt id="bingo.AGraph.AGNodes.Abs">
 <em class="property">class </em><code class="descname">Abs</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Abs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p><a href="#id3"><span class="problematic" id="id4">|x|</span></a></p>
+<p><a href="#id3"><span class="problematic" id="id4">|x|</span></a>
+derivative calculation needs: multiply</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Abs.arity">
 <code class="descname">arity</code><em class="property"> = 1</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Abs.arity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Abs.call">
-<em class="property">static </em><code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Abs.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>absolute function which handles nans</p>
-</dd></dl>
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'absolute'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Abs.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Abs.call_deriv">
@@ -107,12 +112,17 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Add">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Add</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Add" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Add</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
 <p>addition</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Add.arity">
 <code class="descname">arity</code><em class="property"> = 2</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Add.arity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Add.call">
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'add'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Add.call" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -135,13 +145,19 @@ acyclic graph (linear stack) in symbolic regression</p>
 <em class="property">static </em><code class="descname">printstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Add.printstring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Add.shorthand">
+<code class="descname">shorthand</code><em class="property"> = 'add'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Add.shorthand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Cos">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Cos</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Cos" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Cos</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Cos" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>cosine</p>
+<p>cosine
+derivative calculation needs: multiply</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Cos.arity">
 <code class="descname">arity</code><em class="property"> = 1</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Cos.arity" title="Permalink to this definition">¶</a></dt>
@@ -191,19 +207,19 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Divide">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Divide</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Divide</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>division</p>
+<p>division
+derivative calculation needs: multiply, subtract</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Divide.arity">
 <code class="descname">arity</code><em class="property"> = 2</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide.arity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Divide.call">
-<em class="property">static </em><code class="descname">call</code><span class="sig-paren">(</span><em>num</em>, <em>den</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>version of divide safe against zero division</p>
-</dd></dl>
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'true_divide'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="bingo.AGraph.AGNodes.Divide.derivstring">
@@ -227,26 +243,26 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Divide.shorthand">
-<code class="descname">shorthand</code><em class="property"> = 'div'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide.shorthand" title="Permalink to this definition">¶</a></dt>
+<code class="descname">shorthand</code><em class="property"> = 'divide'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Divide.shorthand" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Exp">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Exp</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Exp" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Exp</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Exp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>e^x</p>
+<p>e^x
+derivative calculation needs: multiply</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Exp.arity">
 <code class="descname">arity</code><em class="property"> = 1</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Exp.arity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Exp.call">
-<em class="property">static </em><code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Exp.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>safe exponential function</p>
-</dd></dl>
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'exp'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Exp.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="bingo.AGraph.AGNodes.Exp.derivstring">
@@ -276,63 +292,106 @@ acyclic graph (linear stack) in symbolic regression</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="bingo.AGraph.AGNodes.Load">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Load</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Load" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const">
+<em class="property">class </em><code class="descname">Load_Const</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>load</p>
+<p>load constant for optimization</p>
 <dl class="staticmethod">
-<dt id="bingo.AGraph.AGNodes.Load.call_deriv">
-<em class="property">static </em><code class="descname">call_deriv</code><span class="sig-paren">(</span><em>index</em>, <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.call_deriv" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.call_deriv">
+<em class="property">static </em><code class="descname">call_deriv</code><span class="sig-paren">(</span><em>xshape</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.call_deriv" title="Permalink to this definition">¶</a></dt>
 <dd><p>gets derivative array of loaded value</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="bingo.AGraph.AGNodes.Load.derivstring">
-<em class="property">static </em><code class="descname">derivstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.derivstring" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.derivstring">
+<em class="property">static </em><code class="descname">derivstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.derivstring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
-<dt id="bingo.AGraph.AGNodes.Load.funcstring">
-<em class="property">static </em><code class="descname">funcstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.funcstring" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.funcstring">
+<em class="property">static </em><code class="descname">funcstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.funcstring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
-<dt id="bingo.AGraph.AGNodes.Load.latexstring">
-<em class="property">static </em><code class="descname">latexstring</code><span class="sig-paren">(</span><em>params</em>, <em>str_list</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.latexstring" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.latexstring">
+<em class="property">static </em><code class="descname">latexstring</code><span class="sig-paren">(</span><em>params</em>, <em>str_list</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.latexstring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
-<dt id="bingo.AGraph.AGNodes.Load.printstring">
-<em class="property">static </em><code class="descname">printstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.printstring" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.printstring">
+<em class="property">static </em><code class="descname">printstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.printstring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="bingo.AGraph.AGNodes.Load.shorthand_deriv">
-<code class="descname">shorthand_deriv</code><em class="property"> = 'deriv_x'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.shorthand_deriv" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.shorthand_deriv">
+<code class="descname">shorthand_deriv</code><em class="property"> = 'deriv_c'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.shorthand_deriv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="bingo.AGraph.AGNodes.Load.terminal">
-<code class="descname">terminal</code><em class="property"> = True</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Load.terminal" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.AGraph.AGNodes.Load_Const.terminal">
+<code class="descname">terminal</code><em class="property"> = True</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Const.terminal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.AGraph.AGNodes.Load_Data">
+<em class="property">class </em><code class="descname">Load_Data</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
+<p>load</p>
+<dl class="staticmethod">
+<dt id="bingo.AGraph.AGNodes.Load_Data.call_deriv">
+<em class="property">static </em><code class="descname">call_deriv</code><span class="sig-paren">(</span><em>index</em>, <em>xshape</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.call_deriv" title="Permalink to this definition">¶</a></dt>
+<dd><p>gets derivative array of loaded value</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraph.AGNodes.Load_Data.derivstring">
+<em class="property">static </em><code class="descname">derivstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.derivstring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraph.AGNodes.Load_Data.funcstring">
+<em class="property">static </em><code class="descname">funcstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.funcstring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraph.AGNodes.Load_Data.latexstring">
+<em class="property">static </em><code class="descname">latexstring</code><span class="sig-paren">(</span><em>params</em>, <em>str_list</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.latexstring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraph.AGNodes.Load_Data.printstring">
+<em class="property">static </em><code class="descname">printstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.printstring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Load_Data.shorthand_deriv">
+<code class="descname">shorthand_deriv</code><em class="property"> = 'deriv_x'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.shorthand_deriv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Load_Data.terminal">
+<code class="descname">terminal</code><em class="property"> = True</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Load_Data.terminal" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Log">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Log</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Log" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Log</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>log|x|</p>
+<p>log|x|
+derivative calculation needs: divide</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Log.arity">
 <code class="descname">arity</code><em class="property"> = 1</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Log.arity" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="staticmethod">
+<dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Log.call">
-<em class="property">static </em><code class="descname">call</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Log.call" title="Permalink to this definition">¶</a></dt>
-<dd><p>safe log function</p>
-</dd></dl>
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'log'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Log.call" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="staticmethod">
 <dt id="bingo.AGraph.AGNodes.Log.derivstring">
@@ -363,12 +422,18 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Multiply">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Multiply</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Multiply" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Multiply</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Multiply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>multiplication</p>
+<p>multiplication
+derivative calculation needs: add</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Multiply.arity">
 <code class="descname">arity</code><em class="property"> = 2</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Multiply.arity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Multiply.call">
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'multiply'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Multiply.call" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -391,11 +456,16 @@ acyclic graph (linear stack) in symbolic regression</p>
 <em class="property">static </em><code class="descname">printstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Multiply.printstring" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Multiply.shorthand">
+<code class="descname">shorthand</code><em class="property"> = 'multiply'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Multiply.shorthand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Node">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Node</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Node" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Node</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Node" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>node superclass</p>
 <dl class="attribute">
@@ -446,9 +516,10 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Sin">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Sin</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Sin" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Sin</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Sin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>sine</p>
+<p>sine
+derivative calculation needs: multiply</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Sin.arity">
 <code class="descname">arity</code><em class="property"> = 1</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Sin.arity" title="Permalink to this definition">¶</a></dt>
@@ -498,9 +569,10 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Sqrt">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Sqrt</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Sqrt" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Sqrt</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Sqrt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
-<p>(x)^0.5</p>
+<p>(x)^0.5
+derivative calculation needs: multiply, divide</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Sqrt.arity">
 <code class="descname">arity</code><em class="property"> = 1</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Sqrt.arity" title="Permalink to this definition">¶</a></dt>
@@ -540,12 +612,17 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="class">
 <dt id="bingo.AGraph.AGNodes.Subtract">
-<em class="property">class </em><code class="descclassname">AGNodes.</code><code class="descname">Subtract</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Subtract" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descname">Subtract</code><a class="headerlink" href="#bingo.AGraph.AGNodes.Subtract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">bingo.AGraph.Node</span></code></p>
 <p>subtraction</p>
 <dl class="attribute">
 <dt id="bingo.AGraph.AGNodes.Subtract.arity">
 <code class="descname">arity</code><em class="property"> = 2</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Subtract.arity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Subtract.call">
+<code class="descname">call</code><em class="property"> = &lt;ufunc 'subtract'&gt;</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Subtract.call" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="staticmethod">
@@ -566,6 +643,11 @@ acyclic graph (linear stack) in symbolic regression</p>
 <dl class="staticmethod">
 <dt id="bingo.AGraph.AGNodes.Subtract.printstring">
 <em class="property">static </em><code class="descname">printstring</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGNodes.Subtract.printstring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.AGraph.AGNodes.Subtract.shorthand">
+<code class="descname">shorthand</code><em class="property"> = 'subtract'</em><a class="headerlink" href="#bingo.AGraph.AGNodes.Subtract.shorthand" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -603,13 +685,13 @@ acyclic graph (linear stack) in symbolic regression</p>
 
 <dl class="method">
 <dt id="bingo.AGraph.AGraph.evaluate">
-<code class="descname">evaluate</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.evaluate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>eval_x</em>, <em>fitness_metric</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.evaluate" title="Permalink to this definition">¶</a></dt>
 <dd><p>evaluate the compiled stack</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="bingo.AGraph.AGraph.evaluate_deriv">
-<code class="descname">evaluate_deriv</code><span class="sig-paren">(</span><em>params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.evaluate_deriv" title="Permalink to this definition">¶</a></dt>
+<code class="descname">evaluate_deriv</code><span class="sig-paren">(</span><em>eval_x</em>, <em>fitness_metric</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.evaluate_deriv" title="Permalink to this definition">¶</a></dt>
 <dd><p>evaluate the compiled stack</p>
 </dd></dl>
 
@@ -617,6 +699,18 @@ acyclic graph (linear stack) in symbolic regression</p>
 <dt id="bingo.AGraph.AGraph.latexstring">
 <code class="descname">latexstring</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.latexstring" title="Permalink to this definition">¶</a></dt>
 <dd><p>conversion to simplified latex string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.AGraph.needs_optimization">
+<code class="descname">needs_optimization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.needs_optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>find out whether constants need optimization</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.AGraph.optimize_constants">
+<code class="descname">optimize_constants</code><span class="sig-paren">(</span><em>fitness_metric</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.optimize_constants" title="Permalink to this definition">¶</a></dt>
+<dd><p>optimize constants</p>
 </dd></dl>
 
 <dl class="method">
@@ -738,6 +832,21 @@ nodes/terminals and random parameters</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="bingo.AGraph.AGraphManipulator.mutate_terminal_param">
+<code class="descname">mutate_terminal_param</code><span class="sig-paren">(</span><em>terminal</em>, <em>old_params</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphManipulator.mutate_terminal_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces random terminal value, either input variable or float
+Mutates floats by getting random variation of old param</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="bingo.AGraph.AGraphManipulator.mutation">
 <code class="descname">mutation</code><span class="sig-paren">(</span><em>indv</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphManipulator.mutation" title="Permalink to this definition">¶</a></dt>
 <dd><p>performs 1pt mutation, does not create copy of individual</p>
@@ -813,7 +922,7 @@ allowable node types</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Load node, value/input to load</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Load node, data index or constant index</td>
 </tr>
 </tbody>
 </table>
@@ -821,7 +930,301 @@ allowable node types</p>
 
 <dl class="method">
 <dt id="bingo.AGraph.AGraphManipulator.rand_terminal_param">
-<code class="descname">rand_terminal_param</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphManipulator.rand_terminal_param" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rand_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphManipulator.rand_terminal_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces random terminal value, either input variable or float</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bingo.AGraphCpp">
+<span id="bingo-agraphcpp-module"></span><h2>bingo.AGraphCpp module<a class="headerlink" href="#module-bingo.AGraphCpp" title="Permalink to this headline">¶</a></h2>
+<p>This module contains most of the code necessary for the representation of an
+acyclic graph (linear stack) in symbolic regression.  This version of the
+Acyclic graph utilizes the bingocpp C++ library to do the function and
+derivative evaluations</p>
+<p>The current implementation has many hard coded sections. At the moment an
+integer to operator mapping is haw the command stack is parsed.
+the current map is:
+0: load column of X
+1: load constant
+2: + addition
+3: - subtraction
+4: * multiplication
+5: / division (currently not divide-by-zero protected)</p>
+<dl class="class">
+<dt id="bingo.AGraphCpp.AGraphCpp">
+<em class="property">class </em><code class="descclassname">bingo.AGraphCpp.</code><code class="descname">AGraphCpp</code><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Acyclic Graph representation of an equation</p>
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.complexity">
+<code class="descname">complexity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.complexity" title="Permalink to this definition">¶</a></dt>
+<dd><p>find number of commands that are utilized</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>return a deep copy</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>eval_x</em>, <em>fitness_metric</em>, <em>**metric_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>evaluate the compiled stack</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.evaluate_deriv">
+<code class="descname">evaluate_deriv</code><span class="sig-paren">(</span><em>eval_x</em>, <em>fitness_metric</em>, <em>**metric_kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.evaluate_deriv" title="Permalink to this definition">¶</a></dt>
+<dd><p>evaluate the compiled stack</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.latexstring">
+<code class="descname">latexstring</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.latexstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>conversion to simplified latex string</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.needs_optimization">
+<code class="descname">needs_optimization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.needs_optimization" title="Permalink to this definition">¶</a></dt>
+<dd><p>find out whether constants need optimization</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.optimize_constants">
+<code class="descname">optimize_constants</code><span class="sig-paren">(</span><em>fitness_metric</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.optimize_constants" title="Permalink to this definition">¶</a></dt>
+<dd><p>optimize constants</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCpp.utilized_commands">
+<code class="descname">utilized_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCpp.utilized_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>find which commands are utilized</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator">
+<em class="property">class </em><code class="descclassname">bingo.AGraphCpp.</code><code class="descname">AGraphCppManipulator</code><span class="sig-paren">(</span><em>nvars</em>, <em>ag_size</em>, <em>nloads=1</em>, <em>float_lim=10.0</em>, <em>terminal_prob=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Manipulates AGraph objects for generation, crossover, mutation,
+and distance</p>
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.add_node_type">
+<code class="descname">add_node_type</code><span class="sig-paren">(</span><em>node_type</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.add_node_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a type of node to the set of allowed types</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_type</strong> &#8211; acyclic graph node type which will be added to the
+allowable set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.crossover">
+<code class="descname">crossover</code><span class="sig-paren">(</span><em>parent1</em>, <em>parent2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.crossover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Single point crossover</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>parent1</strong> &#8211; first parent</li>
+<li><strong>parent2</strong> &#8211; second parent</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">two children (new copies)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.distance">
+<em class="property">static </em><code class="descname">distance</code><span class="sig-paren">(</span><em>indv1</em>, <em>indv2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the distance (a measure of similarity) between two individuals</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>indv1</strong> &#8211; first individual</li>
+<li><strong>indv2</strong> &#8211; second individual</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">distance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.dump">
+<code class="descname">dump</code><span class="sig-paren">(</span><em>indv</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.dump" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dumps an individual to a pickleable object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indv</strong> &#8211; individual which will be dumped</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the individual in a pickleable format</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.generate">
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates random individual. Fills stack based on random
+nodes/terminals and random parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">new random acyclic graph individual</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.load">
+<code class="descname">load</code><span class="sig-paren">(</span><em>indv_list</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the individual from a pickleable object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indv_list</strong> &#8211; individual in pickleable form</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">individual in normal form</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.mutate_terminal_param">
+<code class="descname">mutate_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.mutate_terminal_param" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces random terminal value, either input variable or float
+Mutates floats by getting random variation of old param</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.mutation">
+<code class="descname">mutation</code><span class="sig-paren">(</span><em>indv</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.mutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>performs 1pt mutation, does not create copy of individual</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>indv</strong> &#8211; individual which is mutated</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">mutated individual (not a new copy)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.rand_operator">
+<code class="descname">rand_operator</code><span class="sig-paren">(</span><em>stack_loc</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.rand_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces random operator and parameters. Chooses operator from list of
+allowable node types</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stack_loc</strong> &#8211; location of command in stack</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">random operator with parameters</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.rand_operator_params">
+<em class="property">static </em><code class="descname">rand_operator_params</code><span class="sig-paren">(</span><em>arity</em>, <em>stack_loc</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.rand_operator_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aroduces random tuple for use as operator parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arity</strong> &#8211; number of parameters needed</li>
+<li><strong>stack_loc</strong> &#8211; location of command in stack</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple of parameters</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.rand_operator_type">
+<code class="descname">rand_operator_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.rand_operator_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Picks a random operator from the operator list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">operator (acyclic graph node type)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.rand_terminal">
+<code class="descname">rand_terminal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.rand_terminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces random terminal node and value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Load node, data index or constant index</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraphCpp.AGraphCppManipulator.rand_terminal_param">
+<code class="descname">rand_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraphCpp.AGraphCppManipulator.rand_terminal_param" title="Permalink to this definition">¶</a></dt>
 <dd><p>Produces random terminal value, either input variable or float</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -845,7 +1248,7 @@ predictors is judged.
 This is loosely based on the work of Schmidt and Lipson 2008?</p>
 <dl class="class">
 <dt id="bingo.CoevolutionIsland.CoevolutionIsland">
-<em class="property">class </em><code class="descclassname">bingo.CoevolutionIsland.</code><code class="descname">CoevolutionIsland</code><span class="sig-paren">(</span><em>data_x</em>, <em>data_y</em>, <em>solution_manipulator</em>, <em>predictor_manipulator</em>, <em>solution_pop_size=64</em>, <em>solution_cx=0.7</em>, <em>solution_mut=0.01</em>, <em>predictor_pop_size=16</em>, <em>predictor_cx=0.5</em>, <em>predictor_mut=0.1</em>, <em>predictor_ratio=0.1</em>, <em>predictor_update_freq=50</em>, <em>trainer_pop_size=16</em>, <em>trainer_update_freq=50</em>, <em>required_params=2</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bingo.CoevolutionIsland.</code><code class="descname">CoevolutionIsland</code><span class="sig-paren">(</span><em>data_x</em>, <em>data_y</em>, <em>solution_manipulator</em>, <em>predictor_manipulator</em>, <em>fitness_metric</em>, <em>solution_pop_size=64</em>, <em>solution_cx=0.7</em>, <em>solution_mut=0.01</em>, <em>predictor_pop_size=16</em>, <em>predictor_cx=0.5</em>, <em>predictor_mut=0.1</em>, <em>predictor_ratio=0.1</em>, <em>predictor_update_freq=50</em>, <em>trainer_pop_size=16</em>, <em>trainer_update_freq=50</em>, <em>verbose=False</em>, <em>**fitness_metric_args</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Coevolution island with 3 populations
 solution_pop: the solutions to symbolic regression
@@ -1048,6 +1451,238 @@ fitness will be calculated</td>
 </dd></dl>
 
 </div>
+<div class="section" id="module-bingo.FitnessMetric">
+<span id="bingo-fitnessmetric-module"></span><h2>bingo.FitnessMetric module<a class="headerlink" href="#module-bingo.FitnessMetric" title="Permalink to this headline">¶</a></h2>
+<p>This module encapsulates different fitness metrics that can be used for
+symbolic regression in bingo</p>
+<dl class="class">
+<dt id="bingo.FitnessMetric.AtomicPotential">
+<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">AtomicPotential</code><a class="headerlink" href="#bingo.FitnessMetric.AtomicPotential" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
+<p>Implicit Regression, version from schmidt and lipson</p>
+<dl class="staticmethod">
+<dt id="bingo.FitnessMetric.AtomicPotential.evaluate_vector">
+<em class="property">static </em><code class="descname">evaluate_vector</code><span class="sig-paren">(</span><em>indv</em>, <em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.AtomicPotential.evaluate_vector" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.AtomicPotential.need_y">
+<code class="descname">need_y</code><em class="property"> = True</em><a class="headerlink" href="#bingo.FitnessMetric.AtomicPotential.need_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.FitnessMetric.FitnessMetric">
+<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">FitnessMetric</code><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>fitness metric superclass</p>
+<dl class="classmethod">
+<dt id="bingo.FitnessMetric.FitnessMetric.evaluate_metric">
+<em class="property">classmethod </em><code class="descname">evaluate_metric</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.evaluate_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the fitness metric</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.FitnessMetric.FitnessMetric.evaluate_vector">
+<em class="property">static </em><code class="descname">evaluate_vector</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.evaluate_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>does the fitness calculation in vector form</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.FitnessMetric.need_dx_dt">
+<code class="descname">need_dx_dt</code><em class="property"> = False</em><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.need_dx_dt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.FitnessMetric.need_x">
+<code class="descname">need_x</code><em class="property"> = True</em><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.need_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.FitnessMetric.need_y">
+<code class="descname">need_y</code><em class="property"> = False</em><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.need_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.FitnessMetric.ImplicitRegression">
+<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">ImplicitRegression</code><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
+<p>Implicit Regression, version 1</p>
+<dl class="classmethod">
+<dt id="bingo.FitnessMetric.ImplicitRegression.evaluate_metric">
+<em class="property">classmethod </em><code class="descname">evaluate_metric</code><span class="sig-paren">(</span><em>indv</em>, <em>x</em>, <em>dx_dt</em>, <em>required_params=2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression.evaluate_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>error = cos of angle between between df_dx and dx_dt</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; independent variable</li>
+<li><strong>df_dx</strong> &#8211; partial derivatives of the test function wrt x</li>
+<li><strong>dx_dt</strong> &#8211; time derivative of x along trajectories</li>
+<li><strong>required_params</strong> &#8211; minimum number of nonzero components of dot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nanmean of metric but ignore some nans in vector</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.FitnessMetric.ImplicitRegression.evaluate_vector">
+<em class="property">static </em><code class="descname">evaluate_vector</code><span class="sig-paren">(</span><em>indv</em>, <em>x</em>, <em>dx_dt</em>, <em>required_params=2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression.evaluate_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>error = cos of angle between between df_dx and dx_dt</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; independent variable</li>
+<li><strong>df_dx</strong> &#8211; partial derivatives of the test function wrt x</li>
+<li><strong>dx_dt</strong> &#8211; time derivative of x along trajectories</li>
+<li><strong>required_params</strong> &#8211; minimum number of nonzero components of dot</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the fitness for each row</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.ImplicitRegression.need_dx_dt">
+<code class="descname">need_dx_dt</code><em class="property"> = True</em><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression.need_dx_dt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.FitnessMetric.ImplicitRegressionSchmidt">
+<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">ImplicitRegressionSchmidt</code><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionSchmidt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
+<p>Implicit Regression, version from schmidt and lipson</p>
+<dl class="staticmethod">
+<dt id="bingo.FitnessMetric.ImplicitRegressionSchmidt.evaluate_vector">
+<em class="property">static </em><code class="descname">evaluate_vector</code><span class="sig-paren">(</span><em>indv</em>, <em>x</em>, <em>dx_dt</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionSchmidt.evaluate_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>from schmidt and lipson&#8217;s papers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; independent variable</li>
+<li><strong>dx_dt</strong> &#8211; time derivative of x along trajectories</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the fitness for each row</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.ImplicitRegressionSchmidt.need_dx_dt">
+<code class="descname">need_dx_dt</code><em class="property"> = True</em><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionSchmidt.need_dx_dt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.FitnessMetric.ImplicitRegressionTest">
+<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">ImplicitRegressionTest</code><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionTest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
+<p>Implicit Regression, version 2</p>
+<dl class="classmethod">
+<dt id="bingo.FitnessMetric.ImplicitRegressionTest.evaluate_metric">
+<em class="property">classmethod </em><code class="descname">evaluate_metric</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionTest.evaluate_metric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fitness of this metric is related cos of angle between between df_dx
+and dx_dt. Different normalization and erorr checking are available.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> &#8211; dictionary of keyword args used in vector evaluation</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the mean of the fitness vector, ignoring nans</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.FitnessMetric.ImplicitRegressionTest.evaluate_vector">
+<em class="property">static </em><code class="descname">evaluate_vector</code><span class="sig-paren">(</span><em>indv</em>, <em>x</em>, <em>dx_dt</em>, <em>required_params=None</em>, <em>normalize_dot=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionTest.evaluate_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fitness of this metric is related cos of angle between between df_dx
+and dx_dt. Different normalization and erorr checking are available.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> &#8211; independent variable</li>
+<li><strong>df_dx</strong> &#8211; partial derivatives of the test function wrt x</li>
+<li><strong>dx_dt</strong> &#8211; time derivative of x along trajectories</li>
+<li><strong>required_params</strong> &#8211; minimum number of nonzero components of dot</li>
+<li><strong>normalize_dot</strong> &#8211; normalize the terms in the dot product</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the fitness for each row</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.ImplicitRegressionTest.need_dx_dt">
+<code class="descname">need_dx_dt</code><em class="property"> = True</em><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionTest.need_dx_dt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.FitnessMetric.StandardRegression">
+<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">StandardRegression</code><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
+<p>Traditional fitness evaluation</p>
+<dl class="staticmethod">
+<dt id="bingo.FitnessMetric.StandardRegression.evaluate_vector">
+<em class="property">static </em><code class="descname">evaluate_vector</code><span class="sig-paren">(</span><em>indv</em>, <em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression.evaluate_vector" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> &#8211; independent variable</li>
+<li><strong>f</strong> &#8211; test function evaluated at x</li>
+<li><strong>y</strong> &#8211; target values of the test function</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>:return f - y</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.FitnessMetric.StandardRegression.need_y">
+<code class="descname">need_y</code><em class="property"> = True</em><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression.need_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-bingo.FitnessPredictor">
 <span id="bingo-fitnesspredictor-module"></span><h2>bingo.FitnessPredictor module<a class="headerlink" href="#module-bingo.FitnessPredictor" title="Permalink to this headline">¶</a></h2>
 <p>This module contains most of the code necessary for the representation of an
@@ -1109,7 +1744,7 @@ and distance</p>
 
 <dl class="method">
 <dt id="bingo.FitnessPredictor.FitnessPredictor.fit_func">
-<code class="descname">fit_func</code><span class="sig-paren">(</span><em>indv</em>, <em>X</em>, <em>Y</em>, <em>standard_regression</em>, <em>required_params=2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictor.fit_func" title="Permalink to this definition">¶</a></dt>
+<code class="descname">fit_func</code><span class="sig-paren">(</span><em>indv</em>, <em>fitness_metric</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictor.fit_func" title="Permalink to this definition">¶</a></dt>
 <dd><p>fitness function for standard regression type</p>
 </dd></dl>
 
@@ -1289,8 +1924,16 @@ exchanged (must be equal in population size)</td>
 
 <dl class="method">
 <dt id="bingo.IslandManager.IslandManager.do_final_plots">
-<code class="descname">do_final_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.do_final_plots" title="Permalink to this definition">¶</a></dt>
+<code class="descname">do_final_plots</code><span class="sig-paren">(</span><em>make_plots</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.do_final_plots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes some summary output</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>make_plots</strong> &#8211; boolean for whether to produce plots</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1307,8 +1950,22 @@ exchanged (must be equal in population size)</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="bingo.IslandManager.IslandManager.load_state">
+<code class="descname">load_state</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.load_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads island manager information from file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; full name of file to load pickle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="bingo.IslandManager.IslandManager.run_islands">
-<code class="descname">run_islands</code><span class="sig-paren">(</span><em>max_steps</em>, <em>epsilon</em>, <em>min_steps=0</em>, <em>step_increment=1000</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.run_islands" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run_islands</code><span class="sig-paren">(</span><em>max_steps</em>, <em>epsilon</em>, <em>min_steps=0</em>, <em>step_increment=1000</em>, <em>make_plots=True</em>, <em>checkpoint_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.run_islands" title="Permalink to this definition">¶</a></dt>
 <dd><p>Runs co-evolution islands until convergence of best solution</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1317,13 +1974,16 @@ exchanged (must be equal in population size)</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>max_steps</strong> &#8211; maximum number of steps to take</li>
 <li><strong>epsilon</strong> &#8211; error which defines convergence</li>
+<li><strong>min_steps</strong> &#8211; minimum number of steps to take</li>
 <li><strong>step_increment</strong> &#8211; the number of steps between
 migrations/convergence checks</li>
+<li><strong>make_plots</strong> &#8211; boolean for whether to produce plots</li>
+<li><strong>checkpoint_file</strong> &#8211; base file name for checkpoint files</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Return converged:</th></tr>
-<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first last">whether a converged solution has been found</p>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><p class="first last">whether a converged solution has been found</p>
 </td>
 </tr>
 </tbody>
@@ -1331,16 +1991,35 @@ migrations/convergence checks</li>
 </dd></dl>
 
 <dl class="method">
+<dt id="bingo.IslandManager.IslandManager.save_state">
+<code class="descname">save_state</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves all information in the sim</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; full name of file to save pickle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="bingo.IslandManager.IslandManager.test_convergence">
-<code class="descname">test_convergence</code><span class="sig-paren">(</span><em>epsilon</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.test_convergence" title="Permalink to this definition">¶</a></dt>
+<code class="descname">test_convergence</code><span class="sig-paren">(</span><em>epsilon</em>, <em>make_plots</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.IslandManager.test_convergence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests for convergence of the island system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>epsilon</strong> &#8211; error which defines convergence</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>epsilon</strong> &#8211; error which defines convergence</li>
+<li><strong>make_plots</strong> &#8211; boolean for whether to produce plots</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">boolean for whether convergence has been reached</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">boolean for whether convergence has been reached</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1350,15 +2029,23 @@ migrations/convergence checks</li>
 
 <dl class="class">
 <dt id="bingo.IslandManager.ParallelIslandManager">
-<em class="property">class </em><code class="descclassname">bingo.IslandManager.</code><code class="descname">ParallelIslandManager</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bingo.IslandManager.</code><code class="descname">ParallelIslandManager</code><span class="sig-paren">(</span><em>restart_file=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.IslandManager.IslandManager" title="bingo.IslandManager.IslandManager"><code class="xref py py-class docutils literal"><span class="pre">bingo.IslandManager.IslandManager</span></code></a></p>
 <p>ParallelIslandManager is an implementation of the IslandManager class which
 uses mpi4py and message passing to coordinate the distribution of
 coevolution islands in parallel</p>
 <dl class="method">
 <dt id="bingo.IslandManager.ParallelIslandManager.do_final_plots">
-<code class="descname">do_final_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager.do_final_plots" title="Permalink to this definition">¶</a></dt>
+<code class="descname">do_final_plots</code><span class="sig-paren">(</span><em>make_plots</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager.do_final_plots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes some summary output</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>make_plots</strong> &#8211; boolean for whether to produce plots</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1382,16 +2069,51 @@ coevolution islands in parallel</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="bingo.IslandManager.ParallelIslandManager.load_state">
+<code class="descname">load_state</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager.load_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Currently this relies on everything being serializable and small
+enough to fit in memory on 1 proc</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; full name of file to load pickle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.IslandManager.ParallelIslandManager.save_state">
+<code class="descname">save_state</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Currently this relies on everything being serializable and small
+enough to fit in memory on 1 proc</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; full name of file to save pickle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="bingo.IslandManager.ParallelIslandManager.test_convergence">
-<code class="descname">test_convergence</code><span class="sig-paren">(</span><em>epsilon</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager.test_convergence" title="Permalink to this definition">¶</a></dt>
+<code class="descname">test_convergence</code><span class="sig-paren">(</span><em>epsilon</em>, <em>make_plots</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.ParallelIslandManager.test_convergence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests for convergence of the island system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>epsilon</strong> &#8211; error which defines convergence</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>epsilon</strong> &#8211; error which defines convergence</li>
+<li><strong>make_plots</strong> &#8211; boolean for whether to produce plots</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">boolean for whether convergence has been reached</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">boolean for whether convergence has been reached</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1401,15 +2123,23 @@ coevolution islands in parallel</p>
 
 <dl class="class">
 <dt id="bingo.IslandManager.SerialIslandManager">
-<em class="property">class </em><code class="descclassname">bingo.IslandManager.</code><code class="descname">SerialIslandManager</code><span class="sig-paren">(</span><em>n_islands=2</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bingo.IslandManager.</code><code class="descname">SerialIslandManager</code><span class="sig-paren">(</span><em>n_islands=2</em>, <em>restart_file=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.IslandManager.IslandManager" title="bingo.IslandManager.IslandManager"><code class="xref py py-class docutils literal"><span class="pre">bingo.IslandManager.IslandManager</span></code></a></p>
 <p>ParallelIslandManager is an implementation of the IslandManager class which
 uses contains many coevoltution islands in a list and performs all
 operations in serial</p>
 <dl class="method">
 <dt id="bingo.IslandManager.SerialIslandManager.do_final_plots">
-<code class="descname">do_final_plots</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager.do_final_plots" title="Permalink to this definition">¶</a></dt>
+<code class="descname">do_final_plots</code><span class="sig-paren">(</span><em>make_plots</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager.do_final_plots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Makes some summary output</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>make_plots</strong> &#8211; boolean for whether to produce plots</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1433,16 +2163,49 @@ operations in serial</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="bingo.IslandManager.SerialIslandManager.load_state">
+<code class="descname">load_state</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager.load_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>currently this relies on everything being serializable</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; full name of file to load pickle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.IslandManager.SerialIslandManager.save_state">
+<code class="descname">save_state</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager.save_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>currently this relies on everything being serializable</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> &#8211; full name of file to save pickle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="bingo.IslandManager.SerialIslandManager.test_convergence">
-<code class="descname">test_convergence</code><span class="sig-paren">(</span><em>epsilon</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager.test_convergence" title="Permalink to this definition">¶</a></dt>
+<code class="descname">test_convergence</code><span class="sig-paren">(</span><em>epsilon</em>, <em>make_plots</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IslandManager.SerialIslandManager.test_convergence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests for convergence of the island system</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>epsilon</strong> &#8211; error which defines convergence</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>epsilon</strong> &#8211; error which defines convergence</li>
+<li><strong>make_plots</strong> &#8211; boolean for whether to produce plots</li>
+</ul>
+</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">boolean for whether convergence has been reached</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">boolean for whether convergence has been reached</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -1623,7 +2386,9 @@ the smoothed signal (or it&#8217;s n-th derivative).</p>
 <li><a class="reference internal" href="#">bingo package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
 <li><a class="reference internal" href="#module-bingo.AGraph">bingo.AGraph module</a></li>
+<li><a class="reference internal" href="#module-bingo.AGraphCpp">bingo.AGraphCpp module</a></li>
 <li><a class="reference internal" href="#module-bingo.CoevolutionIsland">bingo.CoevolutionIsland module</a></li>
+<li><a class="reference internal" href="#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
 <li><a class="reference internal" href="#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
 <li><a class="reference internal" href="#module-bingo.Island">bingo.Island module</a></li>
 <li><a class="reference internal" href="#module-bingo.IslandManager">bingo.IslandManager module</a></li>
@@ -1644,21 +2409,18 @@ the smoothed signal (or it&#8217;s n-th derivative).</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/bingo.txt"
+      <li><a href="_sources/bingo.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -1669,11 +2431,11 @@ the smoothed signal (or it&#8217;s n-th derivative).</p>
       &copy;2017, Geoffrey F. Bomarito.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="_sources/bingo.txt"
+      <a href="_sources/bingo.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -25,7 +25,7 @@ def test_ag_implicit_add():
     y = (x_true[:, 0] + x_true[:, 1])
 
     # test solution
-    epsilon = 1e-8
+    epsilon = 1e-8  #TODO  make thes epsilons calculated on the fly from sols
     compare_ag_implicit(x_true, y, epsilon)
 
 

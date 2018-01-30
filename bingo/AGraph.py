@@ -420,7 +420,11 @@ class AGraph(object):
         for i, (node, params) in enumerate(self.command_list):
             if util[i]:
                 str_list[i] = node.latexstring(params, str_list)
-        return str_list[-1]
+        indv_str = str_list[-1]
+        if self.constants is not None:
+            for i, c in enumerate(self.constants):
+                indv_str = indv_str.replace("c_"+str(i),"{:.4f}".format(c))
+        return indv_str
 
     def utilized_commands(self):
         """find which commands are utilized"""

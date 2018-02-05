@@ -37,7 +37,8 @@ class IslandManager(object):
 
     def run_islands(self, max_steps, epsilon, min_steps=0,
                     step_increment=1000, make_plots=True,
-                    checkpoint_file=None):
+                    checkpoint_file=None, run_noblock=True,
+                    when_update=10):
         """
         Runs co-evolution islands until convergence of best solution
 
@@ -51,13 +52,15 @@ class IslandManager(object):
         :return converged: whether a converged solution has been found
         """
         self.start_time = time.time()
-        self.do_steps(n_steps=step_increment)
+        self.do_steps(n_steps=step_increment, non_block=run_noblock,
+                      to_update=when_update)
         if checkpoint_file is not None:
             self.save_state(checkpoint_file + "_%d.p" % self.age)
         converged = self.test_convergence(epsilon, make_plots)
         while self.age < min_steps or (self.age < max_steps and not converged):
             self.do_migration()
-            self.do_steps(n_steps=step_increment)
+            self.do_steps(n_steps=step_increment, non_block=run_noblock,
+                          to_update=when_update)
             if checkpoint_file is not None:
                 self.save_state(checkpoint_file + "_%d.p" % self.age)
             converged = self.test_convergence(epsilon, make_plots)
@@ -67,7 +70,7 @@ class IslandManager(object):
         return converged
 
     @abc.abstractmethod
-    def do_steps(self, n_steps):
+    def do_steps(self, n_steps, non_block, to_update):
         """
         Steps through generations.
         :param n_steps: number of generations through which to step
@@ -182,16 +185,56 @@ class ParallelIslandManager(IslandManager):
         else:
             self.load_state(restart_file)
 
-    def do_steps(self, n_steps):
+    def do_steps(self, n_steps, non_block, to_update):
         """
         Steps through generations
 
         :param n_steps: number of generations through which to step
         """
         t_0 = time.time()
-        for i in range(n_steps):
-            self.isle.deterministic_crowding_step()
-            # print_pareto(isle.solution_island.pareto_front, "front.png")
+        if non_block:
+            # totalAge to hold rank:age, averageAge and target_age to
+            # hold when to stop, to_update for when to send/receive data
+            total_age = {}
+            average_age = self.age
+            target_age = self.age + n_steps
+            while average_age < target_age:
+                if self.isle.solution_island.age % to_update == 0:
+                    if self.comm_rank == 0:
+                        #update the age in totalAge for self
+                        total_age.update({0:self.isle.solution_island.age})
+                        #loop to see if there is a message from other ranks,
+                        #add the data to totalAge
+                        rcount = 1
+                        while rcount < self.comm_size:
+                            #while there is data in that rank, receive until
+                            #last, then update
+                            while self.comm.iprobe(source=rcount, tag=2):
+                                data = self.comm.recv(source=rcount, tag=2)
+                                total_age.update(data)
+                            rcount += 1
+                        average_age = (sum(total_age.values())) / self.comm.size
+                        # send average to all other ranks if time to stop
+                        if average_age >= n_steps:
+                            scount = 1
+                            while scount < self.comm_size:
+                                self.comm.send(average_age, dest=scount, tag=0)
+                                # if buffer has data, make sure it is empty
+                                while self.comm.iprobe(source=scount, tag=2):
+                                    data = self.comm.recv(source=scount, tag=2)
+                                scount += 1
+                    # for every other rank, store rank:age, and send it off to 0
+                    else:
+                        data = {self.comm_rank:self.isle.solution_island.age}
+                        self.comm.isend(data, dest=0, tag=2)
+                # if there is a message from 0 to stop, update averageAge
+                if self.comm.iprobe(source=0, tag=0):
+                    average_age = self.comm.recv(source=0, tag=0)
+                self.isle.deterministic_crowding_step()
+                # print_pareto(isle.solution_island.pareto_front, "front.png")
+        else:
+            for _ in range(n_steps):
+                self.isle.deterministic_crowding_step()
         t_1 = time.time()
         print(self.comm_rank, ">\tage:", self.isle.solution_island.age,
               "\ttime: %.1fs" % (t_1 - t_0),
@@ -239,13 +282,13 @@ class ParallelIslandManager(IslandManager):
                        float(len(p_send)) / self.isle.predictor_island.pop_size,
                        float(len(t_send)) / len(self.isle.trainers)))
                 self.comm.send((s_receive, p_receive, t_receive),
-                               dest=my_partner)
+                               dest=my_partner, tag=4)
 
                 # exchange populations
                 send_package = self.isle.dump_populations(s_send, p_send,
                                                           t_send)
-                self.comm.send(send_package, dest=my_partner)
-                recv_package = self.comm.recv(source=my_partner)
+                self.comm.send(send_package, dest=my_partner, tag=4)
+                recv_package = self.comm.recv(source=my_partner, tag=4)
                 self.isle.load_populations(recv_package, s_send, p_send,
                                            t_send)
 
@@ -254,12 +297,12 @@ class ParallelIslandManager(IslandManager):
             my_partner = partners[ind - 1]
 
             # find which indvs to send/receive
-            s_send, p_send, t_send = self.comm.recv(source=my_partner)
+            s_send, p_send, t_send = self.comm.recv(source=my_partner, tag=4)
 
             # exchange populations
             send_package = self.isle.dump_populations(s_send, p_send, t_send)
-            recv_package = self.comm.recv(source=my_partner)
-            self.comm.send(send_package, dest=my_partner)
+            recv_package = self.comm.recv(source=my_partner, tag=4)
+            self.comm.send(send_package, dest=my_partner, tag=4)
             self.isle.load_populations(recv_package, s_send, p_send, t_send)
 
     def test_convergence(self, epsilon, make_plots):

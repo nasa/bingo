@@ -92,7 +92,7 @@ def main(max_steps, epsilon, data_size):
     block_one = time.time()
     # run island manager with blocking mpi
     islmngr2.run_islands(max_steps, epsilon, min_steps=200,
-                         step_increment=200, run_noblock=False)
+                         step_increment=200, non_block=False)
     block_two = time.time()
     block_time = block_two - block_one
     if rank == 0:

@@ -69,13 +69,11 @@ class IslandManager(object):
         return converged
 
     @abc.abstractmethod
-    def do_steps(self, n_steps, non_block, to_update, **kwargs):
+    def do_steps(self, n_steps, **kwargs):
         """
         Steps through generations.
 
         :param n_steps: number of generations through which to step
-        :param non_block: boolean to determine blocking or non
-        :param to_update: how often each rank updates in non blocking
         :param kwargs: extra keyword args that can be passed (implementation
                        specific)
         """
@@ -189,23 +187,23 @@ class ParallelIslandManager(IslandManager):
         else:
             self.load_state(restart_file)
 
-    def do_steps(self, n_steps, non_block, to_update):
+    def do_steps(self, n_steps, non_block = True, when_update = 10):
         """
         Steps through generations
 
         :param n_steps: number of generations through which to step
         :param non_block: boolean to determine blocking or non
-        :param to_update: how often each rank updates in non blocking
+        :param when_update: how often each rank updates in non blocking
         """
         t_0 = time.time()
         if non_block:
             # totalAge to hold rank:age, averageAge and target_age to
-            # hold when to stop, to_update for when to send/receive data
+            # hold when to stop, when_update for when to send/receive data
             total_age = {}
             average_age = self.age
             target_age = self.age + n_steps
             while average_age < target_age:
-                if self.isle.solution_island.age % to_update == 0:
+                if self.isle.solution_island.age % when_update == 0:
                     if self.comm_rank == 0:
                         #update the age in totalAge for self
                         total_age.update({0:self.isle.solution_island.age})

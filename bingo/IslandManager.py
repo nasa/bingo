@@ -153,6 +153,15 @@ class ParallelIslandManager(IslandManager):
     ParallelIslandManager is an implementation of the IslandManager class which
     uses mpi4py and message passing to coordinate the distribution of
     coevolution islands in parallel
+
+    developer notes:
+    MPI_Tag     Function
+    --------------------
+        0       average age sent from rank 0 (i.e., avg step limit exceeded)
+        2       age uptate sent to rank 0
+        4       migration communications
+        6       saving state
+        7       loading state
     """
 
     def __init__(self, restart_file=None, *args, **kwargs):
@@ -187,7 +196,7 @@ class ParallelIslandManager(IslandManager):
         else:
             self.load_state(restart_file)
 
-    def do_steps(self, n_steps, non_block = True, when_update = 10):
+    def do_steps(self, n_steps, non_block=True, when_update=10):
         """
         Steps through generations
 
@@ -408,12 +417,12 @@ class ParallelIslandManager(IslandManager):
         if self.comm_rank == 0:
             isles = [self.isle, ]
             for i in range(1, self.comm_size):
-                isles.append(self.comm.recv(source=i))
+                isles.append(self.comm.recv(source=i, tag=6))
 
             with open(filename, "wb") as out_file:
                 pickle.dump((isles, self.pareto_isle, self.age), out_file)
         else:
-            self.comm.send(self.isle, dest=0)
+            self.comm.send(self.isle, dest=0, tag=6)
 
     def load_state(self, filename):
         """
@@ -435,10 +444,10 @@ class ParallelIslandManager(IslandManager):
                     isle_to_send = isles[i]
                 else:
                     isle_to_send = random.choice(isles)
-                self.comm.send((isle_to_send, age), dest=i)
+                self.comm.send((isle_to_send, age), dest=i, tag=7)
         else:
             self.pareto_isle = None
-            self.isle, self.age = self.comm.recv(source=0)
+            self.isle, self.age = self.comm.recv(source=0, tag=7)
 
 
 class SerialIslandManager(IslandManager):

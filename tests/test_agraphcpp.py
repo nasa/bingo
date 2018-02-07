@@ -25,8 +25,9 @@ def test_agcpp_implicit_add():
     y = (x_true[:, 0] + x_true[:, 1])
 
     # test solution
-    epsilon = 1e-8
-    compare_sym_const(x_true, y, epsilon)
+    operator = 2
+    params = (0, 1)
+    compare_agcpp_implicit(x_true, y, operator, params)
 
 
 def test_agcpp_implicit_sub():
@@ -38,8 +39,9 @@ def test_agcpp_implicit_sub():
     y = (x_true[:, 0] - x_true[:, 1])
 
     # test solution
-    epsilon = 1e-8
-    compare_sym_const(x_true, y, epsilon)
+    operator = 3
+    params = (0, 1)
+    compare_agcpp_implicit(x_true, y, operator, params)
 
 
 def test_agcpp_implicit_mul():
@@ -51,8 +53,9 @@ def test_agcpp_implicit_mul():
     y = (x_true[:, 0] * x_true[:, 1])
 
     # test solution
-    epsilon = 7e-4
-    compare_sym_const(x_true, y, epsilon)
+    operator = 4
+    params = (0, 1)
+    compare_agcpp_implicit(x_true, y, operator, params)
 
 
 def test_agcpp_implicit_div():
@@ -64,11 +67,12 @@ def test_agcpp_implicit_div():
     y = (x_true[:, 0] / x_true[:, 1])
 
     # test solution
-    epsilon = 6e-4
-    compare_sym_const(x_true, y, epsilon)
+    operator = 5
+    params = (0, 1)
+    compare_agcpp_implicit(x_true, y, operator, params)
 
 
-def compare_sym_const(X, Y, epsilon):
+def compare_agcpp_implicit(X, Y, operator, params):
     """does const symbolic regression and tests convergence"""
     # convert to single array
     X = np.hstack((X, Y.reshape([-1, 1])))
@@ -81,6 +85,14 @@ def compare_sym_const(X, Y, epsilon):
     sol_manip.add_node_type(4)
     sol_manip.add_node_type(5)
 
+    # make true equation
+    equ = sol_manip.generate()
+    equ.command_list[0] = (0, (0,))
+    equ.command_list[1] = (0, (1,))
+    equ.command_list[2] = (0, (2,))
+    equ.command_list[3] = (operator, params)
+    equ.command_list[-1] = (3, (3, 2))
+
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
@@ -91,6 +103,7 @@ def compare_sym_const(X, Y, epsilon):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=ImplicitRegression)
+    epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
     assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)
 
 
@@ -103,7 +116,9 @@ def test_agcpp_explicit_add():
     y = (x_true[:, 0] + x_true[:, 1])
 
     # test solution
-    compare_agcpp_explicit(x_true, y)
+    operator = 2
+    params = (0, 1)
+    compare_agcpp_explicit(x_true, y, operator, params)
 
 
 def test_agcpp_explicit_sub():
@@ -115,7 +130,9 @@ def test_agcpp_explicit_sub():
     y = (x_true[:, 0] - x_true[:, 1])
 
     # test solution
-    compare_agcpp_explicit(x_true, y)
+    operator = 3
+    params = (0, 1)
+    compare_agcpp_explicit(x_true, y, operator, params)
 
 
 def test_agcpp_explicit_mul():
@@ -127,7 +144,9 @@ def test_agcpp_explicit_mul():
     y = (x_true[:, 0] * x_true[:, 1])
 
     # test solution
-    compare_agcpp_explicit(x_true, y)
+    operator = 4
+    params = (0, 1)
+    compare_agcpp_explicit(x_true, y, operator, params)
 
 
 def test_agcpp_explicit_div():
@@ -139,10 +158,12 @@ def test_agcpp_explicit_div():
     y = (x_true[:, 0] / x_true[:, 1])
 
     # test solution
-    compare_agcpp_explicit(x_true, y)
+    operator = 5
+    params = (0, 1)
+    compare_agcpp_explicit(x_true, y, operator, params)
 
 
-def compare_agcpp_explicit(X, Y):
+def compare_agcpp_explicit(X, Y, operator, params):
     """does the comparison"""
     Y = Y.reshape([-1, 1])
     # make solution manipulator
@@ -151,6 +172,12 @@ def compare_agcpp_explicit(X, Y):
     sol_manip.add_node_type(3)
     sol_manip.add_node_type(4)
     sol_manip.add_node_type(5)
+
+    # make true equation
+    equ = sol_manip.generate()
+    equ.command_list[0] = (0, (0,))
+    equ.command_list[1] = (0, (1,))
+    equ.command_list[-1] = (operator, params)
 
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
@@ -162,5 +189,5 @@ def compare_agcpp_explicit(X, Y):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=StandardRegression)
-    assert islmngr.run_islands(MAX_STEPS, STANDARD_EPSILON,
-                               step_increment=N_STEPS)
+    epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
+    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)

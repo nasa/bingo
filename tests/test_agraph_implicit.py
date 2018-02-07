@@ -25,8 +25,9 @@ def test_ag_implicit_add():
     y = (x_true[:, 0] + x_true[:, 1])
 
     # test solution
-    epsilon = 1e-8  #TODO  make thes epsilons calculated on the fly from sols
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Add
+    params = (0, 1)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_sub():
@@ -38,8 +39,9 @@ def test_ag_implicit_sub():
     y = (x_true[:, 0] - x_true[:, 1])
 
     # test solution
-    epsilon = 1e-8
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Subtract
+    params = (0, 1)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_mul():
@@ -51,8 +53,9 @@ def test_ag_implicit_mul():
     y = (x_true[:, 0] * x_true[:, 1])
 
     # test solution
-    epsilon = 7e-4
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Multiply
+    params = (0, 1)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_div():
@@ -64,8 +67,9 @@ def test_ag_implicit_div():
     y = (x_true[:, 0] / x_true[:, 1])
 
     # test solution
-    epsilon = 6e-4
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Divide
+    params = (0, 1)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_cos():
@@ -77,8 +81,9 @@ def test_ag_implicit_cos():
     y = np.cos(x_true[:, 0])
 
     # test solution
-    epsilon = 3e-3
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Cos
+    params = (0,)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_sin():
@@ -90,8 +95,9 @@ def test_ag_implicit_sin():
     y = np.sin(x_true[:, 0])
 
     # test solution
-    epsilon = 2.3e-3
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Sin
+    params = (0,)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_exp():
@@ -103,8 +109,9 @@ def test_ag_implicit_exp():
     y = np.exp(x_true[:, 0])
 
     # test solution
-    epsilon = 6e-4
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Exp
+    params = (0,)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_log():
@@ -116,8 +123,9 @@ def test_ag_implicit_log():
     y = np.log(x_true[:, 0])
 
     # test solution
-    epsilon = 2.2e-3
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Log
+    params = (0,)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
 def test_ag_implicit_abs():
@@ -129,11 +137,12 @@ def test_ag_implicit_abs():
     y = np.abs(x_true[:, 0])
 
     # test solution
-    epsilon = 1e-8
-    compare_ag_implicit(x_true, y, epsilon)
+    operator = AGNodes.Abs
+    params = (0,)
+    compare_ag_implicit(x_true, y, operator, params)
 
 
-def compare_ag_implicit(X, Y, epsilon):
+def compare_ag_implicit(X, Y, operator, params):
     """does const symbolic regression and tests convergence"""
     # convert to single array
     X = np.hstack((X, Y.reshape([-1, 1])))
@@ -151,6 +160,14 @@ def compare_ag_implicit(X, Y, epsilon):
     sol_manip.add_node_type(AGNodes.Cos)
     sol_manip.add_node_type(AGNodes.Abs)
 
+    # make true equation
+    equ = sol_manip.generate()
+    equ.command_list[0] = (AGNodes.Load_Data, (0,))
+    equ.command_list[1] = (AGNodes.Load_Data, (1,))
+    equ.command_list[2] = (AGNodes.Load_Data, (2,))
+    equ.command_list[3] = (operator, params)
+    equ.command_list[-1] = (AGNodes.Subtract, (3, 2))
+
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
@@ -161,4 +178,5 @@ def compare_ag_implicit(X, Y, epsilon):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=ImplicitRegression)
+    epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
     assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)

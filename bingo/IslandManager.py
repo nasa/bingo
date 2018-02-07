@@ -49,6 +49,8 @@ class IslandManager(object):
                                migrations/convergence checks
         :param make_plots: boolean for whether to produce plots
         :param checkpoint_file: base file name for checkpoint files
+        :param run_noblock: boolean to run it with/without blocking ranks
+        :param when_update: how often ranks update in non blocking
         :return converged: whether a converged solution has been found
         """
         self.start_time = time.time()
@@ -75,6 +77,8 @@ class IslandManager(object):
         Steps through generations.
 
         :param n_steps: number of generations through which to step
+        :param non_block: boolean to determine blocking or non
+        :param to_update: how often each rank updates in non blocking
         """
         pass
 
@@ -191,6 +195,8 @@ class ParallelIslandManager(IslandManager):
         Steps through generations
 
         :param n_steps: number of generations through which to step
+        :param non_block: boolean to determine blocking or non
+        :param to_update: how often each rank updates in non blocking
         """
         t_0 = time.time()
         if non_block:
@@ -475,11 +481,13 @@ class SerialIslandManager(IslandManager):
         else:
             self.load_state(restart_file)
 
-    def do_steps(self, n_steps):
+    def do_steps(self, n_steps, non_block, to_update):
         """
         Steps through generations
 
         :param n_steps: number of generations through which to step
+        :param non_block: boolean to determine blocking or non
+        :param to_update: how often each rank updates in non blocking
         """
         t_0 = time.time()
         for i, isle in enumerate(self.isles):

@@ -37,8 +37,7 @@ class IslandManager(object):
 
     def run_islands(self, max_steps, epsilon, min_steps=0,
                     step_increment=1000, make_plots=True,
-                    checkpoint_file=None, run_noblock=True,
-                    when_update=10):
+                    checkpoint_file=None, **do_steps_kwargs):
         """
         Runs co-evolution islands until convergence of best solution
 
@@ -49,20 +48,18 @@ class IslandManager(object):
                                migrations/convergence checks
         :param make_plots: boolean for whether to produce plots
         :param checkpoint_file: base file name for checkpoint files
-        :param run_noblock: boolean to run it with/without blocking ranks
-        :param when_update: how often ranks update in non blocking
+        :param do_steps_kwargs: extra keyword arguments are passed through
+                                to do_steps()
         :return converged: whether a converged solution has been found
         """
         self.start_time = time.time()
-        self.do_steps(n_steps=step_increment, non_block=run_noblock,
-                      to_update=when_update)
+        self.do_steps(n_steps=step_increment, **do_steps_kwargs)
         if checkpoint_file is not None:
             self.save_state(checkpoint_file + "_%d.p" % self.age)
         converged = self.test_convergence(epsilon, make_plots)
         while self.age < min_steps or (self.age < max_steps and not converged):
             self.do_migration()
-            self.do_steps(n_steps=step_increment, non_block=run_noblock,
-                          to_update=when_update)
+            self.do_steps(n_steps=step_increment, **do_steps_kwargs)
             if checkpoint_file is not None:
                 self.save_state(checkpoint_file + "_%d.p" % self.age)
             converged = self.test_convergence(epsilon, make_plots)
@@ -72,13 +69,15 @@ class IslandManager(object):
         return converged
 
     @abc.abstractmethod
-    def do_steps(self, n_steps, non_block, to_update):
+    def do_steps(self, n_steps, non_block, to_update, **kwargs):
         """
         Steps through generations.
 
         :param n_steps: number of generations through which to step
         :param non_block: boolean to determine blocking or non
         :param to_update: how often each rank updates in non blocking
+        :param kwargs: extra keyword args that can be passed (implementation
+                       specific)
         """
         pass
 
@@ -481,13 +480,11 @@ class SerialIslandManager(IslandManager):
         else:
             self.load_state(restart_file)
 
-    def do_steps(self, n_steps, non_block, to_update):
+    def do_steps(self, n_steps):
         """
         Steps through generations
 
         :param n_steps: number of generations through which to step
-        :param non_block: boolean to determine blocking or non
-        :param to_update: how often each rank updates in non blocking
         """
         t_0 = time.time()
         for i, isle in enumerate(self.isles):

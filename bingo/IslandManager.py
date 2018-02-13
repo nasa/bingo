@@ -214,35 +214,33 @@ class ParallelIslandManager(IslandManager):
             while average_age < target_age:
                 if self.isle.solution_island.age % when_update == 0:
                     if self.comm_rank == 0:
-                        #update the age in totalAge for self
+                        # update the age in totalAge for self
                         total_age.update({0:self.isle.solution_island.age})
-                        #loop to see if there is a message from other ranks,
-                        #add the data to totalAge
-                        rcount = 1
-                        while rcount < self.comm_size:
-                            #while there is data in that rank, receive until
-                            #last, then update
-                            while self.comm.iprobe(source=rcount, tag=2):
-                                data = self.comm.recv(source=rcount, tag=2)
-                                total_age.update(data)
-                            rcount += 1
+                        # while there is data from any rank, receive until
+                        # last, and add the data to totalAge
+                        # TODO (gbomarito) could get flooded and never exit loop
+                        status = MPI.Status()
+                        while self.comm.iprobe(source=MPI.ANY_SOURCE, tag=2,
+                                               status=status):
+                            data = self.comm.recv(source=status.Get_source(),
+                                                  tag=2)
+                            total_age.update(data)
                         average_age = (sum(total_age.values())) / self.comm.size
                         # send average to all other ranks if time to stop
                         if average_age >= n_steps:
                             scount = 1
                             while scount < self.comm_size:
                                 self.comm.send(average_age, dest=scount, tag=0)
-                                # if buffer has data, make sure it is empty
-                                while self.comm.iprobe(source=scount, tag=2):
-                                    data = self.comm.recv(source=scount, tag=2)
                                 scount += 1
                     # for every other rank, store rank:age, and send it off to 0
                     else:
                         data = {self.comm_rank:self.isle.solution_island.age}
-                        self.comm.isend(data, dest=0, tag=2)
+                        req = self.comm.isend(data, dest=0, tag=2)
+                        req.Wait()
                 # if there is a message from 0 to stop, update averageAge
-                if self.comm.iprobe(source=0, tag=0):
-                    average_age = self.comm.recv(source=0, tag=0)
+                if self.comm_rank != 0:
+                    if self.comm.iprobe(source=0, tag=0):
+                        average_age = self.comm.recv(source=0, tag=0)
                 self.isle.deterministic_crowding_step()
                 # print_pareto(isle.solution_island.pareto_front, "front.png")
         else:
@@ -253,6 +251,15 @@ class ParallelIslandManager(IslandManager):
               "\ttime: %.1fs" % (t_1 - t_0),
               "\tbest fitness:",
               self.isle.solution_island.pareto_front[0].fitness)
+
+        if non_block:
+            # perform message cleanup before moving on
+            self.comm.Barrier()
+            if self.comm_rank==0:
+                status = MPI.Status()
+                while self.comm.iprobe(source=MPI.ANY_SOURCE, tag=2,
+                                       status=status):
+                    data = self.comm.recv(source=status.Get_source(), tag=2)
 
         if np.isnan(self.isle.solution_island.pareto_front[0].fitness[0]):
             for i in self.isle.solution_island.pop:

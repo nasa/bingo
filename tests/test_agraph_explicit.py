@@ -144,6 +144,20 @@ def test_ag_explicit_abs():
     compare_ag_explicit(x_true, y, operator, params)
 
 
+def test_ag_explicit_pow():
+    """test absolute value primitive in sym reg"""
+    # get independent vars
+    x_true = snake_walk()
+
+    # make solutions
+    y = np.power(x_true[:, 0], x_true[:, 1])
+
+    # test solution
+    operator = AGNodes.Pow
+    params = (0, 1)
+    compare_ag_explicit(x_true, y, operator, params)
+
+
 def compare_ag_explicit(X, Y, operator, params):
     """does the comparison"""
     # make solution manipulator
@@ -157,6 +171,7 @@ def compare_ag_explicit(X, Y, operator, params):
     sol_manip.add_node_type(AGNodes.Sin)
     sol_manip.add_node_type(AGNodes.Cos)
     sol_manip.add_node_type(AGNodes.Abs)
+    sol_manip.add_node_type(AGNodes.Pow)
 
     # make true equation
     equ = sol_manip.generate()

@@ -804,3 +804,33 @@ class AGNodes(object):
             return "multiply(deriv[%d].transpose(), "\
                    "divide(0.5, sqroot(stack[%d]))).transpose()" %\
                    (params[0], params[0])
+
+    class Pow(Node):
+        """
+        (x)^y
+        derivative calculation needs: add, multiply, divide, log
+        """
+        arity = 2
+        shorthand = "power"
+        call = np.power
+
+        @staticmethod
+        def printstring(params):
+            return "power (%d) (%d)" % params
+
+        @staticmethod
+        def latexstring(params, str_list):
+            return "(%s)^{(%s)}" % (str_list[params[0]], str_list[params[1]])
+
+        @staticmethod
+        def funcstring(params):
+            return "power(stack[%d], stack[%d])" % params
+
+        @staticmethod
+        def derivstring(params):
+            return "multiply(add( multiply(deriv[%d].transpose(), "\
+                   "divide(stack[%d],stack[%d])), "\
+                   "multiply(deriv[%d].transpose(), log(stack[%d])) ), "\
+                   "power(stack[%d], stack[%d])).transpose()" %\
+                    (params[0], params[1], params[0], params[0], params[0],
+                     params[0], params[1])

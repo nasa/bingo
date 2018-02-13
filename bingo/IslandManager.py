@@ -255,7 +255,7 @@ class ParallelIslandManager(IslandManager):
         if non_block:
             # perform message cleanup before moving on
             self.comm.Barrier()
-            if self.comm_rank==0:
+            if self.comm_rank == 0:
                 status = MPI.Status()
                 while self.comm.iprobe(source=MPI.ANY_SOURCE, tag=2,
                                        status=status):

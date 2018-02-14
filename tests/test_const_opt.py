@@ -181,7 +181,8 @@ def compare_agraph_explicit(X, Y):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=StandardRegression)
-    assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS)
+    assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
+                               make_plots=False)
 
 
 def test_const_opt_agraphcpp_explicit():
@@ -345,4 +346,5 @@ def compare_agraphcpp_explicit(X, Y):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=StandardRegression)
-    assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS)
+    assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
+                               make_plots=False)

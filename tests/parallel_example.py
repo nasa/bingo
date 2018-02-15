@@ -10,7 +10,7 @@ import numpy as np
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
-from bingo import AGraphCpp
+# from bingo import AGraphCpp
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
 from bingo.FitnessMetric import StandardRegression, ImplicitRegression
@@ -134,10 +134,10 @@ def main(max_steps, epsilon, data_size):
 
 
     # make solution manipulator
-    sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
-    sol_manip2.add_node_type(2)  # +
-    sol_manip2.add_node_type(3)  # -
-    sol_manip2.add_node_type(4)  # *
+    #sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
+    #sol_manip2.add_node_type(2)  # +
+    #sol_manip2.add_node_type(3)  # -
+    #sol_manip2.add_node_type(4)  # *
     #sol_manip.add_node_type(5)  # /
 
     # make predictor manipulator
@@ -146,19 +146,19 @@ def main(max_steps, epsilon, data_size):
     # make and run island manager
     islmngr = ParallelIslandManager(#restart_file='test.p',
                                     data_x=x_true, data_y=y_true,
-                                    solution_manipulator=sol_manip2,
+                                    solution_manipulator=sol_manip,
                                     predictor_manipulator=pred_manip,
                                     solution_pop_size=64,
                                     fitness_metric=StandardRegression)
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,
-                        step_increment=1000,
+                        step_increment=100,
                         #checkpoint_file='checkpt'
                        )
 
 
 if __name__ == "__main__":
 
-    MAX_STEPS = 100000
+    MAX_STEPS = 500
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
 

@@ -5,6 +5,7 @@ symbolic regression in bingo
 
 import abc
 import numpy as np
+import warnings
 
 
 class FitnessMetric(object, metaclass=abc.ABCMeta):

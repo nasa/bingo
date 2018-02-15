@@ -27,7 +27,14 @@ COMMAND_PRINT_MAP = {0: "X",
                      2: "+",
                      3: "-",
                      4: "*",
-                     5: "/"}
+                     5: "/",
+                     6: "sin",
+                     7: "cos",
+                     8: "exp",
+                     9: "log",
+                     10: "pow",
+                     11: "abs",
+                     12: "sqrt"}
 
 
 class AGraphCppManipulator(object):
@@ -444,6 +451,21 @@ class AGraphCpp(object):
                 elif node == 5:
                     tmp_str = "\\frac{%s}{%s}" % (str_list[params[0]],
                                                   str_list[params[1]])
+                elif node == 6:
+                    tmp_str = "\\sin{%s}" % (str_list[params[0]])
+                elif node == 7:
+                    tmp_str = "\\cos{%s}" % (str_list[params[0]])
+                elif node == 8:
+                    tmp_str = "\\exp{%s}" % (str_list[params[0]])
+                elif node == 9:
+                    tmp_str = "\\log{%s}" % (str_list[params[0]])
+                elif node == 10:
+                    tmp_str = "(%s)^{(%s)}" % (str_list[params[0]],
+                                                  str_list[params[1]])
+                elif node == 11:
+                    tmp_str = "|{%s}|" % (str_list[params[0]])
+                elif node == 12:
+                    tmp_str = "\\sqrt{%s}" % (str_list[params[0]])
             str_list.append(tmp_str)
         return str_list[-1]
 

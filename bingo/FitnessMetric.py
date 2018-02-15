@@ -96,7 +96,10 @@ class ImplicitRegression(FitnessMetric):
         :return: the mean of the fitness vector, ignoring nans
         """
         vec = cls.evaluate_vector(**kwargs)
-        return np.nanmean(np.abs(vec))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            err = np.nanmean(np.abs(vec))
+        return err
 
 
 # I DONT THINK THIS ONE WORKS BECAUSE IT FAILS TO CONSIDER ELASTIC STRAIN

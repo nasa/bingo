@@ -104,7 +104,8 @@ def compare_agcpp_implicit(X, Y, operator, params):
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=ImplicitRegression)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
-    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)
+    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
+                               make_plots=False)
 
 
 def test_agcpp_explicit_add():
@@ -190,4 +191,5 @@ def compare_agcpp_explicit(X, Y, operator, params):
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=StandardRegression)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
-    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)
+    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
+                               make_plots=False)

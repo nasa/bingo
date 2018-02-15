@@ -156,7 +156,8 @@ def compare_agraphcpp_potential(X, Y):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=AtomicPotential)
-    success = islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS)
+    success = islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
+                                  make_plots=False)
     assert success
 
 
@@ -183,5 +184,6 @@ def compare_agraph_potential(X, Y):
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=AtomicPotential)
-    success = islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS)
+    success = islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
+                                  make_plots=False)
     assert success

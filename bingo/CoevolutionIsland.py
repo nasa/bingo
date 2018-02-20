@@ -6,9 +6,12 @@ predictors is judged.
 This is loosely based on the work of Schmidt and Lipson 2008?
 """
 import numpy as np
+import logging
 
 from .Island import Island
 from .Utils import calculate_partials
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:  %(message)s")
 
 
 class CoevolutionIsland(object):
@@ -125,11 +128,14 @@ class CoevolutionIsland(object):
         # initial output
         if self.verbose:
             best_pred = self.best_predictor
-            print("P>", self.predictor_island.age, best_pred.fitness, best_pred)
+            logging.debug("P> " + str(self.predictor_island.age)\
+                          + " " + str(best_pred.fitness)\
+                          + " " + str(best_pred))
             self.solution_island.update_pareto_front()
             best_sol = self.solution_island.pareto_front[0]
-            print("S>", self.solution_island.age, best_sol.fitness, \
-                best_sol.latexstring())
+            logging.debug("S> " + str(self.solution_island.age)\
+                          + " " + str(best_sol.fitness)\
+                          + " " + str(best_sol.latexstring()))
 
     def solution_fitness_est(self, solution):
         """
@@ -196,7 +202,7 @@ class CoevolutionIsland(object):
         location = (self.solution_island.age // self.trainer_update_freq)\
                    % len(self.trainers)
         if self.verbose:
-            print("updating trainer at location", location)
+            logging.debug("updating trainer at location " + str(location))
         self.trainers[location] = s_best
 
     def deterministic_crowding_step(self):
@@ -222,8 +228,9 @@ class CoevolutionIsland(object):
             self.predictor_island.deterministic_crowding_step()
             if self.verbose:
                 best_pred = self.predictor_island.best_indv()
-                print("P>", self.predictor_island.age, ' ')
-                print(best_pred.fitness, best_pred)
+                logging.debug("P> " + str(self.predictor_island.age) \
+                              + " " + str(best_pred.fitness) \
+                              + " " + str(best_pred))
             current_ratio = (float(self.predictor_island.fitness_evals) /
                              (self.predictor_island.fitness_evals +
                               float(self.solution_island.fitness_evals) /
@@ -232,7 +239,7 @@ class CoevolutionIsland(object):
         # update fitness predictor if it is time to
         if (self.solution_island.age+1) % self.predictor_update_freq == 0:
             if self.verbose:
-                print("updating predictor")
+                logging.debug("Updating predictor")
             self.best_predictor = self.predictor_island.best_indv().copy()
             for indv in self.solution_island.pop:
                 indv.fitness = None
@@ -242,8 +249,9 @@ class CoevolutionIsland(object):
         self.solution_island.update_pareto_front()
         if self.verbose:
             best_sol = self.solution_island.pareto_front[0]
-            print("S>", self.solution_island.age, best_sol.fitness, \
-                best_sol.latexstring())
+            logging.debug("S> " + str(self.solution_island.age) \
+                          + " " + str(best_sol.fitness) \
+                          + " " + str(best_sol.latexstring()))
 
     def dump_populations(self, s_subset=None, p_subset=None, t_subset=None):
         """
@@ -322,7 +330,8 @@ class CoevolutionIsland(object):
         for i, train, tfit in zip(list(range(len(self.trainers))),
                                   self.trainers,
                                   self.trainers_true_fitness):
-            print("T>", i, tfit, train.latexstring())
+            logging.debug("T> " + str(i) + " " + str(tfit) + " " + \
+                          train.latexstring())
 
     def use_true_fitness(self):
         """

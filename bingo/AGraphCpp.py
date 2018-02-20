@@ -15,11 +15,14 @@ the current map is:
 5: / division (currently not divide-by-zero protected)
 """
 import random
+import logging
 from bingocpp.build import bingocpp
 from scipy import optimize
 
 import numpy as np
+
 np.seterr(all='ignore')
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:  %(message)s")
 
 
 COMMAND_PRINT_MAP = {0: "X",
@@ -139,7 +142,7 @@ class AGraphCppManipulator(object):
         rand_val = np.random.random()
 
         # mutate operator
-        if  randval < 0.4 and mut_point > self.nloads:
+        if  rand_val < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
@@ -165,9 +168,15 @@ class AGraphCppManipulator(object):
             if orig_node_type > 1:  # operators only           # TODO hardcoded
                 pruned_param = orig_params[np.random.randint(2)]
                 for i in range(mut_point, len(indv.command_list)):
-                    for j in range(2):                         # TODO hardcoded
-                        if indv.command_list[i][j] == mut_point:
-                            indv.command_list[i][j] = pruned_param
+                    if mut_point in indv.command_list[i]:
+                        p0 = indv.command_list[i][1][0]        # TODO hardcoded
+                        p1 = indv.command_list[i][1][1]
+                        if p0 == mut_point:
+                            p0 = pruned_param
+                        if p1 == mut_point:
+                            p1 = pruned_param
+                        indv.command_list[i] = (indv.command_list[i][0],
+                                                (p0, p1))
 
 
         indv.compiled = False
@@ -372,8 +381,8 @@ class AGraphCpp(object):
                                                      eval_x,
                                                      self.constants)
         except:
-            print("***ERROR***")
-            print(self)
+            logging.error("Error in stack evaluation")
+            logging.error(str(self))
             exit(-1)
         return f_of_x
 
@@ -385,8 +394,8 @@ class AGraphCpp(object):
             f_of_x, df_dx = bingocpp.simplify_and_evauluate_with_derivative(
                 self.command_list, eval_x, self.constants)
         except:
-            print("***ERROR***")
-            print(self)
+            logging.error("Error in stack evaluation/deriv")
+            logging.error(str(self))
             exit(-1)
         return f_of_x, df_dx
 
@@ -468,7 +477,7 @@ class AGraphCpp(object):
                     tmp_str = "\\log{%s}" % (str_list[params[0]])
                 elif node == 10:
                     tmp_str = "(%s)^{(%s)}" % (str_list[params[0]],
-                                                  str_list[params[1]])
+                                               str_list[params[1]])
                 elif node == 11:
                     tmp_str = "|{%s}|" % (str_list[params[0]])
                 elif node == 12:

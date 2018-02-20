@@ -67,7 +67,7 @@ class ImplicitRegression(FitnessMetric):
 
         :return: the fitness for each row
         """
-        f, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
+        _, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
                                        x=x, dx_dt=dx_dt,
                                        required_params=required_params,
                                        normalize_dot=normalize_dot)
@@ -166,7 +166,7 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         # NOTE: this doesnt work well right now
         #       importantly, it couldn't reproduce the papers
 
-        f, df_dx = indv.evaluate_deriv(x, ImplicitRegressionTest,
+        _, df_dx = indv.evaluate_deriv(x, ImplicitRegressionSchmidt,
                                        x=x, dx_dt=dx_dt)
 
         n_params = x.shape[1]

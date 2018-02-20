@@ -133,10 +133,13 @@ class AGraphCppManipulator(object):
         util = indv.utilized_commands()
         loc = np.random.randint(sum(util))
         mut_point = [n for n, x in enumerate(util) if x][loc]
-        orig_node_type, _ = indv.command_list[mut_point]
+        orig_node_type, orig_params = indv.command_list[mut_point]
 
-        # randomly change operation or parameter with equal prob
-        if np.random.random() < 0.5 and mut_point > self.nloads:  # op change
+        # mutate operator (0.4) mutate params (0.4) prune branch (0.2)
+        rand_val = np.random.random()
+
+        # mutate operator
+        if  randval < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
@@ -145,24 +148,28 @@ class AGraphCppManipulator(object):
                     new_node_type, new_params = self.rand_operator(mut_point)
                 new_type_found = new_node_type != orig_node_type or \
                                  orig_node_type <= 1           # TODO hardcoded
-            # only use new params if needed
-            # if not new_node_type.terminal:  # don't worry about this 4 terms
-            #     tmp = ()
-            #     for i in range(new_node_type.arity):
-            #         if i < orig_node_type.arity:
-            #             tmp += (orig_params[i],)
-            #         else:
-            #             tmp += (new_params[i],)
-            #     new_params = tmp
+            indv.command_list[mut_point] = (new_node_type, new_params)
 
-        else:  # parameter change
+        # mutate parameters
+        elif rand_val < 0.8:
             new_node_type = orig_node_type
             if orig_node_type <= 1:  # terminals               # TODO hardcoded
                 new_params = self.mutate_terminal_param(new_node_type)
             else:  # operators
                 new_params = self.rand_operator_params(2, mut_point)  # TODO hc
 
-        indv.command_list[mut_point] = (new_node_type, new_params)
+            indv.command_list[mut_point] = (new_node_type, new_params)
+
+        # prune branch
+        else:
+            if orig_node_type > 1:  # operators only           # TODO hardcoded
+                pruned_param = orig_params[np.random.randint(2)]
+                for i in range(mut_point, len(indv.command_list)):
+                    for j in range(2):                         # TODO hardcoded
+                        if indv.command_list[i][j] == mut_point:
+                            indv.command_list[i][j] = pruned_param
+
+
         indv.compiled = False
         indv.fitness = None
         return indv
@@ -298,7 +305,7 @@ class AGraphCppManipulator(object):
         """
         node = self.node_type_list[random.choice(self.terminal_inds)]
         param = self.rand_terminal_param(node)
-        return node, param
+        return (node, param)
 
 
 class AGraphCpp(object):

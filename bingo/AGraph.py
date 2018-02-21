@@ -10,8 +10,7 @@ import numpy as np
 import logging
 
 np.seterr(all='ignore')
-logging.basicConfig(level=logging.INFO, format="%(levelname)s:  %(message)s")
-
+LOGGER = logging.getLogger(__name__)
 
 class AGraphManipulator(object):
     """
@@ -378,8 +377,8 @@ class AGraph(object):
         try:
             f_of_x = self.namespace['evaluate'](eval_x, self.constants)
         except:
-            logging.error("Error in stack evaluation")
-            logging.error(str(self))
+            LOGGER.error("Error in stack evaluation")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
@@ -393,8 +392,8 @@ class AGraph(object):
             f_of_x, df_dx = self.namespace['evaluate_deriv'](eval_x,
                                                              self.constants)
         except:
-            logging.error("Error in stack evaluation/deriv")
-            logging.error(str(self))
+            LOGGER.error("Error in stack evaluation/deriv")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x, df_dx
 

@@ -22,7 +22,7 @@ from scipy import optimize
 import numpy as np
 
 np.seterr(all='ignore')
-logging.basicConfig(level=logging.INFO, format="%(levelname)s:  %(message)s")
+LOGGER = logging.getLogger(__name__)
 
 
 COMMAND_PRINT_MAP = {0: "X",
@@ -381,8 +381,8 @@ class AGraphCpp(object):
                                                      eval_x,
                                                      self.constants)
         except:
-            logging.error("Error in stack evaluation")
-            logging.error(str(self))
+            LOGGER.error("Error in stack evaluation")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
@@ -394,8 +394,8 @@ class AGraphCpp(object):
             f_of_x, df_dx = bingocpp.simplify_and_evauluate_with_derivative(
                 self.command_list, eval_x, self.constants)
         except:
-            logging.error("Error in stack evaluation/deriv")
-            logging.error(str(self))
+            LOGGER.error("Error in stack evaluation/deriv")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x, df_dx
 

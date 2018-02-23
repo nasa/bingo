@@ -120,8 +120,12 @@ class AGraphManipulator(object):
         mut_point = [n for n, x in enumerate(util) if x][loc]
         orig_node_type, orig_params = indv.command_list[mut_point]
 
-        # randomly change operation or parameter with equal prob
-        if np.random.random() < 0.5 and mut_point > self.nloads: # op change
+
+        # mutate operator (0.4) mutate params (0.4) prune branch (0.2)
+        rand_val = np.random.random()
+
+        # mutate operator
+        if  rand_val < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
@@ -139,8 +143,10 @@ class AGraphManipulator(object):
                     else:
                         tmp += (new_params[i],)
                 new_params = tmp
+            indv.command_list[mut_point] = (new_node_type, new_params)
 
-        else:  # parameter change
+        # mutate parameters
+        elif rand_val < 0.8:
             new_node_type = orig_node_type
             if orig_node_type.terminal:  # terminals
                 new_params = self.mutate_terminal_param(new_node_type,
@@ -148,8 +154,22 @@ class AGraphManipulator(object):
             else:  # operators
                 new_params = self.rand_operator_params(new_node_type.arity,
                                                        mut_point)
+            indv.command_list[mut_point] = (new_node_type, new_params)
 
-        indv.command_list[mut_point] = (new_node_type, new_params)
+        # prune branch
+        else:
+            if not orig_node_type.terminal:  # operators only
+                pruned_param = random.choice(orig_params)
+                for i in range(mut_point, len(indv.command_list)):
+                    if mut_point in indv.command_list[i][1]:
+                        mod_params=()
+                        for old_p in indv.command_list[i][1]:
+                            if old_p == mut_point:
+                                mod_params += (pruned_param,)
+                            else:
+                                mod_params += (old_p,)
+                        indv.command_list[i] = (indv.command_list[i][0],
+                                                mod_params)
         indv.compiled = False
         indv.fitness = None
         return indv

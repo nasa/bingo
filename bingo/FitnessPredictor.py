@@ -3,7 +3,9 @@ This module contains most of the code necessary for the representation of an
 fitness predictor in the form of a subsampling list for real data
 """
 import numpy as np
+import logging
 
+LOGGER = logging.getLogger(__name__)
 
 class FPManipulator(object):
     """
@@ -98,7 +100,7 @@ class FitnessPredictor(object):
             err = fitness_metric.evaluate_metric(indv=indv, **temp_args)
 
         except (OverflowError, FloatingPointError, ValueError):
-            print("fit_func error")
+            LOGGER.error("fit_func error")
             err = np.nan
 
 

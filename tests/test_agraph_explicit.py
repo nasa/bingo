@@ -192,4 +192,5 @@ def compare_ag_explicit(X, Y, operator, params):
 
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
 
-    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS)
+    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
+                               make_plots=False)

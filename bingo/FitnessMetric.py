@@ -5,6 +5,7 @@ symbolic regression in bingo
 
 import abc
 import numpy as np
+import warnings
 
 
 class FitnessMetric(object, metaclass=abc.ABCMeta):
@@ -66,7 +67,7 @@ class ImplicitRegression(FitnessMetric):
 
         :return: the fitness for each row
         """
-        f, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
+        _, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
                                        x=x, dx_dt=dx_dt,
                                        required_params=required_params,
                                        normalize_dot=normalize_dot)
@@ -96,7 +97,10 @@ class ImplicitRegression(FitnessMetric):
         :return: the mean of the fitness vector, ignoring nans
         """
         vec = cls.evaluate_vector(**kwargs)
-        return np.nanmean(np.abs(vec))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            err = np.nanmean(np.abs(vec))
+        return err
 
 
 # I DONT THINK THIS ONE WORKS BECAUSE IT FAILS TO CONSIDER ELASTIC STRAIN
@@ -162,7 +166,7 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         # NOTE: this doesnt work well right now
         #       importantly, it couldn't reproduce the papers
 
-        f, df_dx = indv.evaluate_deriv(x, ImplicitRegressionTest,
+        _, df_dx = indv.evaluate_deriv(x, ImplicitRegressionSchmidt,
                                        x=x, dx_dt=dx_dt)
 
         n_params = x.shape[1]

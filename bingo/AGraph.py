@@ -7,8 +7,10 @@ import random
 from scipy import optimize
 
 import numpy as np
-np.seterr(all='ignore')
+import logging
 
+np.seterr(all='ignore')
+LOGGER = logging.getLogger(__name__)
 
 class AGraphManipulator(object):
     """
@@ -346,7 +348,7 @@ class AGraph(object):
         # compile fitness function for optimization
         util = self.utilized_commands()
         const_num = 0
-        for i, (node, params) in enumerate(self.command_list):
+        for i, (node, _) in enumerate(self.command_list):
             if util[i]:
                 if node is AGNodes.Load_Const:
                     self.command_list[i] = (node, (const_num,))
@@ -375,8 +377,8 @@ class AGraph(object):
         try:
             f_of_x = self.namespace['evaluate'](eval_x, self.constants)
         except:
-            print("***ERROR***")
-            print(self)
+            LOGGER.error("Error in stack evaluation")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
@@ -390,8 +392,8 @@ class AGraph(object):
             f_of_x, df_dx = self.namespace['evaluate_deriv'](eval_x,
                                                              self.constants)
         except:
-            print("***ERROR***")
-            print(self)
+            LOGGER.error("Error in stack evaluation/deriv")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x, df_dx
 
@@ -423,7 +425,7 @@ class AGraph(object):
         indv_str = str_list[-1]
         if self.constants is not None:
             for i, c in enumerate(self.constants):
-                indv_str = indv_str.replace("c_"+str(i),"{:.4f}".format(c))
+                indv_str = indv_str.replace("c_" + str(i), "{:.4f}".format(c))
         return indv_str
 
     def utilized_commands(self):

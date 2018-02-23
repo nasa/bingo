@@ -15,11 +15,14 @@ the current map is:
 5: / division (currently not divide-by-zero protected)
 """
 import random
+import logging
 from bingocpp.build import bingocpp
 from scipy import optimize
 
 import numpy as np
+
 np.seterr(all='ignore')
+LOGGER = logging.getLogger(__name__)
 
 
 COMMAND_PRINT_MAP = {0: "X",
@@ -33,6 +36,7 @@ COMMAND_PRINT_MAP = {0: "X",
                      8: "exp",
                      9: "log",
                      10: "pow",
+                     11: "abs",
                      12: "sqrt"}
 
 
@@ -136,8 +140,10 @@ class AGraphCppManipulator(object):
         mut_point = [n for n, x in enumerate(util) if x][loc]
         orig_node_type, new_param1, new_param2 = indv.command_array[mut_point]
 
-        # randomly change operation or parameter with equal prob
-        if np.random.random() < 0.5 and mut_point > self.nloads:  # op change
+        # mutate operator (0.4) mutate params (0.4) prune branch (0.2)
+        rand_val = np.random.random()
+        # mutate operator
+        if  rand_val < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
@@ -146,17 +152,10 @@ class AGraphCppManipulator(object):
                     new_node_type, new_param1, new_param2 = self.rand_operator(mut_point)
                 new_type_found = new_node_type != orig_node_type or \
                                  orig_node_type <= 1           # TODO hardcoded
-            # only use new params if needed
-            # if not new_node_type.terminal:  # don't worry about this 4 terms
-            #     tmp = ()
-            #     for i in range(new_node_type.arity):
-            #         if i < orig_node_type.arity:
-            #             tmp += (orig_params[i],)
-            #         else:
-            #             tmp += (new_params[i],)
-            #     new_params = tmp
+            indv.command_array[mut_point] = (new_node_type, new_param1, new_param2)
 
-        else:  # parameter change
+        # mutate parameters
+        elif rand_val < 0.8:
             new_node_type = orig_node_type
             if orig_node_type <= 1:  # terminals               # TODO hardcoded
                 new_params = self.mutate_terminal_param(new_node_type)
@@ -165,7 +164,22 @@ class AGraphCppManipulator(object):
             else:  # operators
                 new_param1, new_param2 = self.rand_operator_params(2, mut_point)  # TODO hc
 
-        indv.command_array[mut_point] = (new_node_type, new_param1, new_param2)
+            indv.command_array[mut_point] = (new_node_type, new_param1, new_param2)
+
+        # prune branch
+        else:
+            if orig_node_type > 1:  # operators only           # TODO hardcoded
+                pruned_param = random.choice((new_param1, new_param2))
+                for i in range(mut_point, len(indv.command_array)):
+                    if mut_point in indv.command_array[i]:
+                        p0 = indv.command_array[i][1]        # TODO hardcoded
+                        p1 = indv.command_array[i][2]
+                        if p0 == mut_point:
+                            p0 = pruned_param
+                        if p1 == mut_point:
+                            p1 = pruned_param
+                        indv.command_array[i] = (indv.command_array[i][0],
+                                                p0, p1)
         indv.compiled = False
         indv.fitness = None
         return indv
@@ -346,8 +360,8 @@ class AGraphCpp(object):
                                                      eval_x,
                                                      self.constants)
         except:
-            print("***ERROR***")
-            print(self)
+            LOGGER.error("Error in stack evaluation")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
@@ -359,8 +373,8 @@ class AGraphCpp(object):
             f_of_x, df_dx = bingocpp.simplify_and_evaluate_with_derivative(
                 self.command_array, eval_x, self.constants)
         except:
-            print("***ERROR***")
-            print(self)
+            LOGGER.error("Error in stack evaluation/deriv")
+            LOGGER.error(str(self))
             exit(-1)
         return f_of_x, df_dx
 
@@ -442,7 +456,7 @@ class AGraphCpp(object):
                     tmp_str = "\\log{%s}" % (str_list[param1])
                 elif node == 10:
                     tmp_str = "(%s)^{(%s)}" % (str_list[param1],
-                                                  str_list[param2])
+                                               str_list[param2])
                 elif node == 11:
                     tmp_str = "|{%s}|" % (str_list[param1])
                 elif node == 12:

@@ -11,6 +11,7 @@ import random
 import abc
 import copy
 import pickle
+import logging
 
 from mpi4py import MPI
 import numpy as np
@@ -19,6 +20,7 @@ from .CoevolutionIsland import CoevolutionIsland as ci
 from .Island import Island
 from .Plotting import print_latex, print_pareto, print_1d_best_soln
 
+LOGGER = logging.getLogger(__name__)
 
 class IslandManager(object):
     """
@@ -247,10 +249,11 @@ class ParallelIslandManager(IslandManager):
             for _ in range(n_steps):
                 self.isle.deterministic_crowding_step()
         t_1 = time.time()
-        print(self.comm_rank, ">\tage:", self.isle.solution_island.age,
-              "\ttime: %.1fs" % (t_1 - t_0),
-              "\tbest fitness:",
-              self.isle.solution_island.pareto_front[0].fitness)
+        LOGGER.info("%2d >\tage: %d\ttime: %.1fs\tbest fitness: %s",
+                    self.comm_rank,
+                    self.isle.solution_island.age,
+                    t_1 - t_0,
+                    self.isle.solution_island.pareto_front[0].fitness)
 
         if non_block:
             # perform message cleanup before moving on
@@ -263,9 +266,10 @@ class ParallelIslandManager(IslandManager):
 
         if np.isnan(self.isle.solution_island.pareto_front[0].fitness[0]):
             for i in self.isle.solution_island.pop:
-                print(i.fitness)
+                LOGGER.error(str(i.fitness))
             for indv in self.isle.solution_island.pareto_front:
-                print("pareto>", indv.fitness, indv.latexstring())
+                LOGGER.error("pareto > %s  %s",
+                             str(indv.fitness), indv.latexstring())
         self.age += n_steps
 
     def do_migration(self):
@@ -296,11 +300,15 @@ class ParallelIslandManager(IslandManager):
                         self.isle.predictor_island.pop_size)
                 t_send, t_receive = IslandManager.assign_send_receive(
                     len(self.isle.trainers))
-                print("Migration:", self.comm_rank, "<->", my_partner,
-                      " mixing =",
-                      (float(len(s_send)) / self.isle.solution_island.pop_size,
-                       float(len(p_send)) / self.isle.predictor_island.pop_size,
-                       float(len(t_send)) / len(self.isle.trainers)))
+                LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
+                             self.comm_rank,
+                             my_partner,
+                             str((float(len(s_send)) /
+                                  self.isle.solution_island.pop_size,
+                                  float(len(p_send)) /
+                                  self.isle.predictor_island.pop_size,
+                                  float(len(t_send)) /
+                                  len(self.isle.trainers))))
                 self.comm.send((s_receive, p_receive, t_receive),
                                dest=my_partner, tag=4)
 
@@ -345,10 +353,11 @@ class ParallelIslandManager(IslandManager):
             converged = (self.pareto_isle.pareto_front[0].fitness[0] < epsilon)
 
             # output
-            print("current best true fitness: ",
-                  self.pareto_isle.pareto_front[0].fitness[0])
-            print("best solution:",
-                  self.pareto_isle.pareto_front[0].latexstring())
+            LOGGER.info("current age: %d", self.age)
+            LOGGER.info("current best true fitness: %s",
+                        str(self.pareto_isle.pareto_front[0].fitness[0]))
+            LOGGER.info("current best solution: %s",
+                        self.pareto_isle.pareto_front[0].latexstring())
             if make_plots:
                 print_latex(self.pareto_isle.pareto_front, "eq.png")
                 print_pareto(self.pareto_isle.pareto_front, "front.png")
@@ -395,9 +404,12 @@ class ParallelIslandManager(IslandManager):
 
             # output the front to screen
             for indv in temp_isle.solution_island.pareto_front:
-                print("pareto>", indv.fitness, indv.latexstring())
-            print("BEST_SOLUTION> ",
-                  temp_isle.solution_island.pareto_front[0].latexstring())
+                LOGGER.info("pareto> %s  %s",
+                            str(indv.fitness),
+                            indv.latexstring())
+            LOGGER.info("BEST_SOLUTION> %s",
+                        temp_isle.solution_island.pareto_front[0].
+                        latexstring())
 
             # make plots
             if make_plots:
@@ -506,14 +518,12 @@ class SerialIslandManager(IslandManager):
             for _ in range(n_steps):
                 isle.deterministic_crowding_step()
             t_2 = time.time()
-
-            print(i, ">\tage:", isle.solution_island.age,
-                  "\ttime: %.1fs" % (t_2 - t_1),
-                  "\tbest fitness:",
-                  isle.solution_island.pareto_front[0].fitness)
+            LOGGER.info("%2d >\tage: %d\ttime: %.1fs\tbest fitness: %s",
+                        i, isle.solution_island.age, t_2 - t_1,
+                        isle.solution_island.pareto_front[0].fitness)
 
         t_3 = time.time()
-        print("total time: %.1fs" % (t_3 - t_0))
+        LOGGER.info("total time: %.1fs", (t_3 - t_0))
 
         self.age += n_steps
 
@@ -539,11 +549,12 @@ class SerialIslandManager(IslandManager):
             s_to_2, s_to_1 = IslandManager.assign_send_receive(s_pop_size)
             p_to_2, p_to_1 = IslandManager.assign_send_receive(p_pop_size)
             t_to_2, t_to_1 = IslandManager.assign_send_receive(t_pop_size)
-            print("Migration:", partners[i*2], "<->", partners[i*2+1],
-                  " mixing =",
-                  (float(len(s_to_2)) / s_pop_size,
-                   float(len(p_to_2)) / p_pop_size,
-                   float(len(t_to_2)) / t_pop_size))
+            LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
+                         partners[i*2],
+                         partners[i*2+1],
+                         str((float(len(s_to_2)) / s_pop_size,
+                              float(len(p_to_2)) / p_pop_size,
+                              float(len(t_to_2)) / t_pop_size)))
 
             # swap the individuals
             pops_to_2 = partner_1.dump_populations(s_to_2, p_to_2, t_to_2)
@@ -573,9 +584,10 @@ class SerialIslandManager(IslandManager):
         converged = (self.pareto_isle.pareto_front[0].fitness[0] < epsilon)
 
         # output
-        print("current best true fitness: ",
-              self.pareto_isle.pareto_front[0].fitness[0])
-        print("best solution:", self.pareto_isle.pareto_front[0].latexstring())
+        LOGGER.info("current best true fitness: %s",
+                    str(self.pareto_isle.pareto_front[0].fitness[0]))
+        LOGGER.info("best solution: %s",
+                    self.pareto_isle.pareto_front[0].latexstring())
 
         if make_plots:
             print_latex(self.pareto_isle.pareto_front, "eq.png")
@@ -621,7 +633,8 @@ class SerialIslandManager(IslandManager):
 
         # output
         for indv in temp_isle.solution_island.pareto_front:
-            print("pareto>", indv.fitness, indv.latexstring())
+            LOGGER.info("pareto> " + str(indv.fitness) +\
+                        "  " + indv.latexstring())
 
         if make_plots:
             print_latex(temp_isle.solution_island.pareto_front, "eq.png")

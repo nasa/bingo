@@ -87,12 +87,12 @@ def compare_agcpp_implicit(X, Y, operator, params):
 
     # make true equation
     equ = sol_manip.generate()
-    equ.command_list[0] = (0, (0,))
-    equ.command_list[1] = (0, (1,))
-    equ.command_list[2] = (0, (2,))
-    equ.command_list[3] = (operator, params)
-    equ.command_list[-1] = (3, (3, 2))
-
+    equ.command_array[0] = (0, 0, 0)
+    equ.command_array[1] = (0, 1, 1)
+    equ.command_array[2] = (0, 2, 2)
+    equ.command_array[3] = (operator, params[0], params[1])
+    equ.command_array[-1] = (3, 3, 2)
+    
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
@@ -176,9 +176,9 @@ def compare_agcpp_explicit(X, Y, operator, params):
 
     # make true equation
     equ = sol_manip.generate()
-    equ.command_list[0] = (0, (0,))
-    equ.command_list[1] = (0, (1,))
-    equ.command_list[-1] = (operator, params)
+    equ.command_array[0] = (0, 0, 0)
+    equ.command_array[1] = (0, 1, 1)
+    equ.command_array[-1] = (operator, params[0], params[1])
 
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])

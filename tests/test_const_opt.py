@@ -48,19 +48,19 @@ def test_const_opt_agraph_explicit():
     sol.command_list[3] = (AGNodes.Load_Const, (None,))
     sol.command_list[4] = (AGNodes.Load_Const, (None,))
     sol.command_list[5] = (AGNodes.Load_Const, (None,))
-
+               
     sol.command_list[6] = (AGNodes.Load_Data, (0,))
     sol.command_list[7] = (AGNodes.Load_Data, (1,))
     sol.command_list[8] = (AGNodes.Multiply, (6, 6))
     sol.command_list[9] = (AGNodes.Multiply, (7, 7))
     sol.command_list[10] = (AGNodes.Multiply, (6, 7))
-
+           
     sol.command_list[11] = (AGNodes.Multiply, (1, 6))
     sol.command_list[12] = (AGNodes.Multiply, (2, 7))
     sol.command_list[13] = (AGNodes.Multiply, (3, 8))
     sol.command_list[14] = (AGNodes.Multiply, (4, 9))
     sol.command_list[15] = (AGNodes.Multiply, (5, 10))
-
+        
     sol.command_list[16] = (AGNodes.Add, (0, 11))
     sol.command_list[17] = (AGNodes.Add, (16, 12))
     sol.command_list[18] = (AGNodes.Add, (17, 13))
@@ -108,19 +108,19 @@ def test_const_opt_agraph_implicit():
     sol.command_list[3] = (AGNodes.Load_Const, (None,))
     sol.command_list[4] = (AGNodes.Load_Const, (None,))
     sol.command_list[5] = (AGNodes.Load_Const, (None,))
-
+              
     sol.command_list[6] = (AGNodes.Load_Data, (0,))
     sol.command_list[7] = (AGNodes.Load_Data, (1,))
     sol.command_list[8] = (AGNodes.Multiply, (6, 6))
     sol.command_list[9] = (AGNodes.Multiply, (7, 7))
     sol.command_list[10] = (AGNodes.Multiply, (6, 7))
-
+             
     sol.command_list[11] = (AGNodes.Multiply, (1, 6))
     sol.command_list[12] = (AGNodes.Multiply, (2, 7))
     sol.command_list[13] = (AGNodes.Multiply, (3, 8))
     sol.command_list[14] = (AGNodes.Multiply, (4, 9))
     sol.command_list[15] = (AGNodes.Multiply, (5, 10))
-
+                
     sol.command_list[16] = (AGNodes.Add, (0, 11))
     sol.command_list[17] = (AGNodes.Add, (16, 12))
     sol.command_list[18] = (AGNodes.Add, (17, 13))
@@ -207,30 +207,30 @@ def test_const_opt_agraphcpp_explicit():
 
     # create gene with proper functional form
     sol = sol_manip.generate()
-    sol.command_list[0] = (1, (-1,))
-    sol.command_list[1] = (1, (-1,))
-    sol.command_list[2] = (1, (-1,))
-    sol.command_list[3] = (1, (-1,))
-    sol.command_list[4] = (1, (-1,))
-    sol.command_list[5] = (1, (-1,))
-
-    sol.command_list[6] = (0, (0,))
-    sol.command_list[7] = (0, (1,))
-    sol.command_list[8] = (4, (6, 6))
-    sol.command_list[9] = (4, (7, 7))
-    sol.command_list[10] = (4, (6, 7))
-
-    sol.command_list[11] = (4, (1, 6))
-    sol.command_list[12] = (4, (2, 7))
-    sol.command_list[13] = (4, (3, 8))
-    sol.command_list[14] = (4, (4, 9))
-    sol.command_list[15] = (4, (5, 10))
-
-    sol.command_list[16] = (2, (0, 11))
-    sol.command_list[17] = (2, (16, 12))
-    sol.command_list[18] = (2, (17, 13))
-    sol.command_list[19] = (2, (18, 14))
-    sol.command_list[20] = (2, (19, 15))
+    sol.command_array[0] = (1, -1, -1)
+    sol.command_array[1] = (1, -1, -1)
+    sol.command_array[2] = (1, -1, -1)
+    sol.command_array[3] = (1, -1, -1)
+    sol.command_array[4] = (1, -1, -1)
+    sol.command_array[5] = (1, -1, -1)
+               
+    sol.command_array[6] = (0, 0, 0)
+    sol.command_array[7] = (0, 1, 1)
+    sol.command_array[8] = (4, 6, 6)
+    sol.command_array[9] = (4, 7, 7)
+    sol.command_array[10] = (4, 6, 7)
+                
+    sol.command_array[11] = (4, 1, 6)
+    sol.command_array[12] = (4, 2, 7)
+    sol.command_array[13] = (4, 3, 8)
+    sol.command_array[14] = (4, 4, 9)
+    sol.command_array[15] = (4, 5, 10)
+              
+    sol.command_array[16] = (2, 0, 11)
+    sol.command_array[17] = (2, 16, 12)
+    sol.command_array[18] = (2, 17, 13)
+    sol.command_array[19] = (2, 18, 14)
+    sol.command_array[20] = (2, 19, 15)
     # print(sol.latexstring())
 
     # fit the constants
@@ -267,32 +267,32 @@ def test_const_opt_agraphcpp_implicit():
 
     # create gene with proper functional form
     sol = sol_manip.generate()
-    sol.command_list[0] = (1, (-1,))
-    sol.command_list[1] = (1, (-1,))
-    sol.command_list[2] = (1, (-1,))
-    sol.command_list[3] = (1, (-1,))
-    sol.command_list[4] = (1, (-1,))
-    sol.command_list[5] = (1, (-1,))
-
-    sol.command_list[6] = (0, (0,))
-    sol.command_list[7] = (0, (1,))
-    sol.command_list[8] = (4, (6, 6))
-    sol.command_list[9] = (4, (7, 7))
-    sol.command_list[10] = (4, (6, 7))
-
-    sol.command_list[11] = (4, (1, 6))
-    sol.command_list[12] = (4, (2, 7))
-    sol.command_list[13] = (4, (3, 8))
-    sol.command_list[14] = (4, (4, 9))
-    sol.command_list[15] = (4, (5, 10))
-
-    sol.command_list[16] = (2, (0, 11))
-    sol.command_list[17] = (2, (16, 12))
-    sol.command_list[18] = (2, (17, 13))
-    sol.command_list[19] = (2, (18, 14))
-    sol.command_list[20] = (2, (19, 15))
-    sol.command_list[21] = (0, (2,))
-    sol.command_list[22] = (3, (20, 21))
+    sol.command_array[0] = (1, -1, -1)
+    sol.command_array[1] = (1, -1, -1)
+    sol.command_array[2] = (1, -1, -1)
+    sol.command_array[3] = (1, -1, -1)
+    sol.command_array[4] = (1, -1, -1)
+    sol.command_array[5] = (1, -1, -1)
+                
+    sol.command_array[6] = (0, 0, 0)
+    sol.command_array[7] = (0, 1, 1)
+    sol.command_array[8] = (4, 6, 6)
+    sol.command_array[9] = (4, 7, 7)
+    sol.command_array[10] = (4, 6, 7)
+               
+    sol.command_array[11] = (4, 1, 6)
+    sol.command_array[12] = (4, 2, 7)
+    sol.command_array[13] = (4, 3, 8)
+    sol.command_array[14] = (4, 4, 9)
+    sol.command_array[15] = (4, 5, 10)
+               
+    sol.command_array[16] = (2, 0, 11)
+    sol.command_array[17] = (2, 16, 12)
+    sol.command_array[18] = (2, 17, 13)
+    sol.command_array[19] = (2, 18, 14)
+    sol.command_array[20] = (2, 19, 15)
+    sol.command_array[21] = (0, 2, 2)
+    sol.command_array[22] = (3, 20, 21)
     # print(sol.latexstring())
 
     # fit the constants

@@ -5,7 +5,7 @@ Acyclic graph utilizes the bingocpp C++ library to do the function and
 derivative evaluations
 
 The current implementation has many hard coded sections. At the moment an
-integer to operator mapping is haw the command stack is parsed.
+integer to operator mapping is how the command stack is parsed.
 the current map is:
 0: load column of X
 1: load constant
@@ -13,6 +13,13 @@ the current map is:
 3: - subtraction
 4: * multiplication
 5: / division (currently not divide-by-zero protected)
+6: sin
+7: cos
+8: exp
+9: log
+10: pow
+11: abs
+12: sqrt
 """
 import random
 import logging
@@ -266,7 +273,7 @@ class AGraphCppManipulator(object):
 
         :return: terminal parameter
         """
-        if terminal is 0:                                      # TODO hardcoded
+        if terminal == 0:                                      # TODO hardcoded
             param = np.random.randint(self.nvars)
         else:
             param = -1                                         # TODO hardcoded
@@ -279,7 +286,7 @@ class AGraphCppManipulator(object):
 
         :return: terminal parameter
         """
-        if terminal is 0:                                      # TODO hardcoded
+        if terminal == 0:                                      # TODO hardcoded
             param = np.random.randint(self.nvars)
         else:
             param = -1                                         # TODO hardcoded

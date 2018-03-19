@@ -12,6 +12,7 @@ import logging
 np.seterr(all='ignore')
 LOGGER = logging.getLogger(__name__)
 
+
 class AGraphManipulator(object):
     """
     Manipulates AGraph objects for generation, crossover, mutation,
@@ -329,7 +330,7 @@ class AGraph(object):
             if util[i]:
                 code_str += ("    stack[%d] = " % i +
                              node.funcstring(params) + "\n")
-        code_str += "    return stack[-1]\n"
+        code_str += "    return stack[-1].reshape([-1,1])\n"
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled = True
 
@@ -345,7 +346,7 @@ class AGraph(object):
                              node.funcstring(params) + "\n")
                 code_str += ("    deriv[%d] = " % i +
                              node.derivstring(params) + "\n")
-        code_str += "    return stack[-1], deriv[-1]\n"
+        code_str += "    return stack[-1].reshape([-1,1]), deriv[-1]\n"
 
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
@@ -362,8 +363,8 @@ class AGraph(object):
                         return True
         return False
 
-    def optimize_constants(self, fitness_metric, **kwargs):
-        """optimize constants"""
+    def count_constants(self):
+        """count constants and set up for optimization"""
 
         # compile fitness function for optimization
         util = self.utilized_commands()
@@ -373,44 +374,30 @@ class AGraph(object):
                 if node is AGNodes.Load_Const:
                     self.command_list[i] = (node, (const_num,))
                     const_num += 1
+        return const_num
 
-        # define fitness function for optimization
-        def const_opt_fitness(consts):
-            """ fitness function for constant optimization"""
-            self.constants = consts
-            return fitness_metric.evaluate_vector(indv=self, **kwargs)
+    def set_constants(self, consts):
+        """set individual's constants"""
+        self.constants = consts
 
-        # do optimization
-        sol = optimize.root(const_opt_fitness,
-                            np.random.uniform(-100, 100, const_num),
-                            method='lm')
-
-        # put optimal values in command list
-        self.constants = sol.x
-
-    def evaluate(self, eval_x, fitness_metric, **kwargs):
+    def evaluate(self, x):
         """evaluate the compiled stack"""
         if not self.compiled:
-            if self.needs_optimization():
-                self.optimize_constants(fitness_metric, **kwargs)
             self.compile()
         try:
-            f_of_x = self.namespace['evaluate'](eval_x, self.constants)
+            f_of_x = self.namespace['evaluate'](x, self.constants)
         except:
             LOGGER.error("Error in stack evaluation")
             LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
-    def evaluate_deriv(self, eval_x, fitness_metric, **kwargs):
+    def evaluate_deriv(self, x):
         """evaluate the compiled stack"""
         if not self.compiled_deriv:
-            if self.needs_optimization():
-                self.optimize_constants(fitness_metric, **kwargs)
             self.compile_deriv()
         try:
-            f_of_x, df_dx = self.namespace['evaluate_deriv'](eval_x,
-                                                             self.constants)
+            f_of_x, df_dx = self.namespace['evaluate_deriv'](x, self.constants)
         except:
             LOGGER.error("Error in stack evaluation/deriv")
             LOGGER.error(str(self))

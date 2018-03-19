@@ -331,8 +331,8 @@ class AGraphCpp(object):
                         return True
         return False
 
-    def optimize_constants(self, fitness_metric, **kwargs):
-        """optimize constants"""
+    def count_constants(self):
+        """count constants and set up for  optimization"""
 
         # compile fitness function for optimization
         util = self.utilized_commands()
@@ -342,43 +342,30 @@ class AGraphCpp(object):
                 if self.command_array[i][0] == 1:              # TODO hard coded
                     self.command_array[i] = (1, const_num, const_num)
                     const_num += 1
+        return const_num
 
-        # define fitness function for optimization
-        def const_opt_fitness(consts):
-            """ fitness function for constant optimization"""
-            self.constants = consts
-            return fitness_metric.evaluate_vector(indv=self, **kwargs)
+    def set_constants(self, consts):
+        """manually set constants"""
+        self.constants = consts
 
-        # do optimization
-        sol = optimize.root(const_opt_fitness,
-                            np.random.uniform(-100, 100, const_num),
-                            method='lm')
-
-        # put optimal values in command list
-        self.constants = sol.x
-
-    def evaluate(self, eval_x, fitness_metric, **metric_kwargs):
+    def evaluate(self, x):
         """evaluate the compiled stack"""
-        if self.needs_optimization():
-            self.optimize_constants(fitness_metric, **metric_kwargs)
         try:
             # stack = bingocpp.CommandStack(self.command_list)
             f_of_x = bingocpp.simplify_and_evaluate(self.command_array,
-                                                     eval_x,
-                                                     self.constants)
+                                                    x,
+                                                    self.constants)
         except:
             LOGGER.error("Error in stack evaluation")
             LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
-    def evaluate_deriv(self, eval_x, fitness_metric, **metric_kwargs):
+    def evaluate_deriv(self, x):
         """evaluate the compiled stack"""
-        if self.needs_optimization():
-            self.optimize_constants(fitness_metric, **metric_kwargs)
         try:
             f_of_x, df_dx = bingocpp.simplify_and_evaluate_with_derivative(
-                self.command_array, eval_x, self.constants)
+                self.command_array, x, self.constants)
         except:
             LOGGER.error("Error in stack evaluation/deriv")
             LOGGER.error(str(self))

@@ -88,20 +88,16 @@ class FitnessPredictor(object):
     def __str__(self):
         return str(self.indices)
 
-    def fit_func(self, indv, fitness_metric, **kwargs):
+    def fit_func(self, individual, fitness_metric, training_data):
         """fitness function for standard regression type"""
         try:
-            temp_args = dict(kwargs)
-            # get subsets of inputs
-            for var in ['x', 'dx_dt', 'y']:
-                if var in temp_args:
-                    temp_args[var] = temp_args[var][self.indices, ...]
+            data_subset = training_data[self.indices]
 
-            err = fitness_metric.evaluate_metric(indv=indv, **temp_args)
+            err = fitness_metric.evaluate_fitness(individual=individual,
+                                                  training_data=data_subset)
 
         except (OverflowError, FloatingPointError, ValueError):
             LOGGER.error("fit_func error")
             err = np.nan
-
 
         return err

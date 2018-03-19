@@ -361,14 +361,15 @@ class ParallelIslandManager(IslandManager):
             if make_plots:
                 print_latex(self.pareto_isle.pareto_front, "eq.png")
                 print_pareto(self.pareto_isle.pareto_front, "front.png")
-                if self.isle.fitness_metric_args['x'].shape[1] == 1:
-                    if 'y' in self.isle.fitness_metric_args:
-                        print_1d_best_soln(
-                            self.isle.fitness_metric_args['x'],
-                            self.isle.fitness_metric_args['y'],
-                            self.pareto_isle.pareto_front[0].evaluate,
-                            self.isle.fitness_metric,
-                            "comparison.png")
+                # TODO fix this for refactor
+                # if self.isle.fitness_metric_args['x'].shape[1] == 1:
+                #     if 'y' in self.isle.fitness_metric_args:
+                #         print_1d_best_soln(
+                #             self.isle.fitness_metric_args['x'],
+                #             self.isle.fitness_metric_args['y'],
+                #             self.pareto_isle.pareto_front[0].evaluate,
+                #             self.isle.fitness_metric,
+                #             "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
                 o_file.write("%le\t" % (time.time() - self.start_time))
@@ -416,14 +417,15 @@ class ParallelIslandManager(IslandManager):
                 print_latex(temp_isle.solution_island.pareto_front, "eq.png")
                 print_pareto(temp_isle.solution_island.pareto_front,
                              "front.png")
-                if self.isle.fitness_metric_args['x'].shape[1] == 1:
-                    if 'y' in self.isle.fitness_metric_args:
-                        print_1d_best_soln(
-                            self.isle.fitness_metric_args['x'],
-                            self.isle.fitness_metric_args['y'],
-                            self.pareto_isle.pareto_front[0].evaluate,
-                            self.isle.fitness_metric,
-                            "comparison.png")
+                # TODO fix this for refactor
+                # if self.isle.fitness_metric_args['x'].shape[1] == 1:
+                #     if 'y' in self.isle.fitness_metric_args:
+                #         print_1d_best_soln(
+                #             self.isle.fitness_metric_args['x'],
+                #             self.isle.fitness_metric_args['y'],
+                #             self.pareto_isle.pareto_front[0].evaluate,
+                #             self.isle.fitness_metric,
+                #             "comparison.png")
 
     def save_state(self, filename):
         """

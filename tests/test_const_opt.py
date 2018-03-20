@@ -70,14 +70,21 @@ def test_const_opt_agraph_explicit():
     # print(sol.latexstring())
     sol.set_constants(consts)
 
+    # create training data
+    training_data = ExplicitTrainingData(x_true, y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
+
     # fit the constants
-    sol.evaluate(x=x_true)
+    explicit_regressor.evaluate_fitness(sol, training_data)
 
     # make sure constants are close
     c_fit = sol.constants
     print("FITTED:    ", c_fit)
+    print("REL DIFF:  ", (consts-c_fit)/consts)
     for tru, fit in zip(consts, c_fit):
-        assert np.abs(tru - fit) < 1e-8
+        assert np.abs(tru - fit)/tru < 1e-5
 
 
 def test_const_opt_agraph_implicit():
@@ -94,7 +101,6 @@ def test_const_opt_agraph_implicit():
         consts[4] * x_true[:, 1] * x_true[:, 1] + \
         consts[5] * x_true[:, 0] * x_true[:, 1]
     x_true = np.hstack((x_true, y.reshape((-1, 1))))
-    x_true, dx_dt, _ = calculate_partials(x_true)
 
     # create manipulator to set things up
     sol_manip = agm(x_true.shape[1], 23, nloads=2)
@@ -133,9 +139,17 @@ def test_const_opt_agraph_implicit():
     # print(sol.latexstring())
     sol.set_constants(consts)
 
+    # create training data
+    training_data = ImplicitTrainingData(x_true)
+
+    # create fitness metric
+    implicit_regressor = ImplicitRegression(required_params=3)
+
     # fit the constants
     t0 = time.time()
-    _, df_dx = sol.evaluate_deriv(x=x_true)
+    
+    implicit_regressor.evaluate_fitness(sol, training_data)
+    
     t1 = time.time()
     print("fit time: ", t1-t0, "seconds")
 
@@ -176,13 +190,18 @@ def compare_agraph_explicit(X, Y):
     # make predictor manipulator
     pred_manip = fpm(32, Y.shape[0])
 
+    # create training data
+    training_data = ExplicitTrainingData(X, Y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=StandardRegression)
+                                  fitness_metric=explicit_regressor)
     assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
                                make_plots=False)
 
@@ -236,14 +255,21 @@ def test_const_opt_agraphcpp_explicit():
     # print(sol.latexstring())
     sol.set_constants(consts)
 
+    # create training data
+    training_data = ExplicitTrainingData(x_true, y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
+
     # fit the constants
-    sol.evaluate(x=x_true)
+    explicit_regressor.evaluate_fitness(sol, training_data)
 
     # make sure constants are close
     c_fit = sol.constants
     print("FITTED:    ", c_fit)
+    print("REL DIFF:  ", (consts-c_fit)/consts)
     for tru, fit in zip(consts, c_fit):
-        assert np.abs(tru - fit) < 1e-8
+        assert np.abs(tru - fit)/tru < 1e-5
 
 
 def test_const_opt_agraphcpp_implicit():
@@ -296,15 +322,20 @@ def test_const_opt_agraphcpp_implicit():
     sol.command_array[20] = (2, 19, 15)
     sol.command_array[21] = (0, 2, 2)
     sol.command_array[22] = (3, 20, 21)
+    # print(sol.latexstring())())
 
-    sol.set_constants(consts)
-    # print(sol.latexstring())
+    # create training data
+    training_data = ImplicitTrainingData(x_true)
+
+    # create fitness metric
+    implicit_regressor = ImplicitRegression(required_params=3)
 
     # fit the constants
     t0 = time.time()
-    _, df_dx = sol.evaluate_deriv(x=x_true)
+    implicit_regressor.evaluate_fitness(sol, training_data)
     t1 = time.time()
     print("fit time: ", t1-t0, "seconds")
+
 
     # make sure constants are close
     c_fit = sol.constants
@@ -342,11 +373,11 @@ def compare_agraphcpp_explicit(X, Y):
 
     # make predictor manipulator
     pred_manip = fpm(32, Y.shape[0])
-
-    # make training data
+    
+    # create training data
     training_data = ExplicitTrainingData(X, Y)
 
-    # make fitness_metric
+    # create fitness metric
     explicit_regressor = StandardRegression()
 
     # make and run island manager

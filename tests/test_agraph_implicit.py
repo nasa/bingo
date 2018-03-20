@@ -10,6 +10,7 @@ from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
 from bingo.FitnessMetric import ImplicitRegression
+from bingo.TrainingData import ImplicitTrainingData
 
 N_ISLANDS = 2
 MAX_STEPS = 1000
@@ -160,7 +161,6 @@ def compare_ag_implicit(X, Y, operator, params):
     """does const symbolic regression and tests convergence"""
     # convert to single array
     X = np.hstack((X, Y.reshape([-1, 1])))
-    Y = None
 
     # make solution manipulator
     sol_manip = agm(X.shape[1], 16, nloads=2)
@@ -186,13 +186,18 @@ def compare_ag_implicit(X, Y, operator, params):
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
+    # make training data
+    training_data = ImplicitTrainingData(X)
+
+    # make fitness metric
+    implicit_regressor = ImplicitRegression()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=ImplicitRegression)
+                                  fitness_metric=implicit_regressor)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
     assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
                                make_plots=False)

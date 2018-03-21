@@ -236,16 +236,13 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         return diff_worst
 
 
-# TODO fix this for refactor!
 class PairwiseAtomicPotential(FitnessMetric):
     """
     Pairwise atomic potential which is fit with total potential energy for a
     set of configurations
     """
 
-
-    @staticmethod
-    def evaluate_fitness_vector(individual, training_data):
+    def evaluate_fitness_vector(self, individual, training_data):
         """
         Fitness is calculated as how well total potential energies are matched
         by the summation of pairwise energies which are calculated by the

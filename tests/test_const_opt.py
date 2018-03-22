@@ -84,7 +84,7 @@ def test_const_opt_agraph_explicit():
     print("FITTED:    ", c_fit)
     print("REL DIFF:  ", (consts-c_fit)/consts)
     for tru, fit in zip(consts, c_fit):
-        assert np.abs(tru - fit)/tru < 1e-5
+        assert np.abs(tru - fit) < 1e-8
 
 
 def test_const_opt_agraph_implicit():
@@ -269,7 +269,7 @@ def test_const_opt_agraphcpp_explicit():
     print("FITTED:    ", c_fit)
     print("REL DIFF:  ", (consts-c_fit)/consts)
     for tru, fit in zip(consts, c_fit):
-        assert np.abs(tru - fit)/tru < 1e-5
+        assert np.abs(tru - fit) < 1e-8
 
 
 def test_const_opt_agraphcpp_implicit():

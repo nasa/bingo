@@ -28,7 +28,7 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
             self.optimize_constants(individual, training_data)
 
         fvec = self.evaluate_fitness_vector(individual, training_data)
-        return np.mean(fvec)
+        return np.mean(np.abs(fvec))
 
     @abc.abstractmethod
     def evaluate_fitness_vector(self, individual, training_data):
@@ -77,7 +77,7 @@ class StandardRegression(FitnessMetric):
         """
         f_of_x = individual.evaluate(x=training_data.x)
 
-        return (np.abs(f_of_x - training_data.y)).flatten()
+        return (f_of_x - training_data.y).flatten()
 
 
 class ImplicitRegression(FitnessMetric):
@@ -119,7 +119,7 @@ class ImplicitRegression(FitnessMetric):
             if not enough_params_used:  # not enough parameters
                 return np.full((training_data.x.shape[0],), np.inf)
 
-        new = np.abs(np.sum(dot, axis=1)) / np.sum(np.abs(dot), axis=1)
+        new = np.sum(dot, axis=1) / np.sum(np.abs(dot), axis=1)
         return new
 
     def evaluate_fitness(self, individual, training_data):
@@ -236,54 +236,30 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         return diff_worst
 
 
-# TODO fix this for refactor!
-class AtomicPotential(FitnessMetric):
-    """ Implicit Regression, version from schmidt and lipson """
+class PairwiseAtomicPotential(FitnessMetric):
+    """
+    Pairwise atomic potential which is fit with total potential energy for a
+    set of configurations
+    """
 
-    need_y = True
+    def evaluate_fitness_vector(self, individual, training_data):
+        """
+        Fitness is calculated as how well total potential energies are matched
+        by the summation of pairwise energies which are calculated by the
+        individual
+        fitness = sum( f(r_i) ) - U_true      for i in config
 
-    @staticmethod
-    def evaluate_vector(indv, x, y):
-        r_list = []
-        config_lims = [0]
-        for (structure, a, rcut), energy_true in zip(x, y):
-            # make radius list
-            natoms = structure.shape[0]
-            rcutsq = rcut**2
-            for atomi in range(0, natoms):
-                xtmp = structure[atomi, 0]
-                ytmp = structure[atomi, 1]
-                ztmp = structure[atomi, 2]
-                for atomj in range(atomi + 1, natoms):
-                    delx = structure[atomj, 0] - xtmp
-                    while delx > 0.5 * a:
-                        delx -= a
-                    while delx < -0.5 * a:
-                        delx += a
-                    dely = structure[atomj, 1] - ytmp
-                    while dely > 0.5 * a:
-                        dely -= a
-                    while dely < -0.5 * a:
-                        dely += a
-                    delz = structure[atomj, 2] - ztmp
-                    while delz > 0.5 * a:
-                        delz -= a
-                    while delz < -0.5 * a:
-                        delz += a
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ImplicitTrainingData
 
-                    rsq = delx * delx + dely * dely + delz * delz
-                    if rsq <= rcutsq:
-                        r_list.append(np.sqrt(rsq))
-            config_lims.append(len(r_list))
-
-        r_list = np.array(r_list).reshape([-1, 1])
-        pair_energies = indv.evaluate(r_list,
-                                      AtomicPotential,
-                                      x=x, y=y).flatten()
+        :return: the fitness for each row
+        """
+        pair_energies = individual.evaluate(training_data.r).flatten()
 
         err_vec = []
-        for i, energy_true in enumerate(y):
-            energy = np.sum(pair_energies[config_lims[i]:config_lims[i+1]])
+        for i, energy_true in enumerate(training_data.potential_energy):
+            energy = np.sum(pair_energies[training_data.config_lims_r[i]:
+                                          training_data.config_lims_r[i+1]])
             err_vec.append(energy - energy_true)
 
         return np.array(err_vec).flatten()

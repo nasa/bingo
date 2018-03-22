@@ -176,7 +176,6 @@ class AGraphCppManipulator(object):
         # prune branch
         else:
             if orig_node_type > 1:  # operators only           # TODO hardcoded
-                print("ELSE")
                 pruned_param = random.choice((new_param1, new_param2))
                 for i in range(mut_point, len(indv.command_array)):
                     if mut_point in indv.command_array[i, 1:]:

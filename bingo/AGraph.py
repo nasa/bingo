@@ -105,6 +105,8 @@ class AGraphManipulator(object):
         child2.compiled = False
         child1.fitness = None
         child2.fitness = None
+        child1.fit_set = False
+        child2.fit_set = False
         return child1, child2
 
     def mutation(self, indv):
@@ -173,6 +175,7 @@ class AGraphManipulator(object):
                                                 mod_params)
         indv.compiled = False
         indv.fitness = None
+        indv.fit_set = False
         return indv
 
     @staticmethod
@@ -307,6 +310,7 @@ class AGraph(object):
         self.compiled = False
         self.compiled_deriv = False
         self.fitness = None
+        self.fit_set = False
         if namespace is not None:
             self.namespace = namespace.copy()
         else:
@@ -317,6 +321,7 @@ class AGraph(object):
         dup = AGraph(self.namespace)
         dup.compiled = self.compiled
         dup.fitness = self.fitness
+        dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
         dup.command_list = list(self.command_list)
         return dup

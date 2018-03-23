@@ -78,14 +78,20 @@ def main(max_steps, epsilon, data_size):
 
     # make predictor manipulator
     pred_manip = fpm(128, data_size)
+    
+    # make training data
+    training_data = ExplicitTrainingData(x_true, y_true)
+
+    # make fitness metric
+    explicit_regressor = StandardRegression()
 
     # make and run island manager
     islmngr = ParallelIslandManager(#restart_file='test.p',
-        data_x=x_true, data_y=y_true,
+        solution_training_data=training_data,
         solution_manipulator=sol_manip2,
         predictor_manipulator=pred_manip,
         solution_pop_size=64,
-        fitness_metric=StandardRegression)
+        fitness_metric=explicit_regressor)
 
     non_one = time.time()
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,

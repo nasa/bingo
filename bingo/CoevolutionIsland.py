@@ -158,8 +158,7 @@ class CoevolutionIsland(object):
         """
 
         # calculate fitness metric
-        err = self.fitness_metric.evaluate_fitness(
-                individual=solution, training_data=self.solution_training_data)
+        err = self.fitness_metric.evaluate_fitness(solution, self.solution_training_data)
 
         return err
 
@@ -207,7 +206,7 @@ class CoevolutionIsland(object):
             if (self.predictor_island.age+1) % self.trainer_update_freq == 0:
                 self.add_new_trainer()
                 for indv in self.predictor_island.pop:
-                    indv.fitness = None
+                    indv.fit_set = False
             # do predictor step
             self.predictor_island.deterministic_crowding_step()
             if self.verbose:
@@ -226,7 +225,7 @@ class CoevolutionIsland(object):
                 LOGGER.debug("Updating predictor")
             self.best_predictor = self.predictor_island.best_indv().copy()
             for indv in self.solution_island.pop:
-                indv.fitness = None
+                indv.fit_set = False
 
         # do step on solution island
         self.solution_island.deterministic_crowding_step()
@@ -325,7 +324,7 @@ class CoevolutionIsland(object):
         self.solution_island.fitness_function = \
             self.true_fitness_plus_complexity
         for indv in self.solution_island.pop:
-            indv.fitness = None
+            indv.fit_set = False
 
     def true_fitness_plus_complexity(self, solution):
         """

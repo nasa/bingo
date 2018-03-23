@@ -70,17 +70,21 @@ class Island(object):
                 if do_mut1:
                     c_2 = self.gene_manipulator.mutation(c_2)
                 # calculate fitnesses
-                if p_1.fitness is None:
+                if p_1.fit_set is False:
                     p_1.fitness = self.fitness_function(p_1)
+                    p_1.fit_set = True
                     self.fitness_evals += 1
-                if p_2.fitness is None:
+                if p_2.fit_set is False:
                     p_2.fitness = self.fitness_function(p_2)
+                    p_2.fit_set = True
                     self.fitness_evals += 1
-                if c_1.fitness is None:
+                if c_1.fit_set is False:
                     c_1.fitness = self.fitness_function(c_1)
+                    c_1.fit_set = True
                     self.fitness_evals += 1
-                if c_2.fitness is None:
+                if c_2.fit_set is False:
                     c_2.fitness = self.fitness_function(c_2)
+                    c_2.fit_set = True
                     self.fitness_evals += 1
                 # do selection
                 dist_a = self.gene_manipulator.distance(p_1, c_1) + \
@@ -163,11 +167,12 @@ class Island(object):
         Updates the pareto front based on the current population
         """
         # see if fitness is a tuple or list
-        if self.pop[0].fitness is None:
+        if self.pop[0].fit_set is False:
             self.pop[0].fitness = self.fitness_function(self.pop[0])
+            self.pop[0].fit_set = True
             self.fitness_evals += 1
         single_metric = not isinstance(self.pop[0].fitness, tuple) and \
-                        not isinstance(self.pop[0].fitness)
+                        not isinstance(self.pop[0].fitness, list)
 
         # single metric
         if single_metric:
@@ -186,8 +191,9 @@ class Island(object):
                 self.pareto_front.remove(to_remove.pop())
 
             for indv in self.pop:
-                if indv.fitness is None:
+                if indv.fit_set is False:
                     indv.fitness = self.fitness_function(indv)
+                    indv.fit_set = True
                     self.fitness_evals += 1
                 # see if indv is dominated by any of the current pareto front
                 # also see if it is similar to any of them

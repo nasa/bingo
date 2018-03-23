@@ -75,7 +75,7 @@ class StandardRegression(FitnessMetric):
         :param training_data: ExplicitTrainingData
         :return fitness vector
         """
-        f_of_x = individual.evaluate(x=training_data.x)
+        f_of_x = individual.evaluate(training_data.x)
 
         return (f_of_x - training_data.y).flatten()
 

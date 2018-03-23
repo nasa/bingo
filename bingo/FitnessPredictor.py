@@ -31,6 +31,8 @@ class FPManipulator(object):
         child2.indices[cx_point:] = parent1.indices[cx_point:]
         child1.fitness = None
         child2.fitness = None
+        child1.fit_set = False
+        child2.fit_set = False
         return child1, child2
 
     def mutation(self, indv):
@@ -38,6 +40,7 @@ class FPManipulator(object):
         mut_point = np.random.randint(self.size)
         indv.indices[mut_point] = np.random.randint(self.max_index)
         indv.fitness = None
+        indv.fit_set = False
         return indv
 
     @staticmethod
@@ -78,11 +81,13 @@ class FitnessPredictor(object):
         else:
             self.indices = indices
         self.fitness = None
+        self.fit_set = False
 
     def copy(self):
         """duplicates a fitness predictor via deep copy"""
         dup = FitnessPredictor(list(self.indices))
-        dup. fitness = self.fitness
+        dup.fitness = self.fitness
+        dup.fit_set = self.fit_set
         return dup
 
     def __str__(self):
@@ -93,8 +98,7 @@ class FitnessPredictor(object):
         try:
             data_subset = training_data[self.indices]
 
-            err = fitness_metric.evaluate_fitness(individual=individual,
-                                                  training_data=data_subset)
+            err = fitness_metric.evaluate_fitness(individual, data_subset)
 
         except (OverflowError, FloatingPointError, ValueError):
             LOGGER.error("fit_func error")

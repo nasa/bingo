@@ -131,6 +131,8 @@ class AGraphCppManipulator(object):
         child2.compiled = False
         child1.fitness = None
         child2.fitness = None
+        child1.fit_set = False
+        child2.fit_set = False
         return child1, child2
 
     def mutation(self, indv):
@@ -189,6 +191,7 @@ class AGraphCppManipulator(object):
                                                 p0, p1)
         indv.compiled = False
         indv.fitness = None
+        indv.fit_set = False
         return indv
 
     @staticmethod
@@ -311,11 +314,13 @@ class AGraphCpp(object):
         self.command_array = np.empty([0, 3])
         self.constants = []
         self.fitness = None
+        self.fit_set = False
 
     def copy(self):
         """return a deep copy"""
         dup = AGraphCpp()
         dup.fitness = self.fitness
+        dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
         dup.command_array = np.array(self.command_array)
         return dup

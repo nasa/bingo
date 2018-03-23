@@ -184,6 +184,7 @@ def compare_ag_explicit(X, Y, operator, params):
     pred_manip = fpm(32, Y.shape[0])
 
     # make training data
+    Y = Y.reshape([-1, 1])
     training_data = ExplicitTrainingData(X, Y)
 
     # make fitness_metric

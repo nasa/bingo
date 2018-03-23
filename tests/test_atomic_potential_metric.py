@@ -135,8 +135,8 @@ def generate_configurations(n, natoms, a, rcut, energy_func, force_func):
         forces.append(force)
 
     return np.array(configs), \
-           np.array(energies).reshape([-1, 1]), \
-           np.array(forces).reshape([-1, 1])
+           np.array(energies), \
+           np.array(forces)
 
 
 def compare_agraphcpp_potential(X, Y):

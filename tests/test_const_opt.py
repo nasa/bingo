@@ -71,6 +71,7 @@ def test_const_opt_agraph_explicit():
     sol.set_constants(consts)
 
     # create training data
+    y = y.reshape([-1, 1])
     training_data = ExplicitTrainingData(x_true, y)
 
     # create fitness metric
@@ -191,6 +192,7 @@ def compare_agraph_explicit(X, Y):
     pred_manip = fpm(32, Y.shape[0])
 
     # create training data
+    Y = Y.reshape([-1, 1])
     training_data = ExplicitTrainingData(X, Y)
 
     # create fitness metric

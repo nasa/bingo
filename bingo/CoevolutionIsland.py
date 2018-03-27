@@ -5,8 +5,8 @@ population is a set of training individuals on which the quality of the fitness
 predictors is judged.
 This is loosely based on the work of Schmidt and Lipson 2008?
 """
-import numpy as np
 import logging
+import numpy as np
 
 from .Island import Island
 
@@ -158,7 +158,8 @@ class CoevolutionIsland(object):
         """
 
         # calculate fitness metric
-        err = self.fitness_metric.evaluate_fitness(solution, self.solution_training_data)
+        err = self.fitness_metric.evaluate_fitness(solution,
+                                                   self.solution_training_data)
 
         return err
 

@@ -4,10 +4,10 @@ acyclic graph (linear stack) in symbolic regression
 """
 import abc
 import random
+import logging
 from scipy import optimize
 
 import numpy as np
-import logging
 
 np.seterr(all='ignore')
 LOGGER = logging.getLogger(__name__)
@@ -165,7 +165,7 @@ class AGraphManipulator(object):
                 pruned_param = random.choice(orig_params)
                 for i in range(mut_point, len(indv.command_list)):
                     if mut_point in indv.command_list[i][1]:
-                        mod_params=()
+                        mod_params = ()
                         for old_p in indv.command_list[i][1]:
                             if old_p == mut_point:
                                 mod_params += (pruned_param,)

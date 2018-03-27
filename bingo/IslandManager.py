@@ -67,7 +67,6 @@ class IslandManager(object):
             converged = self.test_convergence(epsilon, make_plots)
 
         self.do_final_plots(make_plots)
-        
         return converged
 
     @abc.abstractmethod

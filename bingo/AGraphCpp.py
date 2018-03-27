@@ -158,10 +158,12 @@ class AGraphCppManipulator(object):
                 if np.random.random() < self.terminal_prob:
                     new_node_type, new_param1, new_param2 = self.rand_terminal()
                 else:
-                    new_node_type, new_param1, new_param2 = self.rand_operator(mut_point)
+                    new_node_type, new_param1, new_param2 = \
+                    self.rand_operator(mut_point)
                 new_type_found = new_node_type != orig_node_type or \
                                  orig_node_type <= 1           # TODO hardcoded
-            indv.command_array[mut_point] = (new_node_type, new_param1, new_param2)
+            indv.command_array[mut_point] = (new_node_type, new_param1,
+                                             new_param2)
 
         # mutate parameters
         elif rand_val < 0.8:
@@ -171,9 +173,11 @@ class AGraphCppManipulator(object):
                 new_param1 = new_params[0]
                 new_param2 = new_param1
             else:  # operators
-                new_param1, new_param2 = self.rand_operator_params(2, mut_point)  # TODO hc
+                new_param1, new_param2 = \
+                self.rand_operator_params(2, mut_point)  # TODO hc
 
-            indv.command_array[mut_point] = (new_node_type, new_param1, new_param2)
+            indv.command_array[mut_point] = (new_node_type, new_param1,
+                                             new_param2)
 
         # prune branch
         else:
@@ -181,14 +185,14 @@ class AGraphCppManipulator(object):
                 pruned_param = random.choice((new_param1, new_param2))
                 for i in range(mut_point, len(indv.command_array)):
                     if mut_point in indv.command_array[i, 1:]:
-                        p0 = indv.command_array[i][1]        # TODO hardcoded
-                        p1 = indv.command_array[i][2]
-                        if p0 == mut_point:
-                            p0 = pruned_param
-                        if p1 == mut_point:
-                            p1 = pruned_param
+                        p_0 = indv.command_array[i][1]        # TODO hardcoded
+                        p_1 = indv.command_array[i][2]
+                        if p_0 == mut_point:
+                            p_0 = pruned_param
+                        if p_1 == mut_point:
+                            p_1 = pruned_param
                         indv.command_array[i] = (indv.command_array[i][0],
-                                                p0, p1)
+                                                 p_0, p_1)
         indv.compiled = False
         indv.fitness = None
         indv.fit_set = False
@@ -468,7 +472,7 @@ class AGraphCpp(object):
         util = [False]*self.command_array.shape[0]
         util[-1] = True
         for i in range(1, self.command_array.shape[0]):
-            if util[-i] and self.command_array[-i][0] > 1:    
+            if util[-i] and self.command_array[-i][0] > 1:
                 util[self.command_array[-i][1]] = True
                 util[self.command_array[-i][2]] = True
         return util

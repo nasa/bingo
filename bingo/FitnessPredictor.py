@@ -2,8 +2,8 @@
 This module contains most of the code necessary for the representation of an
 fitness predictor in the form of a subsampling list for real data
 """
-import numpy as np
 import logging
+import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 

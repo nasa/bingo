@@ -93,7 +93,7 @@ class ImplicitRegression(FitnessMetric):
         :param normalize_dot: normalize the terms in the dot product
         """
         self.required_params = required_params
-        self.normalize_dot=normalize_dot
+        self.normalize_dot = normalize_dot
 
     def evaluate_fitness_vector(self, individual, training_data):
         """

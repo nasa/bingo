@@ -227,9 +227,9 @@ class PairwiseAtomicTrainingData(TrainingData):
 
         new_potential_energy = self.potential_energy[items]
         temp = PairwiseAtomicTrainingData(
-                potential_energy=new_potential_energy,
-                r_list=self.r[r_inds, :],
-                config_lims_r=new_config_lims_r)
+            potential_energy=new_potential_energy,
+            r_list=self.r[r_inds, :],
+            config_lims_r=new_config_lims_r)
         return temp
 
     def size(self):

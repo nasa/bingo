@@ -125,8 +125,8 @@ class AGraphCppManipulator(object):
         cx_point = np.random.randint(1, self.ag_size)
         child1 = parent1.copy()
         child2 = parent2.copy()
-        child1.command_array[cx_point] = parent2.command_array[cx_point]
-        child2.command_array[cx_point] = parent1.command_array[cx_point]
+        child1.command_array[cx_point:, :] = parent2.command_array[cx_point:, :]
+        child2.command_array[cx_point:, :] = parent1.command_array[cx_point:, :]
         child1.compiled = False
         child2.compiled = False
         child1.fitness = None

@@ -9,6 +9,8 @@ import math
 import time
 from mpi4py import MPI
 import numpy as np
+import logging 
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
@@ -16,6 +18,7 @@ from bingo import AGraphCpp
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
 from bingo.FitnessMetric import StandardRegression, ImplicitRegression
+from bingo.TrainingData import ExplicitTrainingData
 
 agesN = list();
 timesN = list();
@@ -61,6 +64,14 @@ def main(max_steps, epsilon, data_size):
     #sol_manip.add_node_type(AGNodes.Abs)
     #sol_manip.add_node_type(AGNodes.Sqrt)
 
+    sol = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
+    sol.add_node_type(2)
+    sol.add_node_type(3)
+    sol.add_node_type(4)
+    testing = sol.generate()
+    testing2 = sol.generate()
+    c1, c2 = sol.crossover(testing, testing2)
+
 
     # make solution manipulator
     sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
@@ -95,7 +106,7 @@ def main(max_steps, epsilon, data_size):
 
     non_one = time.time()
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,
-                        step_increment=1000, when_update=100)
+                        step_increment=1000, when_update=100, non_block=False)
     non_two = time.time()
     non_time = non_two - non_one
 
@@ -109,7 +120,7 @@ if __name__ == "__main__":
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
 
-    for x in range(0, 10):
+    for x in range(0, 1):
         main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE)
         print("CYCLE:", x + 1)
     print("Non-blocking times:", timesN)

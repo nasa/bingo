@@ -4,102 +4,141 @@ symbolic regression in bingo
 """
 
 import abc
-import numpy as np
 import warnings
+import numpy as np
+from scipy import optimize
 
 
 class FitnessMetric(object, metaclass=abc.ABCMeta):
     """fitness metric superclass"""
 
-    need_x = True  # required to be true at the moment
-    need_dx_dt = False
-    need_y = False
-
-    @classmethod
-    def evaluate_metric(cls, **kwargs):
-        """ returns the fitness metric """
-        return np.mean(np.abs(cls.evaluate_vector(**kwargs)))
-
-    @staticmethod
-    @abc.abstractmethod
-    def evaluate_vector(**kwargs):
-        """does the fitness calculation in vector form"""
+    def __init__(self):
+        """empty init"""
         pass
+
+    def evaluate_fitness(self, individual, training_data):
+        """
+        Evaluate the fitness of an individual and optimize it if necessary
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ExplicitTrainingData
+        :return fitness of the individual
+        """
+        # do optimization if necessary
+        if individual.needs_optimization():
+            self.optimize_constants(individual, training_data)
+
+        fvec = self.evaluate_fitness_vector(individual, training_data)
+        return np.mean(np.abs(fvec))
+
+    @abc.abstractmethod
+    def evaluate_fitness_vector(self, individual, training_data):
+        """
+        returns the fitness vector of an individual using a given set of
+        training data
+        :param individual: a gene to be evaluated
+        :param training_data: the data used by the fitness metric
+        :return: fitness vector
+        """
+        pass
+
+    def optimize_constants(self, individual, training_data):
+        """
+        perform levenberg-marquardt optimization on embedded constants
+        :param individual: a gene to be evaluated
+        :param training_data: the data used by the fitness metric
+        """
+        num_constants = individual.count_constants()
+        c_0 = np.random.uniform(-100, 100, num_constants)
+
+        # define fitness function for optimization
+        def const_opt_fitness(consts):
+            """ fitness function for constant optimization"""
+            individual.set_constants(consts)
+            fvec = self.evaluate_fitness_vector(individual, training_data)
+            return fvec
+
+        # do optimization
+        sol = optimize.root(const_opt_fitness, c_0, method='lm')
+
+        # put optimal values in command list
+        individual.set_constants(sol.x)
 
 
 class StandardRegression(FitnessMetric):
     """ Traditional fitness evaluation """
 
-    need_y = True
-
-    @staticmethod
-    def evaluate_vector(indv, x, y):
+    def evaluate_fitness_vector(self, individual, training_data):
         """
-        :param x: independent variable
-        :param f: test function evaluated at x
-        :param y: target values of the test function
-
-        :return f - y
+        fitness vector = f(x) - y
+        where f is defined by the individual and x, y are in the training data
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ExplicitTrainingData
+        :return fitness vector
         """
-        f = indv.evaluate(x, StandardRegression, x=x, y=y)
+        f_of_x = individual.evaluate(training_data.x)
 
-        return (f - y).flatten()
+        return (f_of_x - training_data.y).flatten()
 
 
 class ImplicitRegression(FitnessMetric):
     """ Implicit Regression, version 2"""
 
-    need_dx_dt = True
-
-    @staticmethod
-    def evaluate_vector(indv, x, dx_dt,
-                        required_params=None,
-                        normalize_dot=False):
+    def __init__(self, required_params=None, normalize_dot=False):
         """
+        Initialization
         Fitness of this metric is related cos of angle between between df_dx
-        and dx_dt. Different normalization and erorr checking are available.
+        and dx_dt. Different normalization and error checking are available.
 
-        :param x: independent variable
-        :param df_dx: partial derivatives of the test function wrt x
-        :param dx_dt: time derivative of x along trajectories
         :param required_params: minimum number of nonzero components of dot
         :param normalize_dot: normalize the terms in the dot product
-
-        :return: the fitness for each row
         """
-        _, df_dx = indv.evaluate_deriv(x, ImplicitRegression,
-                                       x=x, dx_dt=dx_dt,
-                                       required_params=required_params,
-                                       normalize_dot=normalize_dot)
+        self.required_params = required_params
+        self.normalize_dot = normalize_dot
 
-        if normalize_dot:
-            dot = (df_dx/np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
-                  (dx_dt/np.linalg.norm(dx_dt, axis=1).reshape((-1, 1)))
-        else:
-            dot = df_dx * dx_dt
-
-        if required_params is not None:
-            n_params_used = (abs(dot) > 1e-16).sum(1)
-            enough_params_used = np.any(n_params_used >= required_params)
-            if not enough_params_used:  # not enough parameters
-                return np.full((x.shape[0],), np.inf)
-
-        new = np.abs(np.sum(dot, axis=1)) / np.sum(np.abs(dot), axis=1)
-        return new
-
-    @classmethod
-    def evaluate_metric(cls, **kwargs):
+    def evaluate_fitness_vector(self, individual, training_data):
         """
         Fitness of this metric is related cos of angle between between df_dx
         and dx_dt. Different normalization and erorr checking are available.
 
-        :param kwargs: dictionary of keyword args used in vector evaluation
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ImplicitTrainingData
+        :return fitness vector
+        """
+        _, df_dx = individual.evaluate_deriv(x=training_data.x)
+
+        if self.normalize_dot:
+            dot = (df_dx / np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
+                  (training_data.dx_dt /
+                   np.linalg.norm(training_data.dx_dt, axis=1).reshape((-1, 1)))
+        else:
+            dot = df_dx * training_data.dx_dt
+
+        if self.required_params is not None:
+            n_params_used = (abs(dot) > 1e-16).sum(1)
+            enough_params_used = np.any(n_params_used >= self.required_params)
+            if not enough_params_used:  # not enough parameters
+                return np.full((training_data.x.shape[0],), np.inf)
+
+        new = np.sum(dot, axis=1) / np.sum(np.abs(dot), axis=1)
+        return new
+
+    def evaluate_fitness(self, individual, training_data):
+        """
+        Fitness of this metric is related cos of angle between between df_dx
+        and dx_dt. Different normalization and erorr checking are available.
+
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ImplicitTrainingData
         :return: the mean of the fitness vector, ignoring nans
         """
-        vec = cls.evaluate_vector(**kwargs)
+        # do optimization if necessary
+        if individual.needs_optimization():
+            self.optimize_constants(individual, training_data)
+
+        fvec = self.evaluate_fitness_vector(individual, training_data)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
-            err = np.nanmean(np.abs(vec))
+            err = np.nanmean(np.abs(fvec))
         return err
 
 
@@ -150,15 +189,12 @@ class ImplicitRegression(FitnessMetric):
 class ImplicitRegressionSchmidt(FitnessMetric):
     """ Implicit Regression, version from schmidt and lipson """
 
-    need_dx_dt = True
-
-    @staticmethod
-    def evaluate_vector(indv, x, dx_dt):
+    def evaluate_fitness_vector(self, individual, training_data):
         """
         from schmidt and lipson's papers
 
-        :param x: independent variable
-        :param dx_dt: time derivative of x along trajectories
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ImplicitTrainingData
 
         :return: the fitness for each row
         """
@@ -166,10 +202,9 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         # NOTE: this doesnt work well right now
         #       importantly, it couldn't reproduce the papers
 
-        _, df_dx = indv.evaluate_deriv(x, ImplicitRegressionSchmidt,
-                                       x=x, dx_dt=dx_dt)
+        _, df_dx = individual.evaluate_deriv(x=training_data.x)
 
-        n_params = x.shape[1]
+        n_params = training_data.x.shape[1]
         # print("----------------------------------")
         worst_fit = 0
         diff_worst = np.full((x.shape[0], ), np.inf)
@@ -178,13 +213,16 @@ class ImplicitRegressionSchmidt(FitnessMetric):
                 if i != j:
                     df_dxi = np.copy(df_dx[:, i])
                     df_dxj = np.copy(df_dx[:, j])
-                    dxi_dxj_2 = dx_dt[:, i]/dx_dt[:, j]
+                    dxi_dxj_2 = (training_data.dx_dt[:, i]/
+                                 training_data.dx_dt[:, j])
                     # print("independent:", i, "-", j)
                     for k in range(n_params):
                         if k != i and k != j:
                             # print("  dependent:", i, "-", k)
                             # df_dxi += df_dx[:, k]*dx_dt[:, k]/dx_dt[:, i]
-                            df_dxj += df_dx[:, k]*dx_dt[:, k]/dx_dt[:, j]
+                            df_dxj += df_dx[:, k] * \
+                                      training_data.dx_dt[:, k] / \
+                                      training_data.dx_dt[:, j]
 
                     dxi_dxj_1 = df_dxj / df_dxi
                     diff = np.log(1. + np.abs(dxi_dxj_1 + dxi_dxj_2))
@@ -198,53 +236,30 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         return diff_worst
 
 
-class AtomicPotential(FitnessMetric):
-    """ Implicit Regression, version from schmidt and lipson """
+class PairwiseAtomicPotential(FitnessMetric):
+    """
+    Pairwise atomic potential which is fit with total potential energy for a
+    set of configurations
+    """
 
-    need_y = True
+    def evaluate_fitness_vector(self, individual, training_data):
+        """
+        Fitness is calculated as how well total potential energies are matched
+        by the summation of pairwise energies which are calculated by the
+        individual
+        fitness = sum( f(r_i) ) - U_true      for i in config
 
-    @staticmethod
-    def evaluate_vector(indv, x, y):
-        r_list = []
-        config_lims = [0]
-        for (structure, a, rcut), energy_true in zip(x, y):
-            # make radius list
-            natoms = structure.shape[0]
-            rcutsq = rcut**2
-            for atomi in range(0, natoms):
-                xtmp = structure[atomi, 0]
-                ytmp = structure[atomi, 1]
-                ztmp = structure[atomi, 2]
-                for atomj in range(atomi + 1, natoms):
-                    delx = structure[atomj, 0] - xtmp
-                    while delx > 0.5 * a:
-                        delx -= a
-                    while delx < -0.5 * a:
-                        delx += a
-                    dely = structure[atomj, 1] - ytmp
-                    while dely > 0.5 * a:
-                        dely -= a
-                    while dely < -0.5 * a:
-                        dely += a
-                    delz = structure[atomj, 2] - ztmp
-                    while delz > 0.5 * a:
-                        delz -= a
-                    while delz < -0.5 * a:
-                        delz += a
+        :param individual: an AGraph-like individual to be evaluated
+        :param training_data: ImplicitTrainingData
 
-                    rsq = delx * delx + dely * dely + delz * delz
-                    if rsq <= rcutsq:
-                        r_list.append(np.sqrt(rsq))
-            config_lims.append(len(r_list))
-
-        r_list = np.array(r_list).reshape([-1, 1])
-        pair_energies = indv.evaluate(r_list,
-                                      AtomicPotential,
-                                      x=x, y=y).flatten()
+        :return: the fitness for each row
+        """
+        pair_energies = individual.evaluate(training_data.r).flatten()
 
         err_vec = []
-        for i, energy_true in enumerate(y):
-            energy = np.sum(pair_energies[config_lims[i]:config_lims[i+1]])
+        for i, energy_true in enumerate(training_data.potential_energy):
+            energy = np.sum(pair_energies[training_data.config_lims_r[i]:
+                                          training_data.config_lims_r[i+1]])
             err_vec.append(energy - energy_true)
 
         return np.array(err_vec).flatten()

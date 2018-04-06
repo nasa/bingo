@@ -11,7 +11,8 @@ from bingo.AGraphCpp import AGraphCppManipulator as agcm
 from bingo.AGraph import AGNodes
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
-from bingo.FitnessMetric import AtomicPotential
+from bingo.FitnessMetric import PairwiseAtomicPotential
+from bingo.TrainingData import PairwiseAtomicTrainingData
 
 
 N_ISLANDS = 2
@@ -134,8 +135,8 @@ def generate_configurations(n, natoms, a, rcut, energy_func, force_func):
         forces.append(force)
 
     return np.array(configs), \
-           np.array(energies).reshape([-1, 1]), \
-           np.array(forces).reshape([-1, 1])
+           np.array(energies), \
+           np.array(forces)
 
 
 def compare_agraphcpp_potential(X, Y):
@@ -149,13 +150,19 @@ def compare_agraphcpp_potential(X, Y):
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
+    # create training data
+    training_data = PairwiseAtomicTrainingData(potential_energy=Y,
+                                               configurations=X)
+
+    # create fitness metric
+    atomic_regressor = PairwiseAtomicPotential()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=AtomicPotential)
+                                  fitness_metric=atomic_regressor)
     success = islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
                                   make_plots=False)
     assert success
@@ -177,13 +184,19 @@ def compare_agraph_potential(X, Y):
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
+    # create training data
+    training_data = PairwiseAtomicTrainingData(potential_energy=Y,
+                                               configurations=X)
+
+    # create fitness metric
+    atomic_regressor = PairwiseAtomicPotential()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y.flatten(),
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=AtomicPotential)
+                                  fitness_metric=atomic_regressor)
     success = islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
                                   make_plots=False)
     assert success

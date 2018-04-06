@@ -2,8 +2,8 @@
 This module contains most of the code necessary for the representation of an
 fitness predictor in the form of a subsampling list for real data
 """
-import numpy as np
 import logging
+import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 
@@ -31,6 +31,8 @@ class FPManipulator(object):
         child2.indices[cx_point:] = parent1.indices[cx_point:]
         child1.fitness = None
         child2.fitness = None
+        child1.fit_set = False
+        child2.fit_set = False
         return child1, child2
 
     def mutation(self, indv):
@@ -38,6 +40,7 @@ class FPManipulator(object):
         mut_point = np.random.randint(self.size)
         indv.indices[mut_point] = np.random.randint(self.max_index)
         indv.fitness = None
+        indv.fit_set = False
         return indv
 
     @staticmethod
@@ -78,30 +81,27 @@ class FitnessPredictor(object):
         else:
             self.indices = indices
         self.fitness = None
+        self.fit_set = False
 
     def copy(self):
         """duplicates a fitness predictor via deep copy"""
         dup = FitnessPredictor(list(self.indices))
-        dup. fitness = self.fitness
+        dup.fitness = self.fitness
+        dup.fit_set = self.fit_set
         return dup
 
     def __str__(self):
         return str(self.indices)
 
-    def fit_func(self, indv, fitness_metric, **kwargs):
+    def fit_func(self, individual, fitness_metric, training_data):
         """fitness function for standard regression type"""
         try:
-            temp_args = dict(kwargs)
-            # get subsets of inputs
-            for var in ['x', 'dx_dt', 'y']:
-                if var in temp_args:
-                    temp_args[var] = temp_args[var][self.indices, ...]
+            data_subset = training_data[self.indices]
 
-            err = fitness_metric.evaluate_metric(indv=indv, **temp_args)
+            err = fitness_metric.evaluate_fitness(individual, data_subset)
 
         except (OverflowError, FloatingPointError, ValueError):
             LOGGER.error("fit_func error")
             err = np.nan
-
 
         return err

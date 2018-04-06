@@ -9,6 +9,7 @@ from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
 from bingo.FitnessMetric import ImplicitRegression, StandardRegression
+from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
 
 N_ISLANDS = 2
 MAX_STEPS = 1000
@@ -87,22 +88,27 @@ def compare_agcpp_implicit(X, Y, operator, params):
 
     # make true equation
     equ = sol_manip.generate()
-    equ.command_list[0] = (0, (0,))
-    equ.command_list[1] = (0, (1,))
-    equ.command_list[2] = (0, (2,))
-    equ.command_list[3] = (operator, params)
-    equ.command_list[-1] = (3, (3, 2))
-
+    equ.command_array[0] = (0, 0, 0)
+    equ.command_array[1] = (0, 1, 1)
+    equ.command_array[2] = (0, 2, 2)
+    equ.command_array[3] = (operator, params[0], params[1])
+    equ.command_array[-1] = (3, 3, 2)
+    
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
+    # make training data
+    training_data = ImplicitTrainingData(X)
+
+    # make fitness metric
+    implicit_regressor = ImplicitRegression()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=ImplicitRegression)
+                                  fitness_metric=implicit_regressor)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
     assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
                                make_plots=False)
@@ -176,20 +182,25 @@ def compare_agcpp_explicit(X, Y, operator, params):
 
     # make true equation
     equ = sol_manip.generate()
-    equ.command_list[0] = (0, (0,))
-    equ.command_list[1] = (0, (1,))
-    equ.command_list[-1] = (operator, params)
+    equ.command_array[0] = (0, 0, 0)
+    equ.command_array[1] = (0, 1, 1)
+    equ.command_array[-1] = (operator, params[0], params[1])
 
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
+    # make training data
+    training_data = ExplicitTrainingData(X, Y)
+
+    # make fitness_metric
+    explicit_regressor = StandardRegression()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=StandardRegression)
+                                  fitness_metric=explicit_regressor)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
     assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
                                make_plots=False)

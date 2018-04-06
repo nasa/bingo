@@ -11,6 +11,7 @@ from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
 from bingo.FitnessMetric import StandardRegression
+from bingo.TrainingData import ExplicitTrainingData
 
 
 N_ISLANDS = 2
@@ -182,13 +183,19 @@ def compare_ag_explicit(X, Y, operator, params):
     # make predictor manipulator
     pred_manip = fpm(32, Y.shape[0])
 
+    # make training data
+    Y = Y.reshape([-1, 1])
+    training_data = ExplicitTrainingData(X, Y)
+
+    # make fitness_metric
+    explicit_regressor = StandardRegression()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=StandardRegression)
+                                  fitness_metric=explicit_regressor)
 
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
 

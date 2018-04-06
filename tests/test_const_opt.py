@@ -13,6 +13,7 @@ from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk, calculate_partials
 from bingo.FitnessMetric import StandardRegression, ImplicitRegression
+from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
 
 
 N_ISLANDS = 2
@@ -48,32 +49,41 @@ def test_const_opt_agraph_explicit():
     sol.command_list[3] = (AGNodes.Load_Const, (None,))
     sol.command_list[4] = (AGNodes.Load_Const, (None,))
     sol.command_list[5] = (AGNodes.Load_Const, (None,))
-
+               
     sol.command_list[6] = (AGNodes.Load_Data, (0,))
     sol.command_list[7] = (AGNodes.Load_Data, (1,))
     sol.command_list[8] = (AGNodes.Multiply, (6, 6))
     sol.command_list[9] = (AGNodes.Multiply, (7, 7))
     sol.command_list[10] = (AGNodes.Multiply, (6, 7))
-
+           
     sol.command_list[11] = (AGNodes.Multiply, (1, 6))
     sol.command_list[12] = (AGNodes.Multiply, (2, 7))
     sol.command_list[13] = (AGNodes.Multiply, (3, 8))
     sol.command_list[14] = (AGNodes.Multiply, (4, 9))
     sol.command_list[15] = (AGNodes.Multiply, (5, 10))
-
+        
     sol.command_list[16] = (AGNodes.Add, (0, 11))
     sol.command_list[17] = (AGNodes.Add, (16, 12))
     sol.command_list[18] = (AGNodes.Add, (17, 13))
     sol.command_list[19] = (AGNodes.Add, (18, 14))
     sol.command_list[20] = (AGNodes.Add, (19, 15))
     # print(sol.latexstring())
+    sol.set_constants(consts)
+
+    # create training data
+    y = y.reshape([-1, 1])
+    training_data = ExplicitTrainingData(x_true, y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
 
     # fit the constants
-    sol.evaluate(x_true, StandardRegression, x=x_true, y=y)
+    explicit_regressor.evaluate_fitness(sol, training_data)
 
     # make sure constants are close
     c_fit = sol.constants
     print("FITTED:    ", c_fit)
+    print("REL DIFF:  ", (consts-c_fit)/consts)
     for tru, fit in zip(consts, c_fit):
         assert np.abs(tru - fit) < 1e-8
 
@@ -92,7 +102,6 @@ def test_const_opt_agraph_implicit():
         consts[4] * x_true[:, 1] * x_true[:, 1] + \
         consts[5] * x_true[:, 0] * x_true[:, 1]
     x_true = np.hstack((x_true, y.reshape((-1, 1))))
-    x_true, dx_dt, _ = calculate_partials(x_true)
 
     # create manipulator to set things up
     sol_manip = agm(x_true.shape[1], 23, nloads=2)
@@ -108,19 +117,19 @@ def test_const_opt_agraph_implicit():
     sol.command_list[3] = (AGNodes.Load_Const, (None,))
     sol.command_list[4] = (AGNodes.Load_Const, (None,))
     sol.command_list[5] = (AGNodes.Load_Const, (None,))
-
+              
     sol.command_list[6] = (AGNodes.Load_Data, (0,))
     sol.command_list[7] = (AGNodes.Load_Data, (1,))
     sol.command_list[8] = (AGNodes.Multiply, (6, 6))
     sol.command_list[9] = (AGNodes.Multiply, (7, 7))
     sol.command_list[10] = (AGNodes.Multiply, (6, 7))
-
+             
     sol.command_list[11] = (AGNodes.Multiply, (1, 6))
     sol.command_list[12] = (AGNodes.Multiply, (2, 7))
     sol.command_list[13] = (AGNodes.Multiply, (3, 8))
     sol.command_list[14] = (AGNodes.Multiply, (4, 9))
     sol.command_list[15] = (AGNodes.Multiply, (5, 10))
-
+                
     sol.command_list[16] = (AGNodes.Add, (0, 11))
     sol.command_list[17] = (AGNodes.Add, (16, 12))
     sol.command_list[18] = (AGNodes.Add, (17, 13))
@@ -129,11 +138,19 @@ def test_const_opt_agraph_implicit():
     sol.command_list[21] = (AGNodes.Load_Data, (2,))
     sol.command_list[22] = (AGNodes.Subtract, (20, 21))
     # print(sol.latexstring())
+    sol.set_constants(consts)
+
+    # create training data
+    training_data = ImplicitTrainingData(x_true)
+
+    # create fitness metric
+    implicit_regressor = ImplicitRegression(required_params=3)
 
     # fit the constants
     t0 = time.time()
-    _, df_dx = sol.evaluate_deriv(x_true, ImplicitRegression,
-                                  x=x_true, dx_dt=dx_dt, required_params=3)
+    
+    implicit_regressor.evaluate_fitness(sol, training_data)
+    
     t1 = time.time()
     print("fit time: ", t1-t0, "seconds")
 
@@ -174,13 +191,19 @@ def compare_agraph_explicit(X, Y):
     # make predictor manipulator
     pred_manip = fpm(32, Y.shape[0])
 
+    # create training data
+    Y = Y.reshape([-1, 1])
+    training_data = ExplicitTrainingData(X, Y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
+
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=StandardRegression)
+                                  fitness_metric=explicit_regressor)
     assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
                                make_plots=False)
 
@@ -207,38 +230,46 @@ def test_const_opt_agraphcpp_explicit():
 
     # create gene with proper functional form
     sol = sol_manip.generate()
-    sol.command_list[0] = (1, (-1,))
-    sol.command_list[1] = (1, (-1,))
-    sol.command_list[2] = (1, (-1,))
-    sol.command_list[3] = (1, (-1,))
-    sol.command_list[4] = (1, (-1,))
-    sol.command_list[5] = (1, (-1,))
-
-    sol.command_list[6] = (0, (0,))
-    sol.command_list[7] = (0, (1,))
-    sol.command_list[8] = (4, (6, 6))
-    sol.command_list[9] = (4, (7, 7))
-    sol.command_list[10] = (4, (6, 7))
-
-    sol.command_list[11] = (4, (1, 6))
-    sol.command_list[12] = (4, (2, 7))
-    sol.command_list[13] = (4, (3, 8))
-    sol.command_list[14] = (4, (4, 9))
-    sol.command_list[15] = (4, (5, 10))
-
-    sol.command_list[16] = (2, (0, 11))
-    sol.command_list[17] = (2, (16, 12))
-    sol.command_list[18] = (2, (17, 13))
-    sol.command_list[19] = (2, (18, 14))
-    sol.command_list[20] = (2, (19, 15))
+    sol.command_array[0] = (1, -1, -1)
+    sol.command_array[1] = (1, -1, -1)
+    sol.command_array[2] = (1, -1, -1)
+    sol.command_array[3] = (1, -1, -1)
+    sol.command_array[4] = (1, -1, -1)
+    sol.command_array[5] = (1, -1, -1)
+               
+    sol.command_array[6] = (0, 0, 0)
+    sol.command_array[7] = (0, 1, 1)
+    sol.command_array[8] = (4, 6, 6)
+    sol.command_array[9] = (4, 7, 7)
+    sol.command_array[10] = (4, 6, 7)
+                
+    sol.command_array[11] = (4, 1, 6)
+    sol.command_array[12] = (4, 2, 7)
+    sol.command_array[13] = (4, 3, 8)
+    sol.command_array[14] = (4, 4, 9)
+    sol.command_array[15] = (4, 5, 10)
+              
+    sol.command_array[16] = (2, 0, 11)
+    sol.command_array[17] = (2, 16, 12)
+    sol.command_array[18] = (2, 17, 13)
+    sol.command_array[19] = (2, 18, 14)
+    sol.command_array[20] = (2, 19, 15)
     # print(sol.latexstring())
+    sol.set_constants(consts)
+
+    # create training data
+    training_data = ExplicitTrainingData(x_true, y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
 
     # fit the constants
-    sol.evaluate(x_true, StandardRegression, x=x_true, y=y)
+    explicit_regressor.evaluate_fitness(sol, training_data)
 
     # make sure constants are close
     c_fit = sol.constants
     print("FITTED:    ", c_fit)
+    print("REL DIFF:  ", (consts-c_fit)/consts)
     for tru, fit in zip(consts, c_fit):
         assert np.abs(tru - fit) < 1e-8
 
@@ -267,40 +298,46 @@ def test_const_opt_agraphcpp_implicit():
 
     # create gene with proper functional form
     sol = sol_manip.generate()
-    sol.command_list[0] = (1, (-1,))
-    sol.command_list[1] = (1, (-1,))
-    sol.command_list[2] = (1, (-1,))
-    sol.command_list[3] = (1, (-1,))
-    sol.command_list[4] = (1, (-1,))
-    sol.command_list[5] = (1, (-1,))
+    sol.command_array[0] = (1, -1, -1)
+    sol.command_array[1] = (1, -1, -1)
+    sol.command_array[2] = (1, -1, -1)
+    sol.command_array[3] = (1, -1, -1)
+    sol.command_array[4] = (1, -1, -1)
+    sol.command_array[5] = (1, -1, -1)
+                
+    sol.command_array[6] = (0, 0, 0)
+    sol.command_array[7] = (0, 1, 1)
+    sol.command_array[8] = (4, 6, 6)
+    sol.command_array[9] = (4, 7, 7)
+    sol.command_array[10] = (4, 6, 7)
+               
+    sol.command_array[11] = (4, 1, 6)
+    sol.command_array[12] = (4, 2, 7)
+    sol.command_array[13] = (4, 3, 8)
+    sol.command_array[14] = (4, 4, 9)
+    sol.command_array[15] = (4, 5, 10)
+               
+    sol.command_array[16] = (2, 0, 11)
+    sol.command_array[17] = (2, 16, 12)
+    sol.command_array[18] = (2, 17, 13)
+    sol.command_array[19] = (2, 18, 14)
+    sol.command_array[20] = (2, 19, 15)
+    sol.command_array[21] = (0, 2, 2)
+    sol.command_array[22] = (3, 20, 21)
+    # print(sol.latexstring())())
 
-    sol.command_list[6] = (0, (0,))
-    sol.command_list[7] = (0, (1,))
-    sol.command_list[8] = (4, (6, 6))
-    sol.command_list[9] = (4, (7, 7))
-    sol.command_list[10] = (4, (6, 7))
+    # create training data
+    training_data = ImplicitTrainingData(x_true)
 
-    sol.command_list[11] = (4, (1, 6))
-    sol.command_list[12] = (4, (2, 7))
-    sol.command_list[13] = (4, (3, 8))
-    sol.command_list[14] = (4, (4, 9))
-    sol.command_list[15] = (4, (5, 10))
-
-    sol.command_list[16] = (2, (0, 11))
-    sol.command_list[17] = (2, (16, 12))
-    sol.command_list[18] = (2, (17, 13))
-    sol.command_list[19] = (2, (18, 14))
-    sol.command_list[20] = (2, (19, 15))
-    sol.command_list[21] = (0, (2,))
-    sol.command_list[22] = (3, (20, 21))
-    # print(sol.latexstring())
+    # create fitness metric
+    implicit_regressor = ImplicitRegression(required_params=3)
 
     # fit the constants
     t0 = time.time()
-    _, df_dx = sol.evaluate_deriv(x_true, ImplicitRegression,
-                                  x=x_true, dx_dt=dx_dt, required_params=3)
+    implicit_regressor.evaluate_fitness(sol, training_data)
     t1 = time.time()
     print("fit time: ", t1-t0, "seconds")
+
 
     # make sure constants are close
     c_fit = sol.constants
@@ -338,13 +375,18 @@ def compare_agraphcpp_explicit(X, Y):
 
     # make predictor manipulator
     pred_manip = fpm(32, Y.shape[0])
+    
+    # create training data
+    training_data = ExplicitTrainingData(X, Y)
+
+    # create fitness metric
+    explicit_regressor = StandardRegression()
 
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
-                                  fitness_metric=StandardRegression)
+                                  fitness_metric=explicit_regressor)
     assert islmngr.run_islands(MAX_STEPS, EPSILON, step_increment=N_STEPS, 
                                make_plots=False)

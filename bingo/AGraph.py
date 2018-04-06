@@ -4,13 +4,14 @@ acyclic graph (linear stack) in symbolic regression
 """
 import abc
 import random
+import logging
 from scipy import optimize
 
 import numpy as np
-import logging
 
 np.seterr(all='ignore')
 LOGGER = logging.getLogger(__name__)
+
 
 class AGraphManipulator(object):
     """
@@ -104,6 +105,8 @@ class AGraphManipulator(object):
         child2.compiled = False
         child1.fitness = None
         child2.fitness = None
+        child1.fit_set = False
+        child2.fit_set = False
         return child1, child2
 
     def mutation(self, indv):
@@ -120,8 +123,12 @@ class AGraphManipulator(object):
         mut_point = [n for n, x in enumerate(util) if x][loc]
         orig_node_type, orig_params = indv.command_list[mut_point]
 
-        # randomly change operation or parameter with equal prob
-        if np.random.random() < 0.5 and mut_point > self.nloads: # op change
+
+        # mutate operator (0.4) mutate params (0.4) prune branch (0.2)
+        rand_val = np.random.random()
+
+        # mutate operator
+        if  rand_val < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
@@ -139,8 +146,10 @@ class AGraphManipulator(object):
                     else:
                         tmp += (new_params[i],)
                 new_params = tmp
+            indv.command_list[mut_point] = (new_node_type, new_params)
 
-        else:  # parameter change
+        # mutate parameters
+        elif rand_val < 0.8:
             new_node_type = orig_node_type
             if orig_node_type.terminal:  # terminals
                 new_params = self.mutate_terminal_param(new_node_type,
@@ -148,10 +157,25 @@ class AGraphManipulator(object):
             else:  # operators
                 new_params = self.rand_operator_params(new_node_type.arity,
                                                        mut_point)
+            indv.command_list[mut_point] = (new_node_type, new_params)
 
-        indv.command_list[mut_point] = (new_node_type, new_params)
+        # prune branch
+        else:
+            if not orig_node_type.terminal:  # operators only
+                pruned_param = random.choice(orig_params)
+                for i in range(mut_point, len(indv.command_list)):
+                    if mut_point in indv.command_list[i][1]:
+                        mod_params = ()
+                        for old_p in indv.command_list[i][1]:
+                            if old_p == mut_point:
+                                mod_params += (pruned_param,)
+                            else:
+                                mod_params += (old_p,)
+                        indv.command_list[i] = (indv.command_list[i][0],
+                                                mod_params)
         indv.compiled = False
         indv.fitness = None
+        indv.fit_set = False
         return indv
 
     @staticmethod
@@ -286,6 +310,7 @@ class AGraph(object):
         self.compiled = False
         self.compiled_deriv = False
         self.fitness = None
+        self.fit_set = False
         if namespace is not None:
             self.namespace = namespace.copy()
         else:
@@ -296,6 +321,7 @@ class AGraph(object):
         dup = AGraph(self.namespace)
         dup.compiled = self.compiled
         dup.fitness = self.fitness
+        dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
         dup.command_list = list(self.command_list)
         return dup
@@ -309,7 +335,7 @@ class AGraph(object):
             if util[i]:
                 code_str += ("    stack[%d] = " % i +
                              node.funcstring(params) + "\n")
-        code_str += "    return stack[-1]\n"
+        code_str += "    return stack[-1].reshape([-1,1])\n"
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled = True
 
@@ -325,7 +351,7 @@ class AGraph(object):
                              node.funcstring(params) + "\n")
                 code_str += ("    deriv[%d] = " % i +
                              node.derivstring(params) + "\n")
-        code_str += "    return stack[-1], deriv[-1]\n"
+        code_str += "    return stack[-1].reshape([-1,1]), deriv[-1]\n"
 
         exec(compile(code_str, '<string>', 'exec'), self.namespace)
         self.compiled_deriv = True
@@ -342,8 +368,8 @@ class AGraph(object):
                         return True
         return False
 
-    def optimize_constants(self, fitness_metric, **kwargs):
-        """optimize constants"""
+    def count_constants(self):
+        """count constants and set up for optimization"""
 
         # compile fitness function for optimization
         util = self.utilized_commands()
@@ -353,44 +379,30 @@ class AGraph(object):
                 if node is AGNodes.Load_Const:
                     self.command_list[i] = (node, (const_num,))
                     const_num += 1
+        return const_num
 
-        # define fitness function for optimization
-        def const_opt_fitness(consts):
-            """ fitness function for constant optimization"""
-            self.constants = consts
-            return fitness_metric.evaluate_vector(indv=self, **kwargs)
+    def set_constants(self, consts):
+        """set individual's constants"""
+        self.constants = consts
 
-        # do optimization
-        sol = optimize.root(const_opt_fitness,
-                            np.random.uniform(-100, 100, const_num),
-                            method='lm')
-
-        # put optimal values in command list
-        self.constants = sol.x
-
-    def evaluate(self, eval_x, fitness_metric, **kwargs):
+    def evaluate(self, x):
         """evaluate the compiled stack"""
         if not self.compiled:
-            if self.needs_optimization():
-                self.optimize_constants(fitness_metric, **kwargs)
             self.compile()
         try:
-            f_of_x = self.namespace['evaluate'](eval_x, self.constants)
+            f_of_x = self.namespace['evaluate'](x, self.constants)
         except:
             LOGGER.error("Error in stack evaluation")
             LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
-    def evaluate_deriv(self, eval_x, fitness_metric, **kwargs):
+    def evaluate_deriv(self, x):
         """evaluate the compiled stack"""
         if not self.compiled_deriv:
-            if self.needs_optimization():
-                self.optimize_constants(fitness_metric, **kwargs)
             self.compile_deriv()
         try:
-            f_of_x, df_dx = self.namespace['evaluate_deriv'](eval_x,
-                                                             self.constants)
+            f_of_x, df_dx = self.namespace['evaluate_deriv'](x, self.constants)
         except:
             LOGGER.error("Error in stack evaluation/deriv")
             LOGGER.error(str(self))

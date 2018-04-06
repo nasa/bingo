@@ -5,7 +5,7 @@ Acyclic graph utilizes the bingocpp C++ library to do the function and
 derivative evaluations
 
 The current implementation has many hard coded sections. At the moment an
-integer to operator mapping is haw the command stack is parsed.
+integer to operator mapping is how the command stack is parsed.
 the current map is:
 0: load column of X
 1: load constant
@@ -13,6 +13,13 @@ the current map is:
 3: - subtraction
 4: * multiplication
 5: / division (currently not divide-by-zero protected)
+6: sin
+7: cos
+8: exp
+9: log
+10: pow
+11: abs
+12: sqrt
 """
 import random
 import logging
@@ -97,12 +104,14 @@ class AGraphCppManipulator(object):
         :return: new random acyclic graph individual
         """
         indv = AGraphCpp()
+        command_list = []
         for stack_loc in range(self.ag_size):
             if np.random.random() < self.terminal_prob \
                     or stack_loc < self.nloads:
-                indv.command_list.append(self.rand_terminal())
+                command_list.append(self.rand_terminal())
             else:
-                indv.command_list.append(self.rand_operator(stack_loc))
+                command_list.append(self.rand_operator(stack_loc))
+        indv.command_array = np.array(command_list, dtype=int)
         return indv
 
     def crossover(self, parent1, parent2):
@@ -116,12 +125,14 @@ class AGraphCppManipulator(object):
         cx_point = np.random.randint(1, self.ag_size)
         child1 = parent1.copy()
         child2 = parent2.copy()
-        child1.command_list[cx_point:] = parent2.command_list[cx_point:]
-        child2.command_list[cx_point:] = parent1.command_list[cx_point:]
+        child1.command_array[cx_point:, :] = parent2.command_array[cx_point:, :]
+        child2.command_array[cx_point:, :] = parent1.command_array[cx_point:, :]
         child1.compiled = False
         child2.compiled = False
         child1.fitness = None
         child2.fitness = None
+        child1.fit_set = False
+        child2.fit_set = False
         return child1, child2
 
     def mutation(self, indv):
@@ -136,51 +147,56 @@ class AGraphCppManipulator(object):
         util = indv.utilized_commands()
         loc = np.random.randint(sum(util))
         mut_point = [n for n, x in enumerate(util) if x][loc]
-        orig_node_type, orig_params = indv.command_list[mut_point]
+        orig_node_type, new_param1, new_param2 = indv.command_array[mut_point]
 
         # mutate operator (0.4) mutate params (0.4) prune branch (0.2)
         rand_val = np.random.random()
-
         # mutate operator
         if  rand_val < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
-                    new_node_type, new_params = self.rand_terminal()
+                    new_node_type, new_param1, new_param2 = self.rand_terminal()
                 else:
-                    new_node_type, new_params = self.rand_operator(mut_point)
+                    new_node_type, new_param1, new_param2 = \
+                    self.rand_operator(mut_point)
                 new_type_found = new_node_type != orig_node_type or \
                                  orig_node_type <= 1           # TODO hardcoded
-            indv.command_list[mut_point] = (new_node_type, new_params)
+            indv.command_array[mut_point] = (new_node_type, new_param1,
+                                             new_param2)
 
         # mutate parameters
         elif rand_val < 0.8:
             new_node_type = orig_node_type
             if orig_node_type <= 1:  # terminals               # TODO hardcoded
                 new_params = self.mutate_terminal_param(new_node_type)
+                new_param1 = new_params[0]
+                new_param2 = new_param1
             else:  # operators
-                new_params = self.rand_operator_params(2, mut_point)  # TODO hc
+                new_param1, new_param2 = \
+                self.rand_operator_params(2, mut_point)  # TODO hc
 
-            indv.command_list[mut_point] = (new_node_type, new_params)
+            indv.command_array[mut_point] = (new_node_type, new_param1,
+                                             new_param2)
 
         # prune branch
         else:
             if orig_node_type > 1:  # operators only           # TODO hardcoded
-                pruned_param = orig_params[np.random.randint(2)]
-                for i in range(mut_point, len(indv.command_list)):
-                    if indv.command_list[i][0] > 1 and mut_point in indv.command_list[i]:
-                        p0 = indv.command_list[i][1][0]        # TODO hardcoded
-                        p1 = indv.command_list[i][1][1]
-                        if p0 == mut_point:
-                            p0 = pruned_param
-                        if p1 == mut_point:
-                            p1 = pruned_param
-                        indv.command_list[i] = (indv.command_list[i][0],
-                                                (p0, p1))
-
+                pruned_param = random.choice((new_param1, new_param2))
+                for i in range(mut_point, len(indv.command_array)):
+                    if ndv.command_array[i, 0] > 1 and mut_point in indv.command_array[i, 1:]:
+                        p_0 = indv.command_array[i][1]        # TODO hardcoded
+                        p_1 = indv.command_array[i][2]
+                        if p_0 == mut_point:
+                            p_0 = pruned_param
+                        if p_1 == mut_point:
+                            p_1 = pruned_param
+                        indv.command_array[i] = (indv.command_array[i][0],
+                                                 p_0, p_1)
 
         indv.compiled = False
         indv.fitness = None
+        indv.fit_set = False
         return indv
 
     @staticmethod
@@ -192,27 +208,7 @@ class AGraphCppManipulator(object):
         :param indv2: second individual
         :return: distance
         """
-        dist = 0
-        for (command1, params1), (command2, params2) in \
-                zip(indv1.command_list, indv2.command_list):
-            if command1 != command2:
-                dist += 1
-
-            if len(params1) == 1 or len(params2) == 1:
-                if params1[0] != params2[0]:
-                    dist += 2
-            else:
-                if params1[0] != params2[0]:
-                    dist += 1
-                if params1[1] != params2[1]:
-                    dist += 1
-
-            # if params1 != params2:
-            #     dist += 1
-
-            # for p_1, p_2 in zip((params1+params1)[:2],(params2+params2)[:2]):
-            #     if p_1 != p_2:
-            #         dist += 1
+        dist = np.sum(indv1.command_array != indv2.command_array)
 
         return dist
 
@@ -223,11 +219,8 @@ class AGraphCppManipulator(object):
         :param indv: individual which will be dumped
         :return: the individual in a pickleable format
         """
-        command_list = []
-        for node, params in indv.command_list:
-            ind = self.node_type_list.index(node)
-            command_list.append((ind, params))
-        return command_list, indv.constants
+
+        return indv.command_array, indv.constants
 
     def load(self, indv_list):
         """
@@ -237,19 +230,20 @@ class AGraphCppManipulator(object):
         :return: individual in normal form
         """
         indv = AGraphCpp()
+        indv.command_array = indv_list[0]
         indv.constants = indv_list[1]
-        for node_num, params in indv_list[0]:
-            if node_num in range(len(self.node_type_list)):  # node
-                indv.command_list.append((self.node_type_list[node_num],
-                                          params))
-            else:
+
+        i = 0
+        while i < indv.command_array.shape[0]:
+            if (indv.command_array[i, 0]) not in self.node_type_list:
                 raise RuntimeError
+            i += 1
         return indv
 
     @staticmethod
     def rand_operator_params(arity, stack_loc):
         """
-        Aroduces random tuple for use as operator parameters
+        Produces random tuple for use as operator parameters
 
         :param arity: number of parameters needed
         :param stack_loc: location of command in stack
@@ -279,7 +273,7 @@ class AGraphCppManipulator(object):
         """
         node_type = self.rand_operator_type()
         params = self.rand_operator_params(2, stack_loc)       # TODO hardcoded
-        return node_type, params
+        return node_type, params[0], params[1]
 
     def rand_terminal_param(self, terminal):
         """
@@ -287,7 +281,7 @@ class AGraphCppManipulator(object):
 
         :return: terminal parameter
         """
-        if terminal is 0:                                      # TODO hardcoded
+        if terminal == 0:                                      # TODO hardcoded
             param = np.random.randint(self.nvars)
         else:
             param = -1                                         # TODO hardcoded
@@ -300,7 +294,7 @@ class AGraphCppManipulator(object):
 
         :return: terminal parameter
         """
-        if terminal is 0:                                      # TODO hardcoded
+        if terminal == 0:                                      # TODO hardcoded
             param = np.random.randint(self.nvars)
         else:
             param = -1                                         # TODO hardcoded
@@ -314,7 +308,7 @@ class AGraphCppManipulator(object):
         """
         node = self.node_type_list[random.choice(self.terminal_inds)]
         param = self.rand_terminal_param(node)
-        return (node, param)
+        return node, param[0], param[0]
 
 
 class AGraphCpp(object):
@@ -322,77 +316,66 @@ class AGraphCpp(object):
     Acyclic Graph representation of an equation
     """
     def __init__(self):
-        self.command_list = []
+        self.command_array = np.empty([0, 3])
         self.constants = []
         self.fitness = None
+        self.fit_set = False
 
     def copy(self):
         """return a deep copy"""
         dup = AGraphCpp()
         dup.fitness = self.fitness
+        dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
-        dup.command_list = list(self.command_list)
+        dup.command_array = np.array(self.command_array)
         return dup
 
     def needs_optimization(self):
         """find out whether constants need optimization"""
         util = self.utilized_commands()
-        for i in range(len(self.command_list)):
+        for i in range(self.command_array.shape[0]):
             if util[i]:
-                if self.command_list[i][0] == 1:   # TODO hard coded (next too)
-                    if self.command_list[i][1][0] is -1 or \
-                            self.command_list[i][1][0] >= len(self.constants):
+                if self.command_array[i][0] == 1:   # TODO hard coded (next too)
+                    if self.command_array[i][1] == -1 or \
+                            self.command_array[i][1] >= len(self.constants):
                         return True
         return False
 
-    def optimize_constants(self, fitness_metric, **kwargs):
-        """optimize constants"""
+    def count_constants(self):
+        """count constants and set up for  optimization"""
 
         # compile fitness function for optimization
         util = self.utilized_commands()
         const_num = 0
-        for i in range(len(self.command_list)):
+        for i in range(self.command_array.shape[0]):
             if util[i]:
-                if self.command_list[i][0] == 1:              # TODO hard coded
-                    self.command_list[i] = (1, (const_num,))
+                if self.command_array[i][0] == 1:              # TODO hard coded
+                    self.command_array[i] = (1, const_num, const_num)
                     const_num += 1
+        return const_num
 
-        # define fitness function for optimization
-        def const_opt_fitness(consts):
-            """ fitness function for constant optimization"""
-            self.constants = consts
-            return fitness_metric.evaluate_vector(indv=self, **kwargs)
+    def set_constants(self, consts):
+        """manually set constants"""
+        self.constants = consts
 
-        # do optimization
-        sol = optimize.root(const_opt_fitness,
-                            np.random.uniform(-100, 100, const_num),
-                            method='lm')
-
-        # put optimal values in command list
-        self.constants = sol.x
-
-    def evaluate(self, eval_x, fitness_metric, **metric_kwargs):
+    def evaluate(self, x):
         """evaluate the compiled stack"""
-        if self.needs_optimization():
-            self.optimize_constants(fitness_metric, **metric_kwargs)
         try:
             # stack = bingocpp.CommandStack(self.command_list)
-            f_of_x = bingocpp.simplify_and_evauluate(self.command_list,
-                                                     eval_x,
-                                                     self.constants)
+            f_of_x = bingocpp.simplify_and_evaluate(self.command_array,
+                                                    x,
+                                                    self.constants)
         except:
             LOGGER.error("Error in stack evaluation")
             LOGGER.error(str(self))
             exit(-1)
         return f_of_x
 
-    def evaluate_deriv(self, eval_x, fitness_metric, **metric_kwargs):
+    def evaluate_deriv(self, x):
         """evaluate the compiled stack"""
-        if self.needs_optimization():
-            self.optimize_constants(fitness_metric, **metric_kwargs)
         try:
-            f_of_x, df_dx = bingocpp.simplify_and_evauluate_with_derivative(
-                self.command_list, eval_x, self.constants)
+            f_of_x, df_dx = bingocpp.simplify_and_evaluate_with_derivative(
+                self.command_array, x, self.constants)
         except:
             LOGGER.error("Error in stack evaluation/deriv")
             LOGGER.error(str(self))
@@ -404,39 +387,39 @@ class AGraphCpp(object):
         util = self.utilized_commands()
         print_str = "---full stack---\n"
         i = 0
-        for node, params in self.command_list:
+        for node, param1, param2 in self.command_array:
             print_str += "(%d) <= " % i
             if node == 0:                                     # TODO hard coded
-                print_str += COMMAND_PRINT_MAP[node] + "_%d\n" % params[0]
+                print_str += COMMAND_PRINT_MAP[node] + "_%d\n" % param1
             elif node == 1:                                   # TODO hard coded
                 print_str += COMMAND_PRINT_MAP[node]
-                if params[0] == -1:                           # TODO hard coded
+                if param1 == -1:                           # TODO hard coded
                     print_str += "\n"
                 else:
-                    print_str += " = " + str(self.constants[params[0]]) + "\n"
+                    print_str += " = " + str(self.constants[param1]) + "\n"
             else:
-                print_str += "(%d)" % params[0] + " " + \
+                print_str += "(%d)" % param1 + " " + \
                              COMMAND_PRINT_MAP[node] \
-                             + " " + "(%d)" % params[1] + "\n"
+                             + " " + "(%d)" % param2 + "\n"
             i += 1
         print_str += "---small stack---\n"
         i = 0
-        for node, params in self.command_list:
+        for node, param1, param2 in self.command_array:
             if util[i]:
                 print_str += "(%d) <= " % i
                 if node == 0:                                 # TODO hard coded
-                    print_str += COMMAND_PRINT_MAP[node] + "_%d\n" % params[0]
+                    print_str += COMMAND_PRINT_MAP[node] + "_%d\n" % param1
                 elif node == 1:                               # TODO hard coded
                     print_str += COMMAND_PRINT_MAP[node]
-                    if params[0] == -1:                       # TODO hard coded
+                    if param1 == -1:                       # TODO hard coded
                         print_str += "\n"
                     else:
-                        print_str += " = " + str(self.constants[params[0]]) + \
+                        print_str += " = " + str(self.constants[param1]) + \
                                      "\n"
                 else:
-                    print_str += "(%d)"%params[0] + " " + \
+                    print_str += "(%d)"%param1 + " " + \
                                  COMMAND_PRINT_MAP[node] \
-                                 + " " + "(%d)"%params[1] + "\n"
+                                 + " " + "(%d)"%param2 + "\n"
             i += 1
         return print_str
 
@@ -444,55 +427,55 @@ class AGraphCpp(object):
         """conversion to simplified latex string"""
         util = self.utilized_commands()
         str_list = []
-        for i, (node, params) in enumerate(self.command_list):
+        for i, (node, param1, param2) in enumerate(self.command_array):
                                                    # TODO hard coded whole func
             tmp_str = ""
             if util[i]:
                 if node == 0:
-                    tmp_str = "X_%d" % params[0]
+                    tmp_str = "X_%d" % param1
                 elif node == 1:
-                    if params[0] == -1:
+                    if param1 == -1:
                         tmp_str = "0"
                     else:
-                        tmp_str = str(self.constants[params[0]])
+                        tmp_str = str(self.constants[param1])
                 elif node == 2:
-                    tmp_str = "%s + %s" % (str_list[params[0]],
-                                           str_list[params[1]])
+                    tmp_str = "%s + %s" % (str_list[param1],
+                                           str_list[param2])
                 elif node == 3:
-                    tmp_str = "%s - (%s)" % (str_list[params[0]],
-                                             str_list[params[1]])
+                    tmp_str = "%s - (%s)" % (str_list[param1],
+                                             str_list[param2])
                 elif node == 4:
-                    tmp_str = "(%s)(%s)" % (str_list[params[0]],
-                                            str_list[params[1]])
+                    tmp_str = "(%s)(%s)" % (str_list[param1],
+                                            str_list[param2])
                 elif node == 5:
-                    tmp_str = "\\frac{%s}{%s}" % (str_list[params[0]],
-                                                  str_list[params[1]])
+                    tmp_str = "\\frac{%s}{%s}" % (str_list[param1],
+                                                  str_list[param2])
                 elif node == 6:
-                    tmp_str = "\\sin{%s}" % (str_list[params[0]])
+                    tmp_str = "\\sin{%s}" % (str_list[param1])
                 elif node == 7:
-                    tmp_str = "\\cos{%s}" % (str_list[params[0]])
+                    tmp_str = "\\cos{%s}" % (str_list[param1])
                 elif node == 8:
-                    tmp_str = "\\exp{%s}" % (str_list[params[0]])
+                    tmp_str = "\\exp{%s}" % (str_list[param1])
                 elif node == 9:
-                    tmp_str = "\\log{%s}" % (str_list[params[0]])
+                    tmp_str = "\\log{%s}" % (str_list[param1])
                 elif node == 10:
-                    tmp_str = "(%s)^{(%s)}" % (str_list[params[0]],
-                                               str_list[params[1]])
+                    tmp_str = "(%s)^{(%s)}" % (str_list[param1],
+                                               str_list[param2])
                 elif node == 11:
-                    tmp_str = "|{%s}|" % (str_list[params[0]])
+                    tmp_str = "|{%s}|" % (str_list[param1])
                 elif node == 12:
-                    tmp_str = "\\sqrt{%s}" % (str_list[params[0]])
+                    tmp_str = "\\sqrt{%s}" % (str_list[param1])
             str_list.append(tmp_str)
         return str_list[-1]
 
     def utilized_commands(self):
         """find which commands are utilized"""
-        util = [False]*len(self.command_list)
+        util = [False]*self.command_array.shape[0]
         util[-1] = True
-        for i in range(1, len(self.command_list)):
-            if util[-i] and self.command_list[-i][0] > 1:     # TODO hard coded
-                for j in self.command_list[-i][1]:
-                    util[j] = True
+        for i in range(1, self.command_array.shape[0]):
+            if util[-i] and self.command_array[-i][0] > 1:
+                util[self.command_array[-i][1]] = True
+                util[self.command_array[-i][2]] = True
         return util
 
     def complexity(self):

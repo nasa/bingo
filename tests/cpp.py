@@ -5,7 +5,9 @@ blocking and non blocking using agraphCPP
 """
 
 import math
-# import random
+# from matplotlib import pyplot
+# from mpl_toolkits.mplot3d import Axes3D
+import random
 import time
 from mpi4py import MPI
 import numpy as np
@@ -32,6 +34,9 @@ def main(max_steps, epsilon, data_size):
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
+    # fig = pyplot.figure()
+    # ax = Axes3D(fig)
+
     # load data on rank 0
     if rank == 0:
         # make data
@@ -48,6 +53,15 @@ def main(max_steps, epsilon, data_size):
         y = y.reshape(-1, 1)
         x_true = x
         y_true = y
+        # ax.scatter(x[:,0], x[:,1], y)
+
+        # ax.set_xlabel('x_0')
+        # ax.set_ylabel('x_1')
+        # ax.set_zlabel('y')
+        # pyplot.show()
+        # np.savetxt('arrayx.txt', x)
+        # np.savetxt('arrayy.txt', y)
+        # print("y\n", y_true)
     else:
         x_true = None
         y_true = None
@@ -104,6 +118,8 @@ if __name__ == "__main__":
     MAX_STEPS = 30000
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
+
+    bingocpp.rand_init()
 
     for x in range(0, 10):
         main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE)

@@ -56,15 +56,15 @@ class IslandManager(object):
         """
         self.start_time = time.time()
         self.do_steps(n_steps=step_increment, **do_steps_kwargs)
+        converged = self.test_convergence(epsilon, make_plots)
         if checkpoint_file is not None:
             self.save_state(checkpoint_file + "_%d.p" % self.age)
-        converged = self.test_convergence(epsilon, make_plots)
         while self.age < min_steps or (self.age < max_steps and not converged):
             self.do_migration()
             self.do_steps(n_steps=step_increment, **do_steps_kwargs)
+            converged = self.test_convergence(epsilon, make_plots)
             if checkpoint_file is not None:
                 self.save_state(checkpoint_file + "_%d.p" % self.age)
-            converged = self.test_convergence(epsilon, make_plots)
 
         self.do_final_plots(make_plots)
         return converged

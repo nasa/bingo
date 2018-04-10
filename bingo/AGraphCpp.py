@@ -127,8 +127,6 @@ class AGraphCppManipulator(object):
         child2 = parent2.copy()
         child1.command_array[cx_point:, :] = parent2.command_array[cx_point:, :]
         child2.command_array[cx_point:, :] = parent1.command_array[cx_point:, :]
-        child1.compiled = False
-        child2.compiled = False
         child1.fitness = None
         child2.fitness = None
         child1.fit_set = False
@@ -142,7 +140,6 @@ class AGraphCppManipulator(object):
         :param indv: individual which is mutated
         :return: mutated individual (not a new copy)
         """
-        indv.compiled = False
         # pick mutation point within currently utilized commands
         util = indv.utilized_commands()
         loc = np.random.randint(sum(util))
@@ -193,7 +190,6 @@ class AGraphCppManipulator(object):
                             p_1 = pruned_param
                         indv.command_array[i] = (indv.command_array[i][0],
                                                  p_0, p_1)
-        indv.compiled = False
         indv.fitness = None
         indv.fit_set = False
         return indv

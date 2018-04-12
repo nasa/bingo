@@ -193,7 +193,7 @@ def compare_agcpp_explicit(X, Y, operator, params):
     training_data = ExplicitTrainingData(X, Y)
 
     # make fitness_metric
-    explicit_regressor = StandardRegression()
+    explicit_regressor = StandardRegression(const_deriv=True)
 
     # make and run island manager
     islmngr = SerialIslandManager(N_ISLANDS,

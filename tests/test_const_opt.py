@@ -261,7 +261,7 @@ def test_const_opt_agraphcpp_explicit():
     training_data = ExplicitTrainingData(x_true, y)
 
     # create fitness metric
-    explicit_regressor = StandardRegression()
+    explicit_regressor = StandardRegression(const_deriv=True)
 
     # fit the constants
     explicit_regressor.evaluate_fitness(sol, training_data)

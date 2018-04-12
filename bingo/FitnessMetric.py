@@ -67,6 +67,15 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
 class StandardRegression(FitnessMetric):
     """ Traditional fitness evaluation """
 
+    def __init__(self, const_deriv=False):
+        """
+        Initialization
+        :param const_deriv: boolean for whether optimization of constants will
+                            use calculated derivative (true) or numerical
+                            derivatives (false)
+        """
+        self.const_deriv = const_deriv
+
     def evaluate_fitness_vector(self, individual, training_data):
         """
         fitness vector = f(x) - y
@@ -78,6 +87,57 @@ class StandardRegression(FitnessMetric):
         f_of_x = individual.evaluate(training_data.x)
 
         return (f_of_x - training_data.y).flatten()
+
+    def evaluate_fitness_vector_and_const_deriv(self, individual,
+                                                training_data):
+        """
+        returns the fitness vector and its derivatove with respect any included
+        constantsof an individual using a given set of training data
+        :param individual: a gene to be evaluated
+        :param training_data: the data used by the fitness metric
+        :return: fitness vector, dfitness/dconstants array
+        """
+
+        f_of_x, df_dc = individual.evaluate_with_const_deriv(training_data.x)
+
+        return (f_of_x - training_data.y).flatten(), df_dc
+
+    def optimize_constants(self, individual, training_data):
+        """
+        perform levenberg-marquardt optimization on embedded constants
+        :param individual: a gene to be evaluated
+        :param training_data: the data used by the fitness metric
+        """
+        num_constants = individual.count_constants()
+        c_0 = np.random.uniform(-100, 100, num_constants)
+
+        if self.const_deriv:
+            # define fitness function for optimization
+            def const_opt_fitness(consts):
+                """ fitness function for constant optimization"""
+                individual.set_constants(consts)
+                fvec, dfvec_dc = self.evaluate_fitness_vector_and_const_deriv(
+                        individual, training_data)
+                return fvec, dfvec_dc
+
+            # do optimization
+            sol = optimize.root(const_opt_fitness, c_0, jac=True, method='lm')
+
+        else:
+            # define fitness function for optimization
+            def const_opt_fitness(consts):
+                """ fitness function for constant optimization"""
+                individual.set_constants(consts)
+                fvec = self.evaluate_fitness_vector(individual, training_data)
+                return fvec
+
+            # do optimization
+            sol = optimize.root(const_opt_fitness, c_0, method='lm')
+
+        print(sol.success)
+
+        # put optimal values in command list
+        individual.set_constants(sol.x)
 
 
 class ImplicitRegression(FitnessMetric):

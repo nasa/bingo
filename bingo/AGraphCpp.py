@@ -371,12 +371,23 @@ class AGraphCpp(object):
         """evaluate the compiled stack"""
         try:
             f_of_x, df_dx = bingocpp.simplify_and_evaluate_with_derivative(
-                self.command_array, x, self.constants)
+                self.command_array, x, self.constants, True)
         except:
             LOGGER.error("Error in stack evaluation/deriv")
             LOGGER.error(str(self))
             exit(-1)
         return f_of_x, df_dx
+
+    def evaluate_with_const_deriv(self, x):
+        """evaluate the compiled stack"""
+        try:
+            f_of_x, df_dc = bingocpp.simplify_and_evaluate_with_derivative(
+                self.command_array, x, self.constants, False)
+        except:
+            LOGGER.error("Error in stack evaluation/deriv")
+            LOGGER.error(str(self))
+            exit(-1)
+        return f_of_x, df_dc
 
     def __str__(self):
         """overloaded string output"""

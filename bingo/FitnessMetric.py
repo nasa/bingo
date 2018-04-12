@@ -133,9 +133,7 @@ class StandardRegression(FitnessMetric):
 
             # do optimization
             sol = optimize.root(const_opt_fitness, c_0, method='lm')
-
-        print(sol.success)
-
+            
         # put optimal values in command list
         individual.set_constants(sol.x)
 

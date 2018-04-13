@@ -287,34 +287,37 @@ class ParallelIslandManager(IslandManager):
         # primary partner
         primary = (ind % 2 == 0)
         if primary:
-            my_partner = partners[ind + 1]
+            if ind + 1 >= self.comm_size:
+                my_partner = None
+            else:
+                my_partner = partners[ind + 1]
 
-            # receive population sizes
-            partner_s_pop_size, partner_p_pop_size, partner_t_pop_size = \
-                self.comm.recv(source=my_partner, tag=4)
+                # receive population sizes
+                partner_s_pop_size, partner_p_pop_size, partner_t_pop_size = \
+                    self.comm.recv(source=my_partner, tag=4)
 
-            # find which indvs to send/receive
-            s_send, partner_s_send = \
-                IslandManager.assign_send_receive(
-                        self.isle.solution_island.pop_size,
-                        partner_s_pop_size)
-            p_send, partner_p_send = \
-                IslandManager.assign_send_receive(
-                        self.isle.predictor_island.pop_size,
-                        partner_p_pop_size)
-            t_send, partner_t_send = IslandManager.assign_send_receive(
-                    len(self.isle.trainers), partner_t_pop_size)
-            LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
-                         self.comm_rank,
-                         my_partner,
-                         str((float(len(s_send)) /
-                              self.isle.solution_island.pop_size,
-                              float(len(p_send)) /
-                              self.isle.predictor_island.pop_size,
-                              float(len(t_send)) /
-                              len(self.isle.trainers))))
-            self.comm.send((partner_s_send, partner_p_send, partner_t_send),
-                           dest=my_partner, tag=4)
+                # find which indvs to send/receive
+                s_send, partner_s_send = \
+                    IslandManager.assign_send_receive(
+                            self.isle.solution_island.pop_size,
+                            partner_s_pop_size)
+                p_send, partner_p_send = \
+                    IslandManager.assign_send_receive(
+                            self.isle.predictor_island.pop_size,
+                            partner_p_pop_size)
+                t_send, partner_t_send = IslandManager.assign_send_receive(
+                        len(self.isle.trainers), partner_t_pop_size)
+                LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
+                             self.comm_rank,
+                             my_partner,
+                             str((float(len(s_send)) /
+                                  self.isle.solution_island.pop_size,
+                                  float(len(p_send)) /
+                                  self.isle.predictor_island.pop_size,
+                                  float(len(t_send)) /
+                                  len(self.isle.trainers))))
+                self.comm.send((partner_s_send, partner_p_send, partner_t_send),
+                               dest=my_partner, tag=4)
 
         # secondary partner
         else:
@@ -328,11 +331,14 @@ class ParallelIslandManager(IslandManager):
             s_send, p_send, t_send = self.comm.recv(source=my_partner, tag=4)
 
         # exchange populations
-        send_package = self.isle.dump_populations(s_send, p_send, t_send,
-                                                  with_removal=True)
-        recv_package = self.comm.sendrecv(send_package, my_partner, sendtag=4,
-                                          source=my_partner, recvtag=4)
-        self.isle.load_populations(recv_package, replace=False)
+        if my_partner is not None:
+            send_package = self.isle.dump_populations(s_send, p_send, t_send,
+                                                      with_removal=True)
+            recv_package = self.comm.sendrecv(send_package, my_partner,
+                                              sendtag=4,
+                                              source=my_partner, recvtag=4)
+            self.isle.load_populations(recv_package, replace=False)
+
 
     def test_convergence(self, epsilon, make_plots):
         """
@@ -397,7 +403,7 @@ class ParallelIslandManager(IslandManager):
         t_pop = self.comm.gather(t_pop, root=0)
         if self.comm_rank == 0:
             s_pop[0] = s_pop[0] + self.pareto_isle.dump_pareto()
-            temp_isle = copy.copy(self.isle)  # TODO should this be deep copy?
+            temp_isle = copy.deepcopy(self.isle)
             temp_isle.load_populations((s_pop[0], p_pop[0], t_pop[0]))
 
             # find true pareto front
@@ -636,7 +642,7 @@ class SerialIslandManager(IslandManager):
         s_pop = s_pop + self.pareto_isle.dump_population()
 
         # load them all into a temporary island
-        temp_isle = copy.copy(self.isles[0])  # TODO should this be deep copy?
+        temp_isle = copy.deepcopy(self.isles[0])
         temp_isle.load_populations((s_pop, p_pop, t_pop))
         temp_isle.use_true_fitness()
         temp_isle.solution_island.update_pareto_front()

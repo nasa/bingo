@@ -33,6 +33,9 @@ class FPManipulator(object):
         child2.fitness = None
         child1.fit_set = False
         child2.fit_set = False
+        child_age = max(parent1.genetic_age, parent2.genetic_age)
+        child1.genetic_age = child_age
+        child2.genetic_age = child_age
         return child1, child2
 
     def mutation(self, indv):
@@ -61,33 +64,35 @@ class FPManipulator(object):
         """
         dumps indv to picklable object
         """
-        return indv.indices
+        return indv.indices, indv.genetic_age
 
     @staticmethod
-    def load(indices):
+    def load(indv_list):
         """
         loads indv from picklable object
         """
-        return FitnessPredictor(indices)
+        return FitnessPredictor(indv_list[0], indv_list[1])
 
 
 class FitnessPredictor(object):
     """
     class for fitness predictor, mainly just a list of indices
     """
-    def __init__(self, indices=None):
+    def __init__(self, indices=None, genetic_age=0):
         if indices is None:
             self.indices = []
         else:
             self.indices = indices
         self.fitness = None
         self.fit_set = False
+        self.genetic_age = genetic_age
 
     def copy(self):
         """duplicates a fitness predictor via deep copy"""
         dup = FitnessPredictor(list(self.indices))
         dup.fitness = self.fitness
         dup.fit_set = self.fit_set
+        dup.genetic_age = self.genetic_age
         return dup
 
     def __str__(self):

@@ -48,6 +48,8 @@ class Island(object):
         Performs a deterministic crowding generational step
         """
         self.age += 1
+        for indv in self.pop:
+            indv.genetic_age += 1
         # randomly pair by shuffling
         random.shuffle(self.pop)
         for i in range(self.pop_size//2):

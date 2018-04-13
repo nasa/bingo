@@ -107,6 +107,9 @@ class AGraphManipulator(object):
         child2.fitness = None
         child1.fit_set = False
         child2.fit_set = False
+        child_age = max(parent1.genetic_age, parent2.genetic_age)
+        child1.genetic_age = child_age
+        child2.genetic_age = child_age
         return child1, child2
 
     def mutation(self, indv):
@@ -209,7 +212,7 @@ class AGraphManipulator(object):
         for node, params in indv.command_list:
             ind = self.node_type_list.index(node)
             command_list.append((ind, params))
-        return command_list, indv.constants
+        return command_list, indv.constants, indv.genetic_age
 
     def load(self, indv_list):
         """
@@ -220,6 +223,7 @@ class AGraphManipulator(object):
         """
         indv = AGraph(self.namespace)
         indv.constants = indv_list[1]
+        indv.genetic_age = indv_list[2]
         for node_num, params in indv_list[0]:
             if node_num in range(len(self.node_type_list)):  # node
                 indv.command_list.append((self.node_type_list[node_num],
@@ -311,6 +315,7 @@ class AGraph(object):
         self.compiled_deriv = False
         self.fitness = None
         self.fit_set = False
+        self.genetic_age = 0
         if namespace is not None:
             self.namespace = namespace.copy()
         else:
@@ -324,6 +329,7 @@ class AGraph(object):
         dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
         dup.command_list = list(self.command_list)
+        dup.genetic_age = self.genetic_age
         return dup
 
     def compile(self):

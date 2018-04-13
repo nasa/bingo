@@ -72,13 +72,13 @@ class CoevolutionIsland(object):
         # initialize solution island
         self.solution_island = Island(solution_manipulator,
                                       self.solution_fitness_est,
-                                      pop_size=solution_pop_size,
+                                      target_pop_size=solution_pop_size,
                                       cx_prob=solution_cx,
                                       mut_prob=solution_mut)
         # initialize fitness predictor island
         self.predictor_island = Island(predictor_manipulator,
                                        self.predictor_fitness,
-                                       pop_size=predictor_pop_size,
+                                       target_pop_size=predictor_pop_size,
                                        cx_prob=predictor_cx,
                                        mut_prob=predictor_mut)
         self.predictor_update_freq = predictor_update_freq

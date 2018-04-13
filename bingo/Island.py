@@ -11,7 +11,7 @@ class Island(object):
     """
 
     def __init__(self, gene_manipulator, fitness_function,
-                 pop_size=64, cx_prob=0.7, mut_prob=0.01):
+                 target_pop_size=64, cx_prob=0.7, mut_prob=0.01):
         """
         Initialization of island
 
@@ -20,13 +20,13 @@ class Island(object):
                                  operations of individuals in the island
         :param fitness_function: the function which describes fitnesses of
                                  individuals in the island
-        :param pop_size: number of individuals in the island
+        :param target_pop_size: targeted number of individuals in the island
         :param cx_prob: crossover probability
         :param mut_prob: mutation probability
         """
         self.gene_manipulator = gene_manipulator
         self.fitness_function = fitness_function
-        self.pop_size = pop_size
+        self.target_pop_size = target_pop_size
         self.mut_prob = mut_prob
         self.cx_prob = cx_prob
         self.pop = []
@@ -41,7 +41,7 @@ class Island(object):
         the island
         """
         self.pop = [self.gene_manipulator.generate()
-                    for _ in range(self.pop_size)]
+                    for _ in range(self.target_pop_size)]
 
     def deterministic_crowding_step(self):
         """
@@ -52,7 +52,7 @@ class Island(object):
             indv.genetic_age += 1
         # randomly pair by shuffling
         random.shuffle(self.pop)
-        for i in range(self.pop_size//2):
+        for i in range(self.target_pop_size//2):
             p_1 = self.pop[i*2]
             p_2 = self.pop[i*2+1]
             # see if any events occur
@@ -115,12 +115,14 @@ class Island(object):
         :return: fitness of best individual
         """
         best = self.pop[0]
-        if best.fitness is None:
+        if best.fit_set is False:
             best.fitness = self.fitness_function(best)
+            best.fit_set = True
             self.fitness_evals += 1
         for indv in self.pop[1:]:
-            if indv.fitness is None:
+            if indv.fit_set is False:
                 indv.fitness = self.fitness_function(indv)
+                indv.fit_set = True
                 self.fitness_evals += 1
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
@@ -136,11 +138,13 @@ class Island(object):
         :param indv2: second individual with fitness member
         :return: Does indv1 dominate indv2 (boolean)
         """
-        if indv1.fitness is None:
+        if indv1.fit_set is False:
             indv1.fitness = self.fitness_function(indv1)
+            indv1.fit_set = True
             self.fitness_evals += 1
-        if indv2.fitness is None:
+        if indv2.fit_set is False:
             indv2.fitness = self.fitness_function(indv2)
+            indv2.fit_set = True
             self.fitness_evals += 1
         dominate = True
         for f_1, f_2 in zip(indv1.fitness, indv2.fitness):
@@ -156,11 +160,13 @@ class Island(object):
         :param indv2: second individual with fitness member
         :return: is indv1.fitness == indv2.fitness (boolean)
         """
-        if indv1.fitness is None:
+        if indv1.fit_set is False:
             indv1.fitness = self.fitness_function(indv1)
+            indv1.fit_set = True
             self.fitness_evals += 1
-        if indv2.fitness is None:
+        if indv2.fit_set is False:
             indv2.fitness = self.fitness_function(indv2)
+            indv2.fit_set = True
             self.fitness_evals += 1
         return indv1.fitness == indv2.fitness
 
@@ -235,7 +241,7 @@ class Island(object):
         :return: population in list form
         """
         if subset is None:
-            subset = list(range(self.pop_size))
+            subset = list(range(self.target_pop_size))
         pop_list = []
         for i, indv in enumerate(self.pop):
             if i in subset:
@@ -270,4 +276,4 @@ class Island(object):
             self.pop = []
         for indv_list in pop_list:
             self.pop.append(self.gene_manipulator.load(indv_list))
-        self.pop_size = len(self.pop)
+        self.target_pop_size = len(self.pop)

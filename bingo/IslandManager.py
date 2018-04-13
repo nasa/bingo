@@ -299,11 +299,11 @@ class ParallelIslandManager(IslandManager):
                 # find which indvs to send/receive
                 s_send, partner_s_send = \
                     IslandManager.assign_send_receive(
-                            self.isle.solution_island.pop_size,
+                            len(self.isle.solution_island.pop),
                             partner_s_pop_size)
                 p_send, partner_p_send = \
                     IslandManager.assign_send_receive(
-                            self.isle.predictor_island.pop_size,
+                            len(self.isle.predictor_island.pop),
                             partner_p_pop_size)
                 t_send, partner_t_send = IslandManager.assign_send_receive(
                         len(self.isle.trainers), partner_t_pop_size)
@@ -311,9 +311,9 @@ class ParallelIslandManager(IslandManager):
                              self.comm_rank,
                              my_partner,
                              str((float(len(s_send)) /
-                                  self.isle.solution_island.pop_size,
+                                  len(self.isle.solution_island.pop),
                                   float(len(p_send)) /
-                                  self.isle.predictor_island.pop_size,
+                                  len(self.isle.predictor_island.pop),
                                   float(len(t_send)) /
                                   len(self.isle.trainers))))
                 self.comm.send((partner_s_send, partner_p_send, partner_t_send),
@@ -322,8 +322,8 @@ class ParallelIslandManager(IslandManager):
         # secondary partner
         else:
             my_partner = partners[ind - 1]
-            self.comm.send((self.isle.solution_island.pop_size,
-                            self.isle.predictor_island.pop_size,
+            self.comm.send((len(self.isle.solution_island.pop),
+                            len(self.isle.predictor_island.pop),
                             len(self.isle.trainers)),
                            dest=my_partner, tag=4)
 
@@ -551,11 +551,11 @@ class SerialIslandManager(IslandManager):
 
             # figure out which individuals will be sent/received from partner 1
             s_to_2, s_to_1 = IslandManager.assign_send_receive(
-                    partner_1.solution_island.pop_size,
-                    partner_2.solution_island.pop_size)
+                    len(partner_1.solution_island.pop),
+                    len(partner_2.solution_island.pop))
             p_to_2, p_to_1 = IslandManager.assign_send_receive(
-                    partner_1.predictor_island.pop_size,
-                    partner_2.predictor_island.pop_size)
+                    len(partner_1.predictor_island.pop),
+                    len(partner_2.predictor_island.pop))
             t_to_2, t_to_1 = IslandManager.assign_send_receive(
                     len(partner_1.trainers),
                     len(partner_2.trainers))
@@ -563,9 +563,9 @@ class SerialIslandManager(IslandManager):
                          partners[i*2],
                          partners[i*2+1],
                          str((float(len(s_to_2)) /
-                              partner_1.solution_island.pop_size,
+                              len(partner_1.solution_island.pop),
                               float(len(p_to_2)) /
-                              partner_1.predictor_island.pop_size,
+                              len(partner_1.predictor_island.pop),
                               float(len(t_to_2)) /
                               len(partner_1.trainers))))
 

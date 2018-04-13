@@ -10,10 +10,15 @@ import numpy as np
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
-# from bingo import AGraphCpp
+from bingo import AGraphCpp
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
-from bingo.FitnessMetric import StandardRegression, ImplicitRegression
+from bingo.FitnessMetric import ImplicitRegression, StandardRegression
+from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
+
+
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 
 def make_circle_data(data_size):
@@ -119,37 +124,44 @@ def main(max_steps, epsilon, data_size):
     x_true = MPI.COMM_WORLD.bcast(x_true, root=0)
     y_true = MPI.COMM_WORLD.bcast(y_true, root=0)
 
-    # make solution manipulator
-    sol_manip = agm(x_true.shape[1], 64, nloads=2)
-    sol_manip.add_node_type(AGNodes.Add)
-    sol_manip.add_node_type(AGNodes.Subtract)
-    sol_manip.add_node_type(AGNodes.Multiply)
-    sol_manip.add_node_type(AGNodes.Divide)
-    # sol_manip.add_node_type(AGNodes.Exp)
-    # sol_manip.add_node_type(AGNodes.Log)
-    # sol_manip.add_node_type(AGNodes.Sin)
-    # sol_manip.add_node_type(AGNodes.Cos)
-    # sol_manip.add_node_type(AGNodes.Abs)
-    sol_manip.add_node_type(AGNodes.Sqrt)
+    # make training data
+    training_data = ExplicitTrainingData(x_true, y_true)
+
+
+    # # make solution manipulator
+    # sol_manip = agm(x_true.shape[1], 64, nloads=2)
+    # sol_manip.add_node_type(AGNodes.Add)
+    # sol_manip.add_node_type(AGNodes.Subtract)
+    # sol_manip.add_node_type(AGNodes.Multiply)
+    # sol_manip.add_node_type(AGNodes.Divide)
+    # # sol_manip.add_node_type(AGNodes.Exp)
+    # # sol_manip.add_node_type(AGNodes.Log)
+    # # sol_manip.add_node_type(AGNodes.Sin)
+    # # sol_manip.add_node_type(AGNodes.Cos)
+    # # sol_manip.add_node_type(AGNodes.Abs)
+    # sol_manip.add_node_type(AGNodes.Sqrt)
 
 
     # make solution manipulator
-    #sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
-    #sol_manip2.add_node_type(2)  # +
-    #sol_manip2.add_node_type(3)  # -
-    #sol_manip2.add_node_type(4)  # *
-    #sol_manip.add_node_type(5)  # /
+    sol_manip = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
+    sol_manip.add_node_type(2)  # +
+    sol_manip.add_node_type(3)  # -
+    sol_manip.add_node_type(4)  # *
+    sol_manip.add_node_type(5)  # /
 
     # make predictor manipulator
     pred_manip = fpm(128, data_size)
 
+    # make fitness metric
+    standard_regressor = StandardRegression(const_deriv=True)
+
     # make and run island manager
     islmngr = ParallelIslandManager(#restart_file='test.p',
-                                    data_x=x_true, data_y=y_true,
+                                    solution_training_data=training_data,
                                     solution_manipulator=sol_manip,
                                     predictor_manipulator=pred_manip,
                                     solution_pop_size=64,
-                                    fitness_metric=StandardRegression)
+                                    fitness_metric=standard_regressor)
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,
                         step_increment=100,
                         #checkpoint_file='checkpt'

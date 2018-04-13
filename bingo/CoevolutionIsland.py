@@ -237,7 +237,8 @@ class CoevolutionIsland(object):
                          + " " + str(best_sol.fitness) \
                          + " " + str(best_sol.latexstring()))
 
-    def dump_populations(self, s_subset=None, p_subset=None, t_subset=None):
+    def dump_populations(self, s_subset=None, p_subset=None, t_subset=None,
+                         with_removal=False):
         """
         Dump the 3 populations to a pickleable object (tuple of lists)
 
@@ -250,13 +251,17 @@ class CoevolutionIsland(object):
         :param t_subset: list of indices for the subset of the trainer
                          population which is dumped. A None value results in
                          all of the population being dumped.
+        :param with_removal: boolean describing whether the elements should be
+                             removed from population after dumping
         :return: tuple of lists of populations
         """
         # dump solutions
-        solution_list = self.solution_island.dump_population(s_subset)
+        solution_list = self.solution_island.dump_population(s_subset,
+                                                             with_removal)
 
         # dump predictors
-        predictor_list = self.predictor_island.dump_population(p_subset)
+        predictor_list = self.predictor_island.dump_population(p_subset,
+                                                               with_removal)
 
         # dump trainers
         trainer_list = []
@@ -267,43 +272,39 @@ class CoevolutionIsland(object):
             if i in t_subset:
                 trainer_list.append(
                     (self.solution_island.gene_manipulator.dump(indv), tfit))
+        if with_removal:
+            self.trainers[:] = [indv for i, indv in enumerate(self.trainers)
+                                if i not in t_subset]
+            self.trainers_true_fitness[:] = \
+                [tfit for i, tfit in enumerate(self.trainers_true_fitness) if
+                 i not in t_subset]
 
         return solution_list, predictor_list, trainer_list
 
-    def load_populations(self, pop_lists, s_subset=None, p_subset=None,
-                         t_subset=None):
+    def load_populations(self, pop_lists, replace=True):
         """
         load 3 populations from pickleable object
 
         :param pop_lists: tuple of lists of the 3 populations
-        :param s_subset: list of indices for the subset of the solution
-                         population which is loaded and replaced. A None value
-                         results in all of the population being
-                         loaded/replaced.
-        :param p_subset: list of indices for the subset of the fitness
-                         predictor population which is loaded and replaced. A
-                         None value  results in all of the population being
-                         loaded/replaced.
-        :param t_subset: list of indices for the subset of the trainer
-                         population which is loaded and replaced. A None value
-                         results in  all of the population being
-                         loaded/replaced.
+        :param replace: default (True) value results in all of the population
+               being loaded/replaced. False value means that the
+               population in pop_list is appended to the current
+               population
         """
         # load solutions
-        self.solution_island.load_population(pop_lists[0], s_subset)
+        self.solution_island.load_population(pop_lists[0], replace)
 
         # load predictors
-        self.predictor_island.load_population(pop_lists[1], p_subset)
+        self.predictor_island.load_population(pop_lists[1], replace)
 
         # load trainers
-        if t_subset is None:
-            self.trainers = [None]*len(pop_lists[2])
-            self.trainers_true_fitness = [None]*len(pop_lists[2])
-            t_subset = list(range(len(pop_lists[2])))
-        for ind, (indv_list, t_fit) in zip(t_subset, pop_lists[2]):
-            self.trainers[ind] = \
-                self.solution_island.gene_manipulator.load(indv_list)
-            self.trainers_true_fitness[ind] = t_fit
+        if replace:
+            self.trainers = []
+            self.trainers_true_fitness = []
+        for indv_list, t_fit in pop_lists[2]:
+            self.trainers.append(
+                    self.solution_island.gene_manipulator.load(indv_list))
+            self.trainers_true_fitness.append(t_fit)
 
         self.best_predictor = self.predictor_island.best_indv().copy()
 

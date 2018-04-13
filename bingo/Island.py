@@ -221,14 +221,16 @@ class Island(object):
             # sort the updated front
             self.pareto_front.sort(key=lambda x: x.fitness)
 
-    def dump_population(self, subset=None):
+    def dump_population(self, subset=None, with_removal=False):
         """
         Dumps the population to a pickleable object
 
         :param subset: list of indices for the subset of the population which
-                       is dumped. A None value esults in all of the population
+                       is dumped. A None value results in all of the population
                        being dumped.
-        :return: population is list form
+        :param with_removal: boolean describing whether the elements should be
+                             removed from population after dumping
+        :return: population in list form
         """
         if subset is None:
             subset = list(range(self.pop_size))
@@ -236,6 +238,9 @@ class Island(object):
         for i, indv in enumerate(self.pop):
             if i in subset:
                 pop_list.append(self.gene_manipulator.dump(indv))
+        if with_removal:
+            self.pop[:] = [indv for i, indv in enumerate(self.pop)
+                           if i not in subset]
         return pop_list
 
     def dump_pareto(self):
@@ -249,18 +254,18 @@ class Island(object):
             pop_list.append(self.gene_manipulator.dump(indv))
         return pop_list
 
-    def load_population(self, pop_list, subset=None):
+    def load_population(self, pop_list, replace=True):
         """
         loads population from a pickleable object
 
         :param pop_list: list of population which is loaded
-        :param subset: list of indices for the subset of the population which
-                       is loaded and replaced. A None value results in all of
-                       the population being loaded/replaced.
+        :param replace: default (True) value results in all of the population
+                        being loaded/replaced. False value means that the
+                        population in pop_list is appended to the current
+                        population
         """
-        if subset is None:
-            subset = list(range(len(pop_list)))
-            self.pop_size = len(pop_list)
-            self.pop = [None]*self.pop_size
-        for i, indv_list in zip(subset, pop_list):
-            self.pop[i] = self.gene_manipulator.load(indv_list)
+        if replace:
+            self.pop = []
+        for indv_list in pop_list:
+            self.pop.append(self.gene_manipulator.load(indv_list))
+        self.pop_size = len(self.pop)

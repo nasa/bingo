@@ -126,7 +126,7 @@ class IslandManager(object):
         pass
 
     @staticmethod
-    def assign_send_receive(pop_size):
+    def assign_send_receive(pop_size1, pop_size2):
         """
         Assign indices for exchange through random shuffling
 
@@ -134,18 +134,18 @@ class IslandManager(object):
                          exchanged (must be equal in population size)
         :return: the indices that each island will be swapping
         """
-        pop_shuffle = list(range(pop_size*2))
+        tot_pop = pop_size1 + pop_size2
+        pop_shuffle = list(range(tot_pop))
         random.shuffle(pop_shuffle)
         indvs_to_send = []
         indvs_to_receive = []
         for i, indv in enumerate(pop_shuffle):
-            my_new = (i < pop_size)
-            my_old = (indv < pop_size)
+            my_new = (i < tot_pop/2)
+            my_old = (indv < pop_size1)
             if my_new and not my_old:
-                indvs_to_receive.append(indv-pop_size)
+                indvs_to_receive.append(indv-pop_size1)
             if not my_new and my_old:
                 indvs_to_send.append(indv)
-        assert len(indvs_to_send) == len(indvs_to_receive)
         return indvs_to_send, indvs_to_receive
 
 
@@ -287,50 +287,52 @@ class ParallelIslandManager(IslandManager):
         # primary partner
         primary = (ind % 2 == 0)
         if primary:
-            if self.comm_rank != partners[-1]:
-                my_partner = partners[ind + 1]
+            my_partner = partners[ind + 1]
 
-                # find which indvs to send/receive
-                s_send, s_receive = \
-                    IslandManager.assign_send_receive(
-                        self.isle.solution_island.pop_size)
-                p_send, p_receive = \
-                    IslandManager.assign_send_receive(
-                        self.isle.predictor_island.pop_size)
-                t_send, t_receive = IslandManager.assign_send_receive(
-                    len(self.isle.trainers))
-                LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
-                             self.comm_rank,
-                             my_partner,
-                             str((float(len(s_send)) /
-                                  self.isle.solution_island.pop_size,
-                                  float(len(p_send)) /
-                                  self.isle.predictor_island.pop_size,
-                                  float(len(t_send)) /
-                                  len(self.isle.trainers))))
-                self.comm.send((s_receive, p_receive, t_receive),
-                               dest=my_partner, tag=4)
+            # receive population sizes
+            partner_s_pop_size, partner_p_pop_size, partner_t_pop_size = \
+                self.comm.recv(source=my_partner, tag=4)
 
-                # exchange populations
-                send_package = self.isle.dump_populations(s_send, p_send,
-                                                          t_send)
-                self.comm.send(send_package, dest=my_partner, tag=4)
-                recv_package = self.comm.recv(source=my_partner, tag=4)
-                self.isle.load_populations(recv_package, s_send, p_send,
-                                           t_send)
+            # find which indvs to send/receive
+            s_send, partner_s_send = \
+                IslandManager.assign_send_receive(
+                        self.isle.solution_island.pop_size,
+                        partner_s_pop_size)
+            p_send, partner_p_send = \
+                IslandManager.assign_send_receive(
+                        self.isle.predictor_island.pop_size,
+                        partner_p_pop_size)
+            t_send, partner_t_send = IslandManager.assign_send_receive(
+                    len(self.isle.trainers), partner_t_pop_size)
+            LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
+                         self.comm_rank,
+                         my_partner,
+                         str((float(len(s_send)) /
+                              self.isle.solution_island.pop_size,
+                              float(len(p_send)) /
+                              self.isle.predictor_island.pop_size,
+                              float(len(t_send)) /
+                              len(self.isle.trainers))))
+            self.comm.send((partner_s_send, partner_p_send, partner_t_send),
+                           dest=my_partner, tag=4)
 
         # secondary partner
         else:
             my_partner = partners[ind - 1]
+            self.comm.send((self.isle.solution_island.pop_size,
+                            self.isle.predictor_island.pop_size,
+                            len(self.isle.trainers)),
+                           dest=my_partner, tag=4)
 
-            # find which indvs to send/receive
+            # find which indvs to send
             s_send, p_send, t_send = self.comm.recv(source=my_partner, tag=4)
 
-            # exchange populations
-            send_package = self.isle.dump_populations(s_send, p_send, t_send)
-            recv_package = self.comm.recv(source=my_partner, tag=4)
-            self.comm.send(send_package, dest=my_partner, tag=4)
-            self.isle.load_populations(recv_package, s_send, p_send, t_send)
+        # exchange populations
+        send_package = self.isle.dump_populations(s_send, p_send, t_send,
+                                                  with_removal=True)
+        recv_package = self.comm.sendrecv(send_package, my_partner, sendtag=4,
+                                          source=my_partner, recvtag=4)
+        self.isle.load_populations(recv_package, replace=False)
 
     def test_convergence(self, epsilon, make_plots):
         """
@@ -536,32 +538,38 @@ class SerialIslandManager(IslandManager):
         partners = list(range(self.n_isles))
         random.shuffle(partners)
 
-        # get population sizes
-        s_pop_size = self.isles[0].solution_island.pop_size
-        p_pop_size = self.isles[0].predictor_island.pop_size
-        t_pop_size = len(self.isles[0].trainers)
-
         # loop over partner pairs
         for i in range(self.n_isles//2):
             partner_1 = self.isles[partners[i*2]]
             partner_2 = self.isles[partners[i*2+1]]
 
             # figure out which individuals will be sent/received from partner 1
-            s_to_2, s_to_1 = IslandManager.assign_send_receive(s_pop_size)
-            p_to_2, p_to_1 = IslandManager.assign_send_receive(p_pop_size)
-            t_to_2, t_to_1 = IslandManager.assign_send_receive(t_pop_size)
+            s_to_2, s_to_1 = IslandManager.assign_send_receive(
+                    partner_1.solution_island.pop_size,
+                    partner_2.solution_island.pop_size)
+            p_to_2, p_to_1 = IslandManager.assign_send_receive(
+                    partner_1.predictor_island.pop_size,
+                    partner_2.predictor_island.pop_size)
+            t_to_2, t_to_1 = IslandManager.assign_send_receive(
+                    len(partner_1.trainers),
+                    len(partner_2.trainers))
             LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
                          partners[i*2],
                          partners[i*2+1],
-                         str((float(len(s_to_2)) / s_pop_size,
-                              float(len(p_to_2)) / p_pop_size,
-                              float(len(t_to_2)) / t_pop_size)))
+                         str((float(len(s_to_2)) /
+                              partner_1.solution_island.pop_size,
+                              float(len(p_to_2)) /
+                              partner_1.predictor_island.pop_size,
+                              float(len(t_to_2)) /
+                              len(partner_1.trainers))))
 
             # swap the individuals
-            pops_to_2 = partner_1.dump_populations(s_to_2, p_to_2, t_to_2)
-            pops_to_1 = partner_2.dump_populations(s_to_1, p_to_1, t_to_1)
-            partner_1.load_populations(pops_to_1, s_to_2, p_to_2, t_to_2)
-            partner_2.load_populations(pops_to_2, s_to_1, p_to_1, t_to_1)
+            pops_to_2 = partner_1.dump_populations(s_to_2, p_to_2, t_to_2,
+                                                   with_removal=True)
+            pops_to_1 = partner_2.dump_populations(s_to_1, p_to_1, t_to_1,
+                                                   with_removal=True)
+            partner_1.load_populations(pops_to_1, replace=False)
+            partner_2.load_populations(pops_to_2, replace=False)
 
     def test_convergence(self, epsilon, make_plots):
         """
@@ -593,14 +601,15 @@ class SerialIslandManager(IslandManager):
         if make_plots:
             print_latex(self.pareto_isle.pareto_front, "eq.png")
             print_pareto(self.pareto_isle.pareto_front, "front.png")
-            if self.isles[0].fitness_metric_args['x'].shape[1] == 1:
-                if 'y' in self.isles[0].fitness_metric_args:
-                    print_1d_best_soln(
-                        self.isles[0].fitness_metric_args['x'],
-                        self.isles[0].fitness_metric_args['y'],
-                        self.pareto_isle.pareto_front[0].evaluate,
-                        self.isles[0].fitness_metric,
-                        "comparison.png")
+            # TODO fix this for refactor
+            # if self.isles[0].fitness_metric_args['x'].shape[1] == 1:
+            #     if 'y' in self.isles[0].fitness_metric_args:
+            #         print_1d_best_soln(
+            #             self.isles[0].fitness_metric_args['x'],
+            #             self.isles[0].fitness_metric_args['y'],
+            #             self.pareto_isle.pareto_front[0].evaluate,
+            #             self.isles[0].fitness_metric,
+            #             "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("%d\t" % self.age)
             for par_indv in self.pareto_isle.pareto_front:
@@ -640,14 +649,15 @@ class SerialIslandManager(IslandManager):
         if make_plots:
             print_latex(temp_isle.solution_island.pareto_front, "eq.png")
             print_pareto(temp_isle.solution_island.pareto_front, "front.png")
-            if self.isles[0].fitness_metric_args['x'].shape[1] == 1:
-                if 'y' in self.isles[0].fitness_metric_args:
-                    print_1d_best_soln(
-                        self.isles[0].fitness_metric_args['x'],
-                        self.isles[0].fitness_metric_args['y'],
-                        self.pareto_isle.pareto_front[0].evaluate,
-                        self.isles[0].fitness_metric,
-                        "comparison.png")
+            # TODO fix this for refactor
+            # if self.isles[0].fitness_metric_args['x'].shape[1] == 1:
+            #     if 'y' in self.isles[0].fitness_metric_args:
+            #         print_1d_best_soln(
+            #             self.isles[0].fitness_metric_args['x'],
+            #             self.isles[0].fitness_metric_args['y'],
+            #             self.pareto_isle.pareto_front[0].evaluate,
+            #             self.isles[0].fitness_metric,
+            #             "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")
 

@@ -2,8 +2,12 @@
 This module contains the code for an island in an island-based GA optimization
 it is general enough to work on any representation/fitness
 """
+import logging
 import random
 import numpy as np
+
+LOGGER = logging.getLogger(__name__)
+
 
 class Island(object):
     """
@@ -11,7 +15,8 @@ class Island(object):
     """
 
     def __init__(self, gene_manipulator, fitness_function,
-                 target_pop_size=64, cx_prob=0.7, mut_prob=0.01):
+                 target_pop_size=64, cx_prob=0.7, mut_prob=0.01,
+                 age_fitness=False):
         """
         Initialization of island
 
@@ -34,6 +39,10 @@ class Island(object):
         self.age = 0
         self.fitness_evals = 0
         self.pareto_front = []
+        if age_fitness:
+            self.generational_step = self.age_fitness_pareto_step
+        else:
+            self.generational_step = self.deterministic_crowding_step
 
     def generate_population(self):
         """
@@ -69,7 +78,7 @@ class Island(object):
                 # do mutations
                 if do_mut1:
                     c_1 = self.gene_manipulator.mutation(c_1)
-                if do_mut1:
+                if do_mut2:
                     c_2 = self.gene_manipulator.mutation(c_2)
                 # calculate fitnesses
                 if p_1.fit_set is False:
@@ -107,6 +116,84 @@ class Island(object):
                     if c_1.fitness < p_2.fitness or \
                             np.any(np.isnan(p_2.fitness)):
                         self.pop[i*2+1] = c_1
+
+    def age_fitness_pareto_step(self):
+        """
+        Performs a age-fitness pareto generational step
+        """
+        # increment age
+        self.age += 1
+        for indv in self.pop:
+            indv.genetic_age += 1
+
+        # random mating
+        # randomly pair by shuffling
+        random.shuffle(self.pop)
+        start_pop_size = len(self.pop)
+        for i in range(start_pop_size//2):
+            p_1 = self.pop[i*2]
+            p_2 = self.pop[i*2+1]
+            # see if any events occur
+            do_cx = random.random() <= self.cx_prob
+            do_mut1 = random.random() <= self.mut_prob
+            do_mut2 = random.random() <= self.mut_prob
+            # do crossover
+            if do_cx:
+                c_1, c_2 = self.gene_manipulator.crossover(p_1, p_2)
+                # with possible mutations
+                if do_mut1:
+                    c_1 = self.gene_manipulator.mutation(c_1)
+                if do_mut2:
+                    c_2 = self.gene_manipulator.mutation(c_2)
+                self.pop.append(c_1)
+                self.pop.append(c_2)
+            else:
+                # just do mutations
+                if do_mut1:
+                    c_1 = p_1.copy()
+                    c_1 = self.gene_manipulator.mutation(c_1)
+                    self.pop.append(c_1)
+                if do_mut2:
+                    c_2 = p_2.copy()
+                    c_2 = self.gene_manipulator.mutation(c_2)
+                    self.pop.append(c_2)
+
+        # selection via age-fitness domination
+        selection_attempts = 0
+        while len(self.pop) > self.target_pop_size and \
+              selection_attempts < start_pop_size * 50:
+            # select random pairs
+            a, b = np.random.choice(len(self.pop), 2, replace=False)
+            # get fitnesses
+            if self.pop[a].fit_set is False:
+                self.pop[a].fitness = self.fitness_function(self.pop[a])
+                self.pop[a].fit_set = True
+                self.fitness_evals += 1
+            if self.pop[b].fit_set is False:
+                self.pop[b].fitness = self.fitness_function(self.pop[b])
+                self.pop[b].fit_set = True
+                self.fitness_evals += 1
+            # check for domination in age-fitness
+            if np.any(np.isnan(self.pop[a].fitness)):
+                    del self.pop[a]
+            elif np.any(np.isnan(self.pop[b].fitness)):
+                    del self.pop[b]
+            elif self.pop[a].genetic_age < self.pop[b].genetic_age:
+                if self.pop[a].fitness <= self.pop[b].fitness:
+                    del self.pop[b]
+            elif self.pop[a].genetic_age > self.pop[b].genetic_age:
+                if self.pop[b].fitness <= self.pop[a].fitness:
+                    del self.pop[a]
+            else:  # equal ages
+                if self.pop[a].fitness <= self.pop[b].fitness:
+                    del self.pop[b]
+                else:
+                    del self.pop[a]
+            selection_attempts += 1
+
+        # LOGGER.debug("population zise: " + str(len(self.pop)) +
+        #              "    target size: " + str(self.target_pop_size) +
+        #              "    attempts: " + str(selection_attempts))
 
     def best_indv(self):
         """
@@ -190,10 +277,12 @@ class Island(object):
         else:
             # remove current pareto indv who are dominated by others
             to_remove = []
-            for p_1 in self.pareto_front:
-                for p_2 in self.pareto_front:
-                    if self.dominate(p_1, p_2):
-                        to_remove.append(p_2)
+            for i, p_1 in enumerate(self.pareto_front):
+                for j, p_2 in enumerate(self.pareto_front):
+                    if i != j:
+                        if self.dominate(p_1, p_2):
+                            if not self.similar(p_1, p_2) or i < j:
+                                to_remove.append(p_2)
             to_remove = list(set(to_remove))
             while len(to_remove) > 0:
                 self.pareto_front.remove(to_remove.pop())

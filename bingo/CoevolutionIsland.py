@@ -53,6 +53,7 @@ class CoevolutionIsland(object):
     def __init__(self, solution_training_data, solution_manipulator,
                  predictor_manipulator, fitness_metric,
                  solution_pop_size=64, solution_cx=0.7, solution_mut=0.01,
+                 solution_age_fitness=False,
                  predictor_pop_size=16, predictor_cx=0.5, predictor_mut=0.1,
                  predictor_ratio=0.1, predictor_update_freq=50,
                  trainer_pop_size=16, trainer_update_freq=50,
@@ -74,7 +75,8 @@ class CoevolutionIsland(object):
                                       self.solution_fitness_est,
                                       target_pop_size=solution_pop_size,
                                       cx_prob=solution_cx,
-                                      mut_prob=solution_mut)
+                                      mut_prob=solution_mut,
+                                      age_fitness=solution_age_fitness)
         # initialize fitness predictor island
         self.predictor_island = Island(predictor_manipulator,
                                        self.predictor_fitness,
@@ -189,9 +191,9 @@ class CoevolutionIsland(object):
             LOGGER.debug("updating trainer at location " + str(location))
         self.trainers[location] = s_best
 
-    def deterministic_crowding_step(self):
+    def generational_step(self):
         """
-        Deterministic crowding step for solution population, This function
+        generational step for solution population, This function
         takes the necessary steps for the other populations to maintain desired
         predictor/solution computation ratio
         """
@@ -209,7 +211,7 @@ class CoevolutionIsland(object):
                 for indv in self.predictor_island.pop:
                     indv.fit_set = False
             # do predictor step
-            self.predictor_island.deterministic_crowding_step()
+            self.predictor_island.generational_step()
             if self.verbose:
                 best_pred = self.predictor_island.best_indv()
                 LOGGER.debug("P> " + str(self.predictor_island.age) \
@@ -229,7 +231,7 @@ class CoevolutionIsland(object):
                 indv.fit_set = False
 
         # do step on solution island
-        self.solution_island.deterministic_crowding_step()
+        self.solution_island.generational_step()
         self.solution_island.update_pareto_front()
         if self.verbose:
             best_sol = self.solution_island.pareto_front[0]

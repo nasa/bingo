@@ -18,7 +18,7 @@ from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
 
 
 import logging
-logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
 def make_circle_data(data_size):
@@ -47,7 +47,7 @@ def make_norm_data(data_size):
 
 def make_1d_data(data_size, test_num):
     """makes test data for 1d standard symbolic regression"""
-    x = np.empty()
+    # x = np.empty()
     if test_num == 1:
         x = np.linspace(-2, 2, data_size, False)
         y = x * x + 0.5
@@ -109,10 +109,10 @@ def main(max_steps, epsilon, data_size):
 
         # standard regression
         # x_true, y_true = make_1d_data(data_size, 1)
-        # x_true, y_true = make_1d_data(data_size, 2)
+        x_true, y_true = make_1d_data(data_size, 2)
         # x_true, y_true = make_1d_data(data_size, 3)
         # x_true, y_true = make_1d_data(data_size, 4)
-        x_true, y_true = make_norm_data(data_size)
+        # x_true, y_true = make_norm_data(data_size)
 
         # constant regression
         # x_true, y_true = make_circle_data(data_size)
@@ -161,16 +161,17 @@ def main(max_steps, epsilon, data_size):
                                     solution_manipulator=sol_manip,
                                     predictor_manipulator=pred_manip,
                                     solution_pop_size=64,
-                                    fitness_metric=standard_regressor)
+                                    fitness_metric=standard_regressor,
+                                    solution_age_fitness=False)
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,
-                        step_increment=100,
+                        step_increment=1000,
                         #checkpoint_file='checkpt'
                        )
 
 
 if __name__ == "__main__":
 
-    MAX_STEPS = 500
+    MAX_STEPS = 5000
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
 

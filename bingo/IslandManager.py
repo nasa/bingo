@@ -22,6 +22,7 @@ from .Plotting import print_latex, print_pareto, print_1d_best_soln
 
 LOGGER = logging.getLogger(__name__)
 
+
 class IslandManager(object):
     """
     IslandManager is an abstract class used for making controllers of groups of
@@ -242,17 +243,20 @@ class ParallelIslandManager(IslandManager):
                 if self.comm_rank != 0:
                     if self.comm.iprobe(source=0, tag=0):
                         average_age = self.comm.recv(source=0, tag=0)
-                self.isle.deterministic_crowding_step()
+                self.isle.generational_step()
                 # print_pareto(isle.solution_island.pareto_front, "front.png")
         else:
             for _ in range(n_steps):
-                self.isle.deterministic_crowding_step()
+                self.isle.generational_step()
         t_1 = time.time()
         LOGGER.info("%2d >\tage: %d\ttime: %.1fs\tbest fitness: %s",
                     self.comm_rank,
                     self.isle.solution_island.age,
                     t_1 - t_0,
                     self.isle.solution_island.pareto_front[0].fitness)
+        LOGGER.info("%2d >\tbest indv: %s",
+                    self.comm_rank,
+                    self.isle.solution_island.pareto_front[0].latexstring())
 
         if non_block:
             # perform message cleanup before moving on
@@ -525,7 +529,7 @@ class SerialIslandManager(IslandManager):
         for i, isle in enumerate(self.isles):
             t_1 = time.time()
             for _ in range(n_steps):
-                isle.deterministic_crowding_step()
+                isle.generational_step()
             t_2 = time.time()
             LOGGER.info("%2d >\tage: %d\ttime: %.1fs\tbest fitness: %s",
                         i, isle.solution_island.age, t_2 - t_1,

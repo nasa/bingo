@@ -182,10 +182,12 @@ class Island(object):
         else:
             # remove current pareto indv who are dominated by others
             to_remove = []
-            for p_1 in self.pareto_front:
-                for p_2 in self.pareto_front:
-                    if self.dominate(p_1, p_2):
-                        to_remove.append(p_2)
+            for i, p_1 in enumerate(self.pareto_front):
+                for j, p_2 in enumerate(self.pareto_front):
+                    if i != j:
+                        if self.dominate(p_1, p_2):
+                            if not self.similar(p_1, p_2) or i < j:
+                                to_remove.append(p_2)
             to_remove = list(set(to_remove))
             while len(to_remove) > 0:
                 self.pareto_front.remove(to_remove.pop())

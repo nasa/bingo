@@ -346,7 +346,10 @@ class ParallelIslandManager(IslandManager):
 
         # test combined pareto front for convergence
         if self.comm_rank == 0:
-            par_list = par_list[0] + self.pareto_isle.dump_pareto()
+            tmp_par_list = self.pareto_isle.dump_pareto()
+            for par in par_list:
+                tmp_par_list += par
+            par_list = tmp_par_list
             self.pareto_isle.load_population(par_list)
             self.pareto_isle.update_pareto_front()
             converged = (self.pareto_isle.pareto_front[0].fitness[0] < epsilon)

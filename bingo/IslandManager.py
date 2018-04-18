@@ -254,9 +254,6 @@ class ParallelIslandManager(IslandManager):
                     self.isle.solution_island.age,
                     t_1 - t_0,
                     self.isle.solution_island.pareto_front[0].fitness)
-        LOGGER.info("%2d >\tbest indv: %s",
-                    self.comm_rank,
-                    self.isle.solution_island.pareto_front[0].latexstring())
 
         if non_block:
             # perform message cleanup before moving on

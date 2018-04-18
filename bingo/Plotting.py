@@ -34,6 +34,29 @@ def print_latex(pop, file_name):
     plt.close()
 
 
+def print_age_fitness(pop, file_name):
+    """
+    Prints the pareto front as a stair-step plot
+
+    :param pop: pareto population containing individuals with fitnesses
+    :param file_name: desired output file name
+    """
+    age_x = []
+    fitness_y = []
+    for indv in pop:
+        age_x.append(indv.genetic_age)
+        fitness_y.append(indv.fitness[0])
+
+    ax = plt.subplot(111)
+    ax.scatter(age_x, fitness_y)
+    ax.set_xlim(left=0)
+    # plt.gca().set_ylim(top=50)
+    # plt.gca().set_ylim(bottom=0)
+    ax.set_yscale("log")
+    pylab.savefig(file_name)
+    plt.close()
+
+
 def print_pareto(pop, file_name):
     """
     Prints the pareto front as a stair-step plot

@@ -158,12 +158,18 @@ class Island(object):
                     c_2 = self.gene_manipulator.mutation(c_2)
                     self.pop.append(c_2)
 
+        # add in one newly generated
+        self.pop.append(self.gene_manipulator.generate())
+
         # selection via age-fitness domination
         selection_attempts = 0
         while len(self.pop) > self.target_pop_size and \
               selection_attempts < start_pop_size * 50:
             # select random pairs
-            a, b = np.random.choice(len(self.pop), 2, replace=False)
+            a = np.random.randint(len(self.pop))
+            b = np.random.randint(len(self.pop))
+            while b == a:
+                b = np.random.randint(len(self.pop))
             # get fitnesses
             if self.pop[a].fit_set is False:
                 self.pop[a].fitness = self.fitness_function(self.pop[a])

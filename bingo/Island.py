@@ -166,35 +166,37 @@ class Island(object):
         while len(self.pop) > self.target_pop_size and \
               selection_attempts < start_pop_size * 50:
             # select random pairs
-            a = np.random.randint(len(self.pop))
-            b = np.random.randint(len(self.pop))
-            while b == a:
-                b = np.random.randint(len(self.pop))
+            indv_a = np.random.randint(len(self.pop))
+            indv_b = np.random.randint(len(self.pop))
+            while indv_b == indv_a:
+                indv_b = np.random.randint(len(self.pop))
             # get fitnesses
-            if self.pop[a].fit_set is False:
-                self.pop[a].fitness = self.fitness_function(self.pop[a])
-                self.pop[a].fit_set = True
+            if self.pop[indv_a].fit_set is False:
+                self.pop[indv_a].fitness = self.fitness_function(
+                    self.pop[indv_a])
+                self.pop[indv_a].fit_set = True
                 self.fitness_evals += 1
-            if self.pop[b].fit_set is False:
-                self.pop[b].fitness = self.fitness_function(self.pop[b])
-                self.pop[b].fit_set = True
+            if self.pop[indv_b].fit_set is False:
+                self.pop[indv_b].fitness = self.fitness_function(
+                    self.pop[indv_b])
+                self.pop[indv_b].fit_set = True
                 self.fitness_evals += 1
             # check for domination in age-fitness
-            if np.any(np.isnan(self.pop[a].fitness)):
-                    del self.pop[a]
-            elif np.any(np.isnan(self.pop[b].fitness)):
-                    del self.pop[b]
-            elif self.pop[a].genetic_age < self.pop[b].genetic_age:
-                if self.pop[a].fitness <= self.pop[b].fitness:
-                    del self.pop[b]
-            elif self.pop[a].genetic_age > self.pop[b].genetic_age:
-                if self.pop[b].fitness <= self.pop[a].fitness:
-                    del self.pop[a]
+            if np.any(np.isnan(self.pop[indv_a].fitness)):
+                del self.pop[indv_a]
+            elif np.any(np.isnan(self.pop[indv_b].fitness)):
+                del self.pop[indv_b]
+            elif self.pop[indv_a].genetic_age < self.pop[indv_b].genetic_age:
+                if self.pop[indv_a].fitness <= self.pop[indv_b].fitness:
+                    del self.pop[indv_b]
+            elif self.pop[indv_a].genetic_age > self.pop[indv_b].genetic_age:
+                if self.pop[indv_b].fitness <= self.pop[indv_a].fitness:
+                    del self.pop[indv_a]
             else:  # equal ages
-                if self.pop[a].fitness <= self.pop[b].fitness:
-                    del self.pop[b]
+                if self.pop[indv_a].fitness <= self.pop[indv_b].fitness:
+                    del self.pop[indv_b]
                 else:
-                    del self.pop[a]
+                    del self.pop[indv_a]
             selection_attempts += 1
 
         # LOGGER.debug("population zise: " + str(len(self.pop)) +

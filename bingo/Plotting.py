@@ -47,12 +47,12 @@ def print_age_fitness(pop, file_name):
         age_x.append(indv.genetic_age)
         fitness_y.append(indv.fitness[0])
 
-    ax = plt.subplot(111)
-    ax.scatter(age_x, fitness_y)
-    ax.set_xlim(left=0)
+    ax1 = plt.subplot(111)
+    ax1.scatter(age_x, fitness_y)
+    ax1.set_xlim(left=0)
     # plt.gca().set_ylim(top=50)
     # plt.gca().set_ylim(bottom=0)
-    ax.set_yscale("log")
+    ax1.set_yscale("log")
     pylab.savefig(file_name)
     plt.close()
 

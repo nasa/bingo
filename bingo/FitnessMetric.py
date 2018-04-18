@@ -74,6 +74,7 @@ class StandardRegression(FitnessMetric):
                             use calculated derivative (true) or numerical
                             derivatives (false)
         """
+        super().__init__()
         self.const_deriv = const_deriv
 
     def evaluate_fitness_vector(self, individual, training_data):
@@ -88,8 +89,8 @@ class StandardRegression(FitnessMetric):
 
         return (f_of_x - training_data.y).flatten()
 
-    def evaluate_fitness_vector_and_const_deriv(self, individual,
-                                                training_data):
+    def evaluate_fit_vec_w_const_deriv(self, individual,
+                                       training_data):
         """
         returns the fitness vector and its derivatove with respect any included
         constantsof an individual using a given set of training data
@@ -116,8 +117,8 @@ class StandardRegression(FitnessMetric):
             def const_opt_fitness(consts):
                 """ fitness function for constant optimization"""
                 individual.set_constants(consts)
-                fvec, dfvec_dc = self.evaluate_fitness_vector_and_const_deriv(
-                        individual, training_data)
+                fvec, dfvec_dc = self.evaluate_fit_vec_w_const_deriv(
+                    individual, training_data)
                 return fvec, dfvec_dc
 
             # do optimization
@@ -133,7 +134,7 @@ class StandardRegression(FitnessMetric):
 
             # do optimization
             sol = optimize.root(const_opt_fitness, c_0, method='lm')
-            
+
         # put optimal values in command list
         individual.set_constants(sol.x)
 
@@ -150,6 +151,7 @@ class ImplicitRegression(FitnessMetric):
         :param required_params: minimum number of nonzero components of dot
         :param normalize_dot: normalize the terms in the dot product
         """
+        super().__init__()
         self.required_params = required_params
         self.normalize_dot = normalize_dot
 
@@ -265,7 +267,7 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         n_params = training_data.x.shape[1]
         # print("----------------------------------")
         worst_fit = 0
-        diff_worst = np.full((x.shape[0], ), np.inf)
+        diff_worst = np.full((n_params, ), np.inf)
         for i in range(n_params):
             for j in range(n_params):
                 if i != j:

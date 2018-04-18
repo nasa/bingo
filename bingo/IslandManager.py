@@ -9,7 +9,6 @@ after one on a single processor
 import time
 import random
 import abc
-import copy
 import pickle
 import logging
 
@@ -300,14 +299,14 @@ class ParallelIslandManager(IslandManager):
                 # find which indvs to send/receive
                 s_send, partner_s_send = \
                     IslandManager.assign_send_receive(
-                            len(self.isle.solution_island.pop),
-                            partner_s_pop_size)
+                        len(self.isle.solution_island.pop),
+                        partner_s_pop_size)
                 p_send, partner_p_send = \
                     IslandManager.assign_send_receive(
-                            len(self.isle.predictor_island.pop),
-                            partner_p_pop_size)
+                        len(self.isle.predictor_island.pop),
+                        partner_p_pop_size)
                 t_send, partner_t_send = IslandManager.assign_send_receive(
-                        len(self.isle.trainers), partner_t_pop_size)
+                    len(self.isle.trainers), partner_t_pop_size)
                 LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
                              self.comm_rank,
                              my_partner,
@@ -407,7 +406,14 @@ class ParallelIslandManager(IslandManager):
         t_pop = self.comm.gather(t_pop, root=0)
         if self.comm_rank == 0:
             s_pop[0] = s_pop[0] + self.pareto_isle.dump_pareto()
-            temp_isle = copy.deepcopy(self.isle)
+            # temp_isle = copy.deepcopy(self.isle)
+            # ^ deep copy has problem with non serializable AGraph
+            # ^ shallow copy adds all the temp populations to the real islands
+            temp_isle = ci(self.isle.solution_training_data,
+                           self.isle.solution_island.gene_manipulator,
+                           self.isle.predictor_island.gene_manipulator,
+                           self.isle.fitness_metric,
+                           trainer_pop_size=1)
             temp_isle.load_populations((s_pop[0], p_pop[0], t_pop[0]))
 
             # find true pareto front
@@ -555,14 +561,14 @@ class SerialIslandManager(IslandManager):
 
             # figure out which individuals will be sent/received from partner 1
             s_to_2, s_to_1 = IslandManager.assign_send_receive(
-                    len(partner_1.solution_island.pop),
-                    len(partner_2.solution_island.pop))
+                len(partner_1.solution_island.pop),
+                len(partner_2.solution_island.pop))
             p_to_2, p_to_1 = IslandManager.assign_send_receive(
-                    len(partner_1.predictor_island.pop),
-                    len(partner_2.predictor_island.pop))
+                len(partner_1.predictor_island.pop),
+                len(partner_2.predictor_island.pop))
             t_to_2, t_to_1 = IslandManager.assign_send_receive(
-                    len(partner_1.trainers),
-                    len(partner_2.trainers))
+                len(partner_1.trainers),
+                len(partner_2.trainers))
             LOGGER.debug("Migration: %2d <-> %2d  mixing = %s",
                          partners[i*2],
                          partners[i*2+1],
@@ -646,7 +652,14 @@ class SerialIslandManager(IslandManager):
         s_pop = s_pop + self.pareto_isle.dump_population()
 
         # load them all into a temporary island
-        temp_isle = copy.deepcopy(self.isles[0])
+        # temp_isle = copy.deepcopy(self.isles[0])
+        # ^ deep copy has problem with non serializable AGraph
+        # ^ shallow copy adds all the temp populations to the real islands
+        temp_isle = ci(self.isles[0].solution_training_data,
+                       self.isles[0].solution_island.gene_manipulator,
+                       self.isles[0].predictor_island.gene_manipulator,
+                       self.isles[0].fitness_metric,
+                       trainer_pop_size=1)
         temp_isle.load_populations((s_pop, p_pop, t_pop))
         temp_isle.use_true_fitness()
         temp_isle.solution_island.update_pareto_front()

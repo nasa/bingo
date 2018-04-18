@@ -5,6 +5,7 @@ in parallel on multiple mpi processes)
 
 import math
 import random
+import logging
 from mpi4py import MPI
 import numpy as np
 
@@ -17,7 +18,6 @@ from bingo.FitnessMetric import ImplicitRegression, StandardRegression
 from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
 
 
-import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
@@ -47,7 +47,7 @@ def make_norm_data(data_size):
 
 def make_1d_data(data_size, test_num):
     """makes test data for 1d standard symbolic regression"""
-    # x = np.empty()
+    x = np.empty(0)
     if test_num == 1:
         x = np.linspace(-2, 2, data_size, False)
         y = x * x + 0.5
@@ -157,17 +157,14 @@ def main(max_steps, epsilon, data_size):
     standard_regressor = StandardRegression(const_deriv=True)
 
     # make and run island manager
-    islmngr = ParallelIslandManager(#restart_file='test.p',
-                                    solution_training_data=training_data,
+    islmngr = ParallelIslandManager(solution_training_data=training_data,
                                     solution_manipulator=sol_manip,
                                     predictor_manipulator=pred_manip,
                                     solution_pop_size=64,
                                     fitness_metric=standard_regressor,
                                     solution_age_fitness=True)
     islmngr.run_islands(max_steps, epsilon, min_steps=1000,
-                        step_increment=1000,
-                        #checkpoint_file='checkpt'
-                       )
+                        step_increment=1000)
 
 
 if __name__ == "__main__":

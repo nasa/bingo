@@ -43,15 +43,15 @@ def test_const_opt_agraph_explicit():
 
     # create gene with proper functional form
     sol = sol_manip.generate()
-    sol.command_list[0] = (AGNodes.Load_Const, (None,))
-    sol.command_list[1] = (AGNodes.Load_Const, (None,))
-    sol.command_list[2] = (AGNodes.Load_Const, (None,))
-    sol.command_list[3] = (AGNodes.Load_Const, (None,))
-    sol.command_list[4] = (AGNodes.Load_Const, (None,))
-    sol.command_list[5] = (AGNodes.Load_Const, (None,))
+    sol.command_list[0] = (AGNodes.LoadConst, (None,))
+    sol.command_list[1] = (AGNodes.LoadConst, (None,))
+    sol.command_list[2] = (AGNodes.LoadConst, (None,))
+    sol.command_list[3] = (AGNodes.LoadConst, (None,))
+    sol.command_list[4] = (AGNodes.LoadConst, (None,))
+    sol.command_list[5] = (AGNodes.LoadConst, (None,))
                
-    sol.command_list[6] = (AGNodes.Load_Data, (0,))
-    sol.command_list[7] = (AGNodes.Load_Data, (1,))
+    sol.command_list[6] = (AGNodes.LoadData, (0,))
+    sol.command_list[7] = (AGNodes.LoadData, (1,))
     sol.command_list[8] = (AGNodes.Multiply, (6, 6))
     sol.command_list[9] = (AGNodes.Multiply, (7, 7))
     sol.command_list[10] = (AGNodes.Multiply, (6, 7))
@@ -111,15 +111,15 @@ def test_const_opt_agraph_implicit():
 
     # create gene with proper functional form
     sol = sol_manip.generate()
-    sol.command_list[0] = (AGNodes.Load_Const, (None,))
-    sol.command_list[1] = (AGNodes.Load_Const, (None,))
-    sol.command_list[2] = (AGNodes.Load_Const, (None,))
-    sol.command_list[3] = (AGNodes.Load_Const, (None,))
-    sol.command_list[4] = (AGNodes.Load_Const, (None,))
-    sol.command_list[5] = (AGNodes.Load_Const, (None,))
+    sol.command_list[0] = (AGNodes.LoadConst, (None,))
+    sol.command_list[1] = (AGNodes.LoadConst, (None,))
+    sol.command_list[2] = (AGNodes.LoadConst, (None,))
+    sol.command_list[3] = (AGNodes.LoadConst, (None,))
+    sol.command_list[4] = (AGNodes.LoadConst, (None,))
+    sol.command_list[5] = (AGNodes.LoadConst, (None,))
               
-    sol.command_list[6] = (AGNodes.Load_Data, (0,))
-    sol.command_list[7] = (AGNodes.Load_Data, (1,))
+    sol.command_list[6] = (AGNodes.LoadData, (0,))
+    sol.command_list[7] = (AGNodes.LoadData, (1,))
     sol.command_list[8] = (AGNodes.Multiply, (6, 6))
     sol.command_list[9] = (AGNodes.Multiply, (7, 7))
     sol.command_list[10] = (AGNodes.Multiply, (6, 7))
@@ -135,7 +135,7 @@ def test_const_opt_agraph_implicit():
     sol.command_list[18] = (AGNodes.Add, (17, 13))
     sol.command_list[19] = (AGNodes.Add, (18, 14))
     sol.command_list[20] = (AGNodes.Add, (19, 15))
-    sol.command_list[21] = (AGNodes.Load_Data, (2,))
+    sol.command_list[21] = (AGNodes.LoadData, (2,))
     sol.command_list[22] = (AGNodes.Subtract, (20, 21))
     # print(sol.latexstring())
     sol.set_constants(consts)
@@ -255,23 +255,32 @@ def test_const_opt_agraphcpp_explicit():
     sol.command_array[19] = (2, 18, 14)
     sol.command_array[20] = (2, 19, 15)
     # print(sol.latexstring())
-    sol.set_constants(consts)
+    # sol.set_constants(consts)
 
     # create training data
     training_data = ExplicitTrainingData(x_true, y)
 
     # create fitness metric
-    explicit_regressor = StandardRegression(const_deriv=True)
+    explicit_regressor = StandardRegression()
+    explicit_regressor_w_deriv = StandardRegression(const_deriv=True)
 
     # fit the constants
     explicit_regressor.evaluate_fitness(sol, training_data)
+    c_fit_1 = sol.constants
+
+    # fit the constants ausing const derivatives
+    sol.set_constants([])
+    explicit_regressor_w_deriv.evaluate_fitness(sol, training_data)
+    c_fit_2 = sol.constants
 
     # make sure constants are close
-    c_fit = sol.constants
-    print("FITTED:    ", c_fit)
-    print("REL DIFF:  ", (consts-c_fit)/consts)
-    for tru, fit in zip(consts, c_fit):
-        assert np.abs(tru - fit) < 1e-8
+    print("FITTED:    ", c_fit_1)
+    print("REL DIFF:  ", (consts-c_fit_1)/consts)
+    print("FITTED W DERIV:    ", c_fit_2)
+    print("REL DIFF W DERIV:  ", (consts-c_fit_2)/consts)
+    for tru, fit1, fit2 in zip(consts, c_fit_1, c_fit_2):
+        assert np.abs(tru - fit1) < 1e-8
+        assert np.abs(tru - fit2) < 1e-8
 
 
 def test_const_opt_agraphcpp_implicit():

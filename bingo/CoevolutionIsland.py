@@ -305,7 +305,7 @@ class CoevolutionIsland(object):
             self.trainers_true_fitness = []
         for indv_list, t_fit in pop_lists[2]:
             self.trainers.append(
-                    self.solution_island.gene_manipulator.load(indv_list))
+                self.solution_island.gene_manipulator.load(indv_list))
             self.trainers_true_fitness.append(t_fit)
 
         self.best_predictor = self.predictor_island.best_indv().copy()

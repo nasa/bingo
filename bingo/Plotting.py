@@ -52,7 +52,7 @@ def print_pareto(pop, file_name):
     plt.close()
 
 
-def print_1d_best_soln(X, Y, eval_func, fitness_metric, file_name):
+def print_1d_best_soln(X, Y, eval_func, file_name):
     """
     Prints the solution of a 1-d problem y=f(x)
 
@@ -61,8 +61,7 @@ def print_1d_best_soln(X, Y, eval_func, fitness_metric, file_name):
     :param eval_func: evaluation function to get y_estimated as function of X
     :param file_name: desired output filename
     """
-    y_est = eval_func(eval_x=X, eval_y=Y, fitness_metric=fitness_metric,
-                      x=X, y=Y)
+    y_est = eval_func(X)
     plt.scatter(X.flatten(), Y.flatten(), c='blue', label='data')
     plt.plot(X.flatten(), y_est.flatten(), c='red', label='best_fit')
     plt.legend()

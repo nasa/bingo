@@ -363,15 +363,14 @@ class ParallelIslandManager(IslandManager):
             if make_plots:
                 print_latex(self.pareto_isle.pareto_front, "eq.png")
                 print_pareto(self.pareto_isle.pareto_front, "front.png")
-                # TODO fix this for refactor
-                # if self.isle.fitness_metric_args['x'].shape[1] == 1:
-                #     if 'y' in self.isle.fitness_metric_args:
-                #         print_1d_best_soln(
-                #             self.isle.fitness_metric_args['x'],
-                #             self.isle.fitness_metric_args['y'],
-                #             self.pareto_isle.pareto_front[0].evaluate,
-                #             self.isle.fitness_metric,
-                #             "comparison.png")
+                if hasattr(self.isle.solution_training_data, 'x') and \
+                   hasattr(self.isle.solution_training_data, 'y'):
+                    if self.isle.solution_training_data.x.shape[1] == 1:
+                        print_1d_best_soln(
+                            self.isle.solution_training_data.x,
+                            self.isle.solution_training_data.y,
+                            self.pareto_isle.pareto_front[0].evaluate,
+                            "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
                 o_file.write("%le\t" % (time.time() - self.start_time))
@@ -419,15 +418,14 @@ class ParallelIslandManager(IslandManager):
                 print_latex(temp_isle.solution_island.pareto_front, "eq.png")
                 print_pareto(temp_isle.solution_island.pareto_front,
                              "front.png")
-                # TODO fix this for refactor
-                # if self.isle.fitness_metric_args['x'].shape[1] == 1:
-                #     if 'y' in self.isle.fitness_metric_args:
-                #         print_1d_best_soln(
-                #             self.isle.fitness_metric_args['x'],
-                #             self.isle.fitness_metric_args['y'],
-                #             self.pareto_isle.pareto_front[0].evaluate,
-                #             self.isle.fitness_metric,
-                #             "comparison.png")
+                if hasattr(self.isle.solution_training_data, 'x') and \
+                   hasattr(self.isle.solution_training_data, 'y'):
+                    if self.isle.solution_training_data.x.shape[1] == 1:
+                        print_1d_best_soln(
+                            self.isle.solution_training_data.x,
+                            self.isle.solution_training_data.y,
+                            self.pareto_isle.pareto_front[0].evaluate,
+                            "comparison.png")
 
     def save_state(self, filename):
         """
@@ -596,14 +594,14 @@ class SerialIslandManager(IslandManager):
         if make_plots:
             print_latex(self.pareto_isle.pareto_front, "eq.png")
             print_pareto(self.pareto_isle.pareto_front, "front.png")
-            if self.isles[0].fitness_metric_args['x'].shape[1] == 1:
-                if 'y' in self.isles[0].fitness_metric_args:
+            if hasattr(self.isles[0].solution_training_data, 'x') and \
+               hasattr(self.isles[0].solution_training_data, 'y'):
+                if self.isles[0].solution_training_data.x.shape[1] == 1:
                     print_1d_best_soln(
-                        self.isles[0].fitness_metric_args['x'],
-                        self.isles[0].fitness_metric_args['y'],
-                        self.pareto_isle.pareto_front[0].evaluate,
-                        self.isles[0].fitness_metric,
-                        "comparison.png")
+                            self.isles[0].solution_training_data.x,
+                            self.isles[0].solution_training_data.y,
+                            self.pareto_isle.pareto_front[0].evaluate,
+                            "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("%d\t" % self.age)
             for par_indv in self.pareto_isle.pareto_front:
@@ -643,14 +641,14 @@ class SerialIslandManager(IslandManager):
         if make_plots:
             print_latex(temp_isle.solution_island.pareto_front, "eq.png")
             print_pareto(temp_isle.solution_island.pareto_front, "front.png")
-            if self.isles[0].fitness_metric_args['x'].shape[1] == 1:
-                if 'y' in self.isles[0].fitness_metric_args:
+            if hasattr(self.isles[0].solution_training_data, 'x') and \
+               hasattr(self.isles[0].solution_training_data, 'y'):
+                if self.isles[0].solution_training_data.x.shape[1] == 1:
                     print_1d_best_soln(
-                        self.isles[0].fitness_metric_args['x'],
-                        self.isles[0].fitness_metric_args['y'],
-                        self.pareto_isle.pareto_front[0].evaluate,
-                        self.isles[0].fitness_metric,
-                        "comparison.png")
+                            self.isles[0].solution_training_data.x,
+                            self.isles[0].solution_training_data.y,
+                            self.pareto_isle.pareto_front[0].evaluate,
+                            "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")
 

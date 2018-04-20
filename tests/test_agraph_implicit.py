@@ -177,9 +177,9 @@ def compare_ag_implicit(X, Y, operator, params):
 
     # make true equation
     equ = sol_manip.generate()
-    equ.command_list[0] = (AGNodes.Load_Data, (0,))
-    equ.command_list[1] = (AGNodes.Load_Data, (1,))
-    equ.command_list[2] = (AGNodes.Load_Data, (2,))
+    equ.command_list[0] = (AGNodes.LoadData, (0,))
+    equ.command_list[1] = (AGNodes.LoadData, (1,))
+    equ.command_list[2] = (AGNodes.LoadData, (2,))
     equ.command_list[3] = (operator, params)
     equ.command_list[-1] = (AGNodes.Subtract, (3, 2))
 

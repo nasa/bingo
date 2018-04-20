@@ -6,11 +6,15 @@ import numpy as np
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
+from bingo import AGraphCpp
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
-from bingo.FitnessMetric import StandardRegression, ImplicitRegression
+from bingo.FitnessMetric import ImplicitRegression, StandardRegression
+from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
 
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 def main(max_steps, epsilon, data_size, data_range, n_islands):
     """main regression function"""
@@ -55,23 +59,24 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
 
     # X=Xx
     # Y=Yx
-    # fitness_metric=StandardRegression
-    Y = None
-    fitness_metric=ImplicitRegression
+    # training_data = ExplicitTrainingData(X, Y)
+    # fitness_metric = StandardRegression()
+
+    training_data = ImplicitTrainingData(X)
+    fitness_metric = ImplicitRegression()
 
     # make solution manipulator
-
-    sol_manip = agm(X.shape[1], 16, nloads=2)
-    
-    sol_manip.add_node_type(AGNodes.Add)
-    sol_manip.add_node_type(AGNodes.Subtract)
-    sol_manip.add_node_type(AGNodes.Multiply)
-    sol_manip.add_node_type(AGNodes.Divide)
-    # sol_manip.add_node_type(AGNodes.Exp)
-    # sol_manip.add_node_type(AGNodes.Log)
-    # sol_manip.add_node_type(AGNodes.Sin)
-    # sol_manip.add_node_type(AGNodes.Cos)
-    sol_manip.add_node_type(AGNodes.Abs)
+    # sol_manip = agm(X.shape[1], 16, nloads=2)
+    #
+    # sol_manip.add_node_type(AGNodes.Add)
+    # sol_manip.add_node_type(AGNodes.Subtract)
+    # sol_manip.add_node_type(AGNodes.Multiply)
+    # sol_manip.add_node_type(AGNodes.Divide)
+    # # sol_manip.add_node_type(AGNodes.Exp)
+    # # sol_manip.add_node_type(AGNodes.Log)
+    # # sol_manip.add_node_type(AGNodes.Sin)
+    # # sol_manip.add_node_type(AGNodes.Cos)
+    # sol_manip.add_node_type(AGNodes.Abs)
 
     # # debugging
     # sol = sol_manip.generate()
@@ -85,23 +90,21 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     # sol.command_list[-1] = (AGNodes.Divide, (5, 6))
 
     # make solution manipulator
-    #sol_manip2 = AGraphCpp.AGraphCppManipulator(X.shape[1], 16, nloads=2)
-    #sol_manip2.add_node_type(2)  # +
-    #sol_manip2.add_node_type(3)  # -
-    #sol_manip2.add_node_type(4)  # *
-    #sol_manip2.add_node_type(5)  # /
+    sol_manip = AGraphCpp.AGraphCppManipulator(X.shape[1], 16, nloads=2)
+    sol_manip.add_node_type(2)  # +
+    sol_manip.add_node_type(3)  # -
+    sol_manip.add_node_type(4)  # *
+    sol_manip.add_node_type(5)  # /
 
     # make predictor manipulator
     pred_manip = fpm(32, X.shape[0])
 
     # make and run island manager
     islmngr = SerialIslandManager(n_islands,
-                                  data_x=X,
-                                  data_y=Y,
+                                  solution_training_data=training_data,
                                   solution_manipulator=sol_manip,
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=fitness_metric,
-                                  # required_params=3,
                                   )
     # print("--------------------------")
     # print("True fitness: %le" % islmngr.isles[0].solution_fitness_true(sol))
@@ -111,12 +114,12 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     islmngr.run_islands(max_steps, epsilon, step_increment=100)
     # islmngr.save_state('test.p')
     # islmngr.load_state('test.p')
-    islmngr.run_islands(max_steps, epsilon, step_increment=100)
+    #islmngr.run_islands(max_steps, epsilon, step_increment=100)
 
 
 if __name__ == "__main__":
 
-    MAX_STEPS = 2000
+    MAX_STEPS = 1000
     CONVERGENCE_EPSILON = 1.0e-8
     DATA_SIZE = 100
     DATA_RANGE = [-3, 3]

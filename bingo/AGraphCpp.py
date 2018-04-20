@@ -24,7 +24,6 @@ the current map is:
 import random
 import logging
 from bingocpp.build import bingocpp
-from scipy import optimize
 
 import numpy as np
 
@@ -131,6 +130,9 @@ class AGraphCppManipulator(object):
         child2.fitness = None
         child1.fit_set = False
         child2.fit_set = False
+        child_age = max(parent1.genetic_age, parent2.genetic_age)
+        child1.genetic_age = child_age
+        child2.genetic_age = child_age
         return child1, child2
 
     def mutation(self, indv):
@@ -149,7 +151,7 @@ class AGraphCppManipulator(object):
         # mutate operator (0.4) mutate params (0.4) prune branch (0.2)
         rand_val = np.random.random()
         # mutate operator
-        if  rand_val < 0.4 and mut_point > self.nloads:
+        if rand_val < 0.4 and mut_point > self.nloads:
             new_type_found = False
             while not new_type_found:
                 if np.random.random() < self.terminal_prob:
@@ -181,7 +183,8 @@ class AGraphCppManipulator(object):
             if orig_node_type > 1:  # operators only           # TODO hardcoded
                 pruned_param = random.choice((new_param1, new_param2))
                 for i in range(mut_point, len(indv.command_array)):
-                    if indv.command_array[i, 0] > 1 and mut_point in indv.command_array[i, 1:]:
+                    if indv.command_array[i, 0] > 1 and \
+                                    mut_point in indv.command_array[i, 1:]:
                         p_0 = indv.command_array[i][1]        # TODO hardcoded
                         p_1 = indv.command_array[i][2]
                         if p_0 == mut_point:
@@ -208,7 +211,8 @@ class AGraphCppManipulator(object):
 
         return dist
 
-    def dump(self, indv):
+    @staticmethod
+    def dump(indv):
         """
         Dumps an individual to a pickleable object
 
@@ -216,7 +220,7 @@ class AGraphCppManipulator(object):
         :return: the individual in a pickleable format
         """
 
-        return indv.command_array, indv.constants
+        return indv.command_array, indv.constants, indv.genetic_age
 
     def load(self, indv_list):
         """
@@ -228,6 +232,7 @@ class AGraphCppManipulator(object):
         indv = AGraphCpp()
         indv.command_array = indv_list[0]
         indv.constants = indv_list[1]
+        indv.genetic_age = indv_list[2]
 
         i = 0
         while i < indv.command_array.shape[0]:
@@ -314,6 +319,7 @@ class AGraphCpp(object):
     def __init__(self):
         self.command_array = np.empty([0, 3])
         self.constants = []
+        self.genetic_age = 0
         self.fitness = None
         self.fit_set = False
 
@@ -324,6 +330,7 @@ class AGraphCpp(object):
         dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
         dup.command_array = np.array(self.command_array)
+        dup.genetic_age = self.genetic_age
         return dup
 
     def needs_optimization(self):

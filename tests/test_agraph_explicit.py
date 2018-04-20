@@ -176,8 +176,8 @@ def compare_ag_explicit(X, Y, operator, params):
 
     # make true equation
     equ = sol_manip.generate()
-    equ.command_list[0] = (AGNodes.Load_Data, (0,))
-    equ.command_list[1] = (AGNodes.Load_Data, (1,))
+    equ.command_list[0] = (AGNodes.LoadData, (0,))
+    equ.command_list[1] = (AGNodes.LoadData, (1,))
     equ.command_list[-1] = (operator, params)
 
     # make predictor manipulator

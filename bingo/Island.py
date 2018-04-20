@@ -2,8 +2,12 @@
 This module contains the code for an island in an island-based GA optimization
 it is general enough to work on any representation/fitness
 """
+import logging
 import random
 import numpy as np
+
+LOGGER = logging.getLogger(__name__)
+
 
 class Island(object):
     """
@@ -11,7 +15,8 @@ class Island(object):
     """
 
     def __init__(self, gene_manipulator, fitness_function,
-                 pop_size=64, cx_prob=0.7, mut_prob=0.01):
+                 target_pop_size=64, cx_prob=0.7, mut_prob=0.01,
+                 age_fitness=False):
         """
         Initialization of island
 
@@ -20,13 +25,13 @@ class Island(object):
                                  operations of individuals in the island
         :param fitness_function: the function which describes fitnesses of
                                  individuals in the island
-        :param pop_size: number of individuals in the island
+        :param target_pop_size: targeted number of individuals in the island
         :param cx_prob: crossover probability
         :param mut_prob: mutation probability
         """
         self.gene_manipulator = gene_manipulator
         self.fitness_function = fitness_function
-        self.pop_size = pop_size
+        self.target_pop_size = target_pop_size
         self.mut_prob = mut_prob
         self.cx_prob = cx_prob
         self.pop = []
@@ -34,6 +39,10 @@ class Island(object):
         self.age = 0
         self.fitness_evals = 0
         self.pareto_front = []
+        if age_fitness:
+            self.generational_step = self.age_fitness_pareto_step
+        else:
+            self.generational_step = self.deterministic_crowding_step
 
     def generate_population(self):
         """
@@ -41,16 +50,18 @@ class Island(object):
         the island
         """
         self.pop = [self.gene_manipulator.generate()
-                    for _ in range(self.pop_size)]
+                    for _ in range(self.target_pop_size)]
 
     def deterministic_crowding_step(self):
         """
         Performs a deterministic crowding generational step
         """
         self.age += 1
+        for indv in self.pop:
+            indv.genetic_age += 1
         # randomly pair by shuffling
         random.shuffle(self.pop)
-        for i in range(self.pop_size//2):
+        for i in range(self.target_pop_size//2):
             p_1 = self.pop[i*2]
             p_2 = self.pop[i*2+1]
             # see if any events occur
@@ -67,7 +78,7 @@ class Island(object):
                 # do mutations
                 if do_mut1:
                     c_1 = self.gene_manipulator.mutation(c_1)
-                if do_mut1:
+                if do_mut2:
                     c_2 = self.gene_manipulator.mutation(c_2)
                 # calculate fitnesses
                 if p_1.fit_set is False:
@@ -106,6 +117,92 @@ class Island(object):
                             np.any(np.isnan(p_2.fitness)):
                         self.pop[i*2+1] = c_1
 
+    def age_fitness_pareto_step(self):
+        """
+        Performs a age-fitness pareto generational step
+        """
+        # increment age
+        self.age += 1
+        for indv in self.pop:
+            indv.genetic_age += 1
+
+        # random mating
+        # randomly pair by shuffling
+        random.shuffle(self.pop)
+        start_pop_size = len(self.pop)
+        for i in range(start_pop_size//2):
+            p_1 = self.pop[i*2]
+            p_2 = self.pop[i*2+1]
+            # see if any events occur
+            do_cx = random.random() <= self.cx_prob
+            do_mut1 = random.random() <= self.mut_prob
+            do_mut2 = random.random() <= self.mut_prob
+            # do crossover
+            if do_cx:
+                c_1, c_2 = self.gene_manipulator.crossover(p_1, p_2)
+                # with possible mutations
+                if do_mut1:
+                    c_1 = self.gene_manipulator.mutation(c_1)
+                if do_mut2:
+                    c_2 = self.gene_manipulator.mutation(c_2)
+                self.pop.append(c_1)
+                self.pop.append(c_2)
+            else:
+                # just do mutations
+                if do_mut1:
+                    c_1 = p_1.copy()
+                    c_1 = self.gene_manipulator.mutation(c_1)
+                    self.pop.append(c_1)
+                if do_mut2:
+                    c_2 = p_2.copy()
+                    c_2 = self.gene_manipulator.mutation(c_2)
+                    self.pop.append(c_2)
+
+        # add in one newly generated
+        self.pop.append(self.gene_manipulator.generate())
+
+        # selection via age-fitness domination
+        selection_attempts = 0
+        while len(self.pop) > self.target_pop_size and \
+              selection_attempts < start_pop_size * 50:
+            # select random pairs
+            indv_a = np.random.randint(len(self.pop))
+            indv_b = np.random.randint(len(self.pop))
+            while indv_b == indv_a:
+                indv_b = np.random.randint(len(self.pop))
+            # get fitnesses
+            if self.pop[indv_a].fit_set is False:
+                self.pop[indv_a].fitness = self.fitness_function(
+                    self.pop[indv_a])
+                self.pop[indv_a].fit_set = True
+                self.fitness_evals += 1
+            if self.pop[indv_b].fit_set is False:
+                self.pop[indv_b].fitness = self.fitness_function(
+                    self.pop[indv_b])
+                self.pop[indv_b].fit_set = True
+                self.fitness_evals += 1
+            # check for domination in age-fitness
+            if np.any(np.isnan(self.pop[indv_a].fitness)):
+                del self.pop[indv_a]
+            elif np.any(np.isnan(self.pop[indv_b].fitness)):
+                del self.pop[indv_b]
+            elif self.pop[indv_a].genetic_age < self.pop[indv_b].genetic_age:
+                if self.pop[indv_a].fitness <= self.pop[indv_b].fitness:
+                    del self.pop[indv_b]
+            elif self.pop[indv_a].genetic_age > self.pop[indv_b].genetic_age:
+                if self.pop[indv_b].fitness <= self.pop[indv_a].fitness:
+                    del self.pop[indv_a]
+            else:  # equal ages
+                if self.pop[indv_a].fitness <= self.pop[indv_b].fitness:
+                    del self.pop[indv_b]
+                else:
+                    del self.pop[indv_a]
+            selection_attempts += 1
+
+        # LOGGER.debug("population zise: " + str(len(self.pop)) +
+        #              "    target size: " + str(self.target_pop_size) +
+        #              "    attempts: " + str(selection_attempts))
+
     def best_indv(self):
         """
         Finds individual with best (lowest) fitness
@@ -113,12 +210,14 @@ class Island(object):
         :return: fitness of best individual
         """
         best = self.pop[0]
-        if best.fitness is None:
+        if best.fit_set is False:
             best.fitness = self.fitness_function(best)
+            best.fit_set = True
             self.fitness_evals += 1
         for indv in self.pop[1:]:
-            if indv.fitness is None:
+            if indv.fit_set is False:
                 indv.fitness = self.fitness_function(indv)
+                indv.fit_set = True
                 self.fitness_evals += 1
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
@@ -134,11 +233,13 @@ class Island(object):
         :param indv2: second individual with fitness member
         :return: Does indv1 dominate indv2 (boolean)
         """
-        if indv1.fitness is None:
+        if indv1.fit_set is False:
             indv1.fitness = self.fitness_function(indv1)
+            indv1.fit_set = True
             self.fitness_evals += 1
-        if indv2.fitness is None:
+        if indv2.fit_set is False:
             indv2.fitness = self.fitness_function(indv2)
+            indv2.fit_set = True
             self.fitness_evals += 1
         dominate = True
         for f_1, f_2 in zip(indv1.fitness, indv2.fitness):
@@ -154,11 +255,13 @@ class Island(object):
         :param indv2: second individual with fitness member
         :return: is indv1.fitness == indv2.fitness (boolean)
         """
-        if indv1.fitness is None:
+        if indv1.fit_set is False:
             indv1.fitness = self.fitness_function(indv1)
+            indv1.fit_set = True
             self.fitness_evals += 1
-        if indv2.fitness is None:
+        if indv2.fit_set is False:
             indv2.fitness = self.fitness_function(indv2)
+            indv2.fit_set = True
             self.fitness_evals += 1
         return indv1.fitness == indv2.fitness
 
@@ -223,21 +326,26 @@ class Island(object):
             # sort the updated front
             self.pareto_front.sort(key=lambda x: x.fitness)
 
-    def dump_population(self, subset=None):
+    def dump_population(self, subset=None, with_removal=False):
         """
         Dumps the population to a pickleable object
 
         :param subset: list of indices for the subset of the population which
-                       is dumped. A None value esults in all of the population
+                       is dumped. A None value results in all of the population
                        being dumped.
-        :return: population is list form
+        :param with_removal: boolean describing whether the elements should be
+                             removed from population after dumping
+        :return: population in list form
         """
         if subset is None:
-            subset = list(range(self.pop_size))
+            subset = list(range(self.target_pop_size))
         pop_list = []
         for i, indv in enumerate(self.pop):
             if i in subset:
                 pop_list.append(self.gene_manipulator.dump(indv))
+        if with_removal:
+            self.pop[:] = [indv for i, indv in enumerate(self.pop)
+                           if i not in subset]
         return pop_list
 
     def dump_pareto(self):
@@ -251,18 +359,18 @@ class Island(object):
             pop_list.append(self.gene_manipulator.dump(indv))
         return pop_list
 
-    def load_population(self, pop_list, subset=None):
+    def load_population(self, pop_list, replace=True):
         """
         loads population from a pickleable object
 
         :param pop_list: list of population which is loaded
-        :param subset: list of indices for the subset of the population which
-                       is loaded and replaced. A None value results in all of
-                       the population being loaded/replaced.
+        :param replace: default (True) value results in all of the population
+                        being loaded/replaced. False value means that the
+                        population in pop_list is appended to the current
+                        population
         """
-        if subset is None:
-            subset = list(range(len(pop_list)))
-            self.pop_size = len(pop_list)
-            self.pop = [None]*self.pop_size
-        for i, indv_list in zip(subset, pop_list):
-            self.pop[i] = self.gene_manipulator.load(indv_list)
+        if replace:
+            self.pop = []
+        for indv_list in pop_list:
+            self.pop.append(self.gene_manipulator.load(indv_list))
+        self.target_pop_size = len(self.pop)

@@ -5,7 +5,6 @@ acyclic graph (linear stack) in symbolic regression
 import abc
 import random
 import logging
-from scipy import optimize
 
 import numpy as np
 
@@ -46,10 +45,10 @@ class AGraphManipulator(object):
 
         self.namespace = {}
 
-        self.add_node_type(AGNodes.Load_Data)
+        self.add_node_type(AGNodes.LoadData)
         for _ in range(nvars-1):
             self.terminal_inds.append(0)
-        self.add_node_type(AGNodes.Load_Const)
+        self.add_node_type(AGNodes.LoadConst)
         self.namespace['np'] = np
 
     def add_node_type(self, node_type):
@@ -107,6 +106,9 @@ class AGraphManipulator(object):
         child2.fitness = None
         child1.fit_set = False
         child2.fit_set = False
+        child_age = max(parent1.genetic_age, parent2.genetic_age)
+        child1.genetic_age = child_age
+        child2.genetic_age = child_age
         return child1, child2
 
     def mutation(self, indv):
@@ -152,8 +154,7 @@ class AGraphManipulator(object):
         elif rand_val < 0.8:
             new_node_type = orig_node_type
             if orig_node_type.terminal:  # terminals
-                new_params = self.mutate_terminal_param(new_node_type,
-                                                        orig_params)
+                new_params = self.mutate_terminal_param(new_node_type)
             else:  # operators
                 new_params = self.rand_operator_params(new_node_type.arity,
                                                        mut_point)
@@ -209,7 +210,7 @@ class AGraphManipulator(object):
         for node, params in indv.command_list:
             ind = self.node_type_list.index(node)
             command_list.append((ind, params))
-        return command_list, indv.constants
+        return command_list, indv.constants, indv.genetic_age
 
     def load(self, indv_list):
         """
@@ -220,6 +221,7 @@ class AGraphManipulator(object):
         """
         indv = AGraph(self.namespace)
         indv.constants = indv_list[1]
+        indv.genetic_age = indv_list[2]
         for node_num, params in indv_list[0]:
             if node_num in range(len(self.node_type_list)):  # node
                 indv.command_list.append((self.node_type_list[node_num],
@@ -270,20 +272,20 @@ class AGraphManipulator(object):
 
         :return: terminal parameter
         """
-        if terminal is AGNodes.Load_Data:
+        if terminal is AGNodes.LoadData:
             param = np.random.randint(self.nvars)
         else:
             param = None
         return param,
 
-    def mutate_terminal_param(self, terminal, old_params):
+    def mutate_terminal_param(self, terminal):
         """
         Produces random terminal value, either input variable or float
         Mutates floats by getting random variation of old param
 
         :return: terminal parameter
         """
-        if terminal is AGNodes.Load_Data:
+        if terminal is AGNodes.LoadData:
             param = np.random.randint(self.nvars)
         else:
             param = None
@@ -311,6 +313,7 @@ class AGraph(object):
         self.compiled_deriv = False
         self.fitness = None
         self.fit_set = False
+        self.genetic_age = 0
         if namespace is not None:
             self.namespace = namespace.copy()
         else:
@@ -324,6 +327,7 @@ class AGraph(object):
         dup.fit_set = self.fit_set
         dup.constants = list(self.constants)
         dup.command_list = list(self.command_list)
+        dup.genetic_age = self.genetic_age
         return dup
 
     def compile(self):
@@ -361,7 +365,7 @@ class AGraph(object):
         util = self.utilized_commands()
         for i in range(len(self.command_list)):
             if util[i]:
-                if self.command_list[i][0] == AGNodes.Load_Const:
+                if self.command_list[i][0] == AGNodes.LoadConst:
                     if self.command_list[i][1][0] is None:
                         return True
                     elif self.command_list[i][1][0] >= len(self.constants):
@@ -376,7 +380,7 @@ class AGraph(object):
         const_num = 0
         for i, (node, _) in enumerate(self.command_list):
             if util[i]:
-                if node is AGNodes.Load_Const:
+                if node is AGNodes.LoadConst:
                     self.command_list[i] = (node, (const_num,))
                     const_num += 1
         return const_num
@@ -436,8 +440,9 @@ class AGraph(object):
                 str_list[i] = node.latexstring(params, str_list)
         indv_str = str_list[-1]
         if self.constants is not None:
-            for i, c in enumerate(self.constants):
-                indv_str = indv_str.replace("c_" + str(i), "{:.4f}".format(c))
+            for i, const in enumerate(self.constants):
+                indv_str = indv_str.replace("c_" + str(i),
+                                            "{:.4f}".format(const))
         return indv_str
 
     def utilized_commands(self):
@@ -490,7 +495,7 @@ class AGNodes(object):
             """creates a string for outputting latex"""
             pass
 
-    class Load_Data(Node):
+    class LoadData(Node):
         """load"""
         terminal = True
         shorthand_deriv = "deriv_x"
@@ -518,7 +523,7 @@ class AGNodes(object):
         def latexstring(params, str_list):
             return "x_%d" % params
 
-    class Load_Const(Node):
+    class LoadConst(Node):
         """load constant for optimization"""
         terminal = True
         shorthand_deriv = "deriv_c"

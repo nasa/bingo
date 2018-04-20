@@ -53,6 +53,7 @@ class CoevolutionIsland(object):
     def __init__(self, solution_training_data, solution_manipulator,
                  predictor_manipulator, fitness_metric,
                  solution_pop_size=64, solution_cx=0.7, solution_mut=0.01,
+                 solution_age_fitness=False,
                  predictor_pop_size=16, predictor_cx=0.5, predictor_mut=0.1,
                  predictor_ratio=0.1, predictor_update_freq=50,
                  trainer_pop_size=16, trainer_update_freq=50,
@@ -72,13 +73,14 @@ class CoevolutionIsland(object):
         # initialize solution island
         self.solution_island = Island(solution_manipulator,
                                       self.solution_fitness_est,
-                                      pop_size=solution_pop_size,
+                                      target_pop_size=solution_pop_size,
                                       cx_prob=solution_cx,
-                                      mut_prob=solution_mut)
+                                      mut_prob=solution_mut,
+                                      age_fitness=solution_age_fitness)
         # initialize fitness predictor island
         self.predictor_island = Island(predictor_manipulator,
                                        self.predictor_fitness,
-                                       pop_size=predictor_pop_size,
+                                       target_pop_size=predictor_pop_size,
                                        cx_prob=predictor_cx,
                                        mut_prob=predictor_mut)
         self.predictor_update_freq = predictor_update_freq
@@ -189,9 +191,9 @@ class CoevolutionIsland(object):
             LOGGER.debug("updating trainer at location " + str(location))
         self.trainers[location] = s_best
 
-    def deterministic_crowding_step(self):
+    def generational_step(self):
         """
-        Deterministic crowding step for solution population, This function
+        generational step for solution population, This function
         takes the necessary steps for the other populations to maintain desired
         predictor/solution computation ratio
         """
@@ -209,7 +211,7 @@ class CoevolutionIsland(object):
                 for indv in self.predictor_island.pop:
                     indv.fit_set = False
             # do predictor step
-            self.predictor_island.deterministic_crowding_step()
+            self.predictor_island.generational_step()
             if self.verbose:
                 best_pred = self.predictor_island.best_indv()
                 LOGGER.debug("P> " + str(self.predictor_island.age) \
@@ -229,7 +231,7 @@ class CoevolutionIsland(object):
                 indv.fit_set = False
 
         # do step on solution island
-        self.solution_island.deterministic_crowding_step()
+        self.solution_island.generational_step()
         self.solution_island.update_pareto_front()
         if self.verbose:
             best_sol = self.solution_island.pareto_front[0]
@@ -237,7 +239,8 @@ class CoevolutionIsland(object):
                          + " " + str(best_sol.fitness) \
                          + " " + str(best_sol.latexstring()))
 
-    def dump_populations(self, s_subset=None, p_subset=None, t_subset=None):
+    def dump_populations(self, s_subset=None, p_subset=None, t_subset=None,
+                         with_removal=False):
         """
         Dump the 3 populations to a pickleable object (tuple of lists)
 
@@ -250,13 +253,17 @@ class CoevolutionIsland(object):
         :param t_subset: list of indices for the subset of the trainer
                          population which is dumped. A None value results in
                          all of the population being dumped.
+        :param with_removal: boolean describing whether the elements should be
+                             removed from population after dumping
         :return: tuple of lists of populations
         """
         # dump solutions
-        solution_list = self.solution_island.dump_population(s_subset)
+        solution_list = self.solution_island.dump_population(s_subset,
+                                                             with_removal)
 
         # dump predictors
-        predictor_list = self.predictor_island.dump_population(p_subset)
+        predictor_list = self.predictor_island.dump_population(p_subset,
+                                                               with_removal)
 
         # dump trainers
         trainer_list = []
@@ -267,43 +274,39 @@ class CoevolutionIsland(object):
             if i in t_subset:
                 trainer_list.append(
                     (self.solution_island.gene_manipulator.dump(indv), tfit))
+        if with_removal:
+            self.trainers[:] = [indv for i, indv in enumerate(self.trainers)
+                                if i not in t_subset]
+            self.trainers_true_fitness[:] = \
+                [tfit for i, tfit in enumerate(self.trainers_true_fitness) if
+                 i not in t_subset]
 
         return solution_list, predictor_list, trainer_list
 
-    def load_populations(self, pop_lists, s_subset=None, p_subset=None,
-                         t_subset=None):
+    def load_populations(self, pop_lists, replace=True):
         """
         load 3 populations from pickleable object
 
         :param pop_lists: tuple of lists of the 3 populations
-        :param s_subset: list of indices for the subset of the solution
-                         population which is loaded and replaced. A None value
-                         results in all of the population being
-                         loaded/replaced.
-        :param p_subset: list of indices for the subset of the fitness
-                         predictor population which is loaded and replaced. A
-                         None value  results in all of the population being
-                         loaded/replaced.
-        :param t_subset: list of indices for the subset of the trainer
-                         population which is loaded and replaced. A None value
-                         results in  all of the population being
-                         loaded/replaced.
+        :param replace: default (True) value results in all of the population
+               being loaded/replaced. False value means that the
+               population in pop_list is appended to the current
+               population
         """
         # load solutions
-        self.solution_island.load_population(pop_lists[0], s_subset)
+        self.solution_island.load_population(pop_lists[0], replace)
 
         # load predictors
-        self.predictor_island.load_population(pop_lists[1], p_subset)
+        self.predictor_island.load_population(pop_lists[1], replace)
 
         # load trainers
-        if t_subset is None:
-            self.trainers = [None]*len(pop_lists[2])
-            self.trainers_true_fitness = [None]*len(pop_lists[2])
-            t_subset = list(range(len(pop_lists[2])))
-        for ind, (indv_list, t_fit) in zip(t_subset, pop_lists[2]):
-            self.trainers[ind] = \
-                self.solution_island.gene_manipulator.load(indv_list)
-            self.trainers_true_fitness[ind] = t_fit
+        if replace:
+            self.trainers = []
+            self.trainers_true_fitness = []
+        for indv_list, t_fit in pop_lists[2]:
+            self.trainers.append(
+                self.solution_island.gene_manipulator.load(indv_list))
+            self.trainers_true_fitness.append(t_fit)
 
         self.best_predictor = self.predictor_island.best_indv().copy()
 

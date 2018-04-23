@@ -142,7 +142,8 @@ class StandardRegression(FitnessMetric):
 class ImplicitRegression(FitnessMetric):
     """ Implicit Regression, version 2"""
 
-    def __init__(self, required_params=None, normalize_dot=False):
+    def __init__(self, required_params=None, normalize_dot=False,
+                 acceptable_nans=0.1):
         """
         Initialization
         Fitness of this metric is related cos of angle between between df_dx
@@ -154,6 +155,7 @@ class ImplicitRegression(FitnessMetric):
         super().__init__()
         self.required_params = required_params
         self.normalize_dot = normalize_dot
+        self.acceptable_finite_fraction = 1 - acceptable_nans
 
     def evaluate_fitness_vector(self, individual, training_data):
         """
@@ -196,9 +198,13 @@ class ImplicitRegression(FitnessMetric):
             self.optimize_constants(individual, training_data)
 
         fvec = self.evaluate_fitness_vector(individual, training_data)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=RuntimeWarning)
-            err = np.nanmean(np.abs(fvec))
+        finite_fraction = np.count_nonzero(np.isfinite(fvec))/fvec.shape[0]
+        if finite_fraction < self.acceptable_finite_fraction:
+            err = np.inf
+        else:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                err = np.nanmean(np.abs(fvec))
         return err
 
 

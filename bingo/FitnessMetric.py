@@ -181,7 +181,9 @@ class ImplicitRegression(FitnessMetric):
             if not enough_params_used:  # not enough parameters
                 return np.full((training_data.x.shape[0],), np.inf)
 
-        new = np.sum(dot, axis=1) / np.sum(np.abs(dot), axis=1)
+        denominator = np.sum(np.abs(dot), axis=1)
+        new = np.sum(dot, axis=1) / denominator
+        new[not np.isfinite(denominator)] = np.inf
         return new
 
     def evaluate_fitness(self, individual, training_data):

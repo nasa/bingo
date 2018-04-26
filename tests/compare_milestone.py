@@ -9,18 +9,22 @@ import math
 import time
 from mpi4py import MPI
 import numpy as np
+import logging 
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
-# from bingo import AGraphCpp
+from bingo import AGraphCpp
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
 from bingo.FitnessMetric import StandardRegression, ImplicitRegression
+from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
+from bingocpp.build import bingocpp
 
-agesB = list();
-timesB = list();
-agesN = list();
-timesN = list();
+agesN = list()
+agesF = list()
+timesN = list()
+timesF = list()
 
 def main(max_steps, epsilon, data_size):
     """main function which runs regression"""
@@ -39,7 +43,6 @@ def main(max_steps, epsilon, data_size):
         # make solution
         # y = (x[:, 0]+3.5*x[:, 1])
         y = (x[:,0]*x[:,0]+3.5*x[:,1])
-        # y = x[:, 0] + x[:, 2]
         x_true = x
         y_true = y
     else:
@@ -50,64 +53,109 @@ def main(max_steps, epsilon, data_size):
     y_true = MPI.COMM_WORLD.bcast(y_true, root=0)
 
     # make solution manipulator
-    sol_manip = agm(x_true.shape[1], 64, nloads=2)
-    sol_manip.add_node_type(AGNodes.Add)
-    sol_manip.add_node_type(AGNodes.Subtract)
-    sol_manip.add_node_type(AGNodes.Multiply)
-    sol_manip.add_node_type(AGNodes.Divide)
-    sol_manip.add_node_type(AGNodes.Exp)
-    sol_manip.add_node_type(AGNodes.Log)
-    sol_manip.add_node_type(AGNodes.Sin)
-    sol_manip.add_node_type(AGNodes.Cos)
-    sol_manip.add_node_type(AGNodes.Abs)
-    sol_manip.add_node_type(AGNodes.Sqrt)
+    # sol_manip = agm(x_true.shape[1], 64, nloads=2)
+    # sol_manip.add_node_type(AGNodes.Add)
+    # sol_manip.add_node_type(AGNodes.Subtract)
+    # sol_manip.add_node_type(AGNodes.Multiply)
+    # sol_manip.add_node_type(AGNodes.Divide)
+    # sol_manip.add_node_type(AGNodes.Exp)
+    # sol_manip.add_node_type(AGNodes.Log)
+    # sol_manip.add_node_type(AGNodes.Sin)
+    # sol_manip.add_node_type(AGNodes.Cos)
+    # sol_manip.add_node_type(AGNodes.Abs)
+    # sol_manip.add_node_type(AGNodes.Sqrt)
 
 
     # make solution manipulator
-    #sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 16, nloads=2)
-    #sol_manip2.add_node_type(2)  # +
-    #sol_manip2.add_node_type(3)  # -
-    #sol_manip2.add_node_type(4)  # *
-    #sol_manip.add_node_type(5)  # /
+    y_true = y_true.reshape(-1, 1)
+    sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 64, nloads=2)
+    # sol_manip2 = bingocpp.AcyclicGraphManipulator(x_true.shape[1], 64, nloads=2)
+    # sol_manip2 = bingocpp.AcyclicGraphManipulator(x_true.shape[1], 64, nloads=2, opt_rate=0)
+
+    # sol_manip.add_node_type(2)  # +
+    # sol_manip.add_node_type(3)  # -
+    # sol_manip.add_node_type(4)  # *
+    # sol_manip.add_node_type(5)  # /
+    # sol_manip.add_node_type(6)  # sin
+    # sol_manip.add_node_type(7)  # cos
+    # sol_manip.add_node_type(8)  # exp
+    # sol_manip.add_node_type(9)  # log
+    # # sol_manip.add_node_type(10)  # pow
+    # sol_manip.add_node_type(11)  # abs
+    # sol_manip.add_node_type(12)  # sqrt
+
+
+    sol_manip2.add_node_type(2)  # +
+    sol_manip2.add_node_type(3)  # -
+    sol_manip2.add_node_type(4)  # *
+    sol_manip2.add_node_type(5)  # /
+    sol_manip2.add_node_type(6)  # sin
+    sol_manip2.add_node_type(7)  # cos
+    sol_manip2.add_node_type(8)  # exp
+    sol_manip2.add_node_type(9)  # log
+    # sol_manip2.add_node_type(10)  # pow
+    sol_manip2.add_node_type(11)  # abs
+    sol_manip2.add_node_type(12)  # sqrt
 
     # make predictor manipulator
     pred_manip = fpm(128, data_size)
 
+    # make training data
+    training_data = ExplicitTrainingData(x_true, y_true)
+    training_data2 = bingocpp.ExplicitTrainingData(x_true, y_true)
+
+    # make fitness metric
+    explicit_regressor = StandardRegression(const_deriv=True)
+    explicit_regressor2 = bingocpp.StandardRegression()
+
+
     # make and run island manager
     islmngr = ParallelIslandManager(#restart_file='test.p',
-        data_x=x_true, data_y=y_true,
-        solution_manipulator=sol_manip,
+        solution_training_data=training_data,
+        solution_manipulator=sol_manip2,
         predictor_manipulator=pred_manip,
         solution_pop_size=64,
-        fitness_metric=StandardRegression)
+        fitness_metric=explicit_regressor)
 
-    islmngr2 = ParallelIslandManager(#restart_file='test.p',
-        data_x=x_true, data_y=y_true,
-        solution_manipulator=sol_manip,
-        predictor_manipulator=pred_manip,
-        solution_pop_size=64,
-        fitness_metric=StandardRegression)
+    # islmngr2 = ParallelIslandManager(#restart_file='test.p',
+    #     solution_training_data=training_data,
+    #     solution_manipulator=sol_manip,
+    #     predictor_manipulator=pred_manip,
+    #     solution_pop_size=64,
+    #     fitness_metric=explicit_regressor)
+
+
+    # islmngr = ParallelIslandManager(#restart_file='test.p',
+    #     data_x=x_true, data_y=y_true,
+    #     solution_manipulator=sol_manip,
+    #     predictor_manipulator=pred_manip,
+    #     solution_pop_size=64,
+    #     fitness_metric=StandardRegression)
+
+    # islmngr2 = ParallelIslandManager(#restart_file='test.p',
+    #     data_x=x_true, data_y=y_true,
+    #     solution_manipulator=sol_manip,
+    #     predictor_manipulator=pred_manip,
+    #     solution_pop_size=64,
+    #     fitness_metric=StandardRegression)
     non_one = time.time()
-    islmngr.run_islands(max_steps, epsilon, min_steps=1000,
-                        step_increment=1000, when_update=100)
+    islmngr.run_islands(max_steps, epsilon, min_steps=500,
+                        step_increment=500, when_update=50)
     non_two = time.time()
     non_time = non_two - non_one
-#    if rank == 0:
- #       print("Time:", non_time)
-
-    block_one = time.time()
-    # run island manager with blocking mpi
-    islmngr2.run_islands(max_steps, epsilon, min_steps=1000,
-                         step_increment=1000, non_block=False)
-    block_two = time.time()
-    block_time = block_two - block_one
- #   if rank == 0:
-  #      print("Non-blocking:", non_time)
-   #     print("Blocking:", block_time)
-    timesB.append(block_time)
+    
     timesN.append(non_time)
-    agesB.append(islmngr2.age)
     agesN.append(islmngr.age)
+
+    # fit_one = time.time()
+    # # run island manager with blocking mpi
+    # islmngr2.run_islands(max_steps, epsilon, min_steps=500,
+    #                      step_increment=500, when_update=50)
+    # fit_two = time.time()
+    # fit_time = fit_two - fit_one
+    
+    # timesF.append(fit_time)
+    # agesF.append(islmngr2.age)
 
 
 if __name__ == "__main__":
@@ -116,10 +164,22 @@ if __name__ == "__main__":
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
 
+    # if using c++
+    bingocpp.rand_init()
+
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+
     for x in range(0, 10):
+        # if rank == 0:
+        #     print("CYCLE:", x + 1)
         main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE)
-        print("CYCLE:", x + 1)
-    print("Blocking times:", timesB)
-    print("Non-blocking times:", timesN)
-    print("Blocking ages:", agesB)
-    print("Non-blocking ages:", agesN)
+    if rank == 0:
+        print("C++ agcpp times:", timesN)
+        print("C++ agcpp times avg:", np.mean(timesN))
+        print("C++ agcpp ages:", agesN)
+        print("C++ agcpp ages avg:", np.mean(agesN))
+        # print("Python times:", timesF)
+        # print("Python times avg:", np.mean(timesF))
+        # print("Python ages:", agesF)
+        # print("Python ages avg:", np.mean(agesF))

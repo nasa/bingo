@@ -12,6 +12,7 @@ from bingo.IslandManager import SerialIslandManager
 from bingo.Utils import snake_walk
 from bingo.FitnessMetric import ImplicitRegression, StandardRegression
 from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
+from bingocpp.build import bingocpp
 
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -62,8 +63,8 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     # training_data = ExplicitTrainingData(X, Y)
     # fitness_metric = StandardRegression()
 
-    training_data = ImplicitTrainingData(X)
-    fitness_metric = ImplicitRegression()
+    training_data = bingocpp.ImplicitTrainingData(X)
+    fitness_metric = bingocpp.ImplicitRegression()
 
     # make solution manipulator
     # sol_manip = agm(X.shape[1], 16, nloads=2)
@@ -90,7 +91,7 @@ def main(max_steps, epsilon, data_size, data_range, n_islands):
     # sol.command_list[-1] = (AGNodes.Divide, (5, 6))
 
     # make solution manipulator
-    sol_manip = AGraphCpp.AGraphCppManipulator(X.shape[1], 16, nloads=2)
+    sol_manip = bingocpp.AcyclicGraphManipulator(X.shape[1], 64, nloads=2)
     sol_manip.add_node_type(2)  # +
     sol_manip.add_node_type(3)  # -
     sol_manip.add_node_type(4)  # *
@@ -125,4 +126,6 @@ if __name__ == "__main__":
     DATA_RANGE = [-3, 3]
     N_ISLANDS = 2
 
+    bingocpp.rand_init()
+    
     main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE, DATA_RANGE, N_ISLANDS)

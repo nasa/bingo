@@ -26,7 +26,7 @@ def calculate_partials(X):
         # calculate time derivs using filter
         time_deriv = np.empty(x_seg.shape)
         for i in range(x_seg.shape[1]):
-            time_deriv[:, i] = savitzky_golay(x_seg[:, i], 7, 3, 1)
+            time_deriv[:, i] = savitzky_golay_gram(x_seg[:, i], 7, 3, 1)
         # remove edge effects
         time_deriv = time_deriv[3:-4, :]
         x_seg = x_seg[3:-4, :]
@@ -105,6 +105,111 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     lastvals = y[-1] + np.abs(y[-half_window - 1:-1][::-1] - y[-1])
     y = np.concatenate((firstvals, y, lastvals))
     return np.convolve(m[::-1], y, mode='valid')
+
+
+def savitzky_golay_gram(y, window_size, order, deriv=0):
+    """
+    Smooth (and optionally differentiate) data with a Savitzky-Golay filter
+    The Savitzky-Golay filter removes high frequency noise from data.
+    It has the advantage of preserving the original shape and
+    features of the signal better than other types of filtering
+    approaches, such as moving averages techniques.
+
+    The Savitzky-Golay is a type of low-pass filter, particularly
+    suited for smoothing noisy data. The main idea behind this
+    approach is to make for each point a least-square fit with a
+    polynomial of high order over a odd-sized window centered at
+    the point.
+
+    A Gram polynomial version of this is used to have better estimates near the
+    boundaries of the data.
+
+    .. [1] P.A. Gorry, General Least-Squares Smoothing and Differentiation by
+       the Convolution (Savitzky-Golay) Method. Analytical Chemistry, 1990, 62,
+       pp 570-573
+
+    :param y: array_like, shape (N,)
+        the values of the time history of the signal.
+    :param window_size: int
+        the length of the window. Must be an odd integer number.
+    :param order: int
+        the order of the polynomial used in the filtering.
+        Must be less then `window_size` - 1.
+    :param deriv: int
+        the order of the derivative to compute (default = 0 means only
+        smoothing)
+    :return: ys : ndarray, shape (N)
+            the smoothed signal (or it's n-th derivative).
+    """
+    n = order  # order
+    m = np.int((window_size - 1)/2)  # 2m + 1 = size of filter
+    s = deriv  # derivative order
+
+    def GenFact(a, b):
+        """Generalized factorial"""
+        g_f = 1
+        for j in range(a-b+1, a+1):
+            g_f *= j
+        return g_f
+
+    def GramPoly(gp_i, gp_m, gp_k, gp_s):
+        """
+        Calculates the Gram Polynomial (gp_s=0) or its gp_s'th derivative
+        evaluated at gp_i, order gp_k, over 2gp_m+1 points
+        """
+        if gp_k > 0:
+            gram_poly = (4. * gp_k - 2.) / (gp_k * (2. * gp_m - gp_k + 1.)) * \
+                        (gp_i * GramPoly(gp_i, gp_m, gp_k - 1, gp_s) + \
+                         gp_s * GramPoly(gp_i, gp_m, gp_k - 1, gp_s - 1)) - \
+                        ((gp_k - 1.) * (2. * gp_m + gp_k)) / \
+                        (gp_k * (2. * gp_m - gp_k + 1.)) * \
+                        GramPoly(gp_i, gp_m, gp_k - 2, gp_s)
+
+        else:
+            if gp_k == 0 and gp_s == 0:
+                gram_poly = 1.
+            else:
+                gram_poly = 0.
+        return gram_poly
+
+    def GramWeight(gw_i, gw_t, gw_m, gw_n, gw_s):
+        """
+        Calculate the weight og the gw_i'th data point for the gw_t'th
+        Least-Square point of the gw_s'th derivative over 2gw_m+1 points,
+        order gw_n
+        """
+        weight = 0
+        for k in range(gw_n + 1):
+            weight += (2. * k + 1.) * GenFact(2 * gw_m, k) / \
+                      GenFact(2 * gw_m + k + 1, k + 1) * \
+                      GramPoly(gw_i, gw_m, k, 0) * \
+                      GramPoly(gw_t, gw_m, k, gw_s)
+        return weight
+
+    # fill weights
+    weights = np.empty((2*m+1, 2*m+1))
+    for i in range(-m, m+1):
+        for t in range(-m, m+1):
+            weights[i + m, t + m] = GramWeight(i, t, m, n, s)
+
+    # do convolution
+    y_len = len(y)
+    f = np.empty(y_len)
+    for i in range(y_len):
+        if i < m:
+            y_center = m
+            w_ind = i
+        elif y_len - i <= m:
+            y_center = y_len - m - 1
+            w_ind = 2*m+1 - (y_len-i)
+        else:
+            y_center = i
+            w_ind = m
+        f[i] = 0
+        for k in range(-m, m+1):
+            f[i] += y[y_center + k] * weights[k + m, w_ind]
+
+    return f
 
 
 def snake_walk():

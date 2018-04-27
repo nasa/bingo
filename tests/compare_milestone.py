@@ -101,10 +101,12 @@ def main(max_steps, epsilon, data_size):
     pred_manip = fpm(128, data_size)
 
     # make training data
+    # training_data = ImplicitTrainingData(x_true)
     training_data = ExplicitTrainingData(x_true, y_true)
     training_data2 = bingocpp.ExplicitTrainingData(x_true, y_true)
 
     # make fitness metric
+    # explicit_regressor = ImplicitRegression()
     explicit_regressor = StandardRegression(const_deriv=True)
     explicit_regressor2 = bingocpp.StandardRegression()
 

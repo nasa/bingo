@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(message)s')
 from bingo.AGraph import AGraphManipulator as agm
 from bingo.AGraph import AGNodes
 from bingo import AGraphCpp
+from bingo.Utils import snake_walk
 from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
 from bingo.FitnessMetric import StandardRegression, ImplicitRegression
@@ -34,17 +35,22 @@ def main(max_steps, epsilon, data_size):
     # load data on rank 0
     if rank == 0:
         # make data
-        n_lin = int(math.pow(data_size, 1.0/3)) + 1
-        x_1 = np.linspace(0, 5, n_lin)
-        x_2 = np.linspace(0, 5, n_lin)
-        x_3 = np.linspace(0, 5, n_lin)
-        x = np.array(np.meshgrid(x_1, x_2, x_3)).T.reshape(-1, 3)
-        x = x[np.random.choice(x.shape[0], data_size, replace=False), :]
+        # n_lin = int(math.pow(data_size, 1.0/3)) + 1
+        # x_1 = np.linspace(0, 5, n_lin)
+        # x_2 = np.linspace(0, 5, n_lin)
+        # x_3 = np.linspace(0, 5, n_lin)
+        # x = np.array(np.meshgrid(x_1, x_2, x_3)).T.reshape(-1, 3)
+        # x = x[np.random.choice(x.shape[0], data_size, replace=False), :]
+
         # make solution
-        # y = (x[:, 0]+3.5*x[:, 1])
-        y = (x[:,0]*x[:,0]+3.5*x[:,1])
-        x_true = x
-        y_true = y
+        # y = (x[:,0]*x[:,0]+3.5*x[:,1])
+        # x_true = x
+        # y_true = y
+
+        x = snake_walk()
+        y = (x[:, 0] + x[:, 1])
+        x_true = np.hstack((x, y.reshape([-1, 1])))
+        y_true = None
     else:
         x_true = None
         y_true = None
@@ -67,9 +73,9 @@ def main(max_steps, epsilon, data_size):
 
 
     # make solution manipulator
-    y_true = y_true.reshape(-1, 1)
-    sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 64, nloads=2)
-    # sol_manip2 = bingocpp.AcyclicGraphManipulator(x_true.shape[1], 64, nloads=2)
+    # y_true = y_true.reshape(-1, 1)
+    # sol_manip2 = AGraphCpp.AGraphCppManipulator(x_true.shape[1], 64, nloads=2)
+    sol_manip2 = bingocpp.AcyclicGraphManipulator(x_true.shape[1], 64, nloads=2)
     # sol_manip2 = bingocpp.AcyclicGraphManipulator(x_true.shape[1], 64, nloads=2, opt_rate=0)
 
     # sol_manip.add_node_type(2)  # +
@@ -102,13 +108,15 @@ def main(max_steps, epsilon, data_size):
 
     # make training data
     # training_data = ImplicitTrainingData(x_true)
-    training_data = ExplicitTrainingData(x_true, y_true)
-    training_data2 = bingocpp.ExplicitTrainingData(x_true, y_true)
+    training_data = bingocpp.ImplicitTrainingData(x_true)
+    # training_data = ExplicitTrainingData(x_true, y_true)
+    # training_data2 = bingocpp.ExplicitTrainingData(x_true, y_true)
 
     # make fitness metric
-    # explicit_regressor = ImplicitRegression()
-    explicit_regressor = StandardRegression(const_deriv=True)
-    explicit_regressor2 = bingocpp.StandardRegression()
+    # implicit_regressor = ImplicitRegression()
+    implicit_regressor = bingocpp.ImplicitRegression()
+    # explicit_regressor = StandardRegression(const_deriv=True)
+    # explicit_regressor2 = bingocpp.StandardRegression()
 
 
     # make and run island manager
@@ -117,7 +125,8 @@ def main(max_steps, epsilon, data_size):
         solution_manipulator=sol_manip2,
         predictor_manipulator=pred_manip,
         solution_pop_size=64,
-        fitness_metric=explicit_regressor)
+        fitness_metric=implicit_regressor)
+        # fitness_metric=explicit_regressor)
 
     # islmngr2 = ParallelIslandManager(#restart_file='test.p',
     #     solution_training_data=training_data,

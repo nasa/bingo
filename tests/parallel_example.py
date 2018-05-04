@@ -16,6 +16,7 @@ from bingo.FitnessPredictor import FPManipulator as fpm
 from bingo.IslandManager import ParallelIslandManager
 from bingo.FitnessMetric import ImplicitRegression, StandardRegression
 from bingo.TrainingData import ExplicitTrainingData, ImplicitTrainingData
+from bingocpp.build import bingocpp
 
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -172,5 +173,7 @@ if __name__ == "__main__":
     MAX_STEPS = 2000
     CONVERGENCE_EPSILON = 0.001
     DATA_SIZE = 500
+
+    bingocpp.rand_init()
 
     main(MAX_STEPS, CONVERGENCE_EPSILON, DATA_SIZE)

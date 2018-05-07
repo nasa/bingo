@@ -744,7 +744,7 @@ class AGNodes(object):
 
     class Log(Node):
         """
-        log|x|
+        log(abs(x))
         derivative calculation needs: divide
         """
         arity = 1
@@ -770,7 +770,7 @@ class AGNodes(object):
 
     class Abs(Node):
         """
-        |x|
+        abs(x)
         derivative calculation needs: multiply
         """
         arity = 1

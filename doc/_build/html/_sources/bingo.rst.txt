@@ -68,6 +68,22 @@ bingo\.Plotting module
     :undoc-members:
     :show-inheritance:
 
+bingo\.SimpleGp module
+----------------------
+
+.. automodule:: bingo.SimpleGp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bingo\.TrainingData module
+--------------------------
+
+.. automodule:: bingo.TrainingData
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 bingo\.Utils module
 -------------------
 

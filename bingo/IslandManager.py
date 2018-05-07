@@ -154,15 +154,18 @@ class ParallelIslandManager(IslandManager):
     ParallelIslandManager is an implementation of the IslandManager class which
     uses mpi4py and message passing to coordinate the distribution of
     coevolution islands in parallel
-
+    
     developer notes:
-    MPI_Tag     Function
-    --------------------
-        0       average age sent from rank 0 (i.e., avg step limit exceeded)
-        2       age uptate sent to rank 0
-        4       migration communications
-        6       saving state
-        7       loading state
+
+    =======  ============================================================ 
+    MPI_Tag  Function   
+    =======  ============================================================  
+    0        average age sent from rank 0 (i.e., avg step limit exceeded)
+    2        age uptate sent to rank 0
+    4        migration communications
+    6        saving state
+    7        loading state
+    =======  ============================================================  
     """
 
     def __init__(self, restart_file=None, *args, **kwargs):

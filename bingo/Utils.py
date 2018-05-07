@@ -124,7 +124,7 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
     A Gram polynomial version of this is used to have better estimates near the
     boundaries of the data.
 
-    .. [1] P.A. Gorry, General Least-Squares Smoothing and Differentiation by
+    .. [3] P.A. Gorry, General Least-Squares Smoothing and Differentiation by
        the Convolution (Savitzky-Golay) Method. Analytical Chemistry, 1990, 62,
        pp 570-573
 

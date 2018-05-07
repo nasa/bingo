@@ -164,7 +164,7 @@ class ImplicitRegression(FitnessMetric):
 
         :param individual: an AGraph-like individual to be evaluated
         :param training_data: ImplicitTrainingData
-        :return fitness vector
+        :return: fitness vector
         """
         _, df_dx = individual.evaluate_deriv(x=training_data.x)
 

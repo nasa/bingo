@@ -3,6 +3,7 @@ This module contains the functions for general plotting purposes
 """
 import matplotlib.pyplot as plt
 import pylab
+import numpy as np
 
 
 def print_latex(pop, file_name):
@@ -88,5 +89,56 @@ def print_1d_best_soln(X, Y, eval_func, file_name):
     plt.scatter(X.flatten(), Y.flatten(), c='blue', label='data')
     plt.plot(X.flatten(), y_est.flatten(), c='red', label='best_fit')
     plt.legend()
+    pylab.savefig(file_name)
+    plt.close()
+
+
+def print_convergence_stats(ages, fitnesses, file_name, title=None,
+                            convergence=None):
+    """
+    Plots the convergence stats for a set of bingo simulations.  the input data
+    is in the format that is obtained by post processing a log.txt file.
+
+    :param ages: ages of simulations, 0's indicate converegence
+    :param fitnesses: fitnesses of each simulation at the corresponding age
+    :param file_name: name of image file to be saved
+    :param title: title to be shown at the top of the plot
+    :return:
+    """
+    _, ax1 = plt.subplots(figsize=(11, 8.5))
+    if title is not None:
+        ax1.set_title(title)
+    ax1.set_yscale("log", nonposx='clip')
+    width = 0.7*np.max(ages)/ages.shape[0]
+    ax1.boxplot(fitnesses.transpose(),
+                positions=np.max(ages, axis=1),
+                widths=width,
+                showmeans=True,
+                medianprops=dict(color='red', linewidth=2))
+    # ax1.violinplot(fitnesses.transpose(),
+    #                positions=np.max(ages, axis=1),
+    #                widths=width,
+    #                showmeans=True)
+    if convergence is not None:
+        ax1.plot([np.min(ages), np.max(ages)],
+                 [convergence, convergence],
+                 'm--')
+        ax1.set_ylabel('fitness (convergence = %e)' % convergence)
+    else:
+        ax1.set_ylabel('fitness')
+    ax1.set_xlabel('age')
+    nskip = int((ages.shape[0]+1)/10)
+    ax1.set_xticks(np.max(ages, axis=1)[nskip-1::nskip])
+    ax1.set_xticklabels(np.max(ages, axis=1)[nskip-1::nskip])
+
+    success = 1 - (np.count_nonzero(ages, axis=1))/ages.shape[1]
+    ax2 = ax1.twinx()
+    ax2.plot(np.max(ages, axis=1), 100*success, 'b')
+    ax2.set_ylabel('convergence (%%), %d repeats' % ages.shape[1], color='b')
+    ax2.tick_params('y', colors='b')
+    ax2.set_ylim(0, 100)
+    ax2.set_xlim(np.min(ages), np.max(ages))
+
+    plt.tight_layout()
     pylab.savefig(file_name)
     plt.close()

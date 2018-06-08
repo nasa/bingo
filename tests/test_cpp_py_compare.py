@@ -16,7 +16,8 @@ from bingocpp.build import bingocpp
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
-###################### UTILS ########################
+# ##################### UTILS ########################
+
 
 def test_savitzky_golay():
     print("-----test_savitzky_golay-----")
@@ -28,6 +29,7 @@ def test_savitzky_golay():
 
     assert py.all() == cpp.all()
 
+
 def test_calculate_partials():
     print("-----test_calculate_partials-----")
     X = np.array([[4, 0], [3, 1], [2, 2], [1, 3], [9, 3], [-3, 8], [-4, 9], [10, 3]])
@@ -38,7 +40,8 @@ def test_calculate_partials():
     assert x_all.all() == c_x.all()
     assert time_deriv_all.all() == c_time.all()
 
-###################### GRAPH_MANIP ########################
+# ##################### GRAPH_MANIP ########################
+
 
 def test_distance():
     print("-----test_distance-----")
@@ -60,11 +63,11 @@ def test_distance():
     c_manip.simplify_stack(c_1)
     c_manip.simplify_stack(c_2)
 
-
     py_dist = py_manip.distance(py_1, py_2)
     c_dist = c_manip.distance(c_1, c_2)
 
     assert py_dist == c_dist
+
 
 def test_needs_optimization():
     print("-----test_needs_optimization-----")
@@ -91,6 +94,7 @@ def test_needs_optimization():
 
     assert py_opt == c_opt
 
+
 def test_set_constants():
     print("-----test_set_constants-----")
     
@@ -114,6 +118,7 @@ def test_set_constants():
     c_1.set_constants(constants)
     
     assert py_1.constants.all() == c_1.constants.all()
+
 
 def test_count_constants():
     print("-----test_count_constants-----")
@@ -145,6 +150,7 @@ def test_count_constants():
     c_con = c_1.count_constants()
 
     assert py_con == c_con
+
 
 def test_agcpp_evaluate():
     print("-----test_agcpp_evaluate-----")
@@ -184,7 +190,8 @@ def test_agcpp_evaluate():
     py_fit = py_1.evaluate(x)
     c_fit = c_1.evaluate(x)
 
-    assert py_fit == pytest.approx(c_fit)
+    assert py_fit.all() == pytest.approx(c_fit.all())
+
 
 def test_agcpp_evaluate_deriv():
     print("-----test_agcpp_evaluate_deriv-----")
@@ -231,6 +238,7 @@ def test_agcpp_evaluate_deriv():
     assert py_fit_const[0].all() == pytest.approx(c_fit_const[0].all())
     assert py_fit_const[1].all() == pytest.approx(c_fit_const[1].all())
 
+
 def test_latexstring():
     print("-----test_latexstring-----")
     py_manip = AGraphCpp.AGraphCppManipulator(3, 64, nloads=2)
@@ -252,6 +260,7 @@ def test_latexstring():
 
     assert py_latex == c_latex
 
+
 def test_complexity():
     print("-----test_complexity-----")    
     py_manip = AGraphCpp.AGraphCppManipulator(3, 64, nloads=2)
@@ -272,6 +281,7 @@ def test_complexity():
     c_complexity = c_1.complexity()
 
     assert py_complexity == c_complexity
+
 
 def test_dump():
     print("-----test_dump-----")
@@ -306,6 +316,7 @@ def test_dump():
     assert py_con.all() == c_con.all()
     assert py_age == c_age
 
+
 def test_load():
     print("-----test_load-----")
     constants = np.array([1, 5, 6, 7, 8, 32, 54, 68])
@@ -329,7 +340,9 @@ def test_load():
     assert py_1.constants.all() == c_1.constants.all()
     assert py_1.genetic_age == c_1.genetic_age
 
-###################### TRAINING_DATA ########################
+
+# ##################### TRAINING_DATA ########################
+
 
 def test_explicit_get_item():
     print("-----test_explicit_get_item-----")
@@ -379,7 +392,9 @@ def test_implicit_get_item():
     assert py_result.x.all() == c_result.x.all()
     assert py_result.dx_dt.all() == c_result.dx_dt.all()
 
-###################### FITNESS_METRIC ########################
+
+# ##################### FITNESS_METRIC ########################
+
 
 def test_evaluate_explicit():
     print("-----test_evaluate_explicit-----")
@@ -417,6 +432,7 @@ def test_evaluate_explicit():
 
     assert py_fit == pytest.approx(c_fit)
 
+
 def test_evaluate_implicit():
     print("-----test_evaluate_implicit-----")
     x_t = snake_walk()
@@ -437,70 +453,70 @@ def test_evaluate_implicit():
     c_manip.add_node_type(3)
     c_manip.add_node_type(4)
 
-    temp = np.array([[ 1,  0,  0],
-                     [ 0,  0,  0],
-                     [ 0,  1,  1],
-                     [ 3,  2,  2],
-                     [ 4,  2,  3],
-                     [ 4,  4,  0],
-                     [ 3,  2,  0],
-                     [ 3,  0,  0],
-                     [ 3,  4,  2],
-                     [ 3,  1,  4],
-                     [ 2,  6,  0],
-                     [ 3,  8,  7],
-                     [ 2,  3, 11],
-                     [ 3,  7,  7],
-                     [ 3,  2,  7],
-                     [ 2,  9,  5],
-                     [ 4,  4, 14],
-                     [ 3,  9,  1],
-                     [ 3,  4,  5],
-                     [ 0,  1,  1],
-                     [ 4,  8,  4],
-                     [ 1, -1, -1],
-                     [ 3, 20,  5],
-                     [ 2,  9, 17],
-                     [ 1, -1, -1],
-                     [ 4, 23,  4],
-                     [ 4, 25, 19],
-                     [ 2, 26, 14],
-                     [ 4, 22, 10],
-                     [ 0,  0,  0],
-                     [ 2,  0, 17],
-                     [ 2, 29, 16],
-                     [ 4, 23, 14],
-                     [ 4,  3, 22],
-                     [ 0,  2,  2],
-                     [ 2, 31, 27],
-                     [ 2, 35, 28],
-                     [ 2, 25, 29],
-                     [ 2, 36, 28],
-                     [ 3,  8, 29],
-                     [ 3,  4, 24],
-                     [ 2, 14,  9],
-                     [ 4, 25,  9],
-                     [ 0,  2,  2],
-                     [ 3, 26, 10],
-                     [ 3, 12,  6],
-                     [ 0,  1,  1],
-                     [ 4, 42, 26],
-                     [ 3, 41,  6],
-                     [ 3, 13,  1],
-                     [ 3, 42, 36],
-                     [ 3, 15, 34],
-                     [ 2, 14, 23],
-                     [ 2, 13, 12],
-                     [ 0,  2,  2],
-                     [ 2, 28, 45],
-                     [ 3,  1, 12],
-                     [ 3, 15, 30],
-                     [ 3, 34, 38],
-                     [ 3, 43, 50],
-                     [ 2, 31,  9],
-                     [ 2, 54, 46],
-                     [ 1, -1, -1],
-                     [ 4, 60, 29]])
+    temp = np.array([[1,  0,  0],
+                     [0,  0,  0],
+                     [0,  1,  1],
+                     [3,  2,  2],
+                     [4,  2,  3],
+                     [4,  4,  0],
+                     [3,  2,  0],
+                     [3,  0,  0],
+                     [3,  4,  2],
+                     [3,  1,  4],
+                     [2,  6,  0],
+                     [3,  8,  7],
+                     [2,  3, 11],
+                     [3,  7,  7],
+                     [3,  2,  7],
+                     [2,  9,  5],
+                     [4,  4, 14],
+                     [3,  9,  1],
+                     [3,  4,  5],
+                     [0,  1,  1],
+                     [4,  8,  4],
+                     [1, -1, -1],
+                     [3, 20,  5],
+                     [2,  9, 17],
+                     [1, -1, -1],
+                     [4, 23,  4],
+                     [4, 25, 19],
+                     [2, 26, 14],
+                     [4, 22, 10],
+                     [0,  0,  0],
+                     [2,  0, 17],
+                     [2, 29, 16],
+                     [4, 23, 14],
+                     [4,  3, 22],
+                     [0,  2,  2],
+                     [2, 31, 27],
+                     [2, 35, 28],
+                     [2, 25, 29],
+                     [2, 36, 28],
+                     [3,  8, 29],
+                     [3,  4, 24],
+                     [2, 14,  9],
+                     [4, 25,  9],
+                     [0,  2,  2],
+                     [3, 26, 10],
+                     [3, 12,  6],
+                     [0,  1,  1],
+                     [4, 42, 26],
+                     [3, 41,  6],
+                     [3, 13,  1],
+                     [3, 42, 36],
+                     [3, 15, 34],
+                     [2, 14, 23],
+                     [2, 13, 12],
+                     [0,  2,  2],
+                     [2, 28, 45],
+                     [3,  1, 12],
+                     [3, 15, 30],
+                     [3, 34, 38],
+                     [3, 43, 50],
+                     [2, 31,  9],
+                     [2, 54, 46],
+                     [1, -1, -1],
+                     [4, 60, 29]])
 
     py_1 = py_manip.generate()
     c_1 = c_manip.generate()
@@ -515,6 +531,7 @@ def test_evaluate_implicit():
     assert py_training_data.dx_dt.all() == pytest.approx(c_training_data.dx_dt.all())
 
     assert py_fit == pytest.approx(c_fit)
+
 
 def test_evaluate_fitness_vector_implicit():
     print("-----test_evaluate_fitness_vector_implicit-----")
@@ -536,70 +553,70 @@ def test_evaluate_fitness_vector_implicit():
     c_manip.add_node_type(3)
     c_manip.add_node_type(4)
 
-    temp = np.array([[ 1,  0,  0],
-                     [ 0,  0,  0],
-                     [ 0,  1,  1],
-                     [ 3,  2,  2],
-                     [ 4,  2,  3],
-                     [ 4,  4,  0],
-                     [ 3,  2,  0],
-                     [ 3,  0,  0],
-                     [ 3,  4,  2],
-                     [ 3,  1,  4],
-                     [ 2,  6,  0],
-                     [ 3,  8,  7],
-                     [ 2,  3, 11],
-                     [ 3,  7,  7],
-                     [ 3,  2,  7],
-                     [ 2,  9,  5],
-                     [ 4,  4, 14],
-                     [ 3,  9,  1],
-                     [ 3,  4,  5],
-                     [ 0,  1,  1],
-                     [ 4,  8,  4],
-                     [ 1, -1, -1],
-                     [ 3, 20,  5],
-                     [ 2,  9, 17],
-                     [ 1, -1, -1],
-                     [ 4, 23,  4],
-                     [ 4, 25, 19],
-                     [ 2, 26, 14],
-                     [ 4, 22, 10],
-                     [ 0,  0,  0],
-                     [ 2,  0, 17],
-                     [ 2, 29, 16],
-                     [ 4, 23, 14],
-                     [ 4,  3, 22],
-                     [ 0,  2,  2],
-                     [ 2, 31, 27],
-                     [ 2, 35, 28],
-                     [ 2, 25, 29],
-                     [ 2, 36, 28],
-                     [ 3,  8, 29],
-                     [ 3,  4, 24],
-                     [ 2, 14,  9],
-                     [ 4, 25,  9],
-                     [ 0,  2,  2],
-                     [ 3, 26, 10],
-                     [ 3, 12,  6],
-                     [ 0,  1,  1],
-                     [ 4, 42, 26],
-                     [ 3, 41,  6],
-                     [ 3, 13,  1],
-                     [ 3, 42, 36],
-                     [ 3, 15, 34],
-                     [ 2, 14, 23],
-                     [ 2, 13, 12],
-                     [ 0,  2,  2],
-                     [ 2, 28, 45],
-                     [ 3,  1, 12],
-                     [ 3, 15, 30],
-                     [ 3, 34, 38],
-                     [ 3, 43, 50],
-                     [ 2, 31,  9],
-                     [ 2, 54, 46],
-                     [ 1, -1, -1],
-                     [ 4, 60, 29]])
+    temp = np.array([[1,  0,  0],
+                     [0,  0,  0],
+                     [0,  1,  1],
+                     [3,  2,  2],
+                     [4,  2,  3],
+                     [4,  4,  0],
+                     [3,  2,  0],
+                     [3,  0,  0],
+                     [3,  4,  2],
+                     [3,  1,  4],
+                     [2,  6,  0],
+                     [3,  8,  7],
+                     [2,  3, 11],
+                     [3,  7,  7],
+                     [3,  2,  7],
+                     [2,  9,  5],
+                     [4,  4, 14],
+                     [3,  9,  1],
+                     [3,  4,  5],
+                     [0,  1,  1],
+                     [4,  8,  4],
+                     [1, -1, -1],
+                     [3, 20,  5],
+                     [2,  9, 17],
+                     [1, -1, -1],
+                     [4, 23,  4],
+                     [4, 25, 19],
+                     [2, 26, 14],
+                     [4, 22, 10],
+                     [0,  0,  0],
+                     [2,  0, 17],
+                     [2, 29, 16],
+                     [4, 23, 14],
+                     [4,  3, 22],
+                     [0,  2,  2],
+                     [2, 31, 27],
+                     [2, 35, 28],
+                     [2, 25, 29],
+                     [2, 36, 28],
+                     [3,  8, 29],
+                     [3,  4, 24],
+                     [2, 14,  9],
+                     [4, 25,  9],
+                     [0,  2,  2],
+                     [3, 26, 10],
+                     [3, 12,  6],
+                     [0,  1,  1],
+                     [4, 42, 26],
+                     [3, 41,  6],
+                     [3, 13,  1],
+                     [3, 42, 36],
+                     [3, 15, 34],
+                     [2, 14, 23],
+                     [2, 13, 12],
+                     [0,  2,  2],
+                     [2, 28, 45],
+                     [3,  1, 12],
+                     [3, 15, 30],
+                     [3, 34, 38],
+                     [3, 43, 50],
+                     [2, 31,  9],
+                     [2, 54, 46],
+                     [1, -1, -1],
+                     [4, 60, 29]])
 
     py_1 = py_manip.generate()
     c_1 = c_manip.generate()

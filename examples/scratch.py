@@ -94,12 +94,12 @@ kwargs={}
 kwargs['x'] = x
 kwargs['y'] = y
 t0 = time.time()
-g.evaluate(StandardRegression, **kwargs)
+g.evaluate_equation_at(StandardRegression, **kwargs)
 t1 = time.time()
-gc.evaluate(StandardRegression, **kwargs)
+gc.evaluate_equation_at(StandardRegression, **kwargs)
 t2 = time.time()
-print(g.latexstring())
-print(gc.latexstring())
+print(g.get_latex_string())
+print(gc.get_latex_string())
 print("g evaluation time: ", t1-t0)
 print("gc evaluation time: ", t2-t1)
 print("speed up: ", (t1-t0)/(t2-t1))

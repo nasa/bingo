@@ -271,7 +271,7 @@ class ParallelIslandManager(IslandManager):
                 LOGGER.error(str(i.fitness))
             for indv in self.isle.solution_island.pareto_front:
                 LOGGER.error("pareto > %s  %s",
-                             str(indv.fitness), indv.latexstring())
+                             str(indv.fitness), indv.get_latex_string())
         self.age += n_steps
 
     def do_migration(self):
@@ -370,7 +370,7 @@ class ParallelIslandManager(IslandManager):
             LOGGER.info("current best true fitness: %s",
                         str(self.pareto_isle.pareto_front[0].fitness[0]))
             LOGGER.info("current best solution: %s",
-                        self.pareto_isle.pareto_front[0].latexstring())
+                        self.pareto_isle.pareto_front[0].get_latex_string())
             if make_plots:
                 print_latex(self.pareto_isle.pareto_front, "eq.png")
                 print_pareto(self.pareto_isle.pareto_front, "front.png")
@@ -380,7 +380,7 @@ class ParallelIslandManager(IslandManager):
                         print_1d_best_soln(
                             self.isle.solution_training_data.x,
                             self.isle.solution_training_data.y,
-                            self.pareto_isle.pareto_front[0].evaluate,
+                            self.pareto_isle.pareto_front[0].evaluate_equation_at,
                             "comparison.png")
             with open("log.txt", "a") as o_file:
                 o_file.write("%d\t" % self.age)
@@ -426,10 +426,10 @@ class ParallelIslandManager(IslandManager):
             for indv in temp_isle.solution_island.pareto_front:
                 LOGGER.info("pareto> %s  %s",
                             str(indv.fitness),
-                            indv.latexstring())
+                            indv.get_latex_string())
             LOGGER.info("BEST_SOLUTION> %s",
                         temp_isle.solution_island.pareto_front[0].
-                        latexstring())
+                        get_latex_string())
 
             # make plots
             if make_plots:
@@ -442,7 +442,7 @@ class ParallelIslandManager(IslandManager):
                         print_1d_best_soln(
                             self.isle.solution_training_data.x,
                             self.isle.solution_training_data.y,
-                            self.pareto_isle.pareto_front[0].evaluate,
+                            self.pareto_isle.pareto_front[0].evaluate_equation_at,
                             "comparison.png")
 
     def save_state(self, filename):
@@ -613,7 +613,7 @@ class SerialIslandManager(IslandManager):
         LOGGER.info("current best true fitness: %s",
                     str(self.pareto_isle.pareto_front[0].fitness[0]))
         LOGGER.info("best solution: %s",
-                    self.pareto_isle.pareto_front[0].latexstring())
+                    self.pareto_isle.pareto_front[0].get_latex_string())
 
         if make_plots:
             print_latex(self.pareto_isle.pareto_front, "eq.png")
@@ -624,7 +624,7 @@ class SerialIslandManager(IslandManager):
                     print_1d_best_soln(
                             self.isles[0].solution_training_data.x,
                             self.isles[0].solution_training_data.y,
-                            self.pareto_isle.pareto_front[0].evaluate,
+                            self.pareto_isle.pareto_front[0].evaluate_equation_at,
                             "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("%d\t" % self.age)
@@ -667,7 +667,7 @@ class SerialIslandManager(IslandManager):
         # output
         for indv in temp_isle.solution_island.pareto_front:
             LOGGER.info("pareto> " + str(indv.fitness) +\
-                        "  " + indv.latexstring())
+                        "  " + indv.get_latex_string())
 
         if make_plots:
             print_latex(temp_isle.solution_island.pareto_front, "eq.png")
@@ -678,7 +678,7 @@ class SerialIslandManager(IslandManager):
                     print_1d_best_soln(
                             self.isles[0].solution_training_data.x,
                             self.isles[0].solution_training_data.y,
-                            self.pareto_isle.pareto_front[0].evaluate,
+                            self.pareto_isle.pareto_front[0].evaluate_equation_at,
                             "comparison.png")
         with open("log.txt", "a") as o_file:
             o_file.write("\n\n")

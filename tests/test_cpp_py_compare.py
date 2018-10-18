@@ -89,8 +89,8 @@ def test_needs_optimization():
     c_1.stack = np.copy(py_1.command_array)
     c_manip.simplify_stack(c_1)
 
-    py_opt = py_1.needs_optimization()
-    c_opt = c_1.needs_optimization()
+    py_opt = py_1.needs_local_optimization()
+    c_opt = c_1.needs_local_optimization()
 
     assert py_opt == c_opt
 
@@ -114,8 +114,8 @@ def test_set_constants():
 
     constants = np.array([1, 5, 6, 7, 8, 32, 54, 68])
 
-    py_1.set_constants(constants)
-    c_1.set_constants(constants)
+    py_1.set_local_optimization_params(constants)
+    c_1.set_local_optimization_params(constants)
     
     assert py_1.constants.all() == c_1.constants.all()
 
@@ -143,11 +143,11 @@ def test_count_constants():
 
     constants = np.array([1, 5, 6, 7, 8, 32, 54, 68])
 
-    py_1.set_constants(constants)
-    c_1.set_constants(constants)
+    py_1.set_local_optimization_params(constants)
+    c_1.set_local_optimization_params(constants)
 
-    py_con = py_1.count_constants()
-    c_con = c_1.count_constants()
+    py_con = py_1.get_number_local_optimization_params()
+    c_con = c_1.get_number_local_optimization_params()
 
     assert py_con == c_con
 
@@ -184,11 +184,11 @@ def test_agcpp_evaluate():
 
     constants = np.array([1, 5, 6, 7, 8, 32, 54, 68])
 
-    py_1.set_constants(constants)
-    c_1.set_constants(constants)
+    py_1.set_local_optimization_params(constants)
+    c_1.set_local_optimization_params(constants)
 
-    py_fit = py_1.evaluate(x)
-    c_fit = c_1.evaluate(x)
+    py_fit = py_1.evaluate_equation_at(x)
+    c_fit = c_1.evaluate_equation_at(x)
 
     assert py_fit.all() == pytest.approx(c_fit.all())
 
@@ -225,13 +225,13 @@ def test_agcpp_evaluate_deriv():
 
     constants = np.array([1, 5, 6, 7, 8, 32, 54, 68])
 
-    py_1.set_constants(constants)
-    c_1.set_constants(constants)
+    py_1.set_local_optimization_params(constants)
+    c_1.set_local_optimization_params(constants)
 
-    py_fit = py_1.evaluate_deriv(x)
-    c_fit = c_1.evaluate_deriv(x)
-    py_fit_const = py_1.evaluate_with_const_deriv(x)
-    c_fit_const = c_1.evaluate_with_const_deriv(x)
+    py_fit = py_1.evaluate_equation_derivative_at(x)
+    c_fit = c_1.evaluate_equation_derivative_at(x)
+    py_fit_const = py_1.evaluate_equation_with_local_optimization_gradient_at(x)
+    c_fit_const = c_1.evaluate_equation_with_local_optimization_gradient_at(x)
 
     assert py_fit[0].all() == pytest.approx(c_fit[0].all())
     assert py_fit[1].all() == pytest.approx(c_fit[1].all())
@@ -255,8 +255,8 @@ def test_latexstring():
     c_1.stack = np.copy(py_1.command_array)
     c_manip.simplify_stack(c_1)
 
-    py_latex = py_1.latexstring()
-    c_latex = c_1.latexstring()
+    py_latex = py_1.get_latex_string()
+    c_latex = c_1.get_latex_string()
 
     assert py_latex == c_latex
 

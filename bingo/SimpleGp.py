@@ -102,7 +102,7 @@ class SimpleGp(object):
         """
         plt.plot(self.X[:, 0], self.Y, '.')
         for indv in self.islmngr.isles[0].solution_island.pop:
-            y_est = indv.evaluate(x=self.X)
+            y_est = indv.evaluate_equation_at(x=self.X)
             y_est = y_est*np.ones((self.X.shape[0], 1))
             plt.plot(self.X[:, 0], y_est[:, 0])
 
@@ -117,7 +117,7 @@ class SimpleGp(object):
         if x_eval is None:
             x_eval = self.X
         for indv in self.islmngr.isles[0].solution_island.pop:
-            y_est = indv.evaluate(x=x_eval)
+            y_est = indv.evaluate_equation_at(x=x_eval)
             y_est = y_est*np.ones((x_eval.shape[0], 1))
             data.append([x_eval[:, 0], y_est[:, 0], indv.fitness,
                          self.indv_string(indv)])
@@ -130,7 +130,7 @@ class SimpleGp(object):
         data = [go.Scatter(x=self.X[:, 0], y=self.Y, mode='markers',
                            name="raw data")]
         for indv in self.islmngr.isles[0].solution_island.pop:
-            y_est = indv.evaluate(x=self.X)
+            y_est = indv.evaluate_equation_at(x=self.X)
             y_est = y_est*np.ones((self.X.shape[0], 1))
             data.append(dict(type='scatter',
                              name=self.indv_string(indv),
@@ -152,7 +152,7 @@ class SimpleGp(object):
         :param indv: the individual to be converted to string representation
         :return: string of equation of individual
         """
-        indv_str = indv.latexstring()
+        indv_str = indv.get_latex_string()
         if indv.constants is not None:
             for i, const in enumerate(indv.constants):
                 indv_str = indv_str.replace("c_"+str(i),

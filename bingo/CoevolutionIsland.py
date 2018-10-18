@@ -119,9 +119,9 @@ class CoevolutionIsland(object):
                          + " " + str(best_pred))
             self.solution_island.update_pareto_front()
             best_sol = self.solution_island.pareto_front[0]
-            LOGGER.debug("S> " + str(self.solution_island.age)\
-                         + " " + str(best_sol.fitness)\
-                         + " " + str(best_sol.latexstring()))
+            LOGGER.debug("S> " + str(self.solution_island.age) \
+                         + " " + str(best_sol.fitness) \
+                         + " " + str(best_sol.get_latex_string()))
 
     def solution_fitness_est(self, solution):
         """
@@ -237,7 +237,7 @@ class CoevolutionIsland(object):
             best_sol = self.solution_island.pareto_front[0]
             LOGGER.debug("S> " + str(self.solution_island.age) \
                          + " " + str(best_sol.fitness) \
-                         + " " + str(best_sol.latexstring()))
+                         + " " + str(best_sol.get_latex_string()))
 
     def dump_populations(self, s_subset=None, p_subset=None, t_subset=None,
                          with_removal=False):
@@ -318,7 +318,7 @@ class CoevolutionIsland(object):
                                   self.trainers,
                                   self.trainers_true_fitness):
             LOGGER.debug("T> " + str(i) + " " + str(tfit) + " " + \
-                         train.latexstring())
+                         train.get_latex_string())
 
     def use_true_fitness(self):
         """

@@ -20,7 +20,7 @@ def print_latex(pop, file_name):
     plt.plot()
 
     for i, indv in enumerate(pop):
-        plt.text(0.32, i, "$%s$" % indv.latexstring())
+        plt.text(0.32, i, "$%s$" % indv.get_latex_string())
         plt.text(0.02, i,
                  "${0:.3e}$        ${1:.2f}$".format(*indv.fitness))
 

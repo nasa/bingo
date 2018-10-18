@@ -146,11 +146,11 @@ if comm_rank == 0:
     isle.solution_island.update_pareto_front()
 
     for indv in isle.solution_island.pareto_front:
-        print("pareto>", indv.fitness, indv.latexstring())
+        print("pareto>", indv.fitness, indv.get_latex_string())
     print_latex(isle.solution_island.pareto_front, "eq.tif")
     print_pareto(isle.solution_island.pareto_front, "front.tif")
     print_1d_best_soln(X, Y,
-                       isle.solution_island.pareto_front[0].evaluate,
+                       isle.solution_island.pareto_front[0].evaluate_equation_at,
                        "comparison.tif")
 
 

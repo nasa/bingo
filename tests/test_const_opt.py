@@ -68,7 +68,7 @@ def test_const_opt_agraph_explicit():
     sol.command_list[19] = (AGNodes.Add, (18, 14))
     sol.command_list[20] = (AGNodes.Add, (19, 15))
     # print(sol.latexstring())
-    sol.set_constants(consts)
+    sol.set_local_optimization_params(consts)
 
     # create training data
     y = y.reshape([-1, 1])
@@ -138,7 +138,7 @@ def test_const_opt_agraph_implicit():
     sol.command_list[21] = (AGNodes.LoadData, (2,))
     sol.command_list[22] = (AGNodes.Subtract, (20, 21))
     # print(sol.latexstring())
-    sol.set_constants(consts)
+    sol.set_local_optimization_params(consts)
 
     # create training data
     training_data = ImplicitTrainingData(x_true)
@@ -269,7 +269,7 @@ def test_const_opt_agraphcpp_explicit():
     c_fit_1 = sol.constants
 
     # fit the constants ausing const derivatives
-    sol.set_constants([])
+    sol.set_local_optimization_params([])
     explicit_regressor_w_deriv.evaluate_fitness(sol, training_data)
     c_fit_2 = sol.constants
 

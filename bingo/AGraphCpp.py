@@ -143,7 +143,7 @@ class AGraphCppManipulator(object):
         :return: mutated individual (not a new copy)
         """
         # pick mutation point within currently utilized commands
-        util = indv.utilized_commands()
+        util = indv._get_utilized_commands()
         loc = np.random.randint(sum(util))
         mut_point = [n for n, x in enumerate(util) if x][loc]
         orig_node_type, new_param1, new_param2 = indv.command_array[mut_point]

@@ -24,7 +24,7 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
         :return fitness of the individual
         """
         # do optimization if necessary
-        if individual.needs_optimization():
+        if individual.needs_local_optimization():
             self.optimize_constants(individual, training_data)
 
         fvec = self.evaluate_fitness_vector(individual, training_data)
@@ -47,13 +47,13 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
         :param individual: a gene to be evaluated
         :param training_data: the data used by the fitness metric
         """
-        num_constants = individual.count_constants()
+        num_constants = individual.get_number_local_optimization_params()
         c_0 = np.random.uniform(-100, 100, num_constants)
 
         # define fitness function for optimization
         def const_opt_fitness(consts):
             """ fitness function for constant optimization"""
-            individual.set_constants(consts)
+            individual.set_local_optimization_params(consts)
             fvec = self.evaluate_fitness_vector(individual, training_data)
             return fvec
 
@@ -61,7 +61,7 @@ class FitnessMetric(object, metaclass=abc.ABCMeta):
         sol = optimize.root(const_opt_fitness, c_0, method='lm')
 
         # put optimal values in command list
-        individual.set_constants(sol.x)
+        individual.set_local_optimization_params(sol.x)
 
 
 class StandardRegression(FitnessMetric):
@@ -85,7 +85,7 @@ class StandardRegression(FitnessMetric):
         :param training_data: ExplicitTrainingData
         :return fitness vector
         """
-        f_of_x = individual.evaluate(training_data.x)
+        f_of_x = individual.evaluate_equation_at(training_data.x)
 
         return (f_of_x - training_data.y).flatten()
 
@@ -99,7 +99,7 @@ class StandardRegression(FitnessMetric):
         :return: fitness vector, dfitness/dconstants array
         """
 
-        f_of_x, df_dc = individual.evaluate_with_const_deriv(training_data.x)
+        f_of_x, df_dc = individual.evaluate_equation_with_local_optimization_gradient_at(training_data.x)
 
         return (f_of_x - training_data.y).flatten(), df_dc
 
@@ -109,14 +109,14 @@ class StandardRegression(FitnessMetric):
         :param individual: a gene to be evaluated
         :param training_data: the data used by the fitness metric
         """
-        num_constants = individual.count_constants()
+        num_constants = individual.get_number_local_optimization_params()
         c_0 = np.random.uniform(-100, 100, num_constants)
 
         if self.const_deriv:
             # define fitness function for optimization
             def const_opt_fitness(consts):
                 """ fitness function for constant optimization"""
-                individual.set_constants(consts)
+                individual.set_local_optimization_params(consts)
                 fvec, dfvec_dc = self.evaluate_fit_vec_w_const_deriv(
                     individual, training_data)
                 return fvec, dfvec_dc
@@ -128,7 +128,7 @@ class StandardRegression(FitnessMetric):
             # define fitness function for optimization
             def const_opt_fitness(consts):
                 """ fitness function for constant optimization"""
-                individual.set_constants(consts)
+                individual.set_local_optimization_params(consts)
                 fvec = self.evaluate_fitness_vector(individual, training_data)
                 return fvec
 
@@ -136,7 +136,7 @@ class StandardRegression(FitnessMetric):
             sol = optimize.root(const_opt_fitness, c_0, method='lm')
 
         # put optimal values in command list
-        individual.set_constants(sol.x)
+        individual.set_local_optimization_params(sol.x)
 
 
 class ImplicitRegression(FitnessMetric):
@@ -166,7 +166,7 @@ class ImplicitRegression(FitnessMetric):
         :param training_data: ImplicitTrainingData
         :return: fitness vector
         """
-        _, df_dx = individual.evaluate_deriv(x=training_data.x)
+        _, df_dx = individual.evaluate_equation_derivative_at(x=training_data.x)
 
         if self.normalize_dot:
             dot = (df_dx / np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
@@ -196,7 +196,7 @@ class ImplicitRegression(FitnessMetric):
         :return: the mean of the fitness vector, ignoring nans
         """
         # do optimization if necessary
-        if individual.needs_optimization():
+        if individual.needs_local_optimization():
             self.optimize_constants(individual, training_data)
 
         fvec = self.evaluate_fitness_vector(individual, training_data)
@@ -270,7 +270,7 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         # NOTE: this doesnt work well right now
         #       importantly, it couldn't reproduce the papers
 
-        _, df_dx = individual.evaluate_deriv(x=training_data.x)
+        _, df_dx = individual.evaluate_equation_derivative_at(x=training_data.x)
 
         n_params = training_data.x.shape[1]
         # print("----------------------------------")
@@ -322,7 +322,7 @@ class PairwiseAtomicPotential(FitnessMetric):
 
         :return: the fitness for each row
         """
-        pair_energies = individual.evaluate(training_data.r).flatten()
+        pair_energies = individual.evaluate_equation_at(training_data.r).flatten()
 
         err_vec = []
         for i, energy_true in enumerate(training_data.potential_energy):

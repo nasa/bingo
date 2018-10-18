@@ -414,7 +414,7 @@ def compare_cpp_agcpp_implicit(X, Y, operator, params):
                                   predictor_manipulator=pred_manip,
                                   fitness_metric=explicit_regressor)
     epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
-    print("EPSILON IS - ", epsilon, equ.latexstring())
+    print("EPSILON IS - ", epsilon, equ.get_latex_string())
     converged =  islmngr.run_islands(MAX_STEPS, epsilon, step_increment=N_STEPS, 
                                      make_plots=False)
     
@@ -426,7 +426,7 @@ def compare_cpp_agcpp_implicit(X, Y, operator, params):
                                       predictor_manipulator=pred_manip,
                                       fitness_metric=explicit_regressor)
         epsilon = 1.05 * islmngr.isles[0].solution_fitness_true(equ) + 1.0e-10
-        print("EPSILON IS - ", epsilon, equ.latexstring())
+        print("EPSILON IS - ", epsilon, equ.get_latex_string())
         converged =  islmngr.run_islands(MAX_STEPS, epsilon, 
                                          step_increment=N_STEPS, 
                                          make_plots=False)

@@ -1,6 +1,6 @@
 import numpy as np
 
-from . import AGraphBackendOperators as Operators
+from bingo.AGraph import BackendOperators as Operators
 
 
 def simplify_and_evaluate(stack, x, constants):

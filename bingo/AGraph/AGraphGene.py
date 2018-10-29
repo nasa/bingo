@@ -21,11 +21,11 @@ the current map is:
 11: abs
 12: sqrt
 """
-import sys
 import logging
+
 import numpy as np
 
-from .GeneticRepresentation import EquationRepresentation
+from ..GeneticRepresentation import EquationRepresentation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,8 +35,7 @@ LOGGER = logging.getLogger(__name__)
 # except ImportError:
 #     from . import AGraphBackend as Backend
 
-from . import AGraphBackend as Backend
-
+from . import Backend as Backend
 
 STACK_PRINT_MAP = {2: "({}) + ({})",
                    3: "({}) - ({})",
@@ -75,7 +74,7 @@ CONSOLE_PRINT_MAP = {2: "{} + {}",
                      12: "sqrt({})"}
 
 
-class AGraph(EquationRepresentation):
+class AGraphGene(EquationRepresentation):
     """
     Acyclic Graph representation of an equation
     """

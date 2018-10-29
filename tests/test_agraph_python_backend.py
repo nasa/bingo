@@ -1,10 +1,12 @@
 import sys
 from collections import namedtuple
-import pytest
+
 import numpy as np
+import pytest
+
 sys.path.append("..")
 
-from bingo import AGraphBackend as Backend
+from bingo.AGraph import Backend as Backend
 
 
 @pytest.fixture

@@ -1,7 +1,7 @@
 import sys
 import pytest
 import numpy as np
-sys.path.append("..")
+sys.path.append("../..")
 
 from bingo.AGraph.AGraphGene import AGraphGene
 
@@ -91,14 +91,6 @@ def test_agraph_stack_print(sample_agraph):
                    "(3) <= sin (0)\n" +\
                    "(4) <= (3) + (1)\n"
     assert sample_agraph.__str__() == expected_str
-
-
-@pytest.mark.parametrize("agraph,util_array", [
-    (all_funcs_agraph(), np.ones(13, bool)),
-    (sample_agraph(), [True, True, False, True, True]),
-])
-def test_agraph_get_utilized_commands(agraph, util_array):
-    assert np.array_equal(agraph._get_utilized_commands(), util_array)
 
 
 @pytest.mark.parametrize("agraph,expected_complexity", [

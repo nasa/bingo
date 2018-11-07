@@ -2,7 +2,7 @@ import sys
 from collections import namedtuple
 import pytest
 import numpy as np
-sys.path.append("..")
+sys.path.append("../..")
 
 from bingocpp.build import bingocpp as Backend
 
@@ -17,6 +17,33 @@ def sample_values():
     constants = [10, 3.14]
     return values(x, constants)
 
+
+@pytest.fixture
+def sample_stack():
+    test_stack = np.array([[0, 0, 0],  # sin(X_0) + 1.0
+                          [1, 0, 0],
+                          [2, 0, 1],
+                          [6, 0, 2],
+                          [2, 3, 1]])
+    return test_stack
+
+
+@pytest.fixture
+def all_funcs_stack():
+    test_stack = np.array([[0, 0, 0],
+                          [1, 0, 0],
+                          [2, 1, 0],
+                          [3, 2, 0],
+                          [4, 3, 0],
+                          [5, 4, 0],
+                          [6, 5, 0],
+                          [7, 6, 0],
+                          [8, 7, 0],
+                          [9, 8, 0],
+                          [10, 9, 0],
+                          [11, 10, 0],
+                          [12, 11, 0]])
+    return test_stack
 
 @pytest.mark.parametrize("operator,eval_string", [
     (0, "x_0"),
@@ -108,4 +135,12 @@ def test_backend_simplify_and_evaluate_with_c_derivative(sample_values,
     _, df_dx = Backend.simplify_and_evaluate_with_derivative(
             stack, sample_values.x, sample_values.constants, False)
     np.testing.assert_allclose(expected_derivative, df_dx)
+
+
+@pytest.mark.parametrize("stack,util_array", [
+    (all_funcs_stack(), np.ones(13, bool)),
+    (sample_stack(), [True, True, False, True, True]),
+])
+def test_agraph_get_utilized_commands(stack, util_array):
+    assert np.array_equal(Backend.get_utilized_commands(stack), util_array)
 

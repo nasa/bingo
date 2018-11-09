@@ -1,8 +1,8 @@
-from .AGraphGene import AGraphGene
-from ..GeneGenerator import GeneGenerator
+from .AGraph import AGraph
+from ..IndividualGenerator import IndividualGenerator
 
 
-class AGraphGenerator(GeneGenerator):
+class AGraphGenerator(IndividualGenerator):
     """
     Manipulates AGraph objects for generation, crossover, mutation,
     and distance

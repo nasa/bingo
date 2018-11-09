@@ -3,12 +3,12 @@ import pytest
 import numpy as np
 sys.path.append("../..")
 
-from bingo.AGraph.AGraphGene import AGraphGene
+from bingo.AGraph.AGraph import AGraph
 
 
 @pytest.fixture
 def sample_agraph():
-    test_graph = AGraphGene()
+    test_graph = AGraph()
     test_graph.genetic_age = 10
     test_graph._command_array = np.array([[0, 0, 0],  # sin(X_0) + 1.0
                                           [1, 0, 0],
@@ -21,7 +21,7 @@ def sample_agraph():
 
 @pytest.fixture
 def all_funcs_agraph():
-    test_graph = AGraphGene()
+    test_graph = AGraph()
     test_graph.genetic_age = 10
     test_graph._command_array = np.array([[0, 0, 0],
                                           [1, 0, 0],

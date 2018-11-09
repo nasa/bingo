@@ -2,7 +2,7 @@ import copy
 from abc import ABCMeta, abstractmethod
 
 
-class GeneticRepresentation(object, metaclass=ABCMeta):
+class GeneticIndividual(object, metaclass=ABCMeta):
     def __init__(self):
         self.genetic_age = 0
         self.fitness = None
@@ -28,7 +28,7 @@ class GeneticRepresentation(object, metaclass=ABCMeta):
         pass
 
 
-class EquationRepresentation(GeneticRepresentation, metaclass=ABCMeta):
+class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
 
     def __init__(self):
         super().__init__()

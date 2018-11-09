@@ -25,7 +25,7 @@ import logging
 
 import numpy as np
 
-from ..GeneticRepresentation import EquationRepresentation
+from ..GeneticIndividual import EquationIndividual
 
 LOGGER = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ CONSOLE_PRINT_MAP = {2: "{} + {}",
                      12: "sqrt({})"}
 
 
-class AGraphGene(EquationRepresentation):
+class AGraph(EquationIndividual):
     """
     Acyclic Graph representation of an equation
     """

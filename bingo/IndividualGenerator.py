@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class GeneGenerator(object, metaclass=ABCMeta):
+class IndividualGenerator(object, metaclass=ABCMeta):
 
     @abstractmethod
     def generate(self):

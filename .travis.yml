@@ -10,3 +10,4 @@ install:
   
 script:
   - python -c "import bingo"
+  - pytest tests/AGraph

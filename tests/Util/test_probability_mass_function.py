@@ -1,6 +1,4 @@
-import sys
 import pytest
-sys.path.append("../..")
 
 from bingo.Util.ProbabilityMassFunction import ProbabilityMassFunction
 

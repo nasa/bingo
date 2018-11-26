@@ -1,10 +1,6 @@
-import sys
 from collections import namedtuple
-
 import numpy as np
 import pytest
-
-sys.path.append("../..")
 
 from bingo.AGraph import Backend as Backend
 

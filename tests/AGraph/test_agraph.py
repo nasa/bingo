@@ -1,7 +1,5 @@
-import sys
 import pytest
 import numpy as np
-sys.path.append("../..")
 
 from bingo.AGraph.AGraph import AGraph
 

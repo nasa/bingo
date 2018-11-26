@@ -1,8 +1,6 @@
-import sys
 from collections import namedtuple
 import pytest
 import numpy as np
-sys.path.append("../..")
 
 from bingocpp.build import bingocpp as Backend
 

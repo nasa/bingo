@@ -2,4 +2,4 @@
 *.idea/*
 *.cache/*
 *.cache/
-*.ipynb_checkpoints/ 
+*.ipynb_checkpoints/

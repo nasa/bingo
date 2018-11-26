@@ -1,9 +1,9 @@
 language: python
 python:
   - "3.6"
-# command to install dependencies
-install:
+before install:
   - sudo apt-get install -y -q mpich libmpich-dev
+install:
   - pip install -r requirements.txt
  command to run tests
 script:

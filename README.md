@@ -1,4 +1,5 @@
 # Bingo
+![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=develop)
 
 ## General
 Bingo is an open source package for performing symbolic regression.  Its 

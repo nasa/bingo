@@ -1,7 +1,7 @@
 language: python
 python:
   - "3.6"
-before install:
+before_install:
   - sudo apt-get install -y -q mpich libmpich-dev
 install:
   - pip install -r requirements.txt

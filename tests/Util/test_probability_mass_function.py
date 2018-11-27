@@ -24,6 +24,11 @@ def sample_pmf():
                                    weights=[4.0, 3.0, 2.0, 1.0])
 
 
+@pytest.fixture
+def equal_pmf():
+    return ProbabilityMassFunction(items=[True, False])
+
+
 def test_raises_exception_for_uneven_init():
     with pytest.raises(ValueError):
         ProbabilityMassFunction(items=[1, 2, 3], weights=[1, ])
@@ -86,3 +91,13 @@ def test_raises_exception_nan_weights(empty_pmf):
     with pytest.raises(ValueError):
         empty_pmf.add_item("a", 0.0)
 
+
+def test_default_equal_weight_init(equal_pmf):
+    assert equal_pmf.normalized_weights[0] == equal_pmf.normalized_weights[1]
+
+
+def test_default_equal_weight_added(equal_pmf):
+    equal_pmf.add_item(True)
+
+    assert equal_pmf.normalized_weights[2] == equal_pmf.normalized_weights[0]
+    assert equal_pmf.normalized_weights[2] == equal_pmf.normalized_weights[1]

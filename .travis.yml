@@ -10,7 +10,9 @@ install:
   - pip install -r requirements.txt
   - cd bingocpp && ./build.sh && cd ..
   
-script:
+before_script:
   - export PYTHONPATH=$PYTHONPATH:$PWD
+  
+script:
   - python -c "import bingo"
   - pytest tests/AGraph

@@ -7,6 +7,8 @@ before_install:
   - sudo apt-get install -y -q mpich libmpich-dev
   
 install:
+  - pip install pytest pytest-cov
+  - pip install coveralls
   - pip install -r requirements.txt
   - cd bingocpp && ./build.sh && cd ..
   
@@ -15,4 +17,7 @@ before_script:
   
 script:
   - python -c "import bingo"
-  - pytest tests/AGraph
+  - pytest tests/AGraph --cov=bingo
+
+after_script:
+  - coveralls

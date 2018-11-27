@@ -1,5 +1,9 @@
 # Bingo
-[![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=develop)](https://travis-ci.com/nasa/bingo)
+| | | |
+|-|-|-|
+| master | [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=master)](https://travis-ci.com/nasa/bingo) | [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=master)](https://coveralls.io/github/nasa/bingo?branch=master) |
+| develop | [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=develop)](https://travis-ci.com/nasa/bingo) | [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=develop)](https://coveralls.io/github/nasa/bingo?branch=develop) |
+
 
 ## General
 Bingo is an open source package for performing symbolic regression.  Its 

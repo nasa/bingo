@@ -1,4 +1,5 @@
 language: python
+
 python:
   - "3.6"
   
@@ -7,6 +8,7 @@ before_install:
   
 install:
   - pip install -r requirements.txt
+  - cd bingocpp && ./build.sh && cd ..
   
 script:
   - export PYTHONPATH=$PYTHONPATH:$PWD

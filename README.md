@@ -1,5 +1,7 @@
 # Bingo
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/eee4ba3fc33f44cbb840b70a86815b59)](https://app.codacy.com/app/bingo_developers/bingo?utm_source=github.com&utm_medium=referral&utm_content=nasa/bingo&utm_campaign=Badge_Grade_Dashboard)
+
 ## General
 Bingo is an open source package for performing symbolic regression.  Its 
 emphasis lies on the efficient use of HPC resources.  For the most part, things 

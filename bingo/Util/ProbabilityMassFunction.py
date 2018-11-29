@@ -1,12 +1,31 @@
-import numpy as np
+"""
+This module implements a probability mass function from which single samples
+can be drawn
+"""
 import logging
+import numpy as np
 
 LOGGER = logging.getLogger(__name__)
 
 
 class ProbabilityMassFunction(object):
+    """
+    The ProbabilityMassFunction (PMF) class is designed to allow for easy
+    creation and use of a probability mass function.  Items and associated
+    probability weights are given. Samples (items) can then be drawn from the
+    pmf according to their relative weights.
+    """
 
     def __init__(self, items=None, weights=None):
+        """
+        Initialize a PMF with its starting items and their associated weights.
+
+        :param items: The items in the PMF.
+        :type items: list
+        :param weights: The relative weights of the items. The default is even
+                        weighting.
+        :type weights: list-like, numeric
+        """
         if items is None:
             items = []
 
@@ -75,6 +94,15 @@ class ProbabilityMassFunction(object):
         return total_weight
 
     def add_item(self, new_item, new_weight=None):
+        """
+        Adds a single item to the PMF.
+
+        :param new_item: The item to be added.
+        :type new_item: any
+        :param new_weight: The weight associated with the item. The default is
+                           the average weight of the other items.
+        :type new_weight: numeric
+        """
         self.items.append(new_item)
 
         if new_weight is None:
@@ -93,4 +121,10 @@ class ProbabilityMassFunction(object):
             return self.total_weight/len(self.normalized_weights)
 
     def draw_sample(self):
+        """
+        Draw a random sample from the PMF according to the probabilities
+        associated with weighting of items.
+        :return: a single item
+        :rtype: any
+        """
         return np.random.choice(self.items, 1, p=self.normalized_weights)[0]

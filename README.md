@@ -3,23 +3,20 @@ master: [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=master)](ht
 
 develop: [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=develop)](https://travis-ci.com/nasa/bingo) [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=develop)](https://coveralls.io/github/nasa/bingo?branch=develop) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9fe09cffafe64032962a82f7f1588e9f)](https://www.codacy.com/app/bingo_developers/bingo?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nasa/bingo&amp;utm_campaign=Badge_Grade)
 
-
 ## General
 Bingo is an open source package for performing symbolic regression.  Its 
 emphasis lies on the efficient use of HPC resources.  For the most part, things 
 should work "out of the box", with a few dependencies that are standard in many 
 python installs.
 
-
 ## Dependencies
 Bingo is intended for use with Python 3.x
 Required packages:
-- numpy
-- scipy
-- matplotlib
-- mpi4py
-- pytest (if the testing suite is to be run)
-
+  - numpy
+  - scipy
+  - matplotlib
+  - mpi4py
+  - pytest (if the testing suite is to be run)
 
 ## BingoCpp
 A section of bingo is written in c++ for increased performance.  In order to 
@@ -29,12 +26,10 @@ documentation in the bingocpp subdirectory for more information.
 Note that bingo can be run without the bingocpp portion, it will just have lower 
 performance.
 
-
 ## Tests
 Several end-to-end tests are included with bingo to ensure a proper 
 installation.  The tests can be performed by running "py.test" from the test 
 directory
-
 
 ## Getting Started
 Currently, the best place to get started in bingo is by going through some 
@@ -43,13 +38,11 @@ notebook examples of varying complexity.  The simplegp examples illustrate the
 very basics of symbolic regression in bingo, utilizing a simplified interface.  
 More complex (and more efficient) examples can be found as well.
 
-
 ## Notices
 Copyright 2018 United States Government as represented by the Administrator of 
 the National Aeronautics and Space Administration. No copyright is claimed in 
 the United States under Title 17, U.S. Code. All Other Rights Reserved.
  
-
 ## Disclaimers
 No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF 
 ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED 

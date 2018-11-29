@@ -1,3 +1,7 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
+# pylint: disable=invalid-name
 import pytest
 
 from bingo.Util.ProbabilityMassFunction import ProbabilityMassFunction

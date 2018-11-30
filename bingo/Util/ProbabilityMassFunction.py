@@ -124,7 +124,7 @@ class ProbabilityMassFunction:
             self._normalize_weights(weights)
 
     def _get_mean_current_weight(self):
-        if not self.normalized_weights:
+        if self.normalized_weights.size == 0:
             return 1.0
         return self._total_weight / len(self.normalized_weights)
 

@@ -3,3 +3,4 @@
 *.cache/*
 *.cache/
 *.ipynb_checkpoints/
+.pytest_cache/

@@ -59,9 +59,9 @@ class ProbabilityMassFunction:
     def _get_default_weights(self):
         n_items = len(self.items)
         if n_items > 0:
-            weights = [1.0 / n_items] * n_items
+            weights = np.full(n_items, 1.0 / n_items)
         else:
-            weights = []
+            weights = np.array([])
         return weights
 
     def _is_weights_same_size_as_items(self, weights):
@@ -82,7 +82,7 @@ class ProbabilityMassFunction:
 
     @staticmethod
     def _check_valid_weights(normalized_weights, weights):
-        if normalized_weights:
+        if normalized_weights.size > 0:
             if not np.isclose(np.sum(normalized_weights), 1.0) or \
                             np.min(normalized_weights) < 0.0:
                 LOGGER.error("Invalid weights encountered in "

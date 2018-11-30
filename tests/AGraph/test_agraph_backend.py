@@ -1,7 +1,6 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-# pylint: disable=invalid-name
 from collections import namedtuple
 import pytest
 import numpy as np

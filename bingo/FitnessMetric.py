@@ -99,7 +99,7 @@ class StandardRegression(FitnessMetric):
         :return: fitness vector, dfitness/dconstants array
         """
 
-        f_of_x, df_dc = individual.evaluate_equation_with_local_optimization_gradient_at(training_data.x)
+        f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(training_data.x)
 
         return (f_of_x - training_data.y).flatten(), df_dc
 
@@ -166,7 +166,7 @@ class ImplicitRegression(FitnessMetric):
         :param training_data: ImplicitTrainingData
         :return: fitness vector
         """
-        _, df_dx = individual.evaluate_equation_derivative_at(x=training_data.x)
+        _, df_dx = individual.evaluate_equation_with_x_gradient_at(x=training_data.x)
 
         if self.normalize_dot:
             dot = (df_dx / np.linalg.norm(df_dx, axis=1).reshape((-1, 1))) * \
@@ -270,7 +270,7 @@ class ImplicitRegressionSchmidt(FitnessMetric):
         # NOTE: this doesnt work well right now
         #       importantly, it couldn't reproduce the papers
 
-        _, df_dx = individual.evaluate_equation_derivative_at(x=training_data.x)
+        _, df_dx = individual.evaluate_equation_with_x_gradient_at(x=training_data.x)
 
         n_params = training_data.x.shape[1]
         # print("----------------------------------")

@@ -2,12 +2,15 @@
 This module provides the python implementation of the functions for each
 mathematical operator used in Agraph
 
-Attributes:
-This module provides 3 dictionaries that can be used for mapping operator
-numbers to the defined functions
-- IS_ARITY_2_MAP: states whether each operator has arity 2 (as opposed to 1)
-- FORWARD_EVAL_MAP: map of operator number to evaluation function
-- REVERSE_EVAL_MAP: map of operator number to derivative evaluation function
+Attributes
+----------
+IS_ARITY_2_MAP : dictionary {int: bool}
+                 A map of operator number to boolean that states whether the
+                 operator has arity 2 (as opposed to 1)
+FORWARD_EVAL_MAP : dictionary {int: function}
+                   A map of operator number to evaluation function
+REVERSE_EVAL_MAP : dictionary {int: function}
+                   A map of operator number to derivative evaluation function
 """
 
 import numpy as np

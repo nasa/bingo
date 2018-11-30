@@ -10,21 +10,27 @@ from bingo.AGraph import BackendOperators as Operators
 
 
 def simplify_and_evaluate(stack, x, constants):
-    """
+    """Evaluate an equation after simplification.
+
     Evauluate the equation associated with an Agraph, at the values x.
     Simplification ensures that only the commands utilized in the result are
     considered.
 
-    :param stack: the command stack associated with an equation.
-    :type stack: Nx3 numpy array of int. Where N is the number of commands in
-                 the stack.
-    :param x: values at which to evaluate the equations.
-    :type x: MxD numpy array of numeric. Where D is the number of dimensions
-             in x and M is the number of data points in x.
-    :param constants: numeric constants that are used in the equation
-    :type constants: list-like of numeric.
-    :return: value of the equation at x
-    :rtype: Mx1 numpy array of numeric
+    Parameters
+    ----------
+    stack : Nx3 numpy array of int.
+            The command stack associated with an equation. N is the number of
+            commands in the stack.
+    x : MxD array of numeric.
+        Values at which to evaluate the equations. D is the number of
+        dimensions in x and M is the number of data points in x.
+    constants : list-like of numeric.
+                numeric constants that are used in the equation
+
+    Returns
+    -------
+    Mx1 array of numeric
+        :math`f(x)`
     """
     used_commands_mask = get_utilized_commands(stack)
     forward_eval = _forward_eval_with_mask(stack, x, constants,
@@ -34,25 +40,31 @@ def simplify_and_evaluate(stack, x, constants):
 
 def simplify_and_evaluate_with_derivative(stack, x, constants,
                                           wrt_param_x_or_c):
-    """
+    """Evaluate equation and take derivative
+
     Evauluate the derivatives of the equation associated with an Agraph, at the
     values x.  Simplification ensures that only the commands utilized in the
     result are considered.
 
-    :param stack: the command stack associated with an equation.
-    :type stack: Nx3 numpy array of int. Where N is the number of commands in
-                 the stack.
-    :param x: values at which to evaluate the equations.
-    :type x: MxD numpy array of numeric. Where D is the number of dimensions
-             in x and M is the number of data points in x.
-    :param constants: numeric constants that are used in the equation
-    :type constants: list-like of numeric of length=L
-    :param wrt_param_x_or_c: Take derivative with respect to x or constants.
-                             True signifies derivatives are wrt x. False
-                             signifies derivatives are wrt constants.
-    :type wrt_param_x_or_c: boolean
-    :return: Derivatives of all dimensions of x/constants at location x.
-    :rtype: MxD numpy array of numeric or MxL numpy array of numeric.
+    Parameters
+    ----------
+    stack : Nx3 numpy array of int.
+            The command stack associated with an equation. N is the number of
+            commands in the stack.
+    x : MxD array of numeric.
+        Values at which to evaluate the equations. D is the number of
+        dimensions in x and M is the number of data points in x.
+    constants : list-like of numeric.
+                numeric constants that are used in the equation
+    wrt_param_x_or_c : boolean
+                       Take derivative with respect to x or constants. True
+                       signifies derivatives are wrt x. False signifies
+                       derivatives are wrt constants.
+
+    Returns
+    -------
+    MxD array of numeric or MxL array of numeric.
+        Derivatives of all dimensions of x/constants at location x.
     """
     used_commands_mask = get_utilized_commands(stack)
     return _evaluate_with_derivative_and_mask(stack, x, constants,
@@ -61,15 +73,21 @@ def simplify_and_evaluate_with_derivative(stack, x, constants,
 
 
 def get_utilized_commands(stack):
-    """
-    Find the commands (rows) of the stack that are utilized by the last command
-    of the stack.
+    """Find which commands are utilized.
 
-    :param stack: the command stack associated with an equation.
-    :type stack: Nx3 numpy array of int. Where N is the number of commands in
-                 the stack.
-    :return: Boolean values for whether each command is utilized.
-    :rtype: list of boolean of length N
+    Find the commands (rows) of the stack upon which the last command of the
+    stack depends. This is inclusive of the last command.
+
+    Parameters
+    ----------
+    stack : Nx3 numpy array of int.
+            The command stack associated with an equation. N is the number of
+            commands in the stack.
+
+    Returns
+    -------
+    list of bool of length N
+        Boolean values for whether each command is utilized.
     """
     util = [False]*stack.shape[0]
     util[-1] = True

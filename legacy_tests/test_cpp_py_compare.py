@@ -228,10 +228,10 @@ def test_agcpp_evaluate_deriv():
     py_1.set_local_optimization_params(constants)
     c_1.set_local_optimization_params(constants)
 
-    py_fit = py_1.evaluate_equation_derivative_at(x)
-    c_fit = c_1.evaluate_equation_derivative_at(x)
-    py_fit_const = py_1.evaluate_equation_with_local_optimization_gradient_at(x)
-    c_fit_const = c_1.evaluate_equation_with_local_optimization_gradient_at(x)
+    py_fit = py_1.evaluate_equation_with_x_gradient_at(x)
+    c_fit = c_1.evaluate_equation_with_x_gradient_at(x)
+    py_fit_const = py_1.evaluate_equation_with_local_opt_gradient_at(x)
+    c_fit_const = c_1.evaluate_equation_with_local_opt_gradient_at(x)
 
     assert py_fit[0].all() == pytest.approx(c_fit[0].all())
     assert py_fit[1].all() == pytest.approx(c_fit[1].all())

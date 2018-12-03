@@ -136,8 +136,6 @@ class AGraph(EquationIndividual):
         int
             Number of constants that need to be optimized
         """
-
-        # compile fitness function for optimization
         util = Backend.get_utilized_commands(self._command_array)
         const_num = 0
         for i in range(self._command_array.shape[0]):
@@ -296,7 +294,7 @@ class AGraph(EquationIndividual):
         if node == 0:
             tmp_str += "X_%d" % param1
         elif node == 1:
-            if param1 == -1:
+            if param1 == -1 or param1 >= len(self._constants):
                 tmp_str += "C"
             else:
                 tmp_str += "C_{} = {}".format(param1,
@@ -312,20 +310,21 @@ class AGraph(EquationIndividual):
         str_list = []
         for i, show_command in enumerate(utilized_rows):
             if show_command:
-                tmp_str = self._get_latex_element_string(i, str_list,
-                                                         format_dict)
+                tmp_str = self._get_formatted_element_string(i, str_list,
+                                                             format_dict)
             else:
                 tmp_str = ""
             str_list.append(tmp_str)
         return str_list[-1]
 
-    def _get_latex_element_string(self, command_index, str_list, format_dict):
+    def _get_formatted_element_string(self, command_index, str_list,
+                                      format_dict):
         node, param1, param2 = self._command_array[command_index]
         if node == 0:
             tmp_str = "X_%d" % param1
         elif node == 1:
-            if param1 == -1:
-                tmp_str = "0"
+            if param1 == -1 or param1 >= len(self._constants):
+                tmp_str = "?"
             else:
                 tmp_str = str(self._constants[param1])
         else:

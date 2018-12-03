@@ -5,4 +5,4 @@ class IndividualGenerator(object, metaclass=ABCMeta):
 
     @abstractmethod
     def generate(self):
-        pass
+        raise NotImplementedError

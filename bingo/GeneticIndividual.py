@@ -48,7 +48,7 @@ class GeneticIndividual(metaclass=ABCMeta):
         str
             individual string form
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def needs_local_optimization(self):
@@ -59,7 +59,7 @@ class GeneticIndividual(metaclass=ABCMeta):
         bool
             Individual needs optimization
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_number_local_optimization_params(self):
@@ -70,7 +70,7 @@ class GeneticIndividual(metaclass=ABCMeta):
         int
             number of paramneters to be optimized
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def set_local_optimization_params(self, params):
@@ -81,7 +81,7 @@ class GeneticIndividual(metaclass=ABCMeta):
         params : list-like of numeric
                  Values to set the parameters
         """
-        pass
+        raise NotImplementedError
 
 
 class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
@@ -108,7 +108,7 @@ class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
         Mx1 array of numeric
             :math:`f(x)`
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def evaluate_equation_with_x_gradient_at(self, x):
@@ -127,7 +127,7 @@ class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
         tuple(Mx1 array of numeric, MxD array of numeric)
             :math:`f(x)` and :math:`df(x)/dx_i`
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def evaluate_equation_with_local_opt_gradient_at(self, x):
@@ -148,7 +148,7 @@ class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
             :math:`f(x)` and :math:`df(x)/dc_i`. L is the number of
             optimization paremeters.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_latex_string(self):
@@ -159,7 +159,7 @@ class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
         str
             equation in latex interpretable form
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_console_string(self):
@@ -170,7 +170,7 @@ class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
         str
             compact form of equation
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_complexity(self):
@@ -181,4 +181,4 @@ class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
         numeric
             complexity measure of equation
         """
-        pass
+        raise NotImplementedError

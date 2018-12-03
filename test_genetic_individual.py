@@ -17,7 +17,7 @@ class InvalidChild(GeneticIndividual):
     def get_number_local_optimization_params(self):
         super().get_number_local_optimization_params()
 
-    def set_local_optimization_params(self, params=None):
+    def set_local_optimization_params(self, params):
         super().set_local_optimization_params(params)
 
 
@@ -31,10 +31,12 @@ def test_raises_error_construct_genetic_individual():
         _ = GeneticIndividual()
 
 
-@pytest.mark.parametrize("func", ["__str__",
-                                  "needs_local_optimization",
-                                  "get_number_local_optimization_params",
-                                  "set_local_optimization_params"])
-def test_raises_error_using_super_on_derived_classes(bad_gi, func):
+def test_raises_error_using_super_on_derived_classes(bad_gi):
     with pytest.raises(NotImplementedError):
-        getattr(bad_gi, func)()
+        str(bad_gi)
+    with pytest.raises(NotImplementedError):
+        bad_gi.needs_local_optimization()
+    with pytest.raises(NotImplementedError):
+        bad_gi.get_number_local_optimization_params()
+    with pytest.raises(NotImplementedError):
+        bad_gi.set_local_optimization_params([1.0])

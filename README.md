@@ -12,11 +12,11 @@ python installs.
 ## Dependencies
 Bingo is intended for use with Python 3.x
 Required packages:
-- numpy
-- scipy
-- matplotlib
-- mpi4py
-- pytest (if the testing suite is to be run)
+  - numpy
+  - scipy
+  - matplotlib
+  - mpi4py
+  - pytest (if the testing suite is to be run)
 
 ## BingoCpp
 A section of bingo is written in c++ for increased performance.  In order to 

@@ -182,3 +182,20 @@ def test_raises_error_c_gradient_invalid_agraph(invalid_agraph, sample_values):
     with pytest.raises(RuntimeError):
         _ = invalid_agraph.evaluate_equation_with_local_opt_gradient_at(
             sample_values.x)
+
+
+def test_invalid_agraph_needs_optimization(invalid_agraph):
+    assert invalid_agraph.needs_local_optimization()
+
+
+def test_get_number_optimization_params(invalid_agraph):
+    assert invalid_agraph.get_number_local_optimization_params() == 1
+
+
+def test_set_optimization_params(invalid_agraph, sample_agraph, sample_values):
+    invalid_agraph.set_local_optimization_params([1.0])
+
+    assert not invalid_agraph.needs_local_optimization()
+    np.testing.assert_allclose(
+            invalid_agraph.evaluate_equation_at(sample_values.x),
+            sample_agraph.evaluate_equation_at(sample_values.x))

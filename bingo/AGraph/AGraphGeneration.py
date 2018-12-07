@@ -5,11 +5,11 @@ This module covers the random generation of acyclic graph individuals.
 import numpy as np
 
 from .AGraph import AGraph
-from ..IndividualGenerator import IndividualGenerator
+from ..IndividualVariation import IndividualGeneration
 from ..Util.ArgumentValidation import argument_validation
 
 
-class AGraphGenerator(IndividualGenerator):
+class AGraphGeneration(IndividualGeneration):
     """Generates acyclic graph individuals
 
     Parameters
@@ -24,7 +24,7 @@ class AGraphGenerator(IndividualGenerator):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
 
-    def generate(self):
+    def __call__(self):
         """Generates random agraph individual.
 
         Fills stack based on random commands from the component generator.

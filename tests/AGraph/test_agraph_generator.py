@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.AGraph.AGraphGenerator import AGraphGenerator
+from bingo.AGraph.AGraphGeneration import AGraphGeneration
 from bingo.AGraph.ComponentGenerator import ComponentGenerator
 
 
@@ -26,7 +26,7 @@ def sample_component_generator():
 def test_raises_error_invalid_agraph_size(agraph_size, expected_error,
                                           sample_component_generator):
     with pytest.raises(expected_error):
-        _ = AGraphGenerator(agraph_size, sample_component_generator)
+        _ = AGraphGeneration(agraph_size, sample_component_generator)
 
 
 def test_generate(sample_component_generator):
@@ -37,7 +37,7 @@ def test_generate(sample_component_generator):
                                        [6, 2, 1],
                                        [6, 0, 1],
                                        [2, 1, 4]])
-    agraph_generator = AGraphGenerator(6, sample_component_generator)
-    agraph = agraph_generator.generate()
+    generate_agraph = AGraphGeneration(6, sample_component_generator)
+    agraph = generate_agraph()
     np.testing.assert_array_equal(agraph.command_array,
                                   expected_command_array)

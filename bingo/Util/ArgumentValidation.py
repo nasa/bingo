@@ -52,29 +52,26 @@ def argument_validation(**argchecks):
     --------
     Argument validation for x between 0-10 and y greater than 3.14
 
-    ```
-    @argument_validation(x={">=": 0, "<=": 10},
-                         y={">": 3.14})
-    def some_function(x, y=10):
-        ...
-    ```
+
+    >>> @argument_validation(x={">=": 0, "<=": 10},
+    ...                      y={">": 3.14})
+    ... def some_function(x, y=10):
+    ...    pass
 
     Argument validation for algorithm  is "bubble" or "quick"
 
-    ```
-    @argument_validation(algorithm={"in": ["bubble", "quick"]})
-    def sort(algorithm):
-        ...
-    ```
+    >>> @argument_validation(algorithm={"in": ["bubble", "quick"]})
+    ... def sort(algorithm):
+    ...     pass
 
     """
     def validation_decorator(func):
         @functools.wraps(func)
         def do_validation(*pargs, **kwargs):
-            arg_checker = FunctionArgChecker(func, pargs, kwargs)
+            check_arguments = FunctionArgChecker(func, pargs, kwargs)
 
             for arg_name, checks in argchecks.items():
-                arg_checker.check_argument(arg_name, checks)
+                check_arguments(arg_name, checks)
 
             return func(*pargs, **kwargs)
         return do_validation
@@ -82,7 +79,7 @@ def argument_validation(**argchecks):
 
 
 class FunctionArgChecker:
-    """A class for managing function arguments and performing validation checks
+    """A functor for managing arguments and performing validation checks
 
     Parameters
     ----------
@@ -114,7 +111,7 @@ class FunctionArgChecker:
         for arg_name, value in zip(positional_names, positional_args):
             self._args[arg_name] = value
 
-    def check_argument(self, arg_name, checks):
+    def __call__(self, arg_name, checks):
         """Perform an argument validation check
 
         Parameters

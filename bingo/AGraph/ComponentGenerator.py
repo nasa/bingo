@@ -5,7 +5,6 @@ command stack. It can generate full commands or sub-components such as
 operators, terminals, and their associated parameters.
 """
 import logging
-import numbers
 import numpy as np
 
 from ..Util.ProbabilityMassFunction import ProbabilityMassFunction

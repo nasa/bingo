@@ -110,13 +110,14 @@ def test_add_operator_with_weight(sample_generator):
 
 
 def test_random_command(sample_generator):
+    np.random.seed(0)
     generated_commands = np.empty((6, 3))
-    expected_commands = np.array([[0, 0, 1],
-                                  [1, -1, -1],
-                                  [2, 0, 1],
-                                  [0, 1, 0],
-                                  [2, 3, 2],
-                                  [6, 0, 4]])
+    expected_commands = np.array([[0, 1, 0],
+                                  [0, 1, 1],
+                                  [6, 0, 1],
+                                  [6, 2, 1],
+                                  [6, 0, 1],
+                                  [2, 1, 4]])
     for stack_location in range(generated_commands.shape[0]):
         generated_commands[stack_location, :] = \
             sample_generator.random_command(stack_location)

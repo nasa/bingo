@@ -100,12 +100,31 @@ CONSOLE_PRINT_MAP = {2: "{} + {}",
 class AGraph(EquationIndividual):
     """Acyclic graph representation of an equation.
 
-    Agraph is initialized with with empty stack and no constants.
+    Agraph is initialized with with empty command array and no constants.
+
+    Attributes
+    ----------
+    command_array
     """
     def __init__(self):
         super().__init__()
         self._command_array = np.empty([0, 3])
         self._constants = []
+
+    @property
+    def command_array(self):
+        """Nx3 array of int: acyclic graph stack.
+
+        Notes
+        -----
+        Setting the command stack automatically resets fitness
+        """
+        return self._command_array
+
+    @command_array.setter
+    def command_array(self, command_array):
+        self._command_array = command_array
+        self.fit_set = False
 
     def needs_local_optimization(self):
         """The Agraph needs local optimization.

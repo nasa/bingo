@@ -120,6 +120,7 @@ def test_backend_simplify_and_evaluate(backend, sample_values, operator,
 
 @pytest.mark.parametrize("backend", [PythonBackend, CppBackend])
 @pytest.mark.parametrize("operator", range(13))
+# pylint: disable=invalid-name
 def test_backend_simplify_and_evaluate_with_x_derivative(backend,
                                                          sample_values,
                                                          operator,
@@ -137,6 +138,7 @@ def test_backend_simplify_and_evaluate_with_x_derivative(backend,
 
 @pytest.mark.parametrize("backend", [PythonBackend, CppBackend])
 @pytest.mark.parametrize("operator", range(13))
+# pylint: disable=invalid-name
 def test_backend_simplify_and_evaluate_with_c_derivative(backend,
                                                          sample_values,
                                                          operator,

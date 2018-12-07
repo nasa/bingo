@@ -17,18 +17,27 @@ class GeneticIndividual(metaclass=ABCMeta):
 
     Attributes
     ----------
+    fitness
     genetic_age : int
                   age of the oldest component of the genetic material in the
                   individual
-    fitness : numeric or tuple of numeric
-              The fitness of the individual
     fit_set : bool
               Whether the fitness has been calculated for the individual
     """
     def __init__(self):
         self.genetic_age = 0
-        self.fitness = None
+        self._fitness = None
         self.fit_set = False
+
+    @property
+    def fitness(self):
+        """numeric or tuple of numeric: The fitness of the individual"""
+        return self._fitness
+
+    @fitness.setter
+    def fitness(self, fitness):
+        self._fitness = fitness
+        self.fit_set = True
 
     def copy(self):
         """copy

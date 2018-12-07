@@ -37,6 +37,86 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
+<div class="section" id="module-bingo.Util.ArgumentValidation">
+<span id="bingo-util-argumentvalidation-module"></span><h2>bingo.Util.ArgumentValidation module<a class="headerlink" href="#module-bingo.Util.ArgumentValidation" title="Permalink to this headline">¶</a></h2>
+<p>Argument validation for functions.</p>
+<p>This modules contains a decorator which will perform input argument validation
+for a function.</p>
+<dl class="class">
+<dt id="bingo.Util.ArgumentValidation.FunctionArgChecker">
+<em class="property">class </em><code class="descclassname">bingo.Util.ArgumentValidation.</code><code class="descname">FunctionArgChecker</code><span class="sig-paren">(</span><em>func</em>, <em>positional_args</em>, <em>keyword_args</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Util.ArgumentValidation.FunctionArgChecker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A functor for managing arguments and performing validation checks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>func</strong> <span class="classifier-delimiter">:</span> <span class="classifier">function</span></dt>
+<dd><p class="first last">the function for which argument checking will be performed</p>
+</dd>
+<dt><strong>positional_args</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple</span></dt>
+<dd><p class="first last">the positional arguments passed to the function</p>
+</dd>
+<dt><strong>keyword_args</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">the keyword arguments passed to the function</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(arg_name,&nbsp;checks)</td>
+<td>Perform an argument validation check</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bingo.Util.ArgumentValidation.argument_validation">
+<code class="descclassname">bingo.Util.ArgumentValidation.</code><code class="descname">argument_validation</code><span class="sig-paren">(</span><em>**argchecks</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Util.ArgumentValidation.argument_validation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function input argument validation:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>argchecks</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><p class="first last">keyword arguments used as a dictionary of checks to be
+performed on input arguments</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Defaulted arguments are ignored in checking.</p>
+<p class="rubric">Examples</p>
+<p>Argument validation for x between 0-10 and y greater than 3.14</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@argument_validation</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;&gt;=&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;&lt;=&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+<span class="gp">... </span>                     <span class="n">y</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;&gt;&quot;</span><span class="p">:</span> <span class="mf">3.14</span><span class="p">})</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">some_function</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Argument validation for algorithm  is “bubble” or “quick”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@argument_validation</span><span class="p">(</span><span class="n">algorithm</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;bubble&quot;</span><span class="p">,</span> <span class="s2">&quot;quick&quot;</span><span class="p">]})</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="n">algorithm</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
 <div class="section" id="module-bingo.Util.ProbabilityMassFunction">
 <span id="bingo-util-probabilitymassfunction-module"></span><h2>bingo.Util.ProbabilityMassFunction module<a class="headerlink" href="#module-bingo.Util.ProbabilityMassFunction" title="Permalink to this headline">¶</a></h2>
 <p>This module implements a probability mass function from which single samples
@@ -64,7 +144,7 @@ pmf according to their relative weights.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>items</strong> <span class="classifier-delimiter">:</span> <span class="classifier">lit</span></dt>
+<dt><strong>items</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">The current items in the PMF</p>
 </dd>
 <dt><strong>normalized_weights</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list-like numeric</span></dt>
@@ -167,7 +247,7 @@ associated with weighting of items.</p>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.GeneticIndividual">bingo.GeneticIndividual module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.IndividualGenerator">bingo.IndividualGenerator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.IndividualVariation">bingo.IndividualVariation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Island">bingo.Island module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-islandmanager-module">bingo.IslandManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Plotting">bingo.Plotting module</a></li>

@@ -52,10 +52,10 @@ bingo.GeneticIndividual module
     :undoc-members:
     :show-inheritance:
 
-bingo.IndividualGenerator module
+bingo.IndividualVariation module
 --------------------------------
 
-.. automodule:: bingo.IndividualGenerator
+.. automodule:: bingo.IndividualVariation
     :members:
     :undoc-members:
     :show-inheritance:

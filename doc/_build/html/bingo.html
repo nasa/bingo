@@ -49,10 +49,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.AGraph.html#module-bingo.AGraph.AGraphComponentGenerator">bingo.AGraph.AGraphComponentGenerator module</a><ul class="simple">
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.AGraph.html#module-bingo.AGraph.AGraphGenerator">bingo.AGraph.AGraphGenerator module</a><ul class="simple">
+<li class="toctree-l2"><a class="reference internal" href="bingo.AGraph.html#module-bingo.AGraph.AGraphGeneration">bingo.AGraph.AGraphGeneration module</a><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.AGraph.html#module-bingo.AGraph.Backend">bingo.AGraph.Backend module</a></li>
@@ -60,11 +57,17 @@
 <li class="toctree-l3"><a class="reference internal" href="bingo.AGraph.html#attributes">Attributes</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.AGraph.html#module-bingo.AGraph.ComponentGenerator">bingo.AGraph.ComponentGenerator module</a><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.AGraph.html#module-bingo.AGraph">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bingo.Util.html">bingo.Util package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bingo.Util.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.Util.html#module-bingo.Util.ArgumentValidation">bingo.Util.ArgumentValidation module</a><ul class="simple">
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.Util.html#module-bingo.Util.ProbabilityMassFunction">bingo.Util.ProbabilityMassFunction module</a><ul class="simple">
 </ul>
 </li>
@@ -1120,6 +1123,19 @@ classes herein.</p>
 <p>Base representation of an equation</p>
 <p>This class is the base of a equations used in symbolic regression alayses
 in bingo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">fitness</span></code></dt>
+<dd><p class="first last">numeric or tuple of numeric: The fitness of the individual</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -1324,12 +1340,12 @@ analyses.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bingo.GeneticIndividual.GeneticIndividual.fitness" title="bingo.GeneticIndividual.GeneticIndividual.fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fitness</span></code></a></dt>
+<dd><p class="first last">numeric or tuple of numeric: The fitness of the individual</p>
+</dd>
 <dt><strong>genetic_age</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">age of the oldest component of the genetic material in the
 individual</p>
-</dd>
-<dt><strong>fitness</strong> <span class="classifier-delimiter">:</span> <span class="classifier">numeric or tuple of numeric</span></dt>
-<dd><p class="first last">The fitness of the individual</p>
 </dd>
 <dt><strong>fit_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
 <dd><p class="first last">Whether the fitness has been calculated for the individual</p>
@@ -1383,6 +1399,12 @@ individual</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bingo.GeneticIndividual.GeneticIndividual.fitness">
+<code class="descname">fitness</code><a class="headerlink" href="#bingo.GeneticIndividual.GeneticIndividual.fitness" title="Permalink to this definition">¶</a></dt>
+<dd><p>numeric or tuple of numeric: The fitness of the individual</p>
 </dd></dl>
 
 <dl class="method">
@@ -1445,29 +1467,72 @@ individual</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-bingo.IndividualGenerator">
-<span id="bingo-individualgenerator-module"></span><h2>bingo.IndividualGenerator module<a class="headerlink" href="#module-bingo.IndividualGenerator" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-bingo.IndividualVariation">
+<span id="bingo-individualvariation-module"></span><h2>bingo.IndividualVariation module<a class="headerlink" href="#module-bingo.IndividualVariation" title="Permalink to this headline">¶</a></h2>
+<p>Generator of individuals</p>
+<p>This module covers the template for generation of individuals in the genetic
+evolution in bingo</p>
 <dl class="class">
-<dt id="bingo.IndividualGenerator.IndividualGenerator">
-<em class="property">class </em><code class="descclassname">bingo.IndividualGenerator.</code><code class="descname">IndividualGenerator</code><a class="headerlink" href="#bingo.IndividualGenerator.IndividualGenerator" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.IndividualVariation.IndividualCrossover">
+<em class="property">class </em><code class="descclassname">bingo.IndividualVariation.</code><code class="descname">IndividualCrossover</code><a class="headerlink" href="#bingo.IndividualVariation.IndividualCrossover" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Crossover for individuals.</p>
+<p>An abstract base class for the crossovor between two genetic
+individuals in bingo.</p>
 <p class="rubric">Methods</p>
-<table border="1" class="docutils">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col width="55%" />
-<col width="45%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><strong>generate</strong></td>
-<td>&#160;</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(individual)</td>
+<td>Generates individuals for evolutionary optimization</td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="bingo.IndividualGenerator.IndividualGenerator.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.IndividualGenerator.IndividualGenerator.generate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
+<dl class="class">
+<dt id="bingo.IndividualVariation.IndividualGeneration">
+<em class="property">class </em><code class="descclassname">bingo.IndividualVariation.</code><code class="descname">IndividualGeneration</code><a class="headerlink" href="#bingo.IndividualVariation.IndividualGeneration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A generator of individuals.</p>
+<p>An abstract base class for the generation of genetic individuals in
+bingo.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>()</td>
+<td>Generates individuals for evolutionary optimization</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="bingo.IndividualVariation.IndividualMutation">
+<em class="property">class </em><code class="descclassname">bingo.IndividualVariation.</code><code class="descname">IndividualMutation</code><a class="headerlink" href="#bingo.IndividualVariation.IndividualMutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A mutator of individuals.</p>
+<p>An abstract base class for the mutation of genetic individuals in
+bingo.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(individual)</td>
+<td>Generates individuals for evolutionary optimization</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -2071,7 +2136,7 @@ the smoothed signal (or it’s n-th derivative).</p>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.GeneticIndividual">bingo.GeneticIndividual module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-bingo.IndividualGenerator">bingo.IndividualGenerator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bingo.IndividualVariation">bingo.IndividualVariation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.Island">bingo.Island module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bingo-islandmanager-module">bingo.IslandManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.Plotting">bingo.Plotting module</a></li>

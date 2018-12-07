@@ -4,6 +4,14 @@ bingo.Util package
 Submodules
 ----------
 
+bingo.Util.ArgumentValidation module
+------------------------------------
+
+.. automodule:: bingo.Util.ArgumentValidation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 bingo.Util.ProbabilityMassFunction module
 -----------------------------------------
 

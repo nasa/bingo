@@ -141,7 +141,20 @@ The current map is outlined below.</p>
 <em class="property">class </em><code class="descclassname">bingo.AGraph.AGraph.</code><code class="descname">AGraph</code><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bingo.html#bingo.GeneticIndividual.EquationIndividual" title="bingo.GeneticIndividual.EquationIndividual"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.GeneticIndividual.EquationIndividual</span></code></a></p>
 <p>Acyclic graph representation of an equation.</p>
-<p>Agraph is initialized with with empty stack and no constants.</p>
+<p>Agraph is initialized with with empty command array and no constants.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.command_array" title="bingo.AGraph.AGraph.AGraph.command_array"><code class="xref py py-obj docutils literal notranslate"><span class="pre">command_array</span></code></a></dt>
+<dd><p class="first last">Nx3 array of int: acyclic graph stack.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -189,6 +202,14 @@ The current map is outlined below.</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="bingo.AGraph.AGraph.AGraph.command_array">
+<code class="descname">command_array</code><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph.command_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Nx3 array of int: acyclic graph stack.</p>
+<p class="rubric">Notes</p>
+<p>Setting the command stack automatically resets fitness</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="bingo.AGraph.AGraph.AGraph.evaluate_equation_at">
 <code class="descname">evaluate_equation_at</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_at" title="Permalink to this definition">¶</a></dt>
@@ -395,14 +416,31 @@ dimensions in x and M is the number of data points in x.</p>
 
 </div>
 </div>
-<div class="section" id="module-bingo.AGraph.AGraphComponentGenerator">
-<span id="bingo-agraph-agraphcomponentgenerator-module"></span><h2>bingo.AGraph.AGraphComponentGenerator module<a class="headerlink" href="#module-bingo.AGraph.AGraphComponentGenerator" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-bingo.AGraph.AGraphGeneration">
+<span id="bingo-agraph-agraphgeneration-module"></span><h2>bingo.AGraph.AGraphGeneration module<a class="headerlink" href="#module-bingo.AGraph.AGraphGeneration" title="Permalink to this headline">¶</a></h2>
+<p>Generator of Agraph individuals</p>
+<p>This module covers the random generation of acyclic graph individuals.</p>
 <dl class="class">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator">
-<em class="property">class </em><code class="descclassname">bingo.AGraph.AGraphComponentGenerator.</code><code class="descname">AGraphComponentGenerator</code><span class="sig-paren">(</span><em>input_x_dimension</em>, <em>num_initial_load_statements=1</em>, <em>terminal_probability=0.1</em>, <em>constant_probability=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Manipulates AGraph objects for generation, crossover, mutation,
-and distance</p>
+<dt id="bingo.AGraph.AGraphGeneration.AGraphGeneration">
+<em class="property">class </em><code class="descclassname">bingo.AGraph.AGraphGeneration.</code><code class="descname">AGraphGeneration</code><span class="sig-paren">(</span><em>agraph_size</em>, <em>component_generator</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGeneration.AGraphGeneration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.html#bingo.IndividualVariation.IndividualGeneration" title="bingo.IndividualVariation.IndividualGeneration"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.IndividualVariation.IndividualGeneration</span></code></a></p>
+<p>Generates acyclic graph individuals</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>agraph_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">command array size of the generated acyclic graphs</p>
+</dd>
+<dt><strong>component_generator</strong> <span class="classifier-delimiter">:</span> <span class="classifier">AGraph.ComponentGenerator</span></dt>
+<dd><p class="first last">Generator of stack components of agraphs</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -410,308 +448,11 @@ and distance</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.add_node_type" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.add_node_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_type</span></code></a>(node_type)</td>
-<td>Add a type of node to the set of allowed types</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.mutate_terminal_param" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.mutate_terminal_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mutate_terminal_param</span></code></a>(terminal)</td>
-<td>Produces random terminal value, either input variable or float Mutates floats by getting random variation of old param</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_operator</span></code></a>(stack_loc)</td>
-<td>Produces random operator and parameters.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_params" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_operator_params</span></code></a>(arity,&nbsp;stack_loc)</td>
-<td>Produces random tuple for use as operator parameters</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_type" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_operator_type</span></code></a>()</td>
-<td>Picks a random operator from the operator list</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_terminal</span></code></a>()</td>
-<td>Produces random terminal node and value</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal_param" title="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_terminal_param</span></code></a>(terminal)</td>
-<td>Produces random terminal value, either input variable or float</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>()</td>
+<td>Generates random agraph individual.</td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.add_node_type">
-<code class="descname">add_node_type</code><span class="sig-paren">(</span><em>node_type</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.add_node_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a type of node to the set of allowed types</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_type</strong> – acyclic graph node type which will be added to the
-allowable set</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.mutate_terminal_param">
-<code class="descname">mutate_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.mutate_terminal_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random terminal value, either input variable or float
-Mutates floats by getting random variation of old param</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator">
-<code class="descname">rand_operator</code><span class="sig-paren">(</span><em>stack_loc</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random operator and parameters. Chooses operator from list of
-allowable node types</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stack_loc</strong> – location of command in stack</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">random operator with parameters</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_params">
-<em class="property">static </em><code class="descname">rand_operator_params</code><span class="sig-paren">(</span><em>arity</em>, <em>stack_loc</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random tuple for use as operator parameters</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>arity</strong> – number of parameters needed</li>
-<li><strong>stack_loc</strong> – location of command in stack</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple of parameters</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_type">
-<code class="descname">rand_operator_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_operator_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Picks a random operator from the operator list</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">operator (acyclic graph node type)</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal">
-<code class="descname">rand_terminal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random terminal node and value</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Load node, data index or constant index</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal_param">
-<code class="descname">rand_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphComponentGenerator.AGraphComponentGenerator.rand_terminal_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random terminal value, either input variable or float</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-<div class="section" id="module-bingo.AGraph.AGraphGenerator">
-<span id="bingo-agraph-agraphgenerator-module"></span><h2>bingo.AGraph.AGraphGenerator module<a class="headerlink" href="#module-bingo.AGraph.AGraphGenerator" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator">
-<em class="property">class </em><code class="descclassname">bingo.AGraph.AGraphGenerator.</code><code class="descname">AGraphGenerator</code><span class="sig-paren">(</span><em>nvars</em>, <em>ag_size</em>, <em>nloads=1</em>, <em>float_lim=10.0</em>, <em>terminal_prob=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="bingo.html#bingo.IndividualGenerator.IndividualGenerator" title="bingo.IndividualGenerator.IndividualGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.IndividualGenerator.IndividualGenerator</span></code></a></p>
-<p>Manipulates AGraph objects for generation, crossover, mutation,
-and distance</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.add_node_type" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.add_node_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_node_type</span></code></a>(node_type)</td>
-<td>Add a type of node to the set of allowed types</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.generate" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.generate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate</span></code></a>()</td>
-<td>Generates random individual.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.mutate_terminal_param" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.mutate_terminal_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mutate_terminal_param</span></code></a>(terminal)</td>
-<td>Produces random terminal value, either input variable or float Mutates floats by getting random variation of old param</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_operator</span></code></a>(stack_loc)</td>
-<td>Produces random operator and parameters.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_params" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_operator_params</span></code></a>(arity,&nbsp;stack_loc)</td>
-<td>Produces random tuple for use as operator parameters</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_type" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_operator_type</span></code></a>()</td>
-<td>Picks a random operator from the operator list</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_terminal</span></code></a>()</td>
-<td>Produces random terminal node and value</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal_param" title="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal_param"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand_terminal_param</span></code></a>(terminal)</td>
-<td>Produces random terminal value, either input variable or float</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.add_node_type">
-<code class="descname">add_node_type</code><span class="sig-paren">(</span><em>node_type</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.add_node_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a type of node to the set of allowed types</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node_type</strong> – acyclic graph node type which will be added to the
-allowable set</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.generate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates random individual. Fills stack based on random
-nodes/terminals and random parameters</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">new random acyclic graph individual</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.mutate_terminal_param">
-<code class="descname">mutate_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.mutate_terminal_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random terminal value, either input variable or float
-Mutates floats by getting random variation of old param</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator">
-<code class="descname">rand_operator</code><span class="sig-paren">(</span><em>stack_loc</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random operator and parameters. Chooses operator from list of
-allowable node types</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stack_loc</strong> – location of command in stack</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">random operator with parameters</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_params">
-<em class="property">static </em><code class="descname">rand_operator_params</code><span class="sig-paren">(</span><em>arity</em>, <em>stack_loc</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random tuple for use as operator parameters</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>arity</strong> – number of parameters needed</li>
-<li><strong>stack_loc</strong> – location of command in stack</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple of parameters</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_type">
-<code class="descname">rand_operator_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_operator_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Picks a random operator from the operator list</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">operator (acyclic graph node type)</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal">
-<code class="descname">rand_terminal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random terminal node and value</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Load node, data index or constant index</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal_param">
-<code class="descname">rand_terminal_param</code><span class="sig-paren">(</span><em>terminal</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator.rand_terminal_param" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces random terminal value, either input variable or float</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">terminal parameter</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </dd></dl>
 
 </div>
@@ -846,6 +587,216 @@ operator has arity 2 (as opposed to 1)</dd>
 </dl>
 </div>
 </div>
+<div class="section" id="module-bingo.AGraph.ComponentGenerator">
+<span id="bingo-agraph-componentgenerator-module"></span><h2>bingo.AGraph.ComponentGenerator module<a class="headerlink" href="#module-bingo.AGraph.ComponentGenerator" title="Permalink to this headline">¶</a></h2>
+<p>Component Generator for Agraph equations.</p>
+<p>This module covers the random generation of components of an Acyclic graph
+command stack. It can generate full commands or sub-components such as
+operators, terminals, and their associated parameters.</p>
+<dl class="class">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator">
+<em class="property">class </em><code class="descclassname">bingo.AGraph.ComponentGenerator.</code><code class="descname">ComponentGenerator</code><span class="sig-paren">(</span><em>input_x_dimension</em>, <em>num_initial_load_statements=1</em>, <em>terminal_probability=0.1</em>, <em>constant_probability=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generates commands or components of a command for an AGraph stack</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>input_x_dimension</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of independent variables</p>
+</dd>
+<dt><strong>num_initial_load_statements</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of commands at the beginning of stack
+which are required to be “load” commands</p>
+</dd>
+<dt><strong>terminal_probability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float [0.0-1.0]</span></dt>
+<dd><p class="first last">probability that a new node will be a terminal</p>
+</dd>
+<dt><strong>constant_probability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float [0.0-1.0]</span></dt>
+<dd><p class="first last">probability that a new terminal will be a constant</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.add_operator" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.add_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_operator</span></code></a>(operator_number[,&nbsp;operator_weight])</td>
+<td>Add an operator number to the set of possible operators</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_command" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_command</span></code></a>(stack_location)</td>
+<td>Get a random command</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_operator</span></code></a>()</td>
+<td>Get a random operator</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator_parameter" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_operator_parameter</span></code></a>(stack_location)</td>
+<td>Get random operator parameter</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_terminal</span></code></a>()</td>
+<td>Get a random terminal</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal_parameter" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal_parameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_terminal_parameter</span></code></a>(terminal_number)</td>
+<td>Get random terminal parameter</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.add_operator">
+<code class="descname">add_operator</code><span class="sig-paren">(</span><em>operator_number</em>, <em>operator_weight=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.add_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an operator number to the set of possible operators</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>operator_number</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">operator code defined in Agraph operator maps</p>
+</dd>
+<dt><strong>operator_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">number</span></dt>
+<dd><p class="first last">relative weight of operator probability</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_command">
+<code class="descname">random_command</code><span class="sig-paren">(</span><em>stack_location</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>stack_location</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">location in the stack for the command</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>array of int</strong></dt>
+<dd><p class="first last">a random command in the form [node, parameter 1, parameter 2]</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator">
+<code class="descname">random_operator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random operator</p>
+<blockquote>
+<div>Get a random operator from the list of possible operators.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">an operator number</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator_parameter">
+<em class="property">static </em><code class="descname">random_operator_parameter</code><span class="sig-paren">(</span><em>stack_location</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_operator_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get random operator parameter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>stack_location</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">location of command in stack</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">parameter to be used in an operator command</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The returned random operator parameter is guranteed to be less than
+stack_location.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal">
+<code class="descname">random_terminal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a random terminal</p>
+<blockquote>
+<div>Get a random load-X or load-C terminal.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">terminal number (0 or 1)</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal_parameter">
+<code class="descname">random_terminal_parameter</code><span class="sig-paren">(</span><em>terminal_number</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_terminal_parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get random terminal parameter</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>terminal_number</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">terminal number for which random parameter should be
+generated</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">parameter to be used in a terminal command</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="module-bingo.AGraph">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bingo.AGraph" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -877,7 +828,7 @@ operator has arity 2 (as opposed to 1)</dd>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.GeneticIndividual">bingo.GeneticIndividual module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.IndividualGenerator">bingo.IndividualGenerator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.IndividualVariation">bingo.IndividualVariation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Island">bingo.Island module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-islandmanager-module">bingo.IslandManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Plotting">bingo.Plotting module</a></li>

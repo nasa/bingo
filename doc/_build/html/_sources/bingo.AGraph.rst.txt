@@ -12,18 +12,10 @@ bingo.AGraph.AGraph module
     :undoc-members:
     :show-inheritance:
 
-bingo.AGraph.AGraphComponentGenerator module
---------------------------------------------
+bingo.AGraph.AGraphGeneration module
+------------------------------------
 
-.. automodule:: bingo.AGraph.AGraphComponentGenerator
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-bingo.AGraph.AGraphGenerator module
------------------------------------
-
-.. automodule:: bingo.AGraph.AGraphGenerator
+.. automodule:: bingo.AGraph.AGraphGeneration
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,6 +32,14 @@ bingo.AGraph.BackendOperators module
 ------------------------------------
 
 .. automodule:: bingo.AGraph.BackendOperators
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bingo.AGraph.ComponentGenerator module
+--------------------------------------
+
+.. automodule:: bingo.AGraph.ComponentGenerator
     :members:
     :undoc-members:
     :show-inheritance:

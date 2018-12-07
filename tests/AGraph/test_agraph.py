@@ -8,8 +8,6 @@ import numpy as np
 from bingo.AGraph.AGraph import AGraph
 
 
-
-
 @pytest.fixture
 def invalid_agraph():
     test_graph = AGraph()

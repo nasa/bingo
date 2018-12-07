@@ -24,7 +24,7 @@ class ProbabilityMassFunction:
 
     Attributes
     ----------
-    items : lit
+    items : list
             The current items in the PMF
     normalized_weights : list-like numeric
                          The probabilities of items
@@ -36,25 +36,13 @@ class ProbabilityMassFunction:
         """
         if items is None:
             items = []
-
-        self._is_init_param_listlike(items)
         self.items = items
 
         if weights is None:
             weights = self._get_default_weights()
-
-        self._is_init_param_listlike(weights)
         self._is_weights_same_size_as_items(weights)
         self._total_weight, self.normalized_weights = \
             self._normalize_weights(weights)
-
-    @staticmethod
-    def _is_init_param_listlike(init_param):
-        if not hasattr(init_param, "__len__") or isinstance(init_param, str):
-            LOGGER.error("Initialization of ProbabilityMassFunction with "
-                         "non-listlike parameters")
-            LOGGER.error(str(init_param))
-            raise ValueError
 
     def _get_default_weights(self):
         n_items = len(self.items)
@@ -74,7 +62,7 @@ class ProbabilityMassFunction:
 
     @staticmethod
     def _normalize_weights(weights):
-        total_weight = ProbabilityMassFunction._calculate_total_weight(weights)
+        total_weight = np.sum(weights)
         normalized_weights = np.array(weights) / total_weight
         ProbabilityMassFunction._check_valid_weights(normalized_weights,
                                                      weights)
@@ -89,17 +77,6 @@ class ProbabilityMassFunction:
                              "ProbabilityMassFunction")
                 LOGGER.error("weights = %s", weights)
                 raise ValueError
-
-    @staticmethod
-    def _calculate_total_weight(weights):
-        try:
-            total_weight = np.sum(weights)
-        except TypeError:
-            LOGGER.error("Initialization of ProbabilityMassFunction with "
-                         "non-numeric weights")
-            LOGGER.error("weights = %s", weights)
-            raise TypeError
-        return total_weight
 
     def add_item(self, new_item, new_weight=None):
         """Adds a single item to the PMF.

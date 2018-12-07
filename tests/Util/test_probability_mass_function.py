@@ -38,8 +38,9 @@ def test_raises_exception_for_uneven_init():
 
 
 def test_raises_exception_for_non_listlike_init():
-    with pytest.raises(ValueError):
-        ProbabilityMassFunction(items="happy")
+    with pytest.raises(AttributeError):
+        pmf = ProbabilityMassFunction(items="happy")
+        pmf.add_item("sad")
 
 
 def test_raises_exception_for_non_numeric_weight():

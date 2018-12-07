@@ -20,8 +20,7 @@ def sample_generator():
 
 @pytest.mark.parametrize("x_dim,expected_error", [
     (-1, ValueError),
-    ("string", TypeError),
-    (3.5, TypeError)
+    ("string", TypeError)
 ])
 def test_raises_error_invalid_x_dimension(x_dim, expected_error):
     with pytest.raises(expected_error):
@@ -30,8 +29,7 @@ def test_raises_error_invalid_x_dimension(x_dim, expected_error):
 
 @pytest.mark.parametrize("num_loads,expected_error", [
     (0, ValueError),
-    ("string", TypeError),
-    (3.5, TypeError)
+    ("string", TypeError)
 ])
 def test_raises_error_invalid_initial_loads(num_loads, expected_error):
     with pytest.raises(expected_error):

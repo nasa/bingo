@@ -9,6 +9,7 @@ import numbers
 import numpy as np
 
 from ..Util.ProbabilityMassFunction import ProbabilityMassFunction
+from ..Util.ArgumentValidation import argument_validation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,14 +29,13 @@ class ComponentGenerator:
     constant_probability : float [0.0-1.0]
                            probability that a new terminal will be a constant
     """
-
+    @argument_validation(input_x_dimension={">=": 0},
+                         num_initial_load_statements={">=": 1},
+                         terminal_probability={">=": 0.0, "<=": 1.0},
+                         constant_probability={">=": 0.0, "<=": 1.0})
     def __init__(self, input_x_dimension, num_initial_load_statements=1,
                  terminal_probability=0.1,
                  constant_probability=None):
-        self._check_valid_init_params(constant_probability,
-                                      input_x_dimension,
-                                      num_initial_load_statements,
-                                      terminal_probability)
 
         self._input_x_dimension = input_x_dimension
         self._num_initial_load_statements = num_initial_load_statements
@@ -44,55 +44,6 @@ class ComponentGenerator:
         self._operator_pmf = ProbabilityMassFunction()
         self._random_command_function_pmf = \
             self._make_random_command_pmf(terminal_probability)
-
-    @staticmethod
-    def _check_valid_init_params(constant_probability, input_x_dimension,
-                                 num_initial_load_statements,
-                                 terminal_probability):
-        ComponentGenerator._check_valid_x_dimension(input_x_dimension)
-        ComponentGenerator._check_valid_num_loads(num_initial_load_statements)
-        ComponentGenerator._check_valid_probability(terminal_probability)
-        if constant_probability is not None:
-            ComponentGenerator._check_valid_probability(constant_probability)
-
-    @staticmethod
-    def _check_valid_x_dimension(x_dimension):
-        if not isinstance(x_dimension, int):
-            LOGGER.error("Initialization of Agraph.ComponentGenerator with "
-                         "non-integer x-dimension")
-            LOGGER.error("input_x_dimension = %s", x_dimension)
-            raise TypeError
-        if x_dimension < 0:
-            LOGGER.error("Initialization of Agraph.ComponentGenerator with "
-                         "negative x-dimesnion.")
-            LOGGER.error("input_x_dimension = %s", x_dimension)
-            raise ValueError
-
-    @staticmethod
-    def _check_valid_num_loads(num_loads):
-        if not isinstance(num_loads, int):
-            LOGGER.error("Initialization of Agraph.ComponentGenerator with "
-                         "non-integer number of load statements")
-            LOGGER.error("num_initial_load_statements = %s", num_loads)
-            raise TypeError
-        if num_loads < 1:
-            LOGGER.error("Initialization of Agraph.ComponentGenerator with "
-                         "non-positive load statements, must be >= 1.")
-            LOGGER.error("num_initial_load_statements = %s", num_loads)
-            raise ValueError
-
-    @staticmethod
-    def _check_valid_probability(probability):
-        if not isinstance(probability, numbers.Number):
-            LOGGER.error("Initialization of Agraph.ComponentGenerator with "
-                         "non-numeric probability")
-            LOGGER.error("probability = %s", probability)
-            raise TypeError
-        if probability > 1.0 or probability < 0.0:
-            LOGGER.error("Initialization of Agraph.ComponentGenerator with "
-                         "invalid probability, must be [0.0 - 1.0].")
-            LOGGER.error("probability = %s", probability)
-            raise ValueError
 
     def _make_terminal_pdf(self, constant_probability):
         if constant_probability is None:

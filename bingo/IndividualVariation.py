@@ -6,7 +6,7 @@ evolution in bingo
 from abc import ABCMeta, abstractmethod
 
 
-class IndividualGeneration(metaclass=ABCMeta):
+class Generation(metaclass=ABCMeta):
     """A generator of individuals.
 
     An abstract base class for the generation of genetic individuals in
@@ -14,7 +14,7 @@ class IndividualGeneration(metaclass=ABCMeta):
     """
     @abstractmethod
     def __call__(self):
-        """Generates individuals for evolutionary optimization
+        """Generates individuals
 
         Returns
         -------
@@ -24,19 +24,19 @@ class IndividualGeneration(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class IndividualMutation(metaclass=ABCMeta):
+class Mutation(metaclass=ABCMeta):
     """A mutator of individuals.
 
     An abstract base class for the mutation of genetic individuals in
     bingo.
     """
     @abstractmethod
-    def __call__(self, individual):
-        """Generates individuals for evolutionary optimization
+    def __call__(self, parent):
+        """Mutates individuals
 
         Parameters
         ----------
-        individual : GeneticIndividual
+        parent : GeneticIndividual
                      The individual to be mutated.
 
         Returns
@@ -47,15 +47,15 @@ class IndividualMutation(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class IndividualCrossover(metaclass=ABCMeta):
+class Crossover(metaclass=ABCMeta):
     """Crossover for individuals.
 
     An abstract base class for the crossovor between two genetic
     individuals in bingo.
     """
     @abstractmethod
-    def __call__(self, individual):
-        """Generates individuals for evolutionary optimization
+    def __call__(self, parent_1, parent_2):
+        """Crossover between two individuals
 
         Parameters
         ----------

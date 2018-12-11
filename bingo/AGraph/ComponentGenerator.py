@@ -36,7 +36,7 @@ class ComponentGenerator:
                  terminal_probability=0.1,
                  constant_probability=None):
 
-        self._input_x_dimension = input_x_dimension
+        self.input_x_dimension = input_x_dimension
         self._num_initial_load_statements = num_initial_load_statements
 
         self._terminal_pmf = self._make_terminal_pdf(constant_probability)
@@ -46,7 +46,7 @@ class ComponentGenerator:
 
     def _make_terminal_pdf(self, constant_probability):
         if constant_probability is None:
-            terminal_weight = [1, self._input_x_dimension]
+            terminal_weight = [1, self.input_x_dimension]
         else:
             terminal_weight = [constant_probability,
                                1.0 - constant_probability]
@@ -163,7 +163,27 @@ class ComponentGenerator:
             parameter to be used in a terminal command
         """
         if terminal_number == 0:
-            param = np.random.randint(self._input_x_dimension)
+            param = np.random.randint(self.input_x_dimension)
         else:
             param = -1
         return param
+
+    def get_number_of_terminals(self):
+        """Gets number of possible terminals
+
+        Returns
+        -------
+        int :
+            number of terminals
+        """
+        return len(self._terminal_pmf.items)
+
+    def get_number_of_operators(self):
+        """Gets number of possible operators
+
+        Returns
+        -------
+        int :
+            number of operators
+        """
+        return len(self._operator_pmf.items)

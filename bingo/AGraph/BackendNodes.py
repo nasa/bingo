@@ -1,16 +1,19 @@
 """
 This module provides the python implementation of the functions for each
-mathematical operator used in Agraph
+mathematical nodes used in Agraph
 
 Attributes
 ----------
 IS_ARITY_2_MAP : dictionary {int: bool}
-                 A map of operator number to boolean that states whether the
-                 operator has arity 2 (as opposed to 1)
+                 A map of node number to boolean that states whether the
+                 node has arity 2 (as opposed to 1)
+IS_TERMINAL_MAP : dictionary {int: bool}
+                 A map of node number to boolean that states whether the
+                 node is a terminal
 FORWARD_EVAL_MAP : dictionary {int: function}
-                   A map of operator number to evaluation function
+                   A map of node number to evaluation function
 REVERSE_EVAL_MAP : dictionary {int: function}
-                   A map of operator number to derivative evaluation function
+                   A map of node number to derivative evaluation function
 """
 
 import numpy as np
@@ -164,7 +167,7 @@ def _sqrt_reverse_eval(reverse_index, param1, _param2, forward_eval,
                             np.sign(forward_eval[param1])
 
 
-# Operator maps
+# Node maps
 IS_ARITY_2_MAP = {0: False,
                   1: False,
                   2: True,

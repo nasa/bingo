@@ -6,7 +6,7 @@ demanding functions required by the Agraph.
 
 import numpy as np
 
-from bingo.AGraph import BackendOperators as Operators
+from bingo.AGraph import BackendNodes as Nodes
 
 
 def simplify_and_evaluate(stack, x, constants):
@@ -92,10 +92,10 @@ def get_utilized_commands(stack):
     util = [False]*stack.shape[0]
     util[-1] = True
     for i in range(1, stack.shape[0]):
-        operator, param1, param2 = stack[-i]
-        if util[-i] and operator > 1:
+        node, param1, param2 = stack[-i]
+        if util[-i] and node > 1:
             util[param1] = True
-            if Operators.IS_ARITY_2_MAP[operator]:
+            if Nodes.IS_ARITY_2_MAP[node]:
                 util[param2] = True
     return util
 
@@ -104,12 +104,12 @@ def _forward_eval_with_mask(stack, x, constants, used_commands_mask):
     forward_eval = np.empty((stack.shape[0], x.shape[0]))
     for i, command_is_used in enumerate(used_commands_mask):
         if command_is_used:
-            operator, param1, param2 = stack[i]
-            forward_eval[i] = Operators.FORWARD_EVAL_MAP[operator](param1,
-                                                                   param2,
-                                                                   x,
-                                                                   constants,
-                                                                   forward_eval)
+            node, param1, param2 = stack[i]
+            forward_eval[i] = Nodes.FORWARD_EVAL_MAP[node](param1,
+                                                           param2,
+                                                           x,
+                                                           constants,
+                                                           forward_eval)
     return forward_eval
 
 
@@ -121,29 +121,29 @@ def _evaluate_with_derivative_and_mask(stack, x, constants, used_commands_mask,
 
     if wrt_param_x_or_c:  # x
         deriv_shape = x.shape
-        deriv_wrt_operator = 0
+        deriv_wrt_node = 0
     else:  # c
         deriv_shape = (x.shape[0], len(constants))
-        deriv_wrt_operator = 1
+        deriv_wrt_node = 1
 
-    derivative = _reverse_eval_with_mask(deriv_shape, deriv_wrt_operator,
+    derivative = _reverse_eval_with_mask(deriv_shape, deriv_wrt_node,
                                          forward_eval, stack,
                                          used_commands_mask)
 
     return forward_eval[-1].reshape((-1, 1)), derivative
 
 
-def _reverse_eval_with_mask(deriv_shape, deriv_wrt_operator, forward_eval,
+def _reverse_eval_with_mask(deriv_shape, deriv_wrt_node, forward_eval,
                             stack, used_commands_mask):
     derivative = np.zeros(deriv_shape)
     reverse_eval = [0] * stack.shape[0]
     reverse_eval[-1] = 1.0
     for i in range(stack.shape[0] - 1, -1, -1):
         if used_commands_mask[i]:
-            operator, param1, param2 = stack[i]
-            if operator == deriv_wrt_operator:
+            node, param1, param2 = stack[i]
+            if node == deriv_wrt_node:
                 derivative[:, param1] += reverse_eval[i]
             else:
-                Operators.REVERSE_EVAL_MAP[operator](i, param1, param2,
-                                                     forward_eval, reverse_eval)
+                Nodes.REVERSE_EVAL_MAP[node](i, param1, param2,
+                                             forward_eval, reverse_eval)
     return derivative

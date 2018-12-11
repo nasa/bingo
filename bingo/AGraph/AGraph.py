@@ -11,23 +11,23 @@ The stack is represented as Nx3 integer array. Where each row of the array
 corresponds to a single command with form:
 
 ========  ===========  ===========
-Operator  Parameter 1  Parameter 2
+Node      Parameter 1  Parameter 2
 ========  ===========  ===========
 
 Where the parameters are a reference to the result of previously executed
 commands (referenced by row number in the stack). The result of the last (N'th)
 command in the stack is the evaluation of the equation.
 
-Note: Parameter values have special meaning for two of the operators (0 and 1).
+Note: Parameter values have special meaning for two of the nodes (0 and 1).
 
-Operators
+Nodes
 ---------
 
-An integer to operator mapping is how the command stack is parsed.
+An integer to node mapping is how the command stack is parsed.
 The current map is outlined below.
 
 ========  =======================================  =================
-Operator  Name                                     Math
+Node      Name                                     Math
 ========  =======================================  =================
 0         load p1'th column of x                   :math:`x_{p1}`
 1         load p1'th constant                      :math:`c_{p1}`
@@ -124,6 +124,12 @@ class AGraph(EquationIndividual):
     @command_array.setter
     def command_array(self, command_array):
         self._command_array = command_array
+        self._fitness = None
+        self.fit_set = False
+
+    def notify_command_array_modification(self):
+        """Notify individual of inplace modification of its command array"""
+        self._fitness = None
         self.fit_set = False
 
     def needs_local_optimization(self):
@@ -136,7 +142,7 @@ class AGraph(EquationIndividual):
         bool
             Constants need optimization
         """
-        util = Backend.get_utilized_commands(self._command_array)
+        util = self.get_utilized_commands()
         for i in range(self._command_array.shape[0]):
             if util[i]:
                 if self._command_array[i][0] == 1:
@@ -144,6 +150,19 @@ class AGraph(EquationIndividual):
                             self._command_array[i][1] >= len(self._constants):
                         return True
         return False
+
+    def get_utilized_commands(self):
+        """"Find which commands are utilized.
+
+        Find the commands in the command array of the agraph upon which the
+        last command relies. This is inclusive of the last command.
+
+        Returns
+        -------
+        list of bool of length N
+            Boolean values for whether each command is utilized.
+        """
+        return Backend.get_utilized_commands(self._command_array)
 
     def get_number_local_optimization_params(self):
         """number of parameters for local optimization
@@ -155,7 +174,7 @@ class AGraph(EquationIndividual):
         int
             Number of constants that need to be optimized
         """
-        util = Backend.get_utilized_commands(self._command_array)
+        util = self.get_utilized_commands()
         const_num = 0
         for i in range(self._command_array.shape[0]):
             if util[i]:
@@ -292,12 +311,11 @@ class AGraph(EquationIndividual):
         int
             number of utilized commands in stack
         """
-        return np.count_nonzero(Backend.get_utilized_commands(
-            self._command_array))
+        return np.count_nonzero(self.get_utilized_commands())
 
     def _get_stack_string(self, short=False):
         if short:
-            rows_to_show = Backend.get_utilized_commands(self._command_array)
+            rows_to_show = self.get_utilized_commands()
         else:
             rows_to_show = np.ones(self._command_array.shape[0], bool)
         tmp_str = ""
@@ -325,7 +343,7 @@ class AGraph(EquationIndividual):
         return tmp_str
 
     def _get_formatted_string_using(self, format_dict):
-        utilized_rows = Backend.get_utilized_commands(self._command_array)
+        utilized_rows = self.get_utilized_commands()
         str_list = []
         for i, show_command in enumerate(utilized_rows):
             if show_command:

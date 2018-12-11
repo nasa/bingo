@@ -292,7 +292,8 @@ class Mutation(IndividualVariation.Mutation):
         utilized_commands = individual.get_utilized_commands()
         operators = []
         for i, (util, node) in enumerate(zip(utilized_commands,
-                                             individual.command_array[:-1, 0])):
+                                             individual.command_array[:-1,
+                                                                      0])):
             if util:
                 if not IS_TERMINAL_MAP[node]:
                     operators.append(i)

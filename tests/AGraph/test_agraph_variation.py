@@ -265,7 +265,7 @@ def test_pruning_mutation(parent, sample_component_generator):
 
         p_changes = p_stack[changes]
         c_changes = c_stack[changes]
-        if p_changes:
+        if p_changes.size > 0:
             np.testing.assert_array_equal(p_changes,
                                           np.full(p_changes.shape,
                                                   p_changes[0]))

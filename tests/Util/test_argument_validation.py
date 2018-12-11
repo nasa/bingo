@@ -76,7 +76,7 @@ def test_ignoring_defaults(default, check):
 
 
 def test_raises_error_nonexisting_argument():
-    @argument_validation(b={"<=": 0})
+    @argument_validation(arg2={"<=": 0})
     def test(arg):
         print(arg)
     with pytest.raises(SyntaxError):
@@ -84,7 +84,7 @@ def test_raises_error_nonexisting_argument():
 
 
 def test_raises_error_nonexisting_check():
-    @argument_validation(b={"==": 0})
+    @argument_validation(arg={"==": 0})
     def test(arg):
         print(arg)
     with pytest.raises(SyntaxError):

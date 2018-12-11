@@ -179,6 +179,20 @@ IS_ARITY_2_MAP = {0: False,
                   11: False,
                   12: False}
 
+IS_TERMINAL_MAP = {0: True,
+                   1: True,
+                   2: False,
+                   3: False,
+                   4: False,
+                   5: False,
+                   6: False,
+                   7: False,
+                   8: False,
+                   9: False,
+                   10: False,
+                   11: False,
+                   12: False}
+
 FORWARD_EVAL_MAP = {0: _loadx_forward_eval,
                     1: _loadc_forward_eval,
                     2: _add_forward_eval,

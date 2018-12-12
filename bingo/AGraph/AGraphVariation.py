@@ -41,7 +41,7 @@ class Generation(IndividualVariation.Generation):
         return individual
 
     def _create_command_array(self):
-        command_array = np.empty((self.agraph_size, 3))
+        command_array = np.empty((self.agraph_size, 3), dtype=int)
         for i in range(self.agraph_size):
             command_array[i] = self.component_generator.random_command(i)
         return command_array

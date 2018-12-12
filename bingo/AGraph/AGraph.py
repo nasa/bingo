@@ -45,19 +45,16 @@ Node      Name                                     Math
 ========  =======================================  =================
 """
 import logging
-
 import numpy as np
 
 from ..GeneticIndividual import EquationIndividual
-from . import Backend
+try:
+    from bingocpp.build import bingocpp as Backend
+except ImportError:
+    from . import AGraphBackend as Backend
+
 
 LOGGER = logging.getLogger(__name__)
-
-# try:
-#     sys.path.append("..")
-#     from bingocpp.build import bingocpp as Backend
-# except ImportError:
-#     from . import AGraphBackend as Backend
 
 
 STACK_PRINT_MAP = {2: "({}) + ({})",
@@ -108,7 +105,7 @@ class AGraph(EquationIndividual):
     """
     def __init__(self):
         super().__init__()
-        self._command_array = np.empty([0, 3])
+        self._command_array = np.empty([0, 3], dtype=int)
         self._constants = []
 
     @property

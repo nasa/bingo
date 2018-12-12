@@ -9,6 +9,17 @@ import numpy as np
 from bingo.AGraph import BackendNodes as Nodes
 
 
+def is_cpp():
+    """Identify whether the backend is C++
+
+    Returns
+    -------
+    bool :
+        false, the backend is not c++
+    """
+    return False
+
+
 def simplify_and_evaluate(stack, x, constants):
     """Evaluate an equation after simplification.
 

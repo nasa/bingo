@@ -1,13 +1,15 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
+
 import timeit
 import numpy as np
 
 from bingo.AGraph import AGraph
 from bingo.AGraph import AGraphVariation
 from bingo.AGraph.ComponentGenerator import ComponentGenerator
-from bingocpp.build import bingocpp as cppBackend
 from bingo.AGraph import Backend as pyBackend
-
-# TODO benchmarks for both backends!!!!!!!!!!!!!!!!!!
+from bingocpp.build import bingocpp as cppBackend
 
 
 def generate_random_individuals(num_individuals, stack_size):
@@ -88,10 +90,8 @@ class StatsPrinter:
             print(line)
 
 
-if __name__ == '__main__':
-
+def do_benchmarking():
     printer = StatsPrinter()
-
     for backend, name in [[pyBackend, "py"], [cppBackend, "c++"]]:
         AGraph.Backend = backend
         printer.add_stats(name + ": evaluate",
@@ -104,3 +104,8 @@ if __name__ == '__main__':
                           timeit.repeat(benchmark_evaluate_w_c_derivative,
                                         number=100, repeat=10))
     printer.print()
+
+
+if __name__ == '__main__':
+
+    do_benchmarking()

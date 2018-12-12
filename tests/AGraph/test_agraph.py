@@ -5,12 +5,15 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.AGraph.AGraph import AGraph
+from bingo.AGraph import AGraph
+from bingo.AGraph import Backend as py_backend
+
+AGraph.Backend = py_backend
 
 
 @pytest.fixture
 def invalid_agraph():
-    test_graph = AGraph()
+    test_graph = AGraph.AGraph()
     test_graph.command_array = np.array([[0, 0, 0],  # sin(X_0) + 1.0
                                          [1, 0, 0],
                                          [2, 0, 1],
@@ -21,7 +24,7 @@ def invalid_agraph():
 
 @pytest.fixture
 def sample_agraph():
-    test_graph = AGraph()
+    test_graph = AGraph.AGraph()
     test_graph.command_array = np.array([[0, 0, 0],  # sin(X_0) + 1.0
                                          [1, 0, 0],
                                          [2, 0, 1],
@@ -46,7 +49,7 @@ def sample_values():
 
 @pytest.fixture
 def all_funcs_agraph():
-    test_graph = AGraph()
+    test_graph = AGraph.AGraph()
     test_graph.genetic_age = 10
     test_graph.command_array = np.array([[0, 0, 0],
                                          [1, 0, 0],

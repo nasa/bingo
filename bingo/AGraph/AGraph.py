@@ -416,4 +416,3 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         LOGGER.error(str(self))
         LOGGER.error(str(ex))
         raise RuntimeError
-    

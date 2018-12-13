@@ -16,7 +16,7 @@ Node      Parameter 1  Parameter 2
 
 Where the parameters are a reference to the result of previously executed
 commands (referenced by row number in the stack). The result of the last (N'th)
-command in the stack is the evaluation of the equation.
+command in the stack is the evaluation of the equation. 
 
 Note: Parameter values have special meaning for two of the nodes (0 and 1).
 

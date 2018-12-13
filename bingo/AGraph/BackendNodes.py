@@ -4,12 +4,6 @@ mathematical nodes used in Agraph
 
 Attributes
 ----------
-IS_ARITY_2_MAP : dictionary {int: bool}
-                 A map of node number to boolean that states whether the
-                 node has arity 2 (as opposed to 1)
-IS_TERMINAL_MAP : dictionary {int: bool}
-                 A map of node number to boolean that states whether the
-                 node is a terminal
 FORWARD_EVAL_MAP : dictionary {int: function}
                    A map of node number to evaluation function
 REVERSE_EVAL_MAP : dictionary {int: function}
@@ -168,33 +162,6 @@ def _sqrt_reverse_eval(reverse_index, param1, _param2, forward_eval,
 
 
 # Node maps
-IS_ARITY_2_MAP = {0: False,
-                  1: False,
-                  2: True,
-                  3: True,
-                  4: True,
-                  5: True,
-                  6: False,
-                  7: False,
-                  8: False,
-                  9: False,
-                  10: True,
-                  11: False,
-                  12: False}
-
-IS_TERMINAL_MAP = {0: True,
-                   1: True,
-                   2: False,
-                   3: False,
-                   4: False,
-                   5: False,
-                   6: False,
-                   7: False,
-                   8: False,
-                   9: False,
-                   10: False,
-                   11: False,
-                   12: False}
 
 FORWARD_EVAL_MAP = {0: _loadx_forward_eval,
                     1: _loadc_forward_eval,

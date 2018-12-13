@@ -6,7 +6,8 @@ demanding functions required by the Agraph.
 
 import numpy as np
 
-from bingo.AGraph import BackendNodes as Nodes
+from .AGraph import IS_ARITY_2_MAP
+from . import BackendNodes as Nodes
 
 
 def is_cpp():
@@ -106,7 +107,7 @@ def get_utilized_commands(stack):
         node, param1, param2 = stack[-i]
         if util[-i] and node > 1:
             util[param1] = True
-            if Nodes.IS_ARITY_2_MAP[node]:
+            if IS_ARITY_2_MAP[node]:
                 util[param2] = True
     return util
 

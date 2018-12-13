@@ -1,96 +1,18 @@
-"""Generator of Agraph individuals
+"""Mutation of acyclic graph individuals.
 
-This module covers the random generation of acyclic graph individuals.
+This module contains the implementation of mutation for acyclic graph
+individuals, which is composed of 4 possible mutation strategies: command
+mutation, node mutation, parameter mutation and pruning.
 """
 import numpy as np
 
-from .AGraph import AGraph
-from .BackendNodes import IS_TERMINAL_MAP, IS_ARITY_2_MAP
-from .. import IndividualVariation
-from ..Util.ProbabilityMassFunction import ProbabilityMassFunction
+from .AGraph import IS_ARITY_2_MAP, IS_TERMINAL_MAP
+from ..Base.Mutation import Mutation
 from ..Util.ArgumentValidation import argument_validation
+from ..Util.ProbabilityMassFunction import ProbabilityMassFunction
 
 
-class Generation(IndividualVariation.Generation):
-    """Generates acyclic graph individuals
-
-    Parameters
-    ----------
-    agraph_size : int
-                  command array size of the generated acyclic graphs
-    component_generator : AGraph.ComponentGenerator
-                          Generator of stack components of agraphs
-    """
-    @argument_validation(agraph_size={">=": 1})
-    def __init__(self, agraph_size, component_generator):
-        self.agraph_size = agraph_size
-        self.component_generator = component_generator
-
-    def __call__(self):
-        """Generates random agraph individual.
-
-        Fills stack based on random commands from the component generator.
-
-        Returns
-        -------
-        Agraph
-            new random acyclic graph individual
-        """
-        individual = AGraph()
-        individual.command_array = self._create_command_array()
-        return individual
-
-    def _create_command_array(self):
-        command_array = np.empty((self.agraph_size, 3), dtype=int)
-        for i in range(self.agraph_size):
-            command_array[i] = self.component_generator.random_command(i)
-        return command_array
-
-
-class Crossover(IndividualVariation.Crossover):
-    """Crossover between acyclic graph individuals"""
-
-    def __init__(self):
-        pass
-
-    def __call__(self, parent_1, parent_2):
-        """Single point crossover.
-
-        Parameters
-        ----------
-        parent_1 : Agraph
-                   The first parent individual
-        parent_2 : Agraph
-                   The second parent individual
-
-        Returns
-        -------
-        tuple(Agraph, Agraph) :
-            The two children from the crossover.
-        """
-
-        child_1 = parent_1.copy()
-        child_2 = parent_2.copy()
-
-        ag_size = parent_1.command_array.shape[0]
-        cross_point = np.random.randint(1, ag_size-1)
-        child_1.command_array[cross_point:] = \
-            parent_2.command_array[cross_point:]
-        child_2.command_array[cross_point:] = \
-            parent_1.command_array[cross_point:]
-
-        # TODO can we shift this responsibility to agraph?
-        child_1.notify_command_array_modification()
-        child_2.notify_command_array_modification()
-
-        child_age = max(parent_1.genetic_age, parent_2.genetic_age)
-        child_1.genetic_age = child_age
-        child_2.genetic_age = child_age
-
-        return child_1, child_2
-
-
-class Mutation(IndividualVariation.Mutation):
+class AGraphMutation(Mutation):
     """Mutation of acyclic graph individual
 
     Mutation of an agraph individual my modification of its command array.
@@ -265,7 +187,8 @@ class Mutation(IndividualVariation.Mutation):
 
     @staticmethod
     def _prune_branch(individual):
-        mutation_location = Mutation._get_random_prune_location(individual)
+        mutation_location = \
+            AGraphMutation._get_random_prune_location(individual)
         if mutation_location is None:
             return
 

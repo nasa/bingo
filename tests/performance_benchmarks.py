@@ -6,7 +6,7 @@ import timeit
 import numpy as np
 
 from bingo.AGraph import AGraph
-from bingo.AGraph import AGraphVariation
+from bingo.AGraph import AGraphGenerator
 from bingo.AGraph.ComponentGenerator import ComponentGenerator
 from bingo.AGraph import Backend as pyBackend
 from bingocpp.build import bingocpp as cppBackend
@@ -28,7 +28,7 @@ def set_up_agraph_generator(stack_size):
                                    terminal_probability=0.1)
     for i in range(2, 13):
         generator.add_operator(i)
-    generate_agraph = AGraphVariation.Generation(stack_size, generator)
+    generate_agraph = AGraphGenerator.Generator(stack_size, generator)
     return generate_agraph
 
 

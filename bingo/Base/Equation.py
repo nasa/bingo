@@ -1,102 +1,18 @@
-"""Base classes for genetic individuals
+"""The base of equation chromosomes in bingo.
 
-This module has the base classes for genetic individuals in bingo evolutionary
-analyses.  Extension of bingo can be performed by developing subclasses of the
-classes herein.
+This module defines the basis of equations in bingo evolutionary analyses.
+Equations are commonly used in symbolic regression, a specific application of
+genetic programming.
 """
-
-import copy
 from abc import ABCMeta, abstractmethod
 
-
-class GeneticIndividual(metaclass=ABCMeta):
-    """A genetic individual
-
-    This class is the base of a genetic individual in bingo evolutionary
-    analyses.
-
-    Attributes
-    ----------
-    fitness
-    genetic_age : int
-                  age of the oldest component of the genetic material in the
-                  individual
-    fit_set : bool
-              Whether the fitness has been calculated for the individual
-    """
-    def __init__(self):
-        self.genetic_age = 0
-        self._fitness = None
-        self.fit_set = False
-
-    @property
-    def fitness(self):
-        """numeric or tuple of numeric: The fitness of the individual"""
-        return self._fitness
-
-    @fitness.setter
-    def fitness(self, fitness):
-        self._fitness = fitness
-        self.fit_set = True
-
-    def copy(self):
-        """copy
-
-        Returns
-        -------
-            A deep copy of self
-        """
-        return copy.deepcopy(self)
-
-    @abstractmethod
-    def __str__(self):
-        """String conversion of individual
-
-        Returns
-        -------
-        str
-            individual string form
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def needs_local_optimization(self):
-        """Does the individual need local optimization
-
-        Returns
-        -------
-        bool
-            Individual needs optimization
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_number_local_optimization_params(self):
-        """Get number of parameters in local optimization
-
-        Returns
-        -------
-        int
-            number of paramneters to be optimized
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def set_local_optimization_params(self, params):
-        """Set local optimization parameters
-
-        Parameters
-        ----------
-        params : list-like of numeric
-                 Values to set the parameters
-        """
-        raise NotImplementedError
+from .Chromosome import Chromosome
 
 
-class EquationIndividual(GeneticIndividual, metaclass=ABCMeta):
+class Equation(Chromosome, metaclass=ABCMeta):
     """Base representation of an equation
 
-    This class is the base of a equations used in symbolic regression alayses
+    This class is the base of a equations used in symbolic regression analyses
     in bingo.
     """
 

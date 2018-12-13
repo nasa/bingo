@@ -6,14 +6,14 @@ import pytest
 from bingo.Util.ProbabilityMassFunction import ProbabilityMassFunction
 
 
-@pytest.fixture
-def all_true_pmf():
-    return ProbabilityMassFunction(items=[True, False], weights=[1, 0])
-
-
-@pytest.fixture
-def all_false_pmf():
-    return ProbabilityMassFunction(items=[True, False], weights=[0, 1])
+@pytest.fixture(params=[True, False])
+def constant_pmf(request):
+    if request.param:
+        return (ProbabilityMassFunction(items=[True, False], weights=[1, 0]),
+                request.param)
+    else:
+        return (ProbabilityMassFunction(items=[True, False], weights=[0, 1]),
+                request.param)
 
 
 @pytest.fixture
@@ -53,33 +53,14 @@ def test_raises_exception_for_draw_from_empty_pmf(empty_pmf):
         _ = empty_pmf.draw_sample()
 
 
-@pytest.mark.parametrize("pmf,expected_value", [
-    (all_true_pmf(), True),
-    (all_false_pmf(), False),
-])
-def test_constant_pmfs(pmf, expected_value):
+def test_constant_pmfs(constant_pmf):
+    pmf, expected_value = constant_pmf
     for _ in range(10):
         assert pmf.draw_sample() == expected_value
 
 
-@pytest.mark.parametrize("pmf,expected_value", [
-    (all_true_pmf(), True),
-    (all_false_pmf(), False),
-])
-def test_expected_values_pmfs(pmf, expected_value):
-    for _ in range(10):
-        assert pmf.draw_sample() == expected_value
-
-
-@pytest.mark.parametrize("item", [
-    True,
-    "ABC",
-    sum,
-])
-@pytest.mark.parametrize("weight", [
-    None,
-    1.0
-])
+@pytest.mark.parametrize("item", [True, "ABC", sum])
+@pytest.mark.parametrize("weight", [None, 1.0])
 def test_add_items_to_empty_pmf(empty_pmf, item, weight):
     empty_pmf.add_item(item, weight)
     assert empty_pmf.draw_sample() == item

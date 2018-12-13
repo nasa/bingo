@@ -43,15 +43,33 @@ Node      Name                                     Math
 11        absolute value                           :math:`|p1|`
 12        square root                              :math:`sqrt(|p1|)`
 ========  =======================================  =================
+
+
+Attributes
+----------
+IS_ARITY_2_MAP : dict {int: bool}
+                 A map of node number to boolean that states whether the
+                 node has arity 2 (as opposed to 1)
+IS_TERMINAL_MAP : dict {int: bool}
+                 A map of node number to boolean that states whether the
+                 node is a terminal
+STACK_PRINT_MAP : dict {int: str}
+                  A map of node number to a format string for stack output
+LATEX_PRINT_MAP : dict {int: str}
+                  A map of node number to a format string for latex output
+CONSOLE_PRINT_MAP : dict {int: str}
+                  A map of node number to a format string for console output
 """
 import logging
 import numpy as np
 
-from ..GeneticIndividual import EquationIndividual
+from ..Base.Equation import Equation
+from ..Base import ContinuousLocalOptimization
+
 try:
     from bingocpp.build import bingocpp as Backend
-except ImportError:
-    from . import AGraphBackend as Backend
+except ImportError:                         # pragma: no cover
+    from . import AGraphBackend as Backend  # pragma: no cover
 
 
 LOGGER = logging.getLogger(__name__)
@@ -93,8 +111,36 @@ CONSOLE_PRINT_MAP = {2: "{} + {}",
                      11: "|{}|",
                      12: "sqrt({})"}
 
+IS_ARITY_2_MAP = {0: False,
+                  1: False,
+                  2: True,
+                  3: True,
+                  4: True,
+                  5: True,
+                  6: False,
+                  7: False,
+                  8: False,
+                  9: False,
+                  10: True,
+                  11: False,
+                  12: False}
 
-class AGraph(EquationIndividual):
+IS_TERMINAL_MAP = {0: True,
+                   1: True,
+                   2: False,
+                   3: False,
+                   4: False,
+                   5: False,
+                   6: False,
+                   7: False,
+                   8: False,
+                   9: False,
+                   10: False,
+                   11: False,
+                   12: False}
+
+
+class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     """Acyclic graph representation of an equation.
 
     Agraph is initialized with with empty command array and no constants.
@@ -370,3 +416,4 @@ class AGraph(EquationIndividual):
         LOGGER.error(str(self))
         LOGGER.error(str(ex))
         raise RuntimeError
+    

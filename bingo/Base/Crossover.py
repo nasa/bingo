@@ -1,5 +1,5 @@
 """The genetic operation of crossover.
- 
+
 This module defines the basis of crossover in bingo evolutionary analyses.
 """
 

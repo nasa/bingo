@@ -12,10 +12,26 @@ bingo.AGraph.AGraph module
     :undoc-members:
     :show-inheritance:
 
-bingo.AGraph.AGraphGeneration module
-------------------------------------
+bingo.AGraph.AGraphCrossover module
+-----------------------------------
 
-.. automodule:: bingo.AGraph.AGraphGeneration
+.. automodule:: bingo.AGraph.AGraphCrossover
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bingo.AGraph.AGraphGenerator module
+-----------------------------------
+
+.. automodule:: bingo.AGraph.AGraphGenerator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bingo.AGraph.AgraphMutation module
+----------------------------------
+
+.. automodule:: bingo.AGraph.AgraphMutation
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,10 +44,10 @@ bingo.AGraph.Backend module
     :undoc-members:
     :show-inheritance:
 
-bingo.AGraph.BackendOperators module
-------------------------------------
+bingo.AGraph.BackendNodes module
+--------------------------------
 
-.. automodule:: bingo.AGraph.BackendOperators
+.. automodule:: bingo.AGraph.BackendNodes
     :members:
     :undoc-members:
     :show-inheritance:

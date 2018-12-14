@@ -54,7 +54,7 @@ corresponds to a single command with form:</p>
 <col width="37%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td>Operator</td>
+<tr class="row-odd"><td>Node</td>
 <td>Parameter 1</td>
 <td>Parameter 2</td>
 </tr>
@@ -63,11 +63,11 @@ corresponds to a single command with form:</p>
 <p>Where the parameters are a reference to the result of previously executed
 commands (referenced by row number in the stack). The result of the last (N’th)
 command in the stack is the evaluation of the equation.</p>
-<p>Note: Parameter values have special meaning for two of the operators (0 and 1).</p>
+<p>Note: Parameter values have special meaning for two of the nodes (0 and 1).</p>
 </div>
-<div class="section" id="operators">
-<h3>Operators<a class="headerlink" href="#operators" title="Permalink to this headline">¶</a></h3>
-<p>An integer to operator mapping is how the command stack is parsed.
+<div class="section" id="nodes">
+<h3>Nodes<a class="headerlink" href="#nodes" title="Permalink to this headline">¶</a></h3>
+<p>An integer to node mapping is how the command stack is parsed.
 The current map is outlined below.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -76,7 +76,7 @@ The current map is outlined below.</p>
 <col width="28%" />
 </colgroup>
 <thead valign="bottom">
-<tr class="row-odd"><th class="head">Operator</th>
+<tr class="row-odd"><th class="head">Node</th>
 <th class="head">Name</th>
 <th class="head">Math</th>
 </tr>
@@ -136,10 +136,27 @@ The current map is outlined below.</p>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="section" id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>IS_ARITY_2_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dict {int: bool}</span></dt>
+<dd>A map of node number to boolean that states whether the
+node has arity 2 (as opposed to 1)</dd>
+<dt>IS_TERMINAL_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dict {int: bool}</span></dt>
+<dd>A map of node number to boolean that states whether the
+node is a terminal</dd>
+<dt>STACK_PRINT_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dict {int: str}</span></dt>
+<dd>A map of node number to a format string for stack output</dd>
+<dt>LATEX_PRINT_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dict {int: str}</span></dt>
+<dd>A map of node number to a format string for latex output</dd>
+<dt>CONSOLE_PRINT_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dict {int: str}</span></dt>
+<dd>A map of node number to a format string for console output</dd>
+</dl>
 <dl class="class">
 <dt id="bingo.AGraph.AGraph.AGraph">
 <em class="property">class </em><code class="descclassname">bingo.AGraph.AGraph.</code><code class="descname">AGraph</code><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="bingo.html#bingo.GeneticIndividual.EquationIndividual" title="bingo.GeneticIndividual.EquationIndividual"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.GeneticIndividual.EquationIndividual</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="bingo.Base.html#bingo.Base.Equation.Equation" title="bingo.Base.Equation.Equation"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.Base.Equation.Equation</span></code></a>, <a class="reference internal" href="bingo.Base.html#bingo.Base.ContinuousLocalOptimization.ChromosomeInterface" title="bingo.Base.ContinuousLocalOptimization.ChromosomeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.Base.ContinuousLocalOptimization.ChromosomeInterface</span></code></a></p>
 <p>Acyclic graph representation of an equation.</p>
 <p>Agraph is initialized with with empty command array and no constants.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -194,8 +211,14 @@ The current map is outlined below.</p>
 <tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_number_local_optimization_params" title="bingo.AGraph.AGraph.AGraph.get_number_local_optimization_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_local_optimization_params</span></code></a>()</td>
 <td>number of parameters for local optimization</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.needs_local_optimization" title="bingo.AGraph.AGraph.AGraph.needs_local_optimization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">needs_local_optimization</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_utilized_commands" title="bingo.AGraph.AGraph.AGraph.get_utilized_commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utilized_commands</span></code></a>()</td>
+<td>“Find which commands are utilized.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.needs_local_optimization" title="bingo.AGraph.AGraph.AGraph.needs_local_optimization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">needs_local_optimization</span></code></a>()</td>
 <td>The Agraph needs local optimization.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.notify_command_array_modification" title="bingo.AGraph.AGraph.AGraph.notify_command_array_modification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notify_command_array_modification</span></code></a>()</td>
+<td>Notify individual of inplace modification of its command array</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.set_local_optimization_params" title="bingo.AGraph.AGraph.AGraph.set_local_optimization_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_local_optimization_params</span></code></a>(params)</td>
 <td>Set the local optimization parameters.</td>
@@ -373,6 +396,27 @@ dimensions in x and M is the number of data points in x.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="bingo.AGraph.AGraph.AGraph.get_utilized_commands">
+<code class="descname">get_utilized_commands</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph.get_utilized_commands" title="Permalink to this definition">¶</a></dt>
+<dd><p>“Find which commands are utilized.</p>
+<p>Find the commands in the command array of the agraph upon which the
+last command relies. This is inclusive of the last command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list of bool of length N</strong></dt>
+<dd><p class="first last">Boolean values for whether each command is utilized.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="bingo.AGraph.AGraph.AGraph.needs_local_optimization">
 <code class="descname">needs_local_optimization</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph.needs_local_optimization" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Agraph needs local optimization.</p>
@@ -390,6 +434,12 @@ dimensions in x and M is the number of data points in x.</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.AGraph.AGraph.notify_command_array_modification">
+<code class="descname">notify_command_array_modification</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph.notify_command_array_modification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Notify individual of inplace modification of its command array</p>
 </dd></dl>
 
 <dl class="method">
@@ -416,14 +466,40 @@ dimensions in x and M is the number of data points in x.</p>
 
 </div>
 </div>
-<div class="section" id="module-bingo.AGraph.AGraphGeneration">
-<span id="bingo-agraph-agraphgeneration-module"></span><h2>bingo.AGraph.AGraphGeneration module<a class="headerlink" href="#module-bingo.AGraph.AGraphGeneration" title="Permalink to this headline">¶</a></h2>
-<p>Generator of Agraph individuals</p>
-<p>This module covers the random generation of acyclic graph individuals.</p>
+<div class="section" id="module-bingo.AGraph.AGraphCrossover">
+<span id="bingo-agraph-agraphcrossover-module"></span><h2>bingo.AGraph.AGraphCrossover module<a class="headerlink" href="#module-bingo.AGraph.AGraphCrossover" title="Permalink to this headline">¶</a></h2>
+<p>Definition of crossover between two acyclic graph individuals</p>
+<p>This module contains the implementation of single point crossover between
+acyclic graph individuals.</p>
 <dl class="class">
-<dt id="bingo.AGraph.AGraphGeneration.AGraphGeneration">
-<em class="property">class </em><code class="descclassname">bingo.AGraph.AGraphGeneration.</code><code class="descname">AGraphGeneration</code><span class="sig-paren">(</span><em>agraph_size</em>, <em>component_generator</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGeneration.AGraphGeneration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="bingo.html#bingo.IndividualVariation.IndividualGeneration" title="bingo.IndividualVariation.IndividualGeneration"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.IndividualVariation.IndividualGeneration</span></code></a></p>
+<dt id="bingo.AGraph.AGraphCrossover.AGraphCrossover">
+<em class="property">class </em><code class="descclassname">bingo.AGraph.AGraphCrossover.</code><code class="descname">AGraphCrossover</code><a class="headerlink" href="#bingo.AGraph.AGraphCrossover.AGraphCrossover" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.Base.html#bingo.Base.Crossover.Crossover" title="bingo.Base.Crossover.Crossover"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.Base.Crossover.Crossover</span></code></a></p>
+<p>Crossover between acyclic graph individuals</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(parent_1,&nbsp;parent_2)</td>
+<td>Single point crossover.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bingo.AGraph.AGraphGenerator">
+<span id="bingo-agraph-agraphgenerator-module"></span><h2>bingo.AGraph.AGraphGenerator module<a class="headerlink" href="#module-bingo.AGraph.AGraphGenerator" title="Permalink to this headline">¶</a></h2>
+<p>Generator of acyclic graph individuals.</p>
+<p>This module contains the implementation of the generation of random acyclic
+graph individuals.</p>
+<dl class="class">
+<dt id="bingo.AGraph.AGraphGenerator.AGraphGenerator">
+<em class="property">class </em><code class="descclassname">bingo.AGraph.AGraphGenerator.</code><code class="descname">AGraphGenerator</code><span class="sig-paren">(</span><em>agraph_size</em>, <em>component_generator</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraphGenerator.AGraphGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.Base.html#bingo.Base.Generator.Generator" title="bingo.Base.Generator.Generator"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.Base.Generator.Generator</span></code></a></p>
 <p>Generates acyclic graph individuals</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -456,6 +532,81 @@ dimensions in x and M is the number of data points in x.</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-bingo.AGraph.AgraphMutation">
+<span id="bingo-agraph-agraphmutation-module"></span><h2>bingo.AGraph.AgraphMutation module<a class="headerlink" href="#module-bingo.AGraph.AgraphMutation" title="Permalink to this headline">¶</a></h2>
+<p>Mutation of acyclic graph individuals.</p>
+<p>This module contains the implementation of mutation for acyclic graph
+individuals, which is composed of 4 possible mutation strategies: command
+mutation, node mutation, parameter mutation and pruning.</p>
+<dl class="class">
+<dt id="bingo.AGraph.AgraphMutation.AGraphMutation">
+<em class="property">class </em><code class="descclassname">bingo.AGraph.AgraphMutation.</code><code class="descname">AGraphMutation</code><span class="sig-paren">(</span><em>component_generator</em>, <em>command_probability=0.2</em>, <em>node_probability=0.3</em>, <em>parameter_probability=0.3</em>, <em>prune_probability=0.2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AgraphMutation.AGraphMutation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.Base.html#bingo.Base.Mutation.Mutation" title="bingo.Base.Mutation.Mutation"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.Base.Mutation.Mutation</span></code></a></p>
+<p>Mutation of acyclic graph individual</p>
+<p>Mutation of an agraph individual my modification of its command array.
+Mutation randomly takes one of the following 4 forms</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt>command mutation: An entire command (row) of the command array is</dt>
+<dd>replaced by a new random one</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>node mutation: The node of a command is replaced by a random</dt>
+<dd>new one.  Terminals will automatically have updated
+parameters to maintain consistency.</dd>
+</dl>
+</li>
+<li>parameter mutation: The parameters of a command are randomly changed.</li>
+<li><dl class="first docutils">
+<dt>pruning: The command array is adjusted to remove an operator from</dt>
+<dd>the evaluation of the agraph. Pruning a terminal does nothing.</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>command_probability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">probability of command mutation</p>
+</dd>
+<dt><strong>node_probability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">probability of node mutation</p>
+</dd>
+<dt><strong>parameter_probability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">probability of parameter mutation</p>
+</dd>
+<dt><strong>prune_probability</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">probability of pruning</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The input probabilities are normalized if their sum is not equal to 1.</p>
+<p>Mutation can result in no change if, for instance, a prune mutation is
+executed on a Agraph utilizing only a single terminal.</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(parent)</td>
+<td>Single point mutation.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 <div class="section" id="module-bingo.AGraph.Backend">
 <span id="bingo-agraph-backend-module"></span><h2>bingo.AGraph.Backend module<a class="headerlink" href="#module-bingo.AGraph.Backend" title="Permalink to this headline">¶</a></h2>
 <p>This module represents the python backend associated with the Agraph equation
@@ -482,6 +633,25 @@ commands in the stack.</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>list of bool of length N</strong></dt>
 <dd><p class="first last">Boolean values for whether each command is utilized.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bingo.AGraph.Backend.is_cpp">
+<code class="descclassname">bingo.AGraph.Backend.</code><code class="descname">is_cpp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.Backend.is_cpp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Identify whether the backend is C++</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool :</strong></dt>
+<dd><p class="first last">false, the backend is not c++</p>
 </dd>
 </dl>
 </td>
@@ -570,20 +740,17 @@ derivatives are wrt constants.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-bingo.AGraph.BackendOperators">
-<span id="bingo-agraph-backendoperators-module"></span><h2>bingo.AGraph.BackendOperators module<a class="headerlink" href="#module-bingo.AGraph.BackendOperators" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-bingo.AGraph.BackendNodes">
+<span id="bingo-agraph-backendnodes-module"></span><h2>bingo.AGraph.BackendNodes module<a class="headerlink" href="#module-bingo.AGraph.BackendNodes" title="Permalink to this headline">¶</a></h2>
 <p>This module provides the python implementation of the functions for each
-mathematical operator used in Agraph</p>
-<div class="section" id="attributes">
-<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this headline">¶</a></h3>
+mathematical nodes used in Agraph</p>
+<div class="section" id="id1">
+<h3>Attributes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
-<dt>IS_ARITY_2_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dictionary {int: bool}</span></dt>
-<dd>A map of operator number to boolean that states whether the
-operator has arity 2 (as opposed to 1)</dd>
 <dt>FORWARD_EVAL_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dictionary {int: function}</span></dt>
-<dd>A map of operator number to evaluation function</dd>
+<dd>A map of node number to evaluation function</dd>
 <dt>REVERSE_EVAL_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dictionary {int: function}</span></dt>
-<dd>A map of operator number to derivative evaluation function</dd>
+<dd>A map of node number to derivative evaluation function</dd>
 </dl>
 </div>
 </div>
@@ -631,6 +798,12 @@ which are required to be “load” commands</p>
 <tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.add_operator" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.add_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_operator</span></code></a>(operator_number[,&nbsp;operator_weight])</td>
 <td>Add an operator number to the set of possible operators</td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_operators" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_operators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_of_operators</span></code></a>()</td>
+<td>Gets number of possible operators</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_terminals" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_terminals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_of_terminals</span></code></a>()</td>
+<td>Gets number of possible terminals</td>
+</tr>
 <tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.random_command" title="bingo.AGraph.ComponentGenerator.ComponentGenerator.random_command"><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_command</span></code></a>(stack_location)</td>
 <td>Get a random command</td>
 </tr>
@@ -662,6 +835,44 @@ which are required to be “load” commands</p>
 </dd>
 <dt><strong>operator_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">number</span></dt>
 <dd><p class="first last">relative weight of operator probability</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_operators">
+<code class="descname">get_number_of_operators</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_operators" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets number of possible operators</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int :</strong></dt>
+<dd><p class="first last">number of operators</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_terminals">
+<code class="descname">get_number_of_terminals</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.ComponentGenerator.ComponentGenerator.get_number_of_terminals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets number of possible terminals</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int :</strong></dt>
+<dd><p class="first last">number of terminals</p>
 </dd>
 </dl>
 </td>
@@ -823,12 +1034,9 @@ generated</p>
 <li class="toctree-l1 current"><a class="reference internal" href="bingo.html">bingo package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bingo.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.AGraphCpp">bingo.AGraphCpp module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.CoevolutionIsland">bingo.CoevolutionIsland module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.GeneticIndividual">bingo.GeneticIndividual module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.IndividualVariation">bingo.IndividualVariation module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Island">bingo.Island module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-islandmanager-module">bingo.IslandManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Plotting">bingo.Plotting module</a></li>

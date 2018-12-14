@@ -7,18 +7,11 @@ Subpackages
 .. toctree::
 
     bingo.AGraph
+    bingo.Base
     bingo.Util
 
 Submodules
 ----------
-
-bingo.AGraphCpp module
-----------------------
-
-.. automodule:: bingo.AGraphCpp
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 bingo.CoevolutionIsland module
 ------------------------------
@@ -40,22 +33,6 @@ bingo.FitnessPredictor module
 -----------------------------
 
 .. automodule:: bingo.FitnessPredictor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-bingo.GeneticIndividual module
-------------------------------
-
-.. automodule:: bingo.GeneticIndividual
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-bingo.IndividualVariation module
---------------------------------
-
-.. automodule:: bingo.IndividualVariation
     :members:
     :undoc-members:
     :show-inheritance:

@@ -3,34 +3,24 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Base.Chromosome import Chromosome
 from bingo.EA.TournamentSelection import Tournament
-
-
-class ConstantFitnessIndividual(Chromosome):
-
-    def __init__(self, fitness_value):
-        super().__init__()
-        self.fitness = fitness_value
-
-    def __str__(self):
-        return str(self._fitness)
+from SingleValue import SingleValueChromosome
 
 
 @pytest.fixture()
 def population_all_ones():
-    return [ConstantFitnessIndividual(1),
-            ConstantFitnessIndividual(1),
-            ConstantFitnessIndividual(1),
-            ConstantFitnessIndividual(1)]
+    return [SingleValueChromosome(1),
+            SingleValueChromosome(1),
+            SingleValueChromosome(1),
+            SingleValueChromosome(1)]
 
 
 @pytest.fixture(params=range(4))
 def population_with_0(request):
-    pop = [ConstantFitnessIndividual(1),
-           ConstantFitnessIndividual(1),
-           ConstantFitnessIndividual(1),
-           ConstantFitnessIndividual(1)]
+    pop = [SingleValueChromosome(1),
+           SingleValueChromosome(1),
+           SingleValueChromosome(1),
+           SingleValueChromosome(1)]
     pop[request.param].fitness = 0
     return pop
 

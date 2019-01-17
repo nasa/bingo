@@ -19,7 +19,7 @@ class Mutation(metaclass=ABCMeta):
         Parameters
         ----------
         parent : Chromosome
-                     The individual to be mutated.
+                 The individual to be mutated.
 
         Returns
         -------

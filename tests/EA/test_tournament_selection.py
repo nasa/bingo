@@ -9,18 +9,23 @@ from SingleValue import SingleValueChromosome
 
 @pytest.fixture()
 def population_all_ones():
-    return [SingleValueChromosome(1),
-            SingleValueChromosome(1),
-            SingleValueChromosome(1),
-            SingleValueChromosome(1)]
+    pop = [SingleValueChromosome(),
+           SingleValueChromosome(),
+           SingleValueChromosome(),
+           SingleValueChromosome()]
+    for indv in pop:
+        indv.fitness = 1
+    return pop
 
 
 @pytest.fixture(params=range(4))
 def population_with_0(request):
-    pop = [SingleValueChromosome(1),
-           SingleValueChromosome(1),
-           SingleValueChromosome(1),
-           SingleValueChromosome(1)]
+    pop = [SingleValueChromosome(),
+           SingleValueChromosome(),
+           SingleValueChromosome(),
+           SingleValueChromosome()]
+    for indv in pop:
+        indv.fitness = 1
     pop[request.param].fitness = 0
     return pop
 

@@ -50,7 +50,7 @@ class SingleValueMutation(Mutation):
 
 class SingleValueCrossover(Crossover):
     """Crossover for single valued chromosomes
-    
+
     Crossover results in two individuals with skewed averages of the parents.
     """
     def __call__(self, parent_1, parent_2):

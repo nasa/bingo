@@ -4,26 +4,19 @@
 import pytest
 
 from bingo.EA.TournamentSelection import Tournament
-from SingleValue import SingleValueChromosome
 
 
 @pytest.fixture()
-def population_all_ones():
-    pop = [SingleValueChromosome(),
-           SingleValueChromosome(),
-           SingleValueChromosome(),
-           SingleValueChromosome()]
+def population_all_ones(single_value_population_of_4):
+    pop = single_value_population_of_4
     for indv in pop:
         indv.fitness = 1
     return pop
 
 
 @pytest.fixture(params=range(4))
-def population_with_0(request):
-    pop = [SingleValueChromosome(),
-           SingleValueChromosome(),
-           SingleValueChromosome(),
-           SingleValueChromosome()]
+def population_with_0(request, single_value_population_of_4):
+    pop = single_value_population_of_4
     for indv in pop:
         indv.fitness = 1
     pop[request.param].fitness = 0
@@ -33,11 +26,6 @@ def population_with_0(request):
 @pytest.fixture()
 def tournament_of_4():
     return Tournament(4)
-
-
-def test_tournament_too_small():
-    with pytest.raises(ValueError):
-        Tournament(0)
 
 
 def test_tournament_selects_best_indv(tournament_of_4, population_with_0):
@@ -56,3 +44,12 @@ def test_tournament_returns_correct_size_population(tournament_of_4,
                                                     new_pop_size):
     new_population = tournament_of_4(population_all_ones, new_pop_size)
     assert len(new_population) == new_pop_size
+
+
+@pytest.mark.parametrize("tourn_size,expected_error", [
+    (0, ValueError),
+    ("string", TypeError)
+])
+def test_raises_error_invalid_tournament_size(tourn_size, expected_error):
+    with pytest.raises(expected_error):
+        _ = Tournament(tourn_size)

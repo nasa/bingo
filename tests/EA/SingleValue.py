@@ -48,6 +48,17 @@ class SingleValueMutation(Mutation):
         return child
 
 
+class SingleValueNegativeMutation(Mutation):
+    """Mutation for single valued chromosomes
+
+    Mutation results in sign flipping.
+    """
+    def __call__(self, parent):
+        child = parent.copy()
+        child.value *= -1
+        return child
+
+
 class SingleValueCrossover(Crossover):
     """Crossover for single valued chromosomes
 
@@ -58,4 +69,17 @@ class SingleValueCrossover(Crossover):
         child_2 = parent_2.copy()
         child_1.value = 0.6*parent_1.value + 0.4*parent_2.value
         child_2.value = 0.6*parent_2.value + 0.4*parent_1.value
+        return child_1, child_2
+
+
+class SingleValueNegativeCrossover(Crossover):
+    """Crossover for single valued chromosomes
+
+    Crossover results in two individuals with snegative values of the parents.
+    """
+    def __call__(self, parent_1, parent_2):
+        child_1 = parent_1.copy()
+        child_2 = parent_2.copy()
+        child_1.value *= -1
+        child_2.value *= -1
         return child_1, child_2

@@ -4,7 +4,7 @@ A set of classes for simple EA tests
 import numpy as np
 
 from bingo.Base.Chromosome import Chromosome
-from bingo.Base.Evaluation import Evaluation
+from bingo.Base.FitnessEvaluator import FitnessEvaluator
 from bingo.Base.Mutation import Mutation
 from bingo.Base.Crossover import Crossover
 
@@ -28,12 +28,13 @@ class SingleValueChromosome(Chromosome):
         return str(self.value)
 
 
-class SingleValueEvaluation(Evaluation):
-    """Evaluation for single valued chromosomes
+class SingleValueFitnessEvaluator(FitnessEvaluator):
+    """Fitness for single valued chromosomes
 
     Fitness equals the chromosomes value.
     """
     def __call__(self, individual):
+        self.eval_count += 1
         return individual.value
 
 

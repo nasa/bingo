@@ -30,7 +30,6 @@ class FitnessEvaluator(metaclass=ABCMeta):
         individual : Chromosome
                      individual for which fitness should be calculated
 
-
         Notes
         -----
         The eval_count should be incremented in a subclass' __call__ definition

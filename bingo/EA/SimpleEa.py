@@ -2,11 +2,10 @@
 
 This module defines the basis of evolutionary algorithms in bingo analyses.
 """
+from ..Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 
-from abc import ABCMeta, abstractmethod
 
-
-class SimpleEa(metaclass=ABCMeta):
+class SimpleEa(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 
     An abstract base class for evolutionary algorithms in bingo in bingo.

@@ -6,7 +6,7 @@ demanding functions required by the Agraph.
 
 import numpy as np
 
-from .AGraph import IS_ARITY_2_MAP
+from . import AGraph
 from . import BackendNodes as Nodes
 
 
@@ -107,7 +107,7 @@ def get_utilized_commands(stack):
         node, param1, param2 = stack[-i]
         if util[-i] and node > 1:
             util[param1] = True
-            if IS_ARITY_2_MAP[node]:
+            if AGraph.IS_ARITY_2_MAP[node]:
                 util[param2] = True
     return util
 

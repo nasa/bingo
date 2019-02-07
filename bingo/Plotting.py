@@ -27,10 +27,10 @@ def print_latex(pop, file_name):
     plt.text(0.01, len(pop), "Fitness   Complexity")
     plt.text(0.31, len(pop), "Equation")
     plt.axis([0, 1, -1, 1 + len(pop)])
-    plt.tick_params(axis='x', which='both', bottom='off', top='off',
-                    labelbottom='off')
-    plt.tick_params(axis='y', which='both', left='off', right='off',
-                    labelleft='off')
+    plt.tick_params(axis='x', which='both', bottom=False, top=False,
+                    labelbottom=False)
+    plt.tick_params(axis='y', which='both', left=False, right=False,
+                    labelleft=False)
     pylab.savefig(file_name)
     plt.close()
 

@@ -24,7 +24,7 @@ def sample_bool_list_chromosome():
 	return chromosome
 
 @pytest.fixture
-def numbered_pop():
+def population():
 	return [MultipleValueChromosome(10) for i in range(10)]
 
 def test_length_of_list(sample_float_list_chromosome):
@@ -42,20 +42,37 @@ def test_bool_values_in_list(sample_bool_list_chromosome):
 	for i in range(10):
 		assert sample_bool_list_chromosome._list_of_values[i] == True or sample_bool_list_chromosome._list_of_values[i] == False
 
-def test_crossover(numbered_pop):
-	crossover = MultipleValueCrossover()
-	child_1, child_2 = crossover(numbered_pop[0], numbered_pop[1])
-	cross_pt = crossover._crossover_point
-	assert child_1._list_of_values[:cross_pt] == numbered_pop[0]._list_of_values[:cross_pt]
-	assert child_2._list_of_values[:cross_pt] == numbered_pop[1]._list_of_values[:cross_pt]
-	assert child_1._list_of_values[cross_pt :] == numbered_pop[1]._list_of_values[cross_pt :]
-	assert child_2._list_of_values[cross_pt :] == numbered_pop[0]._list_of_values[cross_pt :]
+def test_generator_defaults():
+	generator = MultipleValueGenerator()
+	pop_of_20 = generator()
+	assert len(pop_of_20) == 20
+	assert len(pop_of_20[0]._list_of_values) == 10
 
-# def test_negative_crossover(numbered_pop):
-# 	crossover = MultipleValueNegativeCrossover()
-# 	child_1, child_2 = crossover(numbered_pop[0], numbered_pop[1])
-# 	for i in child_1._list_of_values:
-# 		assert child_1._list_of_values[i] ^ numbered_pop[0]._list_of_values[i]
+def test_generator_specified_population_size():
+	generator = MultipleValueGenerator()
+	pop_of_20 = generator(35)
+	assert len(pop_of_20) == 35
+	assert len(pop_of_20[0]._list_of_values) == 10
+
+def test_generator_specified_population_size_and_length():
+	generator = MultipleValueGenerator()
+	pop_of_20 = generator(35, 17)
+	assert len(pop_of_20) == 35
+	assert len(pop_of_20[0]._list_of_values) == 17
+
+
+def test_crossover(population):
+	crossover = MultipleValueCrossover()
+	child_1, child_2 = crossover(population[0], population[1])
+	cross_pt = crossover._crossover_point
+	assert child_1._list_of_values[:cross_pt] == population[0]._list_of_values[:cross_pt]
+	assert child_2._list_of_values[:cross_pt] == population[1]._list_of_values[:cross_pt]
+	assert child_1._list_of_values[cross_pt :] == population[1]._list_of_values[cross_pt :]
+	assert child_2._list_of_values[cross_pt :] == population[0]._list_of_values[cross_pt :]
+
+
+
+
 
 
 

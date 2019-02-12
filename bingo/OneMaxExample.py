@@ -21,10 +21,16 @@ class MultipleValueFitnessEvaluator(FitnessEvaluator):
 		for i in range(length_of_list):
 			if individual._list_of_values[i] == False:
 				self.total_false_values += 1
-			self.eval_count += 1
-
+			
+		self.eval_count += 1
 		return self.total_false_values
 
+
+def _mutation_onemax_specific(population):
+
+	target = np.random.randint(len(population))
+	mutation_point = np.random.randint(len(population[target]._list_of_values))
+	population[target]._list_of_values[mutation_point] = (not population[target]._list_of_values[mutation_point])
 
 
 	# TODO: make this something usable for all classes 

@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 
+import csv
 import timeit
 import numpy as np
 
@@ -44,10 +45,44 @@ def generate_random_x(size):
     np.random.seed(0)
     return np.random.rand(size, 4)*10 - 5.0
 
+def write_stacks(test_agraphs_list):
+    filename = '../bingocpp/tests/test-agraph-stacks.csv'
+    with open(filename, mode='w+') as stack_file:
+        stack_file_writer = csv.writer(stack_file, delimiter=',')
+        for agraph in test_agraphs_list:
+            stack = []
+            for row in agraph._command_array:
+                for i in np.nditer(row):
+                    stack.append(i)
+            stack_file_writer.writerow(stack)
+    stack_file.close()
+
+def write_constants(test_agraph_list):
+    filename = '../bingocpp/tests/test-agraph-consts.csv'
+    with open(filename, mode='w+') as const_file:
+        const_file_writer = csv.writer(const_file, delimiter=',')
+        for agraph in test_agraph_list:
+            consts = agraph._constants
+            if len(consts)==0:
+                const_file_writer.writerow(['_'])
+            else:
+                const_file_writer.writerow(consts)
+    const_file.close()
+
+def write_x_vals(test_x_vals):
+    filename = '../bingocpp/tests/test-agraph-x-vals.csv'
+    with open(filename, mode='w+') as x_file:
+        x_file_writer = csv.writer(x_file, delimiter=',')
+        for row in test_x_vals:
+            x_file_writer.writerow(row)
+    x_file.close()
+
 
 TEST_AGRAPHS = generate_random_individuals(100, 128)
 TEST_X = generate_random_x(128)
-
+write_stacks(TEST_AGRAPHS)
+write_constants(TEST_AGRAPHS)
+write_x_vals(TEST_X)
 
 def benchmark_evaluate():
     for indv in TEST_AGRAPHS:

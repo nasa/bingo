@@ -48,9 +48,13 @@ class MultipleValueMutation(Mutation):
 	def __init__(self, mutation):
 		super().__init__()
 		self._mutation = mutation
-		
+
 	def __call__(self, parent):
-		return self._mutation(parent)
+		child = parent.copy()
+		child.fit_set = False
+		mutation_point = np.random.randint(len(parent._list_of_values))
+		child._list_of_values[mutation_point] = self._mutation()
+		return child
 
 class MultipleValueCrossover(Crossover):
 	"""Crossover for multiple valued chromosomes
@@ -66,6 +70,8 @@ class MultipleValueCrossover(Crossover):
 	def __call__(self, parent_1, parent_2):
 		child_1 = parent_1.copy()
 		child_2 = parent_2.copy()
+		child_1.fit_set = False
+		child_2.fit_set = False
 		self._crossover_point = np.random.randint(len(parent_1._list_of_values))
 		child_1._list_of_values = parent_1._list_of_values[:self._crossover_point] + parent_2._list_of_values[self._crossover_point:]
 		child_2._list_of_values = parent_2._list_of_values[:self._crossover_point] + parent_1._list_of_values[self._crossover_point:]

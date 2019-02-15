@@ -30,10 +30,8 @@ class MultipleValueFitnessEvaluator(FitnessEvaluator):
 		return fitness
 
 
-def mutation_onemax_specific(child):
-	mutation_point = np.random.randint(len(child._list_of_values))
-	child._list_of_values[mutation_point] = (not child._list_of_values[mutation_point])
-	return child
+def mutation_onemax_specific():
+	return np.random.choice([True, False])
 
 def population_input():
 	while True:
@@ -65,7 +63,7 @@ def execute_generational_steps():
 	evaluation = SimpleEvaluation(fitness)
 	variation = VarAnd(crossover, mutation, 0.8, 0.8)
 	ea = SimpleEa(variation, evaluation, selection)
-	for i in range(20):
+	for i in range(10):
 		next_gen = ea.generational_step(population)
 		print("\nGeneration #", i)
 		print("----------------------\n")
@@ -92,30 +90,30 @@ def report_max_min_mean_fitness(population):
 
 
 
-#execute_generational_steps()
-population= population_input()
-selection = Tournament(10)
-crossover = MultipleValueCrossover()
-mutation = MultipleValueMutation(mutation_onemax_specific)
-fitness_evaluator = MultipleValueFitnessEvaluator()
-evaluation = SimpleEvaluation(fitness_evaluator)
-variation = VarAnd(crossover, mutation, 0.8, 0.8)
-ea = SimpleEa(variation, evaluation, selection)
-for i in range(20):
-	for indv in population:
-		indv.fitness = fitness_evaluator(indv)
-		#print("indv.fitness = ", indv.fitness)
-	next_gen = ea.generational_step(population)
-	print("Generation #", i)
-	print("----------------------\n")
-	report_max_min_mean_fitness(next_gen)
-	print("population: \n")
-	for indv in population:
-		print(indv._list_of_values)
-	print("next gen: \n")
-	for indv in next_gen:
-		print("Fitness: ", indv.fitness, indv._list_of_values)
-	population = next_gen
+execute_generational_steps()
+# population= population_input()
+# selection = Tournament(10)
+# crossover = MultipleValueCrossover()
+# mutation = MultipleValueMutation(mutation_onemax_specific)
+# fitness_evaluator = MultipleValueFitnessEvaluator()
+# evaluation = SimpleEvaluation(fitness_evaluator)
+# variation = VarAnd(crossover, mutation, 0.8, 0.8)
+# ea = SimpleEa(variation, evaluation, selection)
+# for i in range(20):
+# 	for indv in population:
+# 		indv.fitness = fitness_evaluator(indv)
+# 		#print("indv.fitness = ", indv.fitness)
+# 	next_gen = ea.generational_step(population)
+# 	print("Generation #", i)
+# 	print("----------------------\n")
+# 	report_max_min_mean_fitness(next_gen)
+# 	print("population: \n")
+# 	for indv in population:
+# 		print(indv._list_of_values)
+# 	print("next gen: \n")
+# 	for indv in next_gen:
+# 		print("Fitness: ", indv.fitness, indv._list_of_values)
+# 	population = next_gen
 
 
 

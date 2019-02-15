@@ -45,11 +45,11 @@ def generate_random_x(size):
     np.random.seed(0)
     return np.random.rand(size, 4)*10 - 5.0
 
-def write_stacks(test_agraphs_list):
-    filename = '../bingocpp/tests/test-agraph-stacks.csv'
+def write_stacks(test_agraph_list):
+    filename = '../bingocpp/app/test-agraph-stacks.csv'
     with open(filename, mode='w+') as stack_file:
         stack_file_writer = csv.writer(stack_file, delimiter=',')
-        for agraph in test_agraphs_list:
+        for agraph in test_agraph_list:
             stack = []
             for row in agraph._command_array:
                 for i in np.nditer(row):
@@ -58,19 +58,19 @@ def write_stacks(test_agraphs_list):
     stack_file.close()
 
 def write_constants(test_agraph_list):
-    filename = '../bingocpp/tests/test-agraph-consts.csv'
+    filename = '../bingocpp/app/test-agraph-consts.csv'
     with open(filename, mode='w+') as const_file:
         const_file_writer = csv.writer(const_file, delimiter=',')
         for agraph in test_agraph_list:
             consts = agraph._constants
-            if len(consts)==0:
-                const_file_writer.writerow(['_'])
-            else:
-                const_file_writer.writerow(consts)
+            num_consts = len(consts)
+            consts = np.insert(consts, 0, num_consts, axis=0)
+            const_file_writer.writerow(consts)
+
     const_file.close()
 
 def write_x_vals(test_x_vals):
-    filename = '../bingocpp/tests/test-agraph-x-vals.csv'
+    filename = '../bingocpp/app/test-agraph-x-vals.csv'
     with open(filename, mode='w+') as x_file:
         x_file_writer = csv.writer(x_file, delimiter=',')
         for row in test_x_vals:

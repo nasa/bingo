@@ -68,8 +68,8 @@ from ..Base import ContinuousLocalOptimization
 
 try:
     from bingocpp.build import bingocpp as Backend
-except ImportError:                         # pragma: no cover
-    from . import AGraphBackend as Backend  # pragma: no cover
+except ImportError:
+    from . import Backend
 
 
 LOGGER = logging.getLogger(__name__)

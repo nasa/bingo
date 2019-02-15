@@ -6,7 +6,24 @@ import pytest
 import numpy as np
 
 from bingo.AGraph import Backend as PythonBackend
-from bingocpp.build import bingocpp as CppBackend
+
+try:
+    from bingocpp.build import bingocpp as CppBackend
+    CPP_LOADED = True
+except ImportError:
+    CppBackend = None
+    CPP_LOADED = False
+
+
+@pytest.fixture(params=[
+    PythonBackend,
+    pytest.param(CppBackend,
+                 marks=pytest.mark.skipif(not CPP_LOADED,
+                                          reason='BingoCpp import failure'))
+])
+def backend(request):
+    return request.param
+
 
 @pytest.fixture
 def sample_agraph_1_values():
@@ -114,7 +131,10 @@ def expected_stack_util(request):
     return prop
 
 
-@pytest.mark.parametrize("backend", [PythonBackend, CppBackend])
+def test_cpp_backend_could_be_imported():
+    assert CPP_LOADED
+
+
 @pytest.mark.parametrize("operator", range(13))
 def test_backend_simplify_and_evaluate(backend, sample_agraph_1_values, operator,
                                        operator_evals_x0):
@@ -128,7 +148,6 @@ def test_backend_simplify_and_evaluate(backend, sample_agraph_1_values, operator
     np.testing.assert_allclose(expected_outcome, f_of_x)
 
 
-@pytest.mark.parametrize("backend", [PythonBackend, CppBackend])
 @pytest.mark.parametrize("operator", range(13))
 # pylint: disable=invalid-name
 def test_backend_simplify_and_evaluate_with_x_derivative(backend,
@@ -146,7 +165,6 @@ def test_backend_simplify_and_evaluate_with_x_derivative(backend,
     np.testing.assert_allclose(expected_derivative, df_dx)
 
 
-@pytest.mark.parametrize("backend", [PythonBackend, CppBackend])
 @pytest.mark.parametrize("operator", range(13))
 # pylint: disable=invalid-name
 def test_backend_simplify_and_evaluate_with_c_derivative(backend,
@@ -164,14 +182,17 @@ def test_backend_simplify_and_evaluate_with_c_derivative(backend,
     np.testing.assert_allclose(expected_derivative, df_dx)
 
 
-@pytest.mark.parametrize("backend", [PythonBackend, CppBackend])
 def test_agraph_get_utilized_commands(backend, expected_stack_util):
     np.testing.assert_array_equal(
             backend.get_utilized_commands(expected_stack_util["stack"]),
             expected_stack_util["util"])
 
 
-@pytest.mark.parametrize("backend, expected", [(PythonBackend, False),
-                                               (CppBackend, True)])
-def test_agraph_backend_identifiers(backend, expected):
-    assert backend.is_cpp() == expected
+@pytest.mark.parametrize("the_backend, expected", [
+    (PythonBackend, False),
+    pytest.param(CppBackend, True,
+                 marks=pytest.mark.skipif(not CPP_LOADED,
+                                          reason='BingoCpp import failure'))
+])
+def test_agraph_backend_identifiers(the_backend, expected):
+    assert the_backend.is_cpp() == expected

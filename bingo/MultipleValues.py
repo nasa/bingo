@@ -29,8 +29,6 @@ class MultipleValueChromosome(Chromosome):
 			for i in range(number_of_values):
 				self._list_of_values.append(np.random.choice([1, 0]))
 
-
-
 	def __str__(self):
 		return str(self._list_of_values)
 
@@ -40,27 +38,19 @@ class MultipleValueGenerator(Generator):
 
 
 	"""
-	def __init__(self):
-		super().__init__()
-	
-
 	def __call__(self, population_size=20, values_per_chromosome=10):
 		return [MultipleValueChromosome(values_per_chromosome) for i in range(population_size)]
 
 
 class MultipleValueMutation(Mutation):
 	"""Mutation for multiple valued chromosomes
-
-
 	"""
-	def __init__(self, mutation_function):
+	def __init__(self, mutation):
 		super().__init__()
-		self._mutation = mutation_function
-
+		self._mutation = mutation
+		
 	def __call__(self, parent):
-		child = parent.copy()
-		child = self._mutation(child)
-		return child
+		return self._mutation(parent)
 
 class MultipleValueCrossover(Crossover):
 	"""Crossover for multiple valued chromosomes

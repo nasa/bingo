@@ -23,12 +23,12 @@ def sample_bool_list_chromosome():
 def population():
 	return [MultipleValueChromosome(10) for i in range(10)]
 
-def test_fitness_evaluation_false_value_count_nonnegative(sample_bool_list_chromosome, fitness_evaluator):
-	number_false_values = fitness_evaluator(sample_bool_list_chromosome)
-	assert number_false_values >= 0
+def test_fitness_evaluation_true_value_count_nonnegative(sample_bool_list_chromosome, fitness_evaluator):
+	number_true_values = fitness_evaluator(sample_bool_list_chromosome)
+	assert number_true_values >= 0
 
 def test_fitness_evaluation_eval_count(sample_bool_list_chromosome, fitness_evaluator):
-	number_false_values = fitness_evaluator(sample_bool_list_chromosome)
+	number_true_values = fitness_evaluator(sample_bool_list_chromosome)
 	assert fitness_evaluator.eval_count == 1
 
 def test_evaluation_evaluates_all_list_values_per_individual(population, fitness_evaluator):
@@ -48,11 +48,26 @@ def test_evaluation_skips_already_calculated_fitnesses(population, fitness_evalu
 		assert indv.fit_set
 		assert indv.fitness is not None
 
-def test_fitness_equals_false_value_count(fitness_evaluator, population):
+def test_fitness_equals_true_value_count(fitness_evaluator, population):
 	evaluation = SimpleEvaluation(fitness_evaluator)
 	evaluation(population)
+
 	for indv in population:
+		fitness = 0
+		for val in indv._list_of_values:
+			if val == True:
+				fitness += 1
 		assert indv.fitness == fitness_evaluator(indv)
+		assert fitness == indv.fitness
+
+
+
+
+
+	
+
+
+
 
 
 

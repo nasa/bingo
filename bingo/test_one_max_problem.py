@@ -9,7 +9,6 @@ from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from MultipleValues import *
 from OneMaxExample import *
 
-
 @pytest.fixture
 def fitness_evaluator():
     return MultipleValueFitnessEvaluator()
@@ -60,25 +59,3 @@ def test_fitness_equals_true_value_count(fitness_evaluator, population):
                 fitness += 1
         assert indv.fitness == fitness_evaluator(indv)
         assert fitness == indv.fitness
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-    
-

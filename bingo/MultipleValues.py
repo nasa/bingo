@@ -1,5 +1,3 @@
-
-
 import numpy as np
 
 from Base.Chromosome import Chromosome
@@ -8,9 +6,10 @@ from Base.Mutation import Mutation
 from Base.Crossover import Crossover
 from Base.Generator import Generator
 
-
 class MultipleValueChromosome(Chromosome):
     """ Multiple value individual 
+
+    The constructor for a chromosome that holds a list of values as opposed to a single value.
 
     Parameters
     ----------
@@ -24,7 +23,6 @@ class MultipleValueChromosome(Chromosome):
 
     def __str__(self):
         return str(self._list_of_values)
-
 
 class MultipleValueGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
@@ -51,9 +49,12 @@ class MultipleValueGenerator(Generator):
         """
         return [MultipleValueChromosome(random_value_function(values_per_chromosome)) for i in range(population_size)]
 
-
 class MultipleValueMutation(Mutation):
     """Mutation for multiple valued chromosomes
+
+    Performs single-point mutation on the offspring of a parent chromosome. 
+    The mutation is performed using a user-defined mutation function that must return a 
+    single randomly generated value.
 
     Parameters
     ----------
@@ -117,4 +118,3 @@ class MultipleValueCrossover(Crossover):
         child_1._list_of_values = parent_1._list_of_values[:self._crossover_point] + parent_2._list_of_values[self._crossover_point:]
         child_2._list_of_values = parent_2._list_of_values[:self._crossover_point] + parent_1._list_of_values[self._crossover_point:]
         return child_1, child_2
-

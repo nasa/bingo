@@ -1,77 +1,82 @@
+from operator import attrgetter
 import numpy as np
 
 from Base.Chromosome import Chromosome
-from Base.FitnessEvaluator import FitnessEvaluator
 from Base.Mutation import Mutation
 from Base.Crossover import Crossover
 from Base.Generator import Generator
+from Util.ArgumentValidation import argument_validation
 
 class MultipleValueChromosome(Chromosome):
-    """ Multiple value individual 
+    """ Multiple value individual
 
-    The constructor for a chromosome that holds a list of values as opposed to a single value.
+    The constructor for a chromosome that holds a list
+    of values as opposed to a single value.
 
     Parameters
     ----------
-    list_of_values : list of either integers, floats, or boolean values
-                contains the list of values corresponding to the chromosome
+    list_of_values : list of either ints, floats,or bools
+                contains the chromosome's list of values
 
     """
     def __init__(self, list_of_values):
         super().__init__()
-        self._list_of_values = list_of_values
+        self.list_of_values = list_of_values
 
     def __str__(self):
-        return str(self._list_of_values)
+        return str(self.list_of_values)
 
 class MultipleValueGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
     """
     def __call__(self, random_value_function, population_size=20, values_per_chromosome=10):
-    
-        """Generation of a population of size 'population_size' of Multi-Value Chromosomes 
-        with lists that contain 'values_per_list' values 
+        """Generation of a population of size 'population_size'
+        of Multi-Value Chromosomes with lists that contain
+        'values_per_list' values
 
 
         Parameters
         ----------
         random_value_function : user defined function
-                a function that returns a list of randomly generated values. this list is then passed to the MultipleValueChromosome constructor
-        popularion_size : int, default=20
+                a function that returns a list of randomly generated values.
+                This list is then passed to the MultipleValueChromosome constructor
+        population_size : int, default=20
                 the size of the population to be generated
         values_per_chromosome : int, default=10
                 the number of values that each chromosome will hold
 
         Returns
         -------
-        out : a list of size "population size" of MultipleValueChromosomes of length "values_per_chromosome"
-    
+        out : a list of MultipleValueChromosomes
         """
         return [MultipleValueChromosome(random_value_function(values_per_chromosome)) for i in range(population_size)]
 
 class MultipleValueMutation(Mutation):
     """Mutation for multiple valued chromosomes
 
-    Performs single-point mutation on the offspring of a parent chromosome. 
-    The mutation is performed using a user-defined mutation function that must return a 
-    single randomly generated value.
+    Performs single-point mutation on the offspring of a parent chromosome.
+    The mutation is performed using a user-defined mutation
+    function that must return a single randomly generated value.
 
     Parameters
     ----------
     mutation_function : user defined funxtion
-                a function that returns a random value that will replace (or "mutate") a random value in a chromosome list.
+                a function that returns a random value that will
+                replace (or "mutate") a random value in a chromosome list.
     """
     def __init__(self, mutation_function):
         super().__init__()
         self._mutation_function = mutation_function
 
     def __call__(self, parent):
-        """Performs single-point mutation using the user-defined mutation function passed to the constructor
+        """Performs single-point mutation using the user-defined
+        mutation function passed to the constructor
 
         Parameters
         ----------
         parent : MultipleValueChromosome
-                The parent chromosome that is copied to create the child that will undergo mutation
+                The parent chromosome that is copied to create
+                the child that will undergo mutation
 
         Returns
         -------
@@ -80,16 +85,16 @@ class MultipleValueMutation(Mutation):
         """
         child = parent.copy()
         child.fit_set = False
-        mutation_point = np.random.randint(len(parent._list_of_values))
-        child._list_of_values[mutation_point] = self._mutation_function()
+        mutation_point = np.random.randint(len(parent.list_of_values))
+        child.list_of_values[mutation_point] = self._mutation_function()
         return child
 
 class MultipleValueCrossover(Crossover):
     """Crossover for multiple valued chromosomes
 
-    Crossover results in two individuals with single-point crossed-over lists 
-    whose values are provided by the parents. Crossover point is a random integer
-    produced by numpy.
+    Crossover results in two individuals with single-point crossed-over lists
+    whose values are provided by the parents. Crossover point is
+    a random integer produced by numpy.
     """
     def __init__(self):
         super().__init__()
@@ -114,7 +119,7 @@ class MultipleValueCrossover(Crossover):
         child_2 = parent_2.copy()
         child_1.fit_set = False
         child_2.fit_set = False
-        self._crossover_point = np.random.randint(len(parent_1._list_of_values))
-        child_1._list_of_values = parent_1._list_of_values[:self._crossover_point] + parent_2._list_of_values[self._crossover_point:]
-        child_2._list_of_values = parent_2._list_of_values[:self._crossover_point] + parent_1._list_of_values[self._crossover_point:]
+        self._crossover_point = np.random.randint(len(parent_1.list_of_values))
+        child_1.list_of_values = parent_1.list_of_values[:self._crossover_point] + parent_2.list_of_values[self._crossover_point:]
+        child_2.list_of_values = parent_2.list_of_values[:self._crossover_point] + parent_1.list_of_values[self._crossover_point:]
         return child_1, child_2

@@ -54,7 +54,7 @@ def test_fitness_equals_true_value_count(fitness_evaluator, population):
 
     for indv in population:
         fitness = 0
-        for val in indv._list_of_values:
+        for val in indv.list_of_values:
             if val == False:
                 fitness += 1
         assert indv.fitness == fitness_evaluator(indv)

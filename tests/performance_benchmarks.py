@@ -80,9 +80,9 @@ def write_x_vals(test_x_vals):
 
 TEST_AGRAPHS = generate_random_individuals(100, 128)
 TEST_X = generate_random_x(128)
-write_stacks(TEST_AGRAPHS)
-write_constants(TEST_AGRAPHS)
-write_x_vals(TEST_X)
+# write_stacks(TEST_AGRAPHS)
+# write_constants(TEST_AGRAPHS)
+# write_x_vals(TEST_X)
 
 def benchmark_evaluate():
     for indv in TEST_AGRAPHS:

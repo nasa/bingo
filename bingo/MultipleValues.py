@@ -50,7 +50,7 @@ class MultipleValueGenerator(Generator):
     def _generate_list(self, number_of_values):
         return [self._random_value_function() for i in range(number_of_values)]
 
-class MultipleValueMutation(Mutation):
+class SinglePointMutation(Mutation):
     """Mutation for multiple valued chromosomes
 
     Performs single-point mutation on the offspring of a parent chromosome.
@@ -88,7 +88,7 @@ class MultipleValueMutation(Mutation):
         child.list_of_values[mutation_point] = self._mutation_function()
         return child
 
-class MultipleValueCrossover(Crossover):
+class SinglePointCrossover(Crossover):
     """Crossover for multiple valued chromosomes
 
     Crossover results in two individuals with single-point crossed-over lists

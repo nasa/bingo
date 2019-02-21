@@ -28,8 +28,8 @@ def generate_population():
 def execute_generational_steps():
     population = generate_population()
     selection = Tournament(10)
-    crossover = MultipleValueCrossover()
-    mutation = MultipleValueMutation(mutation_onemax_specific)
+    crossover = SinglePointCrossover()
+    mutation = SinglePointMutation(mutation_onemax_specific)
     fitness = MultipleValueFitnessEvaluator()
     evaluation = SimpleEvaluation(fitness)
     variation = VarAnd(crossover, mutation, 0.8, 0.8)

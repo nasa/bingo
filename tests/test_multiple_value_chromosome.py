@@ -50,7 +50,7 @@ def test_generator():
 	assert len(pop[0].list_of_values) == 10
 
 def test_crossover(population):
-	crossover = MultipleValueCrossover()
+	crossover = SinglePointCrossover()
 	child_1, child_2 = crossover(population[0], population[1])
 	cross_pt = crossover._crossover_point
 	assert child_1.list_of_values[:cross_pt] == population[0].list_of_values[:cross_pt]
@@ -59,7 +59,7 @@ def test_crossover(population):
 	assert child_2.list_of_values[cross_pt :] == population[0].list_of_values[cross_pt :]
 
 def test_mutation_is_single_point():
-    mutator = MultipleValueMutation(mutation_onemax_specific)
+    mutator = SinglePointMutation(mutation_onemax_specific)
     parent = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
     child = mutator(parent)
     discrepancies = 0
@@ -70,13 +70,13 @@ def test_mutation_is_single_point():
     assert discrepancies <= 1
 
 def test_fitness_is_not_inherited_mutation():
-    mutator = MultipleValueMutation(mutation_onemax_specific)
+    mutator = SinglePointMutation(mutation_onemax_specific)
     parent = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
     child = mutator(parent)
     assert child.fit_set == False
 
 def test_fitness_is_not_inherited_crossover():
-    crossover = MultipleValueCrossover()
+    crossover = SinglePointCrossover()
     parent1 = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
     parent2 = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
     child1, child2 = crossover(parent1, parent2)

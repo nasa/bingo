@@ -27,7 +27,15 @@ class MultipleValueChromosome(Chromosome):
 
 class MultipleValueGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
-    """
+
+        Parameters
+        ----------
+        random_value_function : user defined function
+                a function that returns a list of randomly generated values.
+                This list is then passed to the MultipleValueChromosome constructor
+        values_per_chromosome : int, default=10
+                the number of values that each chromosome will ho
+        """
     @argument_validation(values_per_chromosome={">=": 0})
     def __init__(self, random_value_function, values_per_chromosome):
         super().__init__()

@@ -6,7 +6,7 @@ from bingo.Base.Evaluation import Evaluation
 from bingo.Base.Selection import Selection
 from bingo.EA.SimpleEa import SimpleEa
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from MultipleValues import *
+from bingo.MultipleValues import *
 from OneMaxExample import *
 
 @pytest.fixture

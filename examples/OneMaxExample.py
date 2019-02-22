@@ -9,7 +9,7 @@ from bingo.EA.SimpleEa import SimpleEa
 from bingo.EA.VarAnd import VarAnd
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from MultipleValues import *
+from bingo.MultipleValues import *
 
 class MultipleValueFitnessEvaluator(FitnessEvaluator):
     def __call__(self, individual):

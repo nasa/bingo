@@ -1,6 +1,6 @@
 import numpy as np
 
-from Base.FitnessEvaluator import FitnessEvaluator
+from bingo.Base.FitnessEvaluator import FitnessEvaluator
 from bingo.Base.Crossover import Crossover
 from bingo.Base.Variation import Variation
 from bingo.Base.Evaluation import Evaluation

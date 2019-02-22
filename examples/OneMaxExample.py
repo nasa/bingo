@@ -4,7 +4,7 @@ from Base.FitnessEvaluator import FitnessEvaluator
 from Base.Crossover import Crossover
 from Base.Variation import Variation
 from Base.Evaluation import Evaluation
-from Base.Selection import Selection
+from bingo.Base.Selection import Selection
 from bingo.EA.SimpleEa import SimpleEa
 from bingo.EA.VarAnd import VarAnd
 from bingo.EA.TournamentSelection import Tournament

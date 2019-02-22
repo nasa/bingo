@@ -7,6 +7,11 @@ from bingo.Base.Selection import Selection
 from bingo.EA.SimpleEa import SimpleEa
 from bingo.MultipleValues import *
 
+
+
+def mutation_onemax_specific():
+    return np.random.choice([True, False])
+
 @pytest.fixture
 def sample_float_list_chromosome():
 	chromosome = MultipleValueChromosome( [np.random.choice([1.0, 0.0]) for i in range(10)])

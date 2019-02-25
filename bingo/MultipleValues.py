@@ -1,11 +1,10 @@
-from operator import attrgetter
 import numpy as np
 
-from Base.Chromosome import Chromosome
-from Base.Mutation import Mutation
-from Base.Crossover import Crossover
-from Base.Generator import Generator
-from Util.ArgumentValidation import argument_validation
+from .Base.Chromosome import Chromosome
+from .Base.Mutation import Mutation
+from .Base.Crossover import Crossover
+from .Base.Generator import Generator
+from .Util.ArgumentValidation import argument_validation
 
 class MultipleValueChromosome(Chromosome):
     """ Multiple value individual
@@ -28,30 +27,38 @@ class MultipleValueChromosome(Chromosome):
 
 class MultipleValueGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
-    """
-    def __call__(self, random_value_function, population_size=20, values_per_chromosome=10):
-        """Generation of a population of size 'population_size'
-        of Multi-Value Chromosomes with lists that contain
-        'values_per_list' values
-
 
         Parameters
         ----------
         random_value_function : user defined function
                 a function that returns a list of randomly generated values.
                 This list is then passed to the MultipleValueChromosome constructor
-        population_size : int, default=20
-                the size of the population to be generated
         values_per_chromosome : int, default=10
-                the number of values that each chromosome will hold
+                the number of values that each chromosome will ho
+        """
+    @argument_validation(values_per_chromosome={">=": 0})
+    def __init__(self, random_value_function, values_per_chromosome):
+        super().__init__()
+        self._random_value_function = random_value_function
+        self._values_per_chromosome = values_per_chromosome
+
+    def __call__(self):
+        """Generation of a population of size 'population_size'
+        of Multi-Value Chromosomes with lists that contain
+        'values_per_list' values
+
 
         Returns
         -------
-        out : a list of MultipleValueChromosomes
+        out : a MultipleValueChromosome
         """
-        return [MultipleValueChromosome(random_value_function(values_per_chromosome)) for i in range(population_size)]
+        random_list = self._generate_list(self._values_per_chromosome)
+        return MultipleValueChromosome(random_list)
 
-class MultipleValueMutation(Mutation):
+    def _generate_list(self, number_of_values):
+        return [self._random_value_function() for i in range(number_of_values)]
+
+class SinglePointMutation(Mutation):
     """Mutation for multiple valued chromosomes
 
     Performs single-point mutation on the offspring of a parent chromosome.
@@ -89,7 +96,7 @@ class MultipleValueMutation(Mutation):
         child.list_of_values[mutation_point] = self._mutation_function()
         return child
 
-class MultipleValueCrossover(Crossover):
+class SinglePointCrossover(Crossover):
     """Crossover for multiple valued chromosomes
 
     Crossover results in two individuals with single-point crossed-over lists

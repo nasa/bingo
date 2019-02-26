@@ -3,7 +3,7 @@ import numpy as np
 
 from bingo.Base.Variation import Variation
 from bingo.MultipleValues import *
-from VarOr import *
+from bingo.EA.VarOr import *
 
 
 @pytest.fixture

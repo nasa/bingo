@@ -30,6 +30,6 @@ class MuPlusLambda(EvolutionaryAlgorithm):
         """
         self._evaluation(population)
         number_offspring = 20
-        offspring = self._variation(population, number_offspring)
+        offspring = self._variation(population, len(population))
         self._evaluation(offspring)
         return self._selection(population + offspring, len(population))

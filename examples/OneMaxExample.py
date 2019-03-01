@@ -9,6 +9,7 @@ from bingo.EA.SimpleEa import SimpleEa
 from bingo.EA.VarAnd import VarAnd
 from bingo.EA.VarOr import VarOr
 from bingo.EA.MuPlusLambda import MuPlusLambda
+from bingo.EA.MuCommaLambda import MuCommaLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.EA.BasicIsland import Island
@@ -33,7 +34,7 @@ def execute_generational_steps():
     ea = MuPlusLambda(var_or, evaluator, selection)
     generator = MultipleValueGenerator(mutation_onemax_specific, 10)
     island = Island(ea, generator, 25)
-    for i in range(50):
+    for i in range(10):
         next_gen = island.execute_generational_step()
         print("\nGeneration #", i)
         print("----------------------\n")

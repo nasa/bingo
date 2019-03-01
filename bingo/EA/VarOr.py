@@ -24,7 +24,7 @@ class VarOr(Variation):
     mutation : Mutation
                Mutation function class used in variation
     crossover_probability : float
-                            Probabiloity that crossover will occur on an
+                            Probability that crossover will occur on an
                             individual
     mutation_probability : float
                            Probability that mutation will occur on an individual
@@ -77,6 +77,7 @@ class VarOr(Variation):
             choice = np.random.rand()
             if choice <= self._mutation_probability:
                 mutant = self._get_random_parent(population)
+                mutant.fit_set = False
                 mutant = self._mutation(mutant)
                 offspring.append(mutant)
                 self.mutation_offspring[i] = True
@@ -85,11 +86,13 @@ class VarOr(Variation):
                 parent_1 = self._get_random_parent(population)
                 parent_2 = self._get_random_parent(population)
                 child_1, child_2 = self._crossover(parent_1, parent_2)
+                child_1.fit_set = False
                 offspring.append(child_1)
                 self.crossover_offspring[i] = True
 
             else:
                 child = self._get_random_parent(population)
+                child.fit_set = False
                 offspring.append(child)
 
         return offspring

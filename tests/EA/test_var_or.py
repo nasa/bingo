@@ -2,9 +2,8 @@ import pytest
 import numpy as np
 
 from bingo.Base.Variation import Variation
-from bingo.MultipleValues import *
-from bingo.EA.VarOr import *
-
+from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, SinglePointMutation
+from bingo.EA.VarOr import VarOr
 
 @pytest.fixture
 def population():
@@ -27,13 +26,11 @@ def test_invalid_probabilities():
     with pytest.raises(ValueError):
         var_Or = VarOr(crossover, mutation, 0.6, 0.4)
 
-
 def test_offspring_not_equals_parents(population, var_or):
     offspring = var_or(population, 25)
-    assert offspring != population 
-    assert offspring is not population
+    for i, indv in enumerate(population):
+        assert indv is not offspring[i]
         
-
 def test_no_two_variations_at_once(population, var_or):
     offspring = var_or(population, 25)
     for i, indv in enumerate(var_or.crossover_offspring):

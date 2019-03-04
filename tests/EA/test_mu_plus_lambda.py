@@ -2,34 +2,49 @@ import pytest
 import numpy as np
 
 from bingo.Base.Variation import Variation
-from bingo.Util.ArgumentValidation import argument_validation
-from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
-from bingo.MultipleValues import *
-from bingo.EA.VarOr import VarOr
+from bingo.MultipleValues import SinglePointMutation, SinglePointCrossover
+from bingo.Base.Evaluation import Evaluation
 from bingo.EA.MuPlusLambda import MuPlusLambda
-from bingo.EA.TournamentSelection import Tournament
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from examples.OneMaxExample import MultipleValueFitnessEvaluator
+from bingo.Base.Selection import Selection
+
+from SingleValue import SingleValueChromosome
+
+class add_v_variation(Variation):
+    def __call__(self, population, number_offspring):
+        offspring = [parent.copy() for parent in population]
+        for indv in offspring:
+            indv.value += "v"
+        return offspring
+
+class add_e_evaluation(Evaluation):
+    def __call__(self, population):
+        for indv in population:
+            indv.fitness = indv.value
+            indv.value += "e"
+
+class add_s_selection(Selection):
+    def __call__(self, population, _target_population_size):
+        for indv in population:
+            indv.value += "s"
+        return population
 
 @pytest.fixture
 def population():
-    generator = MultipleValueGenerator(mutation_function, 10)
-    return [generator() for i in range(25)]
+    return [SingleValueChromosome(str(i)) for i in range(10)]
 
 @pytest.fixture
 def ea():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(mutation_function)
-    var_or = VarOr(crossover, mutation, 0.2, 0.4)
-    selection = Tournament(10)
-    fitness = MultipleValueFitnessEvaluator()
-    evaluator = SimpleEvaluation(fitness)
-    return MuPlusLambda(var_or, evaluator, selection)
+    ea = MuPlusLambda(add_e_evaluation(), add_s_selection(), crossover, mutation, 0.2, 0.4, 20)
+    ea._variation = add_v_variation()
+    return ea
 
 def mutation_function():
     return np.random.choice([True, False])
 
-
 def test_basic_functionality(population, ea):
     offspring = ea.generational_step(population)
-    assert offspring != population
+    for indv in offspring:
+        assert "ves" in indv.value or "es" in indv.value
+        

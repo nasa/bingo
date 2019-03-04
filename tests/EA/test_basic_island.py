@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from bingo.MultipleValues import *
+from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, MultipleValueGenerator
 from bingo.EA.VarOr import VarOr
 from bingo.EA.BasicIsland import Island
 from bingo.EA.MuPlusLambda import MuPlusLambda
@@ -13,11 +13,10 @@ from examples.OneMaxExample import MultipleValueFitnessEvaluator
 def island():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(mutation_function)
-    var_or = VarOr(crossover, mutation, 0.2, 0.4)
     selection = Tournament(10)
     fitness = MultipleValueFitnessEvaluator()
     evaluator = SimpleEvaluation(fitness)
-    ea = MuPlusLambda(var_or, evaluator, selection)
+    ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.2, 0.4, 20)
     generator = MultipleValueGenerator(mutation_function, 10)
     return Island(ea, generator, 25)
 
@@ -31,9 +30,10 @@ def test_no_best_individual_unless_evaluated(island):
 def test_generational_steps_change_population(island):
     population = island.pop
     offspring = island.execute_generational_step()
-    assert population != offspring
+    for i, indv in enumerate(population):
+        assert indv is not offspring[i]
     offspring_2 = island.execute_generational_step()
-    assert offspring != offspring_2
+    assert island._num_generations == 2
 
 def test_best_individual(island):
     population = island.execute_generational_step()

@@ -45,9 +45,8 @@ class Island(object):
                      The offspring generation yielded from the generational step
         """
         self._num_generations += 1
-        for indv in self.pop:
-            indv.fit_set = False
-        return self._ea.generational_step(self.pop)
+        self.pop = self._ea.generational_step(self.pop)
+        return self.pop
 
     def best_individual(self):
         """Finds the individual with the lowest fitness in a population
@@ -61,7 +60,7 @@ class Island(object):
             raise ValueError('ValueError: Must execute at least one generational step \
              before finding the best individual')
         best = self.pop[0]
-        for indv in self.pop[1:]:
+        for indv in self.pop:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
         return best

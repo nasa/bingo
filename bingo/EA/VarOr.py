@@ -29,7 +29,6 @@ class VarOr(Variation):
     mutation_probability : float
                            Probability that mutation will occur on an individual
 
-
     Attributes
     ----------
     crossover_offspring : array of bool
@@ -76,26 +75,36 @@ class VarOr(Variation):
         for i in range(number_offspring):
             choice = np.random.rand()
             if choice <= self._mutation_probability:
-                mutant = self._get_random_parent(population)
-                mutant.fit_set = False
-                mutant = self._mutation(mutant)
-                offspring.append(mutant)
-                self.mutation_offspring[i] = True
+                self._do_mutation(population, offspring, i)
 
             elif choice <= (self._mutation_probability + self._crossover_probability):
-                parent_1 = self._get_random_parent(population)
-                parent_2 = self._get_random_parent(population)
-                child_1, child_2 = self._crossover(parent_1, parent_2)
-                child_1.fit_set = False
-                offspring.append(child_1)
-                self.crossover_offspring[i] = True
+                self._do_crossover(population, offspring, i)
 
             else:
-                child = self._get_random_parent(population)
-                child.fit_set = False
-                offspring.append(child)
+                self._do_replication(population, offspring)
 
         return offspring
+
+    def _do_mutation(self, population, offspring, i):
+        mutant = self._get_random_parent(population)
+        mutant = self._mutation(mutant)
+        self._do_append(mutant, offspring)
+        self.mutation_offspring[i] = True
+
+    def _do_crossover(self, population, offspring, i):
+        parent_1 = self._get_random_parent(population)
+        parent_2 = self._get_random_parent(population)
+        child_1, child_2 = self._crossover(parent_1, parent_2)
+        self._do_append(child_1, offspring)
+        self.crossover_offspring[i] = True
+
+    def _do_replication(self, population, offspring):
+        child = self._get_random_parent(population)
+        self._do_append(child, offspring)
+
+    def _do_append(self, child, offspring):
+        child.fit_set = False
+        offspring.append(child)
 
     def _get_random_parent(self, population):
         return population[np.random.randint(len(population))].copy()

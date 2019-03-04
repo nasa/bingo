@@ -1,4 +1,4 @@
-"""The "Mu + Lambda"
+"""The "Mu , Lambda"
 
 This module defines the basis of the "mu plus lambda"
 evolutionary algorithm in bingo analyses.
@@ -6,15 +6,14 @@ evolutionary algorithm in bingo analyses.
 from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 from bingo.EA.VarOr import VarOr
 
-class MuPlusLambda(EvolutionaryAlgorithm):
+class MuCommaLambda(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 
-    A class for the "mu plus lambda" evolutionary algorithm in bingo.
+    A class for the "mu comma lambda" evolutionary algorithm in bingo.
     """
     def __init__(self, evaluation, selection, crossover, mutation, crossover_probability,
                  mutation_probability, number_offspring):
-        self._variation = VarOr(crossover, mutation, crossover_probability,
-                 mutation_probability)
+        self._variation = VarOr(crossover, mutation, crossover_probability, mutation_probability)
         self._evaluation = evaluation
         self._selection = selection
         self._number_offspring = number_offspring
@@ -33,5 +32,5 @@ class MuPlusLambda(EvolutionaryAlgorithm):
             The next generation of the population
         """
         offspring = self._variation(population, self._number_offspring)
-        self._evaluation(population + offspring)
-        return self._selection(population + offspring, len(population))
+        self._evaluation(offspring)
+        return self._selection(offspring, len(population))

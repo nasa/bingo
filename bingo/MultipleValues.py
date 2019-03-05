@@ -27,6 +27,8 @@ class MultipleValueChromosome(Chromosome):
 
     def distance(self, chromosome):
         dist = 0
+        for i, val in enumerate(self.list_of_values):
+            dist += np.absolute(float(val) - float(chromosome.list_of_values[i]))
         return dist
 
 class MultipleValueGenerator(Generator):

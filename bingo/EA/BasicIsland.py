@@ -46,6 +46,8 @@ class Island(object):
         """
         self._num_generations += 1
         self.pop = self._ea.generational_step(self.pop)
+        for indv in self.pop:
+            indv.genetic_age += 1
         return self.pop
 
     def best_individual(self):

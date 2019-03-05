@@ -86,8 +86,8 @@ class VarOr(Variation):
         return offspring
 
     def _do_mutation(self, population, offspring, i):
-        mutant = self._get_random_parent(population)
-        mutant = self._mutation(mutant)
+        parent = self._get_random_parent(population)
+        mutant = self._mutation(parent)
         self._do_append(mutant, offspring)
         self.mutation_offspring[i] = True
 

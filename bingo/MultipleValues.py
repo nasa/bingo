@@ -129,4 +129,10 @@ class SinglePointCrossover(Crossover):
         self._crossover_point = np.random.randint(len(parent_1.list_of_values))
         child_1.list_of_values = parent_1.list_of_values[:self._crossover_point] + parent_2.list_of_values[self._crossover_point:]
         child_2.list_of_values = parent_2.list_of_values[:self._crossover_point] + parent_1.list_of_values[self._crossover_point:]
+        if parent_1.genetic_age > parent_2.genetic_age:
+            age = parent_1.genetic_age
+        else:
+            age = parent_2.genetic_age
+        child_1.genetic_age = age
+        child_2.genetic_age = age
         return child_1, child_2

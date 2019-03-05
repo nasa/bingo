@@ -86,3 +86,13 @@ def test_fitness_is_not_inherited_crossover():
     child1, child2 = crossover(parent1, parent2)
     assert child1.fit_set == False
     assert child2.fit_set == False
+
+def test_genetic_age_is_oldest_parent():
+    crossover = SinglePointCrossover()
+    parent1 = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
+    parent2 = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
+    parent1.genetic_age = 8
+    parent2.genetic_age = 4
+    child1, child2 = crossover(parent1, parent2)
+    assert child1.genetic_age == 8
+    assert child2.genetic_age == 8

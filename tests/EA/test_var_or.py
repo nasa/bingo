@@ -35,3 +35,11 @@ def test_no_two_variations_at_once(population, var_or):
     offspring = var_or(population, 25)
     for i, indv in enumerate(var_or.crossover_offspring):
         assert not (indv and var_or.mutation_offspring[i])
+
+def test_just_replication(population):
+    crossover = SinglePointCrossover()
+    mutation = SinglePointMutation(mutation_function)
+    var_Or = VarOr(crossover, mutation, 0.0, 0.0)
+    offspring = var_Or(population, 25)
+    for i, indv in enumerate(var_Or.crossover_offspring):
+        assert not (indv or var_Or.mutation_offspring[i])

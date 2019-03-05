@@ -30,8 +30,8 @@ def test_no_best_individual_unless_evaluated(island):
 def test_generational_steps_change_population(island):
     population = island.pop
     offspring = island.execute_generational_step()
-    for i, indv in enumerate(population):
-        assert indv is not offspring[i]
+    for indv in offspring:
+        assert indv.genetic_age > 0
     offspring_2 = island.execute_generational_step()
     assert island._num_generations == 2
 

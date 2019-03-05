@@ -25,6 +25,10 @@ class MultipleValueChromosome(Chromosome):
     def __str__(self):
         return str(self.list_of_values)
 
+    def distance(self, chromosome):
+        dist = 0
+        return dist
+
 class MultipleValueGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
 
@@ -129,4 +133,10 @@ class SinglePointCrossover(Crossover):
         self._crossover_point = np.random.randint(len(parent_1.list_of_values))
         child_1.list_of_values = parent_1.list_of_values[:self._crossover_point] + parent_2.list_of_values[self._crossover_point:]
         child_2.list_of_values = parent_2.list_of_values[:self._crossover_point] + parent_1.list_of_values[self._crossover_point:]
+        if parent_1.genetic_age > parent_2.genetic_age:
+            age = parent_1.genetic_age
+        else:
+            age = parent_2.genetic_age
+        child_1.genetic_age = age
+        child_2.genetic_age = age
         return child_1, child_2

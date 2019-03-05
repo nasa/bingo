@@ -12,8 +12,8 @@ from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.MuCommaLambda import MuCommaLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from bingo.EA.BasicIsland import Island
-from bingo.MultipleValues import *
+from bingo.Island import Island
+from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, SinglePointMutation, MultipleValueGenerator
 
 class MultipleValueFitnessEvaluator(FitnessEvaluator):
     def __call__(self, individual):
@@ -27,11 +27,10 @@ def mutation_onemax_specific():
 def execute_generational_steps():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(mutation_onemax_specific)
-    var_or = VarOr(crossover, mutation, 0.4, 0.4)
     selection = Tournament(10)
     fitness = MultipleValueFitnessEvaluator()
     evaluator = SimpleEvaluation(fitness)
-    ea = MuPlusLambda(var_or, evaluator, selection)
+    ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
     generator = MultipleValueGenerator(mutation_onemax_specific, 10)
     island = Island(ea, generator, 25)
     for i in range(10):

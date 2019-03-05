@@ -11,8 +11,9 @@ class RandomIndividualVariation(Variation):
 
     @argument_validation(number_offspring={">=": 0})
     def __call__(self, population, number_offspring):
-        new_population = self._generate_new_pop(population)
-        return self._variation(new_population, number_offspring)
+        for _ in range(self._num_rand_indvs):
+            population = self._generate_new_pop(population)
+        return self._variation(population, number_offspring)
     
     def _generate_new_pop(self, population):
         random_indv = self._chromosome_generator()

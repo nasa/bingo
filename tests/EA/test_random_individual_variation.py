@@ -24,11 +24,21 @@ def false_variation_function():
 def true_variation_function():
     return True
 
+def true_multiple_variation_function():
+    return [True]*COMPLEX_INDV_SIZE
+
 @pytest.fixture
 def weak_population():
     generator = MultipleValueGenerator(false_variation_function,
                                        SIMPLE_INDV_SIZE)
     return [generator() for i in range(25)]
+
+@pytest.fixture
+def weaker_population():
+    generator = MultipleValueGenerator(false_variation_function,
+                                       COMPLEX_INDV_SIZE)
+    return [generator() for i in range(25)]
+
 
 @pytest.fixture
 def true_chromosome_generator():
@@ -41,14 +51,27 @@ def init_replication_variation():
 def test_random_individual_added_to_pop(init_replication_variation, 
                                         true_chromosome_generator,
                                         weak_population):
+    indvs_added = 1
     rand_indv_var_or = RandomIndividualVariation(init_replication_variation,
-                                                 true_chromosome_generator)
+                                                 true_chromosome_generator,
+                                                 num_rand_indvs=indvs_added)
     offspring = rand_indv_var_or(weak_population, POP_SIZE)
-    success = False
     count = 0
     for indv in offspring:
         if True in indv.list_of_values:
-            success = True
             count += 1
-    assert success and count == 1
+    assert count == indvs_added
 
+def test_multiple_indviduals_added_to_pop(init_replication_variation,
+                                          weaker_population):
+    indvs_added = 2
+    generator = MultipleValueGenerator(true_multiple_variation_function, COMPLEX_INDV_SIZE)
+    rand_indv_var_or = RandomIndividualVariation(init_replication_variation,
+                                                 generator,
+                                                 num_rand_indvs=indvs_added)
+    offspring = rand_indv_var_or(weaker_population, POP_SIZE)
+    count = 0
+    for indv in offspring:
+        if all(indv.list_of_values):
+            count += 1
+    assert count == indvs_added

@@ -96,3 +96,10 @@ def test_genetic_age_is_oldest_parent():
     child1, child2 = crossover(parent1, parent2)
     assert child1.genetic_age == 8
     assert child2.genetic_age == 8
+
+def test_distance(sample_bool_list_chromosome):
+    chromosome = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
+    chromosome.list_of_values = sample_bool_list_chromosome.list_of_values
+    chromosome.list_of_values[0] = (not chromosome.list_of_values[0])
+    distance = sample_bool_list_chromosome.distance(chromosome)
+    assert distance == 1

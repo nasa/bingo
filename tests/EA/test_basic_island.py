@@ -3,7 +3,7 @@ import numpy as np
 
 from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, MultipleValueGenerator
 from bingo.EA.VarOr import VarOr
-from bingo.EA.BasicIsland import Island
+from bingo.Island import Island
 from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation

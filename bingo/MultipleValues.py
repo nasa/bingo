@@ -25,6 +25,10 @@ class MultipleValueChromosome(Chromosome):
     def __str__(self):
         return str(self.list_of_values)
 
+    def distance(self, chromosome):
+        dist = 0
+        return dist
+
 class MultipleValueGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
 

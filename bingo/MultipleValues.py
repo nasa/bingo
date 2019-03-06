@@ -26,9 +26,17 @@ class MultipleValueChromosome(Chromosome):
         return str(self.list_of_values)
 
     def distance(self, chromosome):
-        dist = 0
-        for i, val in enumerate(self.list_of_values):
-            dist += np.absolute(float(val) - float(chromosome.list_of_values[i]))
+        """Computes the distance (a measure of similarity) between two individuals
+        
+        Parameters
+        ----------
+        chromosome : MultipleValueChromosome
+
+        Returns
+        -------
+        dist : the distance between self and another chromosome
+        """
+        dist = np.sum(self.list_of_values != chromosome.list_of_values)
         return dist
 
 class MultipleValueGenerator(Generator):

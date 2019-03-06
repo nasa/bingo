@@ -102,6 +102,5 @@ def test_distance(sample_bool_list_chromosome):
     for i, indv in enumerate(sample_bool_list_chromosome.list_of_values):
         assert indv == chromosome.list_of_values[i]
     chromosome.list_of_values[0] = (not sample_bool_list_chromosome.list_of_values[0])
-    chromosome.list_of_values[3] = (not sample_bool_list_chromosome.list_of_values[3])
-    assert sample_bool_list_chromosome.distance(chromosome) == 2
+    assert sample_bool_list_chromosome.distance(chromosome) == 1
 

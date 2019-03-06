@@ -163,8 +163,8 @@ def _sqrt_reverse_eval(reverse_index, param1, _param2, forward_eval,
 def forward_eval_function(node, param1, param2, x, constants, forward_eval):
     return FORWARD_EVAL_MAP[node](param1, param2, x, constants, forward_eval)
 
-def reverse_eval_function(node, param1, param2, x, constants, forward_eval):
-    REVERSE_EVAL_MAP[node](param1, param2, x, constants, forward_eval)
+def reverse_eval_function(node, reverse_index, param1, param2, forward_eval, reverse_eval):
+    REVERSE_EVAL_MAP[node](reverse_index, param1, param2, forward_eval, reverse_eval)
 
 # Node maps
 

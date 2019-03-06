@@ -1,6 +1,6 @@
 """The "Mu , Lambda"
 
-This module defines the basis of the "mu plus lambda"
+This module defines the basis of the "mu comma lambda"
 evolutionary algorithm in bingo analyses.
 """
 from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm

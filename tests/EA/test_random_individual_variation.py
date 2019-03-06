@@ -1,8 +1,6 @@
 import pytest
 
-from bingo.MultipleValues import MultipleValueGenerator,\
-                                    SinglePointCrossover,\
-                                    SinglePointMutation
+from bingo.MultipleValues import MultipleValueGenerator
 from bingo.EA.VarOr import VarOr
 from bingo.Base.Variation import Variation
 from bingo.EA.RandomIndividualVariation import RandomIndividualVariation
@@ -38,7 +36,6 @@ def weaker_population():
     generator = MultipleValueGenerator(false_variation_function,
                                        COMPLEX_INDV_SIZE)
     return [generator() for i in range(25)]
-
 
 @pytest.fixture
 def true_chromosome_generator():

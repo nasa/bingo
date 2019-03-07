@@ -5,27 +5,28 @@ from bingo.Base.Variation import Variation
 from bingo.Base.Evaluation import Evaluation
 from bingo.Base.Selection import Selection
 from bingo.EA.SimpleEa import SimpleEa
-from bingo.MultipleValues import *
-
-
+from bingo.MultipleValues import MultipleValueGenerator,\
+                                 MultipleValueChromosome,\
+                                 SinglePointCrossover,\
+                                 SinglePointMutation
 
 def mutation_onemax_specific():
     return np.random.choice([True, False])
 
 @pytest.fixture
 def sample_float_list_chromosome():
-	chromosome = MultipleValueChromosome( [np.random.choice([1.0, 0.0]) for i in range(10)])
-	return chromosome
+    chromosome = MultipleValueChromosome( [np.random.choice([1.0, 0.0]) for i in range(10)])
+    return chromosome
 
 @pytest.fixture
 def sample_int_list_chromosome():
-	chromosome = MultipleValueChromosome([np.random.choice([1, 0]) for i in range(10)])
-	return chromosome
+    chromosome = MultipleValueChromosome([np.random.choice([1, 0]) for i in range(10)])
+    return chromosome
 
 @pytest.fixture
 def sample_bool_list_chromosome():
-	chromosome = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
-	return chromosome
+    chromosome = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
+    return chromosome
 
 @pytest.fixture
 def population():
@@ -33,34 +34,34 @@ def population():
     return [generator() for i in range(25)]
 
 def test_length_of_list(sample_float_list_chromosome):
-	assert len(sample_float_list_chromosome.list_of_values) == 10
+    assert len(sample_float_list_chromosome.list_of_values) == 10
 
 def test_float_values_in_list(sample_float_list_chromosome):
-	for i in range(10):
-		assert isinstance(sample_float_list_chromosome.list_of_values[i], float)
+    for i in range(10):
+        assert isinstance(sample_float_list_chromosome.list_of_values[i], float)
 
 def test_int_values_in_list(sample_int_list_chromosome):
-	for i in range(10):
-		assert isinstance(sample_int_list_chromosome.list_of_values[i], (int, np.integer))
+    for i in range(10):
+        assert isinstance(sample_int_list_chromosome.list_of_values[i], (int, np.integer))
 
 def test_bool_values_in_list(sample_bool_list_chromosome):
-	for i in range(10):
-		assert sample_bool_list_chromosome.list_of_values[i] == True or sample_bool_list_chromosome.list_of_values[i] == False
+    for i in range(10):
+        assert sample_bool_list_chromosome.list_of_values[i] == True or sample_bool_list_chromosome.list_of_values[i] == False
 
 def test_generator():
-	generator = MultipleValueGenerator(mutation_onemax_specific, 10)
-	pop = [generator() for i in range(20)]
-	assert len(pop) == 20
-	assert len(pop[0].list_of_values) == 10
+    generator = MultipleValueGenerator(mutation_onemax_specific, 10)
+    pop = [generator() for i in range(20)]
+    assert len(pop) == 20
+    assert len(pop[0].list_of_values) == 10
 
 def test_crossover(population):
-	crossover = SinglePointCrossover()
-	child_1, child_2 = crossover(population[0], population[1])
-	cross_pt = crossover._crossover_point
-	assert child_1.list_of_values[:cross_pt] == population[0].list_of_values[:cross_pt]
-	assert child_2.list_of_values[:cross_pt] == population[1].list_of_values[:cross_pt]
-	assert child_1.list_of_values[cross_pt :] == population[1].list_of_values[cross_pt :]
-	assert child_2.list_of_values[cross_pt :] == population[0].list_of_values[cross_pt :]
+    crossover = SinglePointCrossover()
+    child_1, child_2 = crossover(population[0], population[1])
+    cross_pt = crossover._crossover_point
+    assert child_1.list_of_values[:cross_pt] == population[0].list_of_values[:cross_pt]
+    assert child_2.list_of_values[:cross_pt] == population[1].list_of_values[:cross_pt]
+    assert child_1.list_of_values[cross_pt :] == population[1].list_of_values[cross_pt :]
+    assert child_2.list_of_values[cross_pt :] == population[0].list_of_values[cross_pt :]
 
 def test_mutation_is_single_point():
     mutator = SinglePointMutation(mutation_onemax_specific)

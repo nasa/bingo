@@ -10,14 +10,15 @@ from bingo.Base.Generator import Generator
 from bingo.Base.Selection import Selection
 from bingo.Base.Variation import Variation
 from bingo.Base.Evaluation import Evaluation
-from bingo.Base.FitnessEvaluator import FitnessEvaluator
+from bingo.Base.FitnessEvaluator import FitnessEvaluator, VectorBasedEvaluator
 from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 from bingo.Base.ContinuousLocalOptimization import ChromosomeInterface
 
 
 @pytest.mark.parametrize("base_class", [Chromosome, Equation, Generator,
                                         Crossover, Mutation, Selection,
-                                        Variation, Evaluation, FitnessEvaluator,
+                                        Variation, Evaluation,
+                                        FitnessEvaluator, VectorBasedEvaluator,
                                         EvolutionaryAlgorithm,
                                         ChromosomeInterface])
 def test_raises_error_construct_base_classes(base_class):

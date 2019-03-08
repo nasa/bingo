@@ -66,7 +66,7 @@ def test_age_fitness_selection_remove_one_weak(strong_population, weak_indvidual
     new_population = age_fitness_selection(indv_population, TARGET_POP_SIZE)
 
     weak_indv_removed = True
-    for indv in new_population:
+    for i, indv in enumerate(new_population):
         if False in indv.list_of_values:
             weak_indv_removed = False
             break
@@ -95,3 +95,18 @@ def test_all_but_one_removed(all_dominated_population):
 
     new_population = age_fitness_selection(all_dominated_population, 1)
     assert len(new_population) == 1
+
+def test_all_but_one_removed_large_selection_size(strong_population, weak_indvidual):
+    population = strong_population +[weak_indvidual]
+    age_fitness_selection = AgeFitness(selection_size=10)
+    fitness = MultipleValueFitnessEvaluator()
+    evaluator = SimpleEvaluation(fitness)
+    evaluator(population)
+
+    new_population = age_fitness_selection(population, 1)
+    assert len(new_population) == 1
+    assert new_population[0].list_of_values == [True]
+    assert age_fitness_selection._selection_attempts == 1
+
+if __name__ == '__main__':
+    test_age_fitness_selection_remove_one_weak(strong_population(), weak_indvidual())

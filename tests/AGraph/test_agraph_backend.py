@@ -35,9 +35,9 @@ def sample_agraph_values():
 
 
 @pytest.fixture
-def operator_evals_x0(sample_agraph_1_values):
-    x_0 = sample_agraph_1_values.x[:, 0].reshape((-1, 1))
-    c_0 = np.full(x_0.shape, sample_agraph_1_values.constants[0])
+def operator_evals_x0(sample_agraph_values):
+    x_0 = sample_agraph_values.x[:, 0].reshape((-1, 1))
+    c_0 = np.full(x_0.shape, sample_agraph_values.constants[0])
     return [x_0,
             c_0,
             x_0+x_0,
@@ -54,11 +54,11 @@ def operator_evals_x0(sample_agraph_1_values):
 
 
 @pytest.fixture
-def operator_x_derivs(sample_agraph_1_values):
+def operator_x_derivs(sample_agraph_values):
     def last_nan(array):
         array[-1] = np.nan
         return array
-    x_0 = sample_agraph_1_values.x[:, 0].reshape((-1, 1))
+    x_0 = sample_agraph_values.x[:, 0].reshape((-1, 1))
     return [np.ones(x_0.shape),
             np.zeros(x_0.shape),
             np.full(x_0.shape, 2.0),
@@ -75,9 +75,9 @@ def operator_x_derivs(sample_agraph_1_values):
 
 
 @pytest.fixture
-def operator_c_derivs(sample_agraph_1_values):
-    c_1 = np.full((sample_agraph_1_values.x.shape[0], 1),
-                  sample_agraph_1_values.constants[1])
+def operator_c_derivs(sample_agraph_values):
+    c_1 = np.full((sample_agraph_values.x.shape[0], 1),
+                  sample_agraph_values.constants[1])
     return [np.zeros(c_1.shape),
             np.ones(c_1.shape),
             np.full(c_1.shape, 2.0),

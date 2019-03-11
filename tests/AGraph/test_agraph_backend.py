@@ -26,7 +26,7 @@ def backend(request):
 
 
 @pytest.fixture
-def sample_agraph_1_values():
+def sample_agraph_values():
     values = namedtuple('Point', ['x', 'constants'])
     x = np.vstack((np.linspace(-1.0, 0.0, 11),
                    np.linspace(0.0, 1.0, 11))).transpose()
@@ -136,56 +136,57 @@ def test_cpp_backend_could_be_imported():
 
 
 @pytest.mark.parametrize("operator", range(13))
-def test_backend_simplify_and_evaluate(backend, sample_agraph_1_values, operator,
-                                       operator_evals_x0):
+def test_backend_simplify_and_evaluate(backend, sample_agraph_values,
+                                       operator, operator_evals_x0):
     expected_outcome = operator_evals_x0[operator]
     stack = np.array([[0, 0, 0],
                       [0, 1, 1],
                       [operator, 0, 0]])
     f_of_x = backend.simplify_and_evaluate(stack,
-                                           sample_agraph_1_values.x,
-                                           sample_agraph_1_values.constants)
+                                           sample_agraph_values.x,
+                                           sample_agraph_values.constants)
     np.testing.assert_allclose(expected_outcome, f_of_x)
 
 
 @pytest.mark.parametrize("operator", range(13))
 # pylint: disable=invalid-name
 def test_backend_simplify_and_evaluate_with_x_derivative(backend,
-                                                         sample_agraph_1_values,
+                                                         sample_agraph_values,
                                                          operator,
                                                          operator_x_derivs):
-    expected_derivative = np.zeros(sample_agraph_1_values.x.shape)
+    expected_derivative = np.zeros(sample_agraph_values.x.shape)
     expected_derivative[:, 0] = operator_x_derivs[operator].flatten()
     stack = np.array([[0, 0, 0],
                       [0, 0, 0],
                       [0, 1, 1],
                       [operator, 0, 1]])
     _, df_dx = backend.simplify_and_evaluate_with_derivative(
-        stack, sample_agraph_1_values.x, sample_agraph_1_values.constants, True)
+        stack, sample_agraph_values.x, sample_agraph_values.constants,
+        True)
     np.testing.assert_allclose(expected_derivative, df_dx)
 
 
 @pytest.mark.parametrize("operator", range(13))
 # pylint: disable=invalid-name
 def test_backend_simplify_and_evaluate_with_c_derivative(backend,
-                                                         sample_agraph_1_values,
+                                                         sample_agraph_values,
                                                          operator,
                                                          operator_c_derivs):
-    expected_derivative = np.zeros(sample_agraph_1_values.x.shape)
+    expected_derivative = np.zeros(sample_agraph_values.x.shape)
     expected_derivative[:, 1] = operator_c_derivs[operator].flatten()
     stack = np.array([[1, 1, 1],
                       [1, 1, 1],
                       [0, 1, 1],
                       [operator, 1, 0]])
     _, df_dx = backend.simplify_and_evaluate_with_derivative(
-        stack, sample_agraph_1_values.x, sample_agraph_1_values.constants, False)
+        stack, sample_agraph_values.x, sample_agraph_values.constants, False)
     np.testing.assert_allclose(expected_derivative, df_dx)
 
 
 def test_agraph_get_utilized_commands(backend, expected_stack_util):
     np.testing.assert_array_equal(
-            backend.get_utilized_commands(expected_stack_util["stack"]),
-            expected_stack_util["util"])
+        backend.get_utilized_commands(expected_stack_util["stack"]),
+        expected_stack_util["util"])
 
 
 @pytest.mark.parametrize("the_backend, expected", [

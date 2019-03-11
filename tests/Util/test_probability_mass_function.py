@@ -11,9 +11,8 @@ def constant_pmf(request):
     if request.param:
         return (ProbabilityMassFunction(items=[True, False], weights=[1, 0]),
                 request.param)
-    else:
-        return (ProbabilityMassFunction(items=[True, False], weights=[0, 1]),
-                request.param)
+    return (ProbabilityMassFunction(items=[True, False], weights=[0, 1]),
+            request.param)
 
 
 @pytest.fixture

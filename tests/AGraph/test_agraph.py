@@ -149,14 +149,16 @@ def test_evaluate_agraph(sample_agraph_1, sample_agraph_1_values):
 
 def test_evaluate_agraph_x_gradient(sample_agraph_1, sample_agraph_1_values):
     f_of_x, df_dx = \
-        sample_agraph_1.evaluate_equation_with_x_gradient_at(sample_agraph_1_values.x)
+        sample_agraph_1.evaluate_equation_with_x_gradient_at(
+            sample_agraph_1_values.x)
     np.testing.assert_allclose(f_of_x, sample_agraph_1_values.f_of_x)
     np.testing.assert_allclose(df_dx, sample_agraph_1_values.grad_x)
 
 
 def test_evaluate_agraph_c_gradient(sample_agraph_1, sample_agraph_1_values):
-    f_of_x, df_dc = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
-        sample_agraph_1_values.x)
+    f_of_x, df_dc = \
+        sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
+            sample_agraph_1_values.x)
     np.testing.assert_allclose(f_of_x, sample_agraph_1_values.f_of_x)
     np.testing.assert_allclose(df_dc, sample_agraph_1_values.grad_c)
 

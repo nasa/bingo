@@ -2,8 +2,11 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import pytest
+import numpy as np
 
-from bingo.MultipleValues import *
+from bingo.MultipleValues import MultipleValueChromosome, \
+                                 MultipleValueGenerator, SinglePointCrossover,\
+                                 SinglePointMutation
 
 
 def mutation_onemax_specific():
@@ -13,21 +16,21 @@ def mutation_onemax_specific():
 @pytest.fixture
 def sample_float_list_chromosome():
     chromosome = MultipleValueChromosome(
-            [np.random.choice([1.0, 0.0]) for _ in range(10)])
+        [np.random.choice([1.0, 0.0]) for _ in range(10)])
     return chromosome
 
 
 @pytest.fixture
 def sample_int_list_chromosome():
     chromosome = MultipleValueChromosome(
-            [np.random.choice([1, 0]) for _ in range(10)])
+        [np.random.choice([1, 0]) for _ in range(10)])
     return chromosome
 
 
 @pytest.fixture
 def sample_bool_list_chromosome():
     chromosome = MultipleValueChromosome(
-            [np.random.choice([True, False]) for _ in range(10)])
+        [np.random.choice([True, False]) for _ in range(10)])
     return chromosome
 
 
@@ -55,8 +58,8 @@ def test_int_values_in_list(sample_int_list_chromosome):
 
 def test_bool_values_in_list(sample_bool_list_chromosome):
     for i in range(10):
-        assert sample_bool_list_chromosome.list_of_values[i] == True or \
-               sample_bool_list_chromosome.list_of_values[i] == False
+        assert sample_bool_list_chromosome.list_of_values[i] or \
+               not sample_bool_list_chromosome.list_of_values[i]
 
 
 def test_generator():
@@ -86,7 +89,7 @@ def test_crossover(population):
 def test_mutation_is_single_point():
     mutator = SinglePointMutation(mutation_onemax_specific)
     parent = MultipleValueChromosome(
-            [np.random.choice([True, False]) for _ in range(10)])
+        [np.random.choice([True, False]) for _ in range(10)])
     child = mutator(parent)
     discrepancies = 0
     for i in range(len(parent.list_of_values)):
@@ -99,17 +102,17 @@ def test_mutation_is_single_point():
 def test_fitness_is_not_inherited_mutation():
     mutator = SinglePointMutation(mutation_onemax_specific)
     parent = MultipleValueChromosome(
-            [np.random.choice([True, False]) for _ in range(10)])
+        [np.random.choice([True, False]) for _ in range(10)])
     child = mutator(parent)
-    assert child.fit_set == False
+    assert not child.fit_set
 
 
 def test_fitness_is_not_inherited_crossover():
     crossover = SinglePointCrossover()
     parent1 = MultipleValueChromosome(
-            [np.random.choice([True, False]) for _ in range(10)])
+        [np.random.choice([True, False]) for _ in range(10)])
     parent2 = MultipleValueChromosome(
-            [np.random.choice([True, False]) for _ in range(10)])
+        [np.random.choice([True, False]) for _ in range(10)])
     child1, child2 = crossover(parent1, parent2)
-    assert child1.fit_set == False
-    assert child2.fit_set == False
+    assert not child1.fit_set
+    assert not child2.fit_set

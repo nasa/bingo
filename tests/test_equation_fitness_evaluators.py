@@ -6,7 +6,9 @@ import numpy as np
 
 from bingo.Base.Equation import Equation
 from bingo.EquationFitnessEvaluators import ExplicitRegression, \
-                                            ImplicitRegression
+                                            ImplicitRegression, \
+                                            PairwiseAtomicPotential, \
+                                            ImplicitRegressionSchmidt
 
 
 class SumEqualtion(Equation):
@@ -34,10 +36,14 @@ class SumEqualtion(Equation):
 
 
 class SampleTrainingData:
-    def __init__(self, x=None, y=None, dx_dt=None):
+    def __init__(self, x=None, y=None, dx_dt=None, r=None,
+                 potential_energy=None, config_lims_r=None):
         self.x = x
         self.y = y
         self.dx_dt = dx_dt
+        self.r = r
+        self.potential_energy = potential_energy
+        self.config_lims_r = config_lims_r
 
 
 @pytest.fixture()
@@ -49,10 +55,18 @@ def dummy_sum_equation():
 def dummy_training_data():
     x = np.linspace(0, 1, 50, endpoint=False).reshape((-1, 5))
     y = np.linspace(0.2, 4.7, 10).reshape((-1, 1))
+
     dx_dt = np.ones(x.shape)
     dx_dt[:, [3, 4]] *= -1
     dx_dt[:, 2] = 0
-    return SampleTrainingData(x=x, y=y, dx_dt=dx_dt)
+
+    r = np.ones((10, 1))
+    potential_energy = np.arange(1, 5)
+    config_lims_r = [0, 1, 3, 6, 10]
+
+    return SampleTrainingData(x=x, y=y, dx_dt=dx_dt, r=r,
+                              potential_energy=potential_energy,
+                              config_lims_r=config_lims_r)
 
 
 @pytest.fixture()
@@ -81,7 +95,7 @@ def test_implicit_regression(dummy_sum_equation, dummy_training_data,
                                    required_params=None,
                                    normalize_dot=normalize_dot)
     fitness = regressor(dummy_sum_equation)
-    np.testing.assert_almost_equal(fitness, .14563031020)
+    np.testing.assert_almost_equal(fitness, 0.14563031020)
 
 
 @pytest.mark.parametrize("required_params, infinite_fitness_expected",
@@ -95,3 +109,16 @@ def test_implicit_regression_no_normalization(dummy_sum_equation,
                                    normalize_dot=False)
     fitness = regressor(dummy_sum_equation)
     assert np.isinf(fitness) == infinite_fitness_expected
+
+
+def test_pairwise_potential_regression(dummy_sum_equation,
+                                       dummy_training_data):
+    regressor = PairwiseAtomicPotential(dummy_training_data)
+    fitness = regressor(dummy_sum_equation)
+    np.testing.assert_almost_equal(fitness, 0)
+
+
+def test_schmidt_regression(dummy_sum_equation, dummy_training_data):
+    regressor = ImplicitRegressionSchmidt(dummy_training_data)
+    fitness = regressor(dummy_sum_equation)
+    np.testing.assert_almost_equal(fitness, 0.44420421701352086)

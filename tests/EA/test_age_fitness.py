@@ -36,6 +36,12 @@ def weak_indvidual():
     return indv
 
 @pytest.fixture
+def fit_individual():
+    generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
+    indv = generator()
+    return indv
+
+@pytest.fixture
 def strong_population():
     generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
     return [generator() for i in range(INITIAL_POP_SIZE)]
@@ -106,7 +112,19 @@ def test_all_but_one_removed_large_selection_size(strong_population, weak_indvid
     new_population = age_fitness_selection(population, 1)
     assert len(new_population) == 1
     assert new_population[0].list_of_values == [True]
+    assert age_fitness_selection._selection_attempts == 2
+
+def test_one_iteration(weak_indvidual, fit_individual):
+    population = [weak_indvidual for i in range(10)] + [fit_individual]
+    age_fitness_selection = AgeFitness(selection_size=len(population))
+    fitness = MultipleValueFitnessEvaluator()
+    evaluator = SimpleEvaluation(fitness)
+    evaluator(population)
+
+    new_population = age_fitness_selection(population, 1)
+    assert len(new_population) == 1
+    assert new_population[0].list_of_values == [True]
     assert age_fitness_selection._selection_attempts == 1
 
 if __name__ == '__main__':
-    test_age_fitness_selection_remove_one_weak(strong_population(), weak_indvidual())
+    test_all_but_one_removed_large_selection_size(strong_population(), weak_indvidual())

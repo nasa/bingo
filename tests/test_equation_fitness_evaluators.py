@@ -79,8 +79,7 @@ def test_implicit_regression(dummy_sum_equation, dummy_training_data,
                              normalize_dot):
     regressor = ImplicitRegression(dummy_training_data,
                                    required_params=None,
-                                   normalize_dot=normalize_dot,
-                                   acceptable_nans=0.1)
+                                   normalize_dot=normalize_dot)
     fitness = regressor(dummy_sum_equation)
     np.testing.assert_almost_equal(fitness, .14563031020)
 
@@ -93,22 +92,6 @@ def test_implicit_regression_no_normalization(dummy_sum_equation,
                                               infinite_fitness_expected):
     regressor = ImplicitRegression(dummy_training_data,
                                    required_params=required_params,
-                                   normalize_dot=False,
-                                   acceptable_nans=0.1)
-    fitness = regressor(dummy_sum_equation)
-    assert np.isinf(fitness) == infinite_fitness_expected
-
-
-@pytest.mark.parametrize("num_nans, infinite_fitness_expected",
-                         [(1, False), (2, True)])
-def test_implicit_regression_no_normalization(dummy_sum_equation,
-                                              dummy_training_data, num_nans,
-                                              infinite_fitness_expected):
-    for i in range(num_nans):
-        dummy_training_data.dx_dt[i, :] = np.nan
-    regressor = ImplicitRegression(dummy_training_data,
-                                   required_params=None,
-                                   normalize_dot=False,
-                                   acceptable_nans=0.1)
+                                   normalize_dot=False)
     fitness = regressor(dummy_sum_equation)
     assert np.isinf(fitness) == infinite_fitness_expected

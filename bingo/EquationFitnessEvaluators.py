@@ -40,41 +40,12 @@ class ImplicitRegression(VectorBasedEvaluator):
                       (optional) minimum number of nonzero components of dot
     normalize_dot : bool
                     normalize the terms in the dot product (default = False)
-    acceptable_nans : float [0.0, 1.0]
-                      the fraction of the data cases for which resulting values
-                      of NaN can safely be ignored (default = 0.1)
     """
     def __init__(self, training_data, required_params=None,
-                 normalize_dot=False, acceptable_nans=0.1):
+                 normalize_dot=False):
         super().__init__(training_data)
         self._required_params = required_params
         self._normalize_dot = normalize_dot
-        self._acceptable_finite_fraction = 1 - acceptable_nans
-
-    def __call__(self, individual):
-        """
-        Fitness of this metric is related cos of angle between between df_dx
-        and dx_dt. Different normalization and erorr checking are available.
-
-        Parameters
-        ----------
-        individual : Equation
-                     an equation individual to be evaluated
-
-        Returns
-        -------
-         :
-            the mean of the fitness vector, ignoring nans
-        """
-
-        fitness_vector = self._evaluate_fitness_vector(individual)
-        if not self._is_fitness_fiinite_fraction_acceptable(fitness_vector):
-            print(1)
-            err = np.inf
-        else:
-            print(2)
-            err = self._get_mean_ignoring_nans(fitness_vector)
-        return err
 
     def _evaluate_fitness_vector(self, individual):
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
@@ -107,20 +78,6 @@ class ImplicitRegression(VectorBasedEvaluator):
     @staticmethod
     def _normalize_by_row(array):
             return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
-
-    def _is_fitness_fiinite_fraction_acceptable(self, fitness_vector):
-        finite_fraction = np.count_nonzero(np.isfinite(fitness_vector)) / \
-                          fitness_vector.shape[0]
-        return finite_fraction >= self._acceptable_finite_fraction
-
-    @staticmethod
-    def _get_mean_ignoring_nans(fitness_vector):
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=RuntimeWarning)
-            print(fitness_vector)
-            err = np.nanmean(np.abs(fitness_vector))
-            print(err)
-            return err
 
 
 class ImplicitRegressionSchmidt(VectorBasedEvaluator):

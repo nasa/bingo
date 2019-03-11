@@ -33,6 +33,8 @@ def test_offspring_not_equals_parents(population, var_or):
         
 def test_no_two_variations_at_once(population, var_or):
     offspring = var_or(population, 25)
+    for cross, mut in zip(var_or.crossover_offspring, var_or.mutation_offspring):
+        assert not (cross and mut)
     for i, indv in enumerate(var_or.crossover_offspring):
         assert not (indv and var_or.mutation_offspring[i])
 
@@ -41,5 +43,6 @@ def test_just_replication(population):
     mutation = SinglePointMutation(mutation_function)
     var_Or = VarOr(crossover, mutation, 0.0, 0.0)
     offspring = var_Or(population, 25)
-    for i, indv in enumerate(var_Or.crossover_offspring):
-        assert not (indv or var_Or.mutation_offspring[i])
+    for cross, mut in zip(var_Or.crossover_offspring, var_Or.mutation_offspring):
+        assert not (cross or mut)
+    

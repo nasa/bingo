@@ -1,4 +1,9 @@
-import warnings
+"""Fitness evaluators for Equations
+
+A collection of fitness evaluators that are intended to be used with bingo
+Equations for performing symbolic regression.  All fitness evaluators in this
+collection require initialization with training data of some sort.
+"""
 import numpy as np
 
 from bingo.Base.FitnessEvaluator import VectorBasedEvaluator
@@ -49,7 +54,7 @@ class ImplicitRegression(VectorBasedEvaluator):
 
     def _evaluate_fitness_vector(self, individual):
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
-                x=self.training_data.x)
+            x=self.training_data.x)
 
         dot_product = self._do_dfdx_dot_dxdt(df_dx)
 
@@ -77,7 +82,7 @@ class ImplicitRegression(VectorBasedEvaluator):
 
     @staticmethod
     def _normalize_by_row(array):
-            return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
+        return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
 
 
 class ImplicitRegressionSchmidt(VectorBasedEvaluator):
@@ -99,7 +104,7 @@ class ImplicitRegressionSchmidt(VectorBasedEvaluator):
     """
     def _evaluate_fitness_vector(self, individual):
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
-                x=self.training_data.x)
+            x=self.training_data.x)
 
         num_parameters = self.training_data.x.shape[1]
         worst_fitness = 0

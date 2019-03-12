@@ -1,9 +1,24 @@
+"""Age-Fitness selection
+
+This module implements the Age-Fitness selection algorithm that defines
+the selection used in the Age-Fitness evolutionary algorithm module.
+This module expects to be used in conjunction with the
+``RandomIndividualVariation`` module that wraps the ``VarOr`` module.
+"""
 import numpy as np
 
 from bingo.Base.Selection import Selection
 from bingo.Util.ArgumentValidation import argument_validation
 
 class AgeFitness(Selection):
+    """Age-Fitness selection
+
+    Parameters
+    ----------
+    selection_size : int
+        The size of the group of individuals to be randomly
+        compared. The size must be an integer greater than 1.
+    """
     WORST_CASE_FACTOR = 50
 
     @argument_validation(selection_size={">=": 2})
@@ -15,6 +30,30 @@ class AgeFitness(Selection):
 
     @argument_validation(target_population_size={">": 0})
     def __call__(self, population, target_population_size):
+        """Performs Age-Fitness selection on a population. If ``selection_size``
+        is larger than the population. The maximum number of removed
+        individiuals is the target_population_size.
+
+        Parameters
+        ----------
+        population : list of Chromosome
+            The population on which to perform selection
+        target_population_size : int
+            The size of the new population after selection. It will never be the
+            case that the new population will have a size smaller than the
+            target population.
+
+        Returns
+        -------
+        list of Chromosome :
+            The chromosomes not selected for removal
+
+        Raises
+        ------
+        ValueError
+            If the ``target_population_size`` is larger than the intial
+            `population`
+        """
         if target_population_size > len(population):
             raise ValueError("Target population size should\
                               be less than initial population")
@@ -24,14 +63,14 @@ class AgeFitness(Selection):
         self._population_index_array = np.random.permutation(len(population))
 
         self._selection_attempts = 0
-        while (len(population) - num_removed[0]) > target_population_size and \
-              self._selection_attempts < start_pop_size * self.WORST_CASE_FACTOR:
-
+        while (start_pop_size - num_removed[0]) > target_population_size and \
+              self._selection_attempts < \
+              start_pop_size * self.WORST_CASE_FACTOR:
+            
             self._get_unique_random_individuals(population, num_removed)
             removed_indv_indexs = self._get_individuals_for_removal(
                 population, target_population_size, num_removed)
             self._remove_indviduals(removed_indv_indexs, num_removed)
-
             self._selection_attempts += 1
 
         return self._update_population(population, num_removed)

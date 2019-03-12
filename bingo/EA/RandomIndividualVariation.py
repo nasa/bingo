@@ -10,11 +10,11 @@ class RandomIndividualVariation(Variation):
     Parameters
     ----------
     variation : Variation
-                Variation object that performs the variation among individuals
+        Variation object that performs the variation among individuals
     chromosome_generator : Generator
-                           Generator for random individual
+        Generator for random individual
     num_rand_indvs : int
-                     The number of random individuals to generate per call
+        The number of random individuals to generate per call
 
     """
     def __init__(self, variation, chromosome_generator, num_rand_indvs=1):
@@ -30,9 +30,9 @@ class RandomIndividualVariation(Variation):
         Parameters
         ----------
         population : list of Chromosomes
-                     The population on which to perform variation
+            The population on which to perform variation
         number_offspring : int
-                           number of offspring to produce.
+            number of offspring to produce.
 
         Returns
         -------

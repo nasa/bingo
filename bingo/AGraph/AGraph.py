@@ -412,14 +412,22 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                                                str_list[param2])
         return tmp_str
 
-    def distance(indv1, indv2):
+    def distance(self, individual):
+        """Computes the distance to another Agraph
+
+        Distance is a measure of similarity of the two command_arrays
+
+        Parameters
+        ----------
+        individual : Agraph
+                     The individual to which distance will be calculated
+
+        Returns
+        -------
+         : int
+            distance from self to individual
         """
-        Computes the distance (a measure of similarity) between two individuals
-        :param indv1: first individual
-        :param indv2: second individual
-        :return: distance
-        """
-        dist = np.sum(indv1.command_list != indv2.command_list)
+        dist = np.sum(self.command_array != individual.command_array)
         
         return dist
         

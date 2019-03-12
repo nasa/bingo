@@ -11,7 +11,7 @@ from bingo.EA.SimpleEa import SimpleEa
 from SingleValue import SingleValueChromosome
 
 
-class add_v_variation(Variation):
+class VariationAddV(Variation):
     def __call__(self, population, number_offspring):
         offspring = [parent.copy() for parent in population]
         for indv in offspring:
@@ -19,14 +19,14 @@ class add_v_variation(Variation):
         return offspring
 
 
-class add_e_evaluation(Evaluation):
+class EvaluationAddE(Evaluation):
     def __call__(self, population):
         for indv in population:
             indv.fitness = indv.value
             indv.value += "e"
 
 
-class add_s_selection(Selection):
+class SelectionAddS(Selection):
     def __call__(self, population, _target_population_size):
         for indv in population:
             indv.value += "s"
@@ -35,7 +35,7 @@ class add_s_selection(Selection):
 
 @pytest.fixture
 def sample_ea():
-    return SimpleEa(add_v_variation(), add_e_evaluation(), add_s_selection())
+    return SimpleEa(VariationAddV(), EvaluationAddE(), SelectionAddS())
 
 
 @pytest.fixture

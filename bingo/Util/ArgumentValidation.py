@@ -27,11 +27,19 @@ def _in_check(argument, values):
     return argument in values
 
 
+def _has_check(argument, attributes):
+    for att in attributes:
+        if not hasattr(argument, att):
+            return False
+    return True
+
+
 CHECKING_FUNCTIONS = {"<": _less_than_check,
                       "<=": _less_than_or_equal_check,
                       ">": _greater_than_check,
                       ">=": _greater_than_or_equal_check,
                       "in": _in_check,
+                      "has": _has_check,
                       }
 
 

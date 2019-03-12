@@ -15,7 +15,8 @@ from bingo.Util.ArgumentValidation import argument_validation
     (0, {"<": 0}),
     ("A", {"in": [1, 2]}),
     ("A", {"in": "BCDE"}),
-    ("A", {"in": ["ABCDE", "BCD"]})
+    ("A", {"in": ["ABCDE", "BCD"]}),
+    ("A", {"has": ["istitle", "__call__"]})
 ])
 @pytest.mark.parametrize("keyword", [True, False])
 def test_raises_error_failed_check(func_arg, check, keyword):
@@ -51,6 +52,7 @@ def test_raises_error_wrong_type_for_check(check_type, keyword):
     (0, {"<=": 0}),
     ("A", {"in": [1, "A"]}),
     ("A", {"in": "ABCDE"}),
+    ("A", {"has": ["istitle"]}),
 ])
 @pytest.mark.parametrize("keyword", [True, False])
 def test_valid_checks(func_arg, check, keyword):

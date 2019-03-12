@@ -27,16 +27,21 @@ def test_no_best_individual_unless_evaluated(island):
     with pytest.raises(ValueError):
         island.best_individual()
 
-def test_generational_steps_change_population(island):
-    population = island.pop
-    offspring = island.execute_generational_step()
-    for indv in offspring:
+def test_generational_steps_change_population_age(island):
+    for indv in island.population:
+        assert indv.genetic_age == 0
+    island.execute_generational_step()
+    for indv in island.population:
         assert indv.genetic_age > 0
-    offspring_2 = island.execute_generational_step()
-    assert island._num_generations == 2
+
+def test_generational_age_increases(island):
+    island.execute_generational_step()
+    assert island.generational_age == 1
+    island.execute_generational_step()
+    assert island.generational_age == 2
 
 def test_best_individual(island):
-    population = island.execute_generational_step()
-    fitness = [indv.fitness for indv in population]
+    island.execute_generational_step()
+    fitness = [indv.fitness for indv in island.population]
     best = island.best_individual()
     assert best.fitness == min(fitness)

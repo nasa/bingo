@@ -34,6 +34,9 @@ class SumEqualtion(Equation):
     def __str__(self):
         pass
 
+    def distance(self, individual):
+        return 0
+
 
 class SampleTrainingData:
     def __init__(self, x=None, y=None, dx_dt=None, r=None,

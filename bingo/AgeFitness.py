@@ -1,5 +1,3 @@
-import random
-
 import numpy as np
 
 from bingo.Base.Selection import Selection

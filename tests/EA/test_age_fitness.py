@@ -1,11 +1,14 @@
 import pytest
 import numpy as np
 
-from bingo.Base.FitnessEvaluator import FitnessEvaluator
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
+from bingo.AgeFitness import AgeFitness
 from bingo.MultipleValues import MultipleValueGenerator, \
                                  MultipleValueChromosome
-from bingo.AgeFitness import AgeFitness
+from bingo.Base.Mutation import Mutation
+from bingo.Base.Crossover import Crossover                                 
+from bingo.Base.FitnessEvaluator import FitnessEvaluator
+from bingo.EA.AgeFitnessEA import AgeFitnessEA
+from bingo.EA.SimpleEvaluation import SimpleEvaluation
 
 INITIAL_POP_SIZE = 10
 TARGET_POP_SIZE = 5
@@ -17,6 +20,14 @@ class MultipleValueFitnessEvaluator(FitnessEvaluator):
         fitness = np.count_nonzero(individual.list_of_values)
         self.eval_count += 1
         return len(individual.list_of_values) - fitness
+
+class DumbyCrossover(Crossover):
+    def __call__(self, parent1, parent2):
+        pass
+
+class DumbyMutation(Mutation):
+    def __call__(self, parent1):
+        pass
 
 def return_true():
     return True
@@ -74,6 +85,19 @@ def pareto_front_population():
     return population
 
 @pytest.fixture
+def selected_indiviudals(pareto_front_population):
+    list_size = len(pareto_front_population[0].list_of_values)
+    list_one = [False]*int(list_size/2)+[True]*int((list_size+1)/2)
+    list_two = [False]*int((list_size+1)/2)+[True]*int(list_size/2)
+
+    selected_indv_one = MultipleValueChromosome(list_one)
+    selected_indv_two = MultipleValueChromosome(list_two)
+
+    selected_indv_one.genetic_age = list_size
+    selected_indv_two.genetic_age = list_size + 1
+    return [selected_indv_one, selected_indv_two]
+
+@pytest.fixture
 def evaluator():
     fitness = MultipleValueFitnessEvaluator()
     evaluator = SimpleEvaluation(fitness)
@@ -110,7 +134,7 @@ def test_all_but_one_removed_large_selection_size(strong_population,
 
     age_fitness_selection = AgeFitness(selection_size=10)
 
-    target_pop_size=1
+    target_pop_size = 1
     new_population = age_fitness_selection(population, target_pop_size)
 
     assert len(new_population) == target_pop_size
@@ -152,18 +176,12 @@ def test_selection_size_larger_than_population(weak_population, fit_individual, 
 
     assert count == 6
 
-def test_keep_pareto_front_miss_target_pop_size(pareto_front_population, evaluator):
-    list_size = len(pareto_front_population[0].list_of_values)
-    list_one = [False]*int(list_size/2)+[True]*int((list_size+1)/2)
-    list_two = [False]*int((list_size+1)/2)+[True]*int(list_size/2)
-
-    selected_indv_one = MultipleValueChromosome(list_one)
-    selected_indv_two = MultipleValueChromosome(list_two)
-
-    selected_indv_one.genetic_age = list_size
-    selected_indv_two.genetic_age = list_size + 1
-
-    population = pareto_front_population + [selected_indv_one, selected_indv_two]
+def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
+                                                evaluator,
+                                                selected_indiviudals):
+    selected_indv_one = selected_indiviudals[0]
+    selected_indv_two = selected_indiviudals[1]
+    population = pareto_front_population + selected_indiviudals
     evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=len(population))
@@ -174,9 +192,18 @@ def test_keep_pareto_front_miss_target_pop_size(pareto_front_population, evaluat
     selected_indvs_removed = True
     for indv in new_population:
         if (indv.genetic_age == selected_indv_one and \
-                indv.list_of_values == list_one) or \
+                indv.list_of_values == selected_indv_one.list_of_values) or \
                 (indv.genetic_age == selected_indv_two and \
-                indv.list_of_values == list_two):
+                indv.list_of_values == selected_indv_two.list_of_values):
             selected_indvs_removed = False
             break
     assert selected_indvs_removed
+
+def test_age_fitness_ea_step(pareto_front_population, evaluator, selected_indiviudals):
+    mutation = DumbyMutation()
+    crossover = DumbyCrossover()
+    generator = MultipleValueGenerator(return_false, 6)
+    ea = AgeFitnessEA(evaluator, generator, crossover, mutation, 0, 0,
+                      len(pareto_front_population))
+    new_population = ea.generational_step(pareto_front_population)
+    assert len(new_population) == len(pareto_front_population)

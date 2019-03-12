@@ -11,10 +11,10 @@ class MuPlusLambda(EvolutionaryAlgorithm):
 
     A class for the "mu plus lambda" evolutionary algorithm in bingo.
     """
-    def __init__(self, evaluation, selection, crossover, mutation, crossover_probability,
-                 mutation_probability, number_offspring):
+    def __init__(self, evaluation, selection, crossover, mutation, 
+                 crossover_probability, mutation_probability, number_offspring):
         self._variation = VarOr(crossover, mutation, crossover_probability,
-                 mutation_probability)
+                                mutation_probability)
         self._evaluation = evaluation
         self._selection = selection
         self._number_offspring = number_offspring

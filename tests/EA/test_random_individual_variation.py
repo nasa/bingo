@@ -62,7 +62,8 @@ def test_random_individual_added_to_pop(init_replication_variation,
 def test_multiple_indviduals_added_to_pop(init_replication_variation,
                                           weaker_population):
     indvs_added = 2
-    generator = MultipleValueGenerator(true_multiple_variation_function, COMPLEX_INDV_SIZE)
+    generator = MultipleValueGenerator(true_multiple_variation_function, 
+                                       COMPLEX_INDV_SIZE)
     rand_indv_var_or = RandomIndividualVariation(init_replication_variation,
                                                  generator,
                                                  num_rand_indvs=indvs_added)

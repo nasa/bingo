@@ -69,11 +69,11 @@ class AgeFitness(Selection):
             removal_set.add(indv_index_1)
         elif self._indv_has_nans(indv_2):
             removal_set.add(indv_index_2)
-        elif self._one_dominates_all(indv_1, indv_2):
+        elif self._first_dominates(indv_1, indv_2):
             removal_set.add(indv_index_2)
-        elif self._one_dominates_all(indv_2, indv_1):
+        elif self._first_dominates(indv_2, indv_1):
             removal_set.add(indv_index_1)
-        elif (indv_1.genetic_age == indv_2.genetic_age):
+        elif indv_1.genetic_age == indv_2.genetic_age:
             if indv_1.fitness <= indv_2.fitness:
                 removal_set.add(indv_index_2)
             else:
@@ -83,7 +83,7 @@ class AgeFitness(Selection):
         population_list_index = self._population_index_array[index]
         return population[population_list_index]
 
-    def _one_dominates_all(self, indv_a, indv_b):
+    def _first_dominates(self, indv_a, indv_b):
         return indv_a.genetic_age < indv_b.genetic_age and\
                 indv_a.fitness <= indv_b.fitness
 

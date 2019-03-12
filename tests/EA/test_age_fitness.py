@@ -13,7 +13,7 @@ from bingo.EA.SimpleEvaluation import SimpleEvaluation
 INITIAL_POP_SIZE = 10
 TARGET_POP_SIZE = 5
 SIMPLE_INDV_SIZE = 1
-COMPLEX_INDV_SIZE = 2
+COMPLEX_INDV_SIZE = 6
 
 class MultipleValueFitnessEvaluator(FitnessEvaluator):
     def __call__(self, individual):
@@ -36,13 +36,6 @@ def return_false():
     return False
 
 @pytest.fixture
-def weak_indvidual():
-    generator = MultipleValueGenerator(return_false, SIMPLE_INDV_SIZE)
-    indv = generator()
-    indv.genetic_age = 100
-    return indv
-
-@pytest.fixture
 def fit_individual():
     generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
     indv = generator()
@@ -52,6 +45,13 @@ def fit_individual():
 def strong_population():
     generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
     return [generator() for i in range(INITIAL_POP_SIZE)]
+
+@pytest.fixture
+def weak_individual():
+    generator = MultipleValueGenerator(return_false, SIMPLE_INDV_SIZE)
+    indv = generator()
+    indv.genetic_age = 100
+    return indv
 
 @pytest.fixture
 def weak_population():
@@ -103,6 +103,27 @@ def evaluator():
     evaluator = SimpleEvaluation(fitness)
     return evaluator
 
+def test_remove_nan(fit_individual):
+    indv_1 = fit_individual
+    indv_2 = indv_1.copy()
+    indv_1.fitness = 1e8
+    indv_2.fitness = np.sqrt(-2)
+
+    population = [indv_1, indv_2]
+    pop_reverse = population[::-1]
+    print(population)
+    print(pop_reverse)
+
+    age_fitness_selection = AgeFitness()
+    target_population_size = 1
+    new_population = age_fitness_selection(population, target_population_size)
+    new_pop_reverse = age_fitness_selection(pop_reverse, target_population_size)
+
+    assert len(new_pop_reverse) == len(new_population) == 1
+    assert new_pop_reverse[0] == new_population[0] == indv_1
+
+
+
 def test_target_population_size_is_valid(strong_population):
     age_fitness_selection = AgeFitness()
     with pytest.raises(ValueError):
@@ -127,9 +148,9 @@ def test_all_but_one_removed(all_dominated_population, evaluator):
     assert len(new_population) == target_pop_size 
 
 def test_all_but_one_removed_large_selection_size(strong_population,
-                                                  weak_indvidual,
+                                                  weak_individual,
                                                   evaluator):
-    population = strong_population +[weak_indvidual]
+    population = strong_population +[weak_individual]
     evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=10)
@@ -141,10 +162,10 @@ def test_all_but_one_removed_large_selection_size(strong_population,
     assert new_population[0].list_of_values == [True]
     assert age_fitness_selection._selection_attempts == 2
 
-def test_all_removed_in_one_iteration(weak_indvidual,
+def test_all_removed_in_one_iteration(weak_individual,
                                       fit_individual,
                                       evaluator):
-    population = [weak_indvidual for i in range(10)] + [fit_individual]
+    population = [weak_individual for i in range(10)] + [fit_individual]
     evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=len(population))
@@ -200,6 +221,7 @@ def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
     assert selected_indvs_removed
 
 def test_age_fitness_ea_step(pareto_front_population, evaluator, selected_indiviudals):
+    population = pareto_front_population + selected_indiviudals
     mutation = DumbyMutation()
     crossover = DumbyCrossover()
     generator = MultipleValueGenerator(return_false, 6)

@@ -58,3 +58,15 @@ class Chromosome(metaclass=ABCMeta):
             individual string form
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def distance(self, chromosome):
+        """Distance from self to chromosome
+
+        Returns
+        -------
+        float
+            distance from self to chromosome
+        """
+        raise NotImplementedError
+

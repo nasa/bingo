@@ -27,6 +27,9 @@ class SingleValueChromosome(Chromosome):
     def __str__(self):
         return str(self.value)
 
+    def distance(self, chromosome):
+        return np.absolute(self.value - chromosome.value)
+
 
 class SingleValueFitnessEvaluator(FitnessEvaluator):
     """Fitness for single valued chromosomes

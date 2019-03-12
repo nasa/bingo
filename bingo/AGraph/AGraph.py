@@ -412,6 +412,17 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                                                str_list[param2])
         return tmp_str
 
+    def distance(indv1, indv2):
+        """
+        Computes the distance (a measure of similarity) between two individuals
+        :param indv1: first individual
+        :param indv2: second individual
+        :return: distance
+        """
+        dist = np.sum(indv1.command_list != indv2.command_list)
+        
+        return dist
+        
     def _raise_runtime_error(self, ex):
         LOGGER.error(str(self))
         LOGGER.error(str(ex))

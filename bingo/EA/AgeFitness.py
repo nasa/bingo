@@ -7,8 +7,8 @@ This module expects to be used in conjunction with the
 """
 import numpy as np
 
-from bingo.Base.Selection import Selection
-from bingo.Util.ArgumentValidation import argument_validation
+from ..Base.Selection import Selection
+from ..Util.ArgumentValidation import argument_validation
 
 class AgeFitness(Selection):
     """Age-Fitness selection

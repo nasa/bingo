@@ -5,18 +5,15 @@ This module defines the evolutionary algorithm that implements, ``VarOr``
 variation on a population then performs Age-Fitness selection among 
 the variation result, the initial population, and a random chromosome.
 """
-import numpy as np
 
-from bingo.EA.AgeFitness import AgeFitness
-from bingo.EA.MuPlusLambda import MuPlusLambda
-from bingo.EA.VarOr import VarOr
-from bingo.EA.AddRandomIndividualVariation import AddRandomIndividualVariation
-from bingo.MultipleValues import MultipleValueGenerator
-from bingo.Util.ArgumentValidation import argument_validation
+from .AgeFitness import AgeFitness
+from .MuPlusLambda import MuPlusLambda
+from .VarOr import VarOr
+from .AddRandomIndividualVariation import AddRandomIndividualVariation
 
 class AgeFitnessEA(MuPlusLambda):
     """The algorithm used to perform generational steps.
-    
+
     This class extends ``MuPlusLambda`` and executes ``generational_step``.
 
     Parameters

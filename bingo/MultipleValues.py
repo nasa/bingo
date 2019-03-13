@@ -1,10 +1,15 @@
+"""Multiple Values for genetic information
+
+This file contains several classes that are used for chromosomes
+that contains a list of genetic information. 
+"""
 import numpy as np
 
-from bingo.Base.Chromosome import Chromosome
-from bingo.Base.Mutation import Mutation
-from bingo.Base.Crossover import Crossover
-from bingo.Base.Generator import Generator
-from bingo.Util.ArgumentValidation import argument_validation
+from .Base.Chromosome import Chromosome
+from .Base.Mutation import Mutation
+from .Base.Crossover import Crossover
+from .Base.Generator import Generator
+from .Util.ArgumentValidation import argument_validation
 
 
 class MultipleValueChromosome(Chromosome):

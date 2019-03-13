@@ -1,6 +1,11 @@
-from bingo.Base.Variation import Variation
-from bingo.MultipleValues import MultipleValueGenerator, MultipleValueChromosome
-from bingo.Util.ArgumentValidation import argument_validation
+"""Variation that adds random individual(s)
+
+This module wraps a variation in order to supply random
+individual(s) to the offspring after the variation is carried out.
+"""
+
+from ..Base.Variation import Variation
+from ..Util.ArgumentValidation import argument_validation
 
 class AddRandomIndividualVariation(Variation):
     """A Variation object that takes in an implementation of Variation

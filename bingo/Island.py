@@ -28,13 +28,16 @@ class Island(object):
 
         Attributes
         ----------
-        num_generations : int
+        generational_age : int
                           The number of generational steps that have been executed
+        
+        population : list of Chromosomes
+                     The population to 
         """
-        self.pop = [generator() for i in range(population_size)]
+        self.population = [generator() for i in range(population_size)]
         self._ea = evolution_algorithm
         self._population_size = population_size
-        self._num_generations = 0
+        self.generational_age = 0
 
     def execute_generational_step(self):
         """Executes a single generational step using the provided evolutionary algorithm
@@ -44,11 +47,10 @@ class Island(object):
         population : list of Chromosomes
                      The offspring generation yielded from the generational step
         """
-        self._num_generations += 1
-        self.pop = self._ea.generational_step(self.pop)
-        for indv in self.pop:
+        self.generational_age += 1
+        self.population = self._ea.generational_step(self.population)
+        for indv in self.population:
             indv.genetic_age += 1
-        return self.pop
 
     def best_individual(self):
         """Finds the individual with the lowest fitness in a population
@@ -58,11 +60,11 @@ class Island(object):
         best : Chromosome
                The Chromosome with the lowest fitness value
         """
-        if self._num_generations < 1:
+        if self.generational_age < 1:
             raise ValueError('ValueError: Must execute at least one generational step \
              before finding the best individual')
-        best = self.pop[0]
-        for indv in self.pop:
+        best = self.population[0]
+        for indv in self.population:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
         return best

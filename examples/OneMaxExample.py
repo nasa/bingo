@@ -49,4 +49,5 @@ def report_max_min_mean_fitness(population):
     print("Min fitness: \t", np.min(fitness))
     print("Mean fitness: \t", np.mean(fitness))
 
-execute_generational_steps()
+def main():
+    execute_generational_steps()

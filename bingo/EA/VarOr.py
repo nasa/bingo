@@ -88,23 +88,24 @@ class VarOr(Variation):
     def _do_mutation(self, population, offspring, i):
         parent = self._get_random_parent(population)
         mutant = self._mutation(parent)
-        self._do_append(mutant, offspring)
+        self._append_new_individual_to_offspring(mutant, offspring)
         self.mutation_offspring[i] = True
 
     def _do_crossover(self, population, offspring, i):
         parent_1 = self._get_random_parent(population)
         parent_2 = self._get_random_parent(population)
         child_1, child_2 = self._crossover(parent_1, parent_2)
-        self._do_append(child_1, offspring)
+        self._append_new_individual_to_offspring(child_1, offspring)
         self.crossover_offspring[i] = True
 
     def _do_replication(self, population, offspring):
         child = self._get_random_parent(population)
-        self._do_append(child, offspring)
+        self._append_new_individual_to_offspring(child, offspring)
 
-    def _do_append(self, child, offspring):
+    def _append_new_individual_to_offspring(self, child, offspring):
         child.fit_set = False
         offspring.append(child)
 
     def _get_random_parent(self, population):
         return population[np.random.randint(len(population))].copy()
+

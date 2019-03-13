@@ -57,5 +57,4 @@ class DeterministicCrowdingSelection(Selection):
         return population
 
     def _return_most_fit(self, child, parent):
-        return child if child.fitness < parent.fitness or \
-                    np.any(np.isnan(parent.fitness)) else parent
+        return child if child.fitness < parent.fitness else parent

@@ -72,10 +72,4 @@ def test_unfit_parents_chosen_over_unfit_offspring(unfit_pop, evaluation, select
         assert old.fitness == new.fitness
         assert old == new
 
-def test_unevaluated_parents_do_not_advance(mixed_fit_generator, unfit_pop, selection):
-    parents = [mixed_fit_generator() for _ in range(10)]
-    for indv in parents:
-        indv.fitness = float('nan')
-    next_gen = selection(parents + unfit_pop, 10)
-    for old, new in zip(parents, next_gen):
-        assert old != new
+

@@ -20,7 +20,7 @@ current master features are supported.
 
 ## Getting Started
 
-### Installation
+### Dependencies
 Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
 few dependencies which are relatively common for data science work in python:
   - numpy

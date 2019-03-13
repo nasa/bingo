@@ -3,12 +3,12 @@ import warnings
 import pytest
 import numpy as np
 
-from bingo.AgeFitness import AgeFitness
 from bingo.MultipleValues import MultipleValueGenerator, \
                                  MultipleValueChromosome
 from bingo.Base.Mutation import Mutation
 from bingo.Base.Crossover import Crossover
 from bingo.Base.FitnessEvaluator import FitnessEvaluator
+from bingo.EA.AgeFitness import AgeFitness
 from bingo.EA.AgeFitnessEA import AgeFitnessEA
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 
@@ -103,25 +103,6 @@ def selected_indiviudals(pareto_front_population):
 def evaluator():
     fitness = MultipleValueFitnessEvaluator()
     return SimpleEvaluation(fitness)
-
-def test_remove_nan(fit_individual):
-    indv_1 = fit_individual
-    indv_2 = indv_1.copy()
-    indv_1.fitness = 1e8
-    indv_2.fitness = np.sqrt(-2)
-
-    population = [indv_1, indv_2]
-    pop_reverse = population[::-1]
-    print(population)
-    print(pop_reverse)
-
-    age_fitness_selection = AgeFitness()
-    target_population_size = 1
-    new_population = age_fitness_selection(population, target_population_size)
-    new_pop_reverse = age_fitness_selection(pop_reverse, target_population_size)
-
-    assert len(new_pop_reverse) == len(new_population) == 1
-    assert new_pop_reverse[0] == new_population[0] == indv_1
 
 def test_target_population_size_is_valid(strong_population):
     age_fitness_selection = AgeFitness()

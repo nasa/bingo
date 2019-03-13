@@ -3,7 +3,7 @@ import pytest
 from bingo.MultipleValues import MultipleValueGenerator
 from bingo.EA.VarOr import VarOr
 from bingo.Base.Variation import Variation
-from bingo.EA.RandomIndividualVariation import RandomIndividualVariation
+from bingo.EA.AddRandomIndividualVariation import AddRandomIndividualVariation
 
 POP_SIZE = 25
 SIMPLE_INDV_SIZE = 1
@@ -49,9 +49,9 @@ def test_random_individual_added_to_pop(init_replication_variation,
                                         true_chromosome_generator,
                                         weak_population):
     indvs_added = 1
-    rand_indv_var_or = RandomIndividualVariation(init_replication_variation,
-                                                 true_chromosome_generator,
-                                                 num_rand_indvs=indvs_added)
+    rand_indv_var_or = AddRandomIndividualVariation(init_replication_variation,
+                                                    true_chromosome_generator,
+                                                    num_rand_indvs=indvs_added)
     offspring = rand_indv_var_or(weak_population, POP_SIZE)
     count = 0
     for indv in offspring:
@@ -64,9 +64,9 @@ def test_multiple_indviduals_added_to_pop(init_replication_variation,
     indvs_added = 2
     generator = MultipleValueGenerator(true_multiple_variation_function, 
                                        COMPLEX_INDV_SIZE)
-    rand_indv_var_or = RandomIndividualVariation(init_replication_variation,
-                                                 generator,
-                                                 num_rand_indvs=indvs_added)
+    rand_indv_var_or = AddRandomIndividualVariation(init_replication_variation,
+                                                    generator,
+                                                    num_rand_indvs=indvs_added)
     offspring = rand_indv_var_or(weaker_population, POP_SIZE)
     count = 0
     for indv in offspring:

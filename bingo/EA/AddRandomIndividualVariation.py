@@ -1,8 +1,8 @@
 from bingo.Base.Variation import Variation
-from bingo.MultipleValues import MultipleValueGenerator
+from bingo.MultipleValues import MultipleValueGenerator, MultipleValueChromosome
 from bingo.Util.ArgumentValidation import argument_validation
 
-class RandomIndividualVariation(Variation):
+class AddRandomIndividualVariation(Variation):
     """A Variation object that takes in an implementation of Variation
     that adds a random individual to the population before performing
     variation.
@@ -24,8 +24,8 @@ class RandomIndividualVariation(Variation):
 
     @argument_validation(number_offspring={">=": 0})
     def __call__(self, population, number_offspring):
-        """Generates a number of random indiviudals and adds the to the population
-        then performs variation on the new population.
+        """Generates a number of random indiviudals and adds the to the
+        population then performs variation on the new population.
 
         Parameters
         ----------
@@ -46,5 +46,5 @@ class RandomIndividualVariation(Variation):
     def _generate_new_pop(self, population):
         for _ in range(self._num_rand_indvs):
             random_indv = self._chromosome_generator()
-            population = [random_indv] + population
+            population.append(random_indv)
         return population

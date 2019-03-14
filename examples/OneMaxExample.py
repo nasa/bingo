@@ -1,19 +1,12 @@
 import numpy as np
 
 from bingo.Base.FitnessEvaluator import FitnessEvaluator
-from bingo.Base.Crossover import Crossover
-from bingo.Base.Variation import Variation
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.Selection import Selection
-from bingo.EA.SimpleEa import SimpleEa
-from bingo.EA.VarAnd import VarAnd
-from bingo.EA.VarOr import VarOr
 from bingo.EA.MuPlusLambda import MuPlusLambda
-from bingo.EA.MuCommaLambda import MuCommaLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.Island import Island
-from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, SinglePointMutation, MultipleValueGenerator
+from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, \
+                                 SinglePointMutation
 
 class MultipleValueFitnessEvaluator(FitnessEvaluator):
     def __call__(self, individual):
@@ -34,12 +27,12 @@ def execute_generational_steps():
     generator = MultipleValueGenerator(mutation_onemax_specific, 10)
     island = Island(ea, generator, 25)
     for i in range(10):
-        next_gen = island.execute_generational_step()
+        island.execute_generational_step()
         print("\nGeneration #", i)
         print("----------------------\n")
-        report_max_min_mean_fitness(next_gen)
+        report_max_min_mean_fitness(island.population)
         print("\npopulation: \n")
-        for indv in next_gen:
+        for indv in island.population:
             print(indv.list_of_values)
 
 def report_max_min_mean_fitness(population):
@@ -51,3 +44,6 @@ def report_max_min_mean_fitness(population):
 
 def main():
     execute_generational_steps()
+
+if __name__ == '__main__':
+    main()

@@ -1,7 +1,6 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-
 import csv
 import timeit
 import numpy as np
@@ -45,6 +44,7 @@ def generate_random_x(size):
     np.random.seed(0)
     return np.random.rand(size, 4)*10 - 5.0
 
+
 def write_stacks(test_agraph_list):
     filename = '../bingocpp/app/test-agraph-stacks.csv'
     with open(filename, mode='w+') as stack_file:
@@ -57,6 +57,7 @@ def write_stacks(test_agraph_list):
             stack_file_writer.writerow(stack)
     stack_file.close()
 
+
 def write_constants(test_agraph_list):
     filename = '../bingocpp/app/test-agraph-consts.csv'
     with open(filename, mode='w+') as const_file:
@@ -68,6 +69,7 @@ def write_constants(test_agraph_list):
             const_file_writer.writerow(consts)
 
     const_file.close()
+
 
 def write_x_vals(test_x_vals):
     filename = '../bingocpp/app/test-agraph-x-vals.csv'
@@ -83,6 +85,7 @@ TEST_X = generate_random_x(128)
 # write_stacks(TEST_AGRAPHS)
 # write_constants(TEST_AGRAPHS)
 # write_x_vals(TEST_X)
+
 
 def benchmark_evaluate():
     for indv in TEST_AGRAPHS:

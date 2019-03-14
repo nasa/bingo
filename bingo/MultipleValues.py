@@ -6,6 +6,7 @@ from .Base.Crossover import Crossover
 from .Base.Generator import Generator
 from .Util.ArgumentValidation import argument_validation
 
+
 class MultipleValueChromosome(Chromosome):
     """ Multiple value individual
 
@@ -72,6 +73,7 @@ class MultipleValueGenerator(Generator):
     def _generate_list(self, number_of_values):
         return [self._random_value_function() for i in range(number_of_values)]
 
+
 class SinglePointMutation(Mutation):
     """Mutation for multiple valued chromosomes
 
@@ -109,6 +111,7 @@ class SinglePointMutation(Mutation):
         mutation_point = np.random.randint(len(parent.list_of_values))
         child.list_of_values[mutation_point] = self._mutation_function()
         return child
+
 
 class SinglePointCrossover(Crossover):
     """Crossover for multiple valued chromosomes

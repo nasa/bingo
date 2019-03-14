@@ -30,5 +30,3 @@ def test_generate(sample_component_generator):
     agraph = generate_agraph()
     np.testing.assert_array_equal(agraph.command_array,
                                   expected_command_array)
-
-

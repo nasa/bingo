@@ -25,10 +25,10 @@ class MuPlusLambda(EvolutionaryAlgorithm):
                        The desired size of the offspring population
     
     """
-    def __init__(self, evaluation, selection, crossover, mutation, crossover_probability,
-                 mutation_probability, number_offspring):
+    def __init__(self, evaluation, selection, crossover, mutation, 
+                 crossover_probability, mutation_probability, number_offspring):
         self._variation = VarOr(crossover, mutation, crossover_probability,
-                 mutation_probability)
+                                mutation_probability)
         self._evaluation = evaluation
         self._selection = selection
         self._number_offspring = number_offspring

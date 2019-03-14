@@ -338,4 +338,4 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
         for k in range(-m, m + 1):
             f[i] += y[y_center + k] * weights[k + m, w_ind]
 
-        return f
+    return f

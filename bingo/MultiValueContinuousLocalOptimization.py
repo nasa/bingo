@@ -4,8 +4,7 @@ from .MultipleValues import MultipleValueChromosome, MultipleValueGenerator
 class MultiValueContinuousLocalOptimization(MultipleValueChromosome, ChromosomeInterface):
 
     def __init__(self, list_of_values, needs_opt_list):
-        super().__init__()
-        self.list_of_values = list_of_values
+        super().__init__(list_of_values)
         self.needs_opt_list = needs_opt_list
 
     def needs_local_optimization(self):
@@ -37,8 +36,9 @@ class MultiValueContinuousLocalOptimization(MultipleValueChromosome, ChromosomeI
         params : list-like of numeric
                  Values to set the parameters
         """
-        for index in self.needs_opt_list:
-            self.list_of_values[index] = params[index]
+        print("Params", params)
+        for i, index in enumerate(self.needs_opt_list):
+            self.list_of_values[index] = params[i]
 
 class MultiValueContinuousLocalOptimizationGenerator(MultipleValueGenerator):
 

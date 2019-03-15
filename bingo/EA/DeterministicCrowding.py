@@ -12,7 +12,7 @@ from bingo.EA.DeterministicCrowdingSelection import DeterministicCrowdingSelecti
 class DeterministicCrowdingEA(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 
-    A class for the "mu comma lambda" evolutionary algorithm in bingo.
+    A class for the deterministic crowding evolutionary algorithm in bingo.
 
     Attributes
     ----------

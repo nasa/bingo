@@ -15,13 +15,13 @@ import logging
 
 import numpy as np
 
-from bingo.Base.FitnessEvaluator import VectorBasedEvaluator
+from bingo.Base.FitnessFunction import VectorBasedFunction
 from .Base.TrainingData import TrainingData
 
 LOGGER = logging.getLogger(__name__)
 
 
-class PairwiseAtomicPotential(VectorBasedEvaluator):
+class PairwiseAtomicPotential(VectorBasedFunction):
     """Fitness based on total potential energy of a set of configurations.
 
     Pairwise atomic potential which is fit with total potential energy for a

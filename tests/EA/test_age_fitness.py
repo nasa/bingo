@@ -7,7 +7,7 @@ from bingo.MultipleValues import MultipleValueGenerator, \
                                  MultipleValueChromosome
 from bingo.Base.Mutation import Mutation
 from bingo.Base.Crossover import Crossover
-from bingo.Base.FitnessEvaluator import FitnessEvaluator
+from bingo.Base.FitnessFunction import FitnessFunction
 from bingo.EA.AgeFitness import AgeFitness
 from bingo.EA.AgeFitnessEA import AgeFitnessEA
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
@@ -17,7 +17,7 @@ TARGET_POP_SIZE = 5
 SIMPLE_INDV_SIZE = 1
 COMPLEX_INDV_SIZE = 6
 
-class MultipleValueFitnessEvaluator(FitnessEvaluator):
+class MultipleValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         fitness = np.count_nonzero(individual.list_of_values)
         self.eval_count += 1
@@ -101,7 +101,7 @@ def selected_indiviudals(pareto_front_population):
 
 @pytest.fixture
 def evaluator():
-    fitness = MultipleValueFitnessEvaluator()
+    fitness = MultipleValueFitnessFunction()
     return SimpleEvaluation(fitness)
 
 def test_target_population_size_is_valid(strong_population):

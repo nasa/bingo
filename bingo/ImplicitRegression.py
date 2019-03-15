@@ -14,13 +14,13 @@ import logging
 
 import numpy as np
 
-from bingo.Base.FitnessEvaluator import VectorBasedEvaluator
+from bingo.Base.FitnessFunction import VectorBasedFunction
 from .Base.TrainingData import TrainingData
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ImplicitRegression(VectorBasedEvaluator):
+class ImplicitRegression(VectorBasedFunction):
     """ Implicit Regression, version 2
 
     Fitness of this metric is related to the cos of angle between between
@@ -78,7 +78,7 @@ class ImplicitRegression(VectorBasedEvaluator):
         return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
 
 
-class ImplicitRegressionSchmidt(VectorBasedEvaluator):
+class ImplicitRegressionSchmidt(VectorBasedFunction):
     """ Implicit Regression, Adapted from Schmidt and Lipson papers
 
     Fitness in this method is the difference of partial derivatives pairs
@@ -239,7 +239,7 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
     The Savitzky-Golay is a type of low-pass filter, particularly
     suited for smoothing noisy data. The main idea behind this
     approach is to make for each point a least-square fit with a
-    polynomial of high order over a odd-sized window centered at
+    polynomial of high order over a odd-sized window centered a
     the point.
 
     A Gram polynomial version of this is used to have better estimates near the

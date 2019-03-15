@@ -1,8 +1,13 @@
-from bingo.Base.Variation import Variation
-from bingo.MultipleValues import MultipleValueGenerator
-from bingo.Util.ArgumentValidation import argument_validation
+"""Variation that adds random individual(s)
 
-class RandomIndividualVariation(Variation):
+This module wraps a variation in order to supply random
+individual(s) to the offspring after the variation is carried out.
+"""
+
+from ..Base.Variation import Variation
+from ..Util.ArgumentValidation import argument_validation
+
+class AddRandomIndividualVariation(Variation):
     """A Variation object that takes in an implementation of Variation
     that adds a random individual to the population before performing
     variation.
@@ -10,11 +15,11 @@ class RandomIndividualVariation(Variation):
     Parameters
     ----------
     variation : Variation
-                Variation object that performs the variation among individuals
+        Variation object that performs the variation among individuals
     chromosome_generator : Generator
-                           Generator for random individual
+        Generator for random individual
     num_rand_indvs : int
-                     The number of random individuals to generate per call
+        The number of random individuals to generate per call
 
     """
     def __init__(self, variation, chromosome_generator, num_rand_indvs=1):
@@ -24,15 +29,15 @@ class RandomIndividualVariation(Variation):
 
     @argument_validation(number_offspring={">=": 0})
     def __call__(self, population, number_offspring):
-        """Generates a number of random indiviudals and adds the to the population
-        then performs variation on the new population.
+        """Generates a number of random indiviudals and adds the to the
+        population then performs variation on the new population.
 
         Parameters
         ----------
         population : list of Chromosomes
-                     The population on which to perform variation
+            The population on which to perform variation
         number_offspring : int
-                           number of offspring to produce.
+            number of offspring to produce.
 
         Returns
         -------
@@ -46,5 +51,5 @@ class RandomIndividualVariation(Variation):
     def _generate_new_pop(self, population):
         for _ in range(self._num_rand_indvs):
             random_indv = self._chromosome_generator()
-            population = [random_indv] + population
+            population.append(random_indv)
         return population

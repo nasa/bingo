@@ -36,7 +36,6 @@ class MultiValueContinuousLocalOptimization(MultipleValueChromosome, ChromosomeI
         params : list-like of numeric
                  Values to set the parameters
         """
-        print("Params", params)
         for i, index in enumerate(self.needs_opt_list):
             self.list_of_values[index] = params[i]
 

@@ -1,7 +1,6 @@
 import numpy as np
 import scipy.optimize as optimize
 
-from ..Base.Evaluation import Evaluation
 from ..Base.FitnessEvaluator import FitnessEvaluator
 
 class FloatLocalOptimizationFunction(FitnessEvaluator):
@@ -17,10 +16,9 @@ class FloatLocalOptimizationFunction(FitnessEvaluator):
 
     def _optimize_params(self, individual):
         num_params = individual.get_number_local_optimization_params()
-        c_0 = np.random.uniform(0, 10000, num_params)
+        c_0 = np.random.uniform(-10000, 10000, num_params)
         params = self._run_algorithm_for_optimization(
             self._sub_routine_for_fit_function, individual, c_0)
-        print("done optimizing")
         individual.set_local_optimization_params(params)
 
     def _sub_routine_for_fit_function(self, params, individual):
@@ -28,7 +26,11 @@ class FloatLocalOptimizationFunction(FitnessEvaluator):
         return self._fitness_function(individual)
 
     def _run_algorithm_for_optimization(self, sub_routine, individual, params):
-        return optimize.minimize(sub_routine, params, args=(individual), method=self._algorithm, tol=1e0)
+        optimize_result = optimize.minimize(sub_routine, params,
+                                            args=(individual),
+                                            method=self._algorithm,
+                                            tol=1e-6)
+        return optimize_result.x
 
     def _evaluate_fitness(self, individual):
         return self._fitness_function(individual)

@@ -28,20 +28,19 @@ def execute_generational_steps():
     local_opt_fitness = FloatLocalOptimizationFunction(fitness)
     evaluator = SimpleEvaluation(local_opt_fitness)
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
-    generator = MultiValueContinuousLocalOptimizationGenerator(get_random_float, 10)
+    generator = MultiValueContinuousLocalOptimizationGenerator(get_random_float, 8)
     island = Island(ea, generator, 25)
     for i in range(10):
         island.execute_generational_step()
         print("\nGeneration #", i)
-        print("----------------------\n")
+        print("-"*80,"\n")
         report_max_min_mean_fitness(island.population)
         print("\npopulation: \n")
         for indv in island.population:
-            print(indv.list_of_values)
+            print(["{0:.2f}".format(val) for val in indv.list_of_values])
 
 def report_max_min_mean_fitness(population):
     fitness = [indv.fitness for indv in population]
-    print(fitness)
     print("Max fitness: \t", np.max(fitness))
     print("Min fitness: \t", np.min(fitness))
     print("Mean fitness: \t", np.mean(fitness))

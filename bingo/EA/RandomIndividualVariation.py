@@ -1,6 +1,6 @@
-from bingo.Base.Variation import Variation
-from bingo.MultipleValues import MultipleValueGenerator
-from bingo.Util.ArgumentValidation import argument_validation
+from ..Base.Variation import Variation
+from ..MultipleValues import MultipleValueGenerator
+from ..Util.ArgumentValidation import argument_validation
 
 class RandomIndividualVariation(Variation):
     """A Variation object that takes in an implementation of Variation

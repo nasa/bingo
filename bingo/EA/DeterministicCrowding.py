@@ -5,9 +5,9 @@ evolutionary algorithm in bingo analyses. The next generation
 is selected by pairing parents with their offspring and
 advancing the most fit of the two.
 """
-from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
-from bingo.EA.VarAnd import VarAnd
-from bingo.EA.DeterministicCrowdingSelection import DeterministicCrowdingSelection
+from ..Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
+from ..EA.VarAnd import VarAnd
+from ..EA.DeterministicCrowdingSelection import DeterministicCrowdingSelection
 
 class DeterministicCrowdingEA(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.

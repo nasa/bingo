@@ -47,11 +47,12 @@ def return_total_fitness(population, evaluation):
     return sum(indv.fitness for indv in population)
 
 def test_next_gen_fitness_lower_than_parents(unfit_pop, dc_ea, evaluation):
+    np.random.seed(0)
     parent_fitness = return_total_fitness(unfit_pop, evaluation)
     next_gen = dc_ea.generational_step(unfit_pop)
     next_gen_fitness = return_total_fitness(next_gen, evaluation)
     assert len(next_gen) == len(unfit_pop)
-    assert next_gen_fitness <= parent_fitness
+    assert next_gen_fitness < parent_fitness
 
 def test_fit_parents_chosen_for_next_gen(fit_pop, dc_ea, evaluation):
     parent_fitness = return_total_fitness(fit_pop, evaluation)

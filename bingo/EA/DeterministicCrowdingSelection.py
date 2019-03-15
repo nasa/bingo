@@ -7,7 +7,7 @@ advancing the most fit of the two.
 """
 import numpy as np
 
-from bingo.Base.Selection import Selection
+from ..Base.Selection import Selection
 
 class DeterministicCrowdingSelection(Selection):
     """The class that performs deterministic crowding selection on a population
@@ -32,7 +32,7 @@ class DeterministicCrowdingSelection(Selection):
         if (len(population)%2) > 0 or (target_population_size%2) > 0:
             raise ValueError('Population must be of even length')
 
-        if target_population_size > len(population):
+        if target_population_size != (len(population)/2):
             raise ValueError('Target population size cannot be greater\
                  than the length of the population')
 

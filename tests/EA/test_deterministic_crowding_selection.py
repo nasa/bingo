@@ -4,11 +4,11 @@ import numpy as np
 from bingo.EA.DeterministicCrowdingSelection import DeterministicCrowdingSelection
 from bingo.MultipleValues import MultipleValueGenerator
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from examples.OneMaxExample import MultipleValueFitnessEvaluator
+from examples.OneMaxExample import MultipleValueFitnessFunction
 
 @pytest.fixture
 def evaluation():
-    fitness = MultipleValueFitnessEvaluator()
+    fitness = MultipleValueFitnessFunction()
     return SimpleEvaluation(fitness)
 
 @pytest.fixture

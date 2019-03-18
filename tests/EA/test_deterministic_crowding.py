@@ -4,7 +4,7 @@ import numpy as np
 from bingo.EA.DeterministicCrowding import DeterministicCrowdingEA
 from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, MultipleValueGenerator
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from examples.OneMaxExample import MultipleValueFitnessEvaluator
+from examples.OneMaxExample import MultipleValueFitnessFunction
 
 @pytest.fixture
 def dc_ea(evaluation):
@@ -14,7 +14,7 @@ def dc_ea(evaluation):
 
 @pytest.fixture
 def evaluation():
-    fitness = MultipleValueFitnessEvaluator()
+    fitness = MultipleValueFitnessFunction()
     return SimpleEvaluation(fitness)
 
 @pytest.fixture

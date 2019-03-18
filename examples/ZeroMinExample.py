@@ -1,3 +1,6 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import numpy as np
 
 from bingo.Base.FitnessEvaluator import FitnessEvaluator
@@ -5,13 +8,9 @@ from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.Island import Island
-from bingo.EA.FloatLocalOptimizationFunction import \
-    FloatLocalOptimizationFunction
-from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, \
-                                 SinglePointMutation
-from bingo.MultiValueContinuousLocalOptimization import \
-    MultiValueContinuousLocalOptimization, \
-    MultiValueContinuousLocalOptimizationGenerator
+from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
+from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation
+from bingo.MultipleFloatChromosome import MultipleFloatChromosomeGenerator
 
 class MultipleFloatValueFitnessEvaluator(FitnessEvaluator):
     def __call__(self, individual):
@@ -25,15 +24,15 @@ def execute_generational_steps():
     mutation = SinglePointMutation(get_random_float)
     selection = Tournament(10)
     fitness = MultipleFloatValueFitnessEvaluator()
-    local_opt_fitness = FloatLocalOptimizationFunction(fitness)
+    local_opt_fitness = ContinuousLocalOptimization(fitness)
     evaluator = SimpleEvaluation(local_opt_fitness)
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
-    generator = MultiValueContinuousLocalOptimizationGenerator(get_random_float, 8)
+    generator = MultipleFloatChromosomeGenerator(get_random_float, 8)
     island = Island(ea, generator, 25)
-    for i in range(10):
+    for i in range(25):
         island.execute_generational_step()
         print("\nGeneration #", i)
-        print("-"*80,"\n")
+        print("-"*80, "\n")
         report_max_min_mean_fitness(island.population)
         print("\npopulation: \n")
         for indv in island.population:

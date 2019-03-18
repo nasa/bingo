@@ -11,13 +11,13 @@ appropriate fitness evaluator and a corresponding training data container.
 import warnings
 import logging
 
-from bingo.Base.FitnessEvaluator import VectorBasedEvaluator
+from bingo.Base.FitnessFunction import VectorBasedFunction
 from .Base.TrainingData import TrainingData
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ExplicitRegression(VectorBasedEvaluator):
+class ExplicitRegression(VectorBasedFunction):
     """ Traditional fitness evaluation for symbolic regression
 
     fitness = y - f(x) where x and y are in the training_data (i.e.

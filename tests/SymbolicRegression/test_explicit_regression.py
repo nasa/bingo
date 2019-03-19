@@ -72,4 +72,3 @@ def test_correct_training_data_length(input_size):
     data_input = np.arange(input_size)
     training_data = ExplicitTrainingData(data_input, data_input)
     assert len(training_data) == input_size
-

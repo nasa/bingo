@@ -7,7 +7,7 @@ import numpy as np
 from abc import ABCMeta, abstractmethod
 
 
-class FitnessEvaluator(metaclass=ABCMeta):
+class FitnessFunction(metaclass=ABCMeta):
     """Fitness evaluation metric for individuals.
 
     An abstract base class for the fitness evaluation of genetic individuals
@@ -49,7 +49,7 @@ class FitnessEvaluator(metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class VectorBasedEvaluator(FitnessEvaluator, metaclass=ABCMeta):
+class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     """Fitness evaluation based on vectorized fitness
     """
     def __call__(self, individual):

@@ -1,14 +1,15 @@
 import numpy as np
 
-from bingo.Base.FitnessEvaluator import FitnessEvaluator
+from bingo.Base.FitnessFunction import FitnessFunction
 from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.Island import Island
-from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, \
+from bingo.MultipleValues import MultipleValueGenerator, \
+                                 SinglePointCrossover, \
                                  SinglePointMutation
 
-class MultipleValueFitnessEvaluator(FitnessEvaluator):
+class MultipleValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         fitness = np.count_nonzero(individual.list_of_values)
         self.eval_count += 1
@@ -21,7 +22,7 @@ def execute_generational_steps():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(mutation_onemax_specific)
     selection = Tournament(10)
-    fitness = MultipleValueFitnessEvaluator()
+    fitness = MultipleValueFitnessFunction()
     evaluator = SimpleEvaluation(fitness)
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
     generator = MultipleValueGenerator(mutation_onemax_specific, 10)

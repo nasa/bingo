@@ -15,22 +15,22 @@ class SimpleEvaluation(Evaluation):
 
     Parameters
     ----------
-    fitness_evaluator : FitnessEvaluator
+    fitness_function : FitnessFunction
                         The function class that is used to calculate fitnesses
                         of individuals in the population.
     """
-    def __init__(self, fitness_evaluator):
+    def __init__(self, fitness_function):
         super().__init__()
-        self._fitness_evaluator = fitness_evaluator
+        self._fitness_function = fitness_function
 
     @property
     def eval_count(self):
         """int : the number of evaluations that have been performed"""
-        return self._fitness_evaluator.eval_count
+        return self._fitness_function.eval_count
 
     @eval_count.setter
     def eval_count(self, value):
-        self._fitness_evaluator.eval_count = value
+        self._fitness_function.eval_count = value
 
     def __call__(self, population):
         """Evaluates the fitness of an individual
@@ -42,4 +42,4 @@ class SimpleEvaluation(Evaluation):
         """
         for indv in population:
             if not indv.fit_set:
-                indv.fitness = self._fitness_evaluator(indv)
+                indv.fitness = self._fitness_function(indv)

@@ -1,3 +1,6 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import numpy as np
 
 from bingo.Base.FitnessFunction import FitnessFunction

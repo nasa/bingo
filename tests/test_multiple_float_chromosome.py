@@ -3,8 +3,8 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.MultipleFloatChromosome import MultipleFloatChromosome,\
-                                          MultipleFloatChromosomeGenerator
+from bingo.MultipleFloats import MultipleFloatChromosome,\
+                                 MultipleFloatChromosomeGenerator
 
 @pytest.fixture
 def list_of_floats():

@@ -3,8 +3,9 @@
 This module defines the basis of fitness evaluation in bingo evolutionary
 analyses.
 """
-import numpy as np
 from abc import ABCMeta, abstractmethod
+
+import numpy as np
 
 
 class FitnessFunction(metaclass=ABCMeta):

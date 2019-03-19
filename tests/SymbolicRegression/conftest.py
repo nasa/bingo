@@ -30,7 +30,7 @@ class SumEqualtion(Equation):
     def __str__(self):
         pass
 
-    def distance(self, individual):
+    def distance(self, _chromosome):
         return 0
 
 

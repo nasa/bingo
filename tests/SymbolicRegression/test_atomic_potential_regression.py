@@ -79,7 +79,7 @@ def test_reshaping_of_training_data_energies():
     assert training_data.potential_energy.ndim == 1
 
 
-def test_error_training_data_energies_dont_match_configurations(
+def test_error_training_data_energies_dont_match_configs(
         configuration_set):
     energies = np.ones(2)
     with pytest.raises(ValueError):
@@ -87,7 +87,7 @@ def test_error_training_data_energies_dont_match_configurations(
                                        configurations=configuration_set)
 
 
-def test_error_if_not_enough_information_for_training_data():
+def test_error_if_not_enough_info_for_training_data():
     energies = np.ones(2)
     with pytest.raises(RuntimeError):
         _ = PairwiseAtomicTrainingData(potential_energy=energies)
@@ -134,4 +134,3 @@ def test_training_data_length(data_size):
                                                r_list=r_list,
                                                config_lims_r=config_lims)
     assert len(training_data) == data_size
-

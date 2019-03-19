@@ -5,6 +5,8 @@ import pytest
 
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from SingleValue import SingleValueFitnessFunction
+
+
 @pytest.fixture
 def fitness_function():
     return SingleValueFitnessFunction()

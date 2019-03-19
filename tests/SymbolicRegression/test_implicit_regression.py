@@ -106,7 +106,7 @@ def test_correct_partial_calculation_in_training_data():
                                          expected_derivative)
 
 
-def test_correct_partial_calculation_in_training_data():
+def test_correct_partial_calculation_in_training_data_2():
     data_input = np.arange(20, dtype=float).reshape((20, 1)) * 2.0
     data_input = np.vstack((data_input, [np.nan], data_input))
     training_data = ImplicitTrainingData(data_input)

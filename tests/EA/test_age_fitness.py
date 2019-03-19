@@ -1,5 +1,6 @@
-import warnings
-
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import pytest
 import numpy as np
 
@@ -7,35 +8,32 @@ from bingo.MultipleValues import MultipleValueGenerator, \
                                  MultipleValueChromosome
 from bingo.Base.Mutation import Mutation
 from bingo.Base.Crossover import Crossover
-from bingo.Base.FitnessFunction import FitnessFunction
 from bingo.EA.AgeFitness import AgeFitness
 from bingo.EA.AgeFitnessEA import AgeFitnessEA
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
 
 INITIAL_POP_SIZE = 10
 TARGET_POP_SIZE = 5
 SIMPLE_INDV_SIZE = 1
 COMPLEX_INDV_SIZE = 6
 
-class MultipleValueFitnessFunction(FitnessFunction):
-    def __call__(self, individual):
-        fitness = np.count_nonzero(individual.list_of_values)
-        self.eval_count += 1
-        return len(individual.list_of_values) - fitness
 
 class DumbyCrossover(Crossover):
     def __call__(self, parent1, parent2):
         pass
 
+
 class DumbyMutation(Mutation):
     def __call__(self, parent1):
         pass
 
+
 def return_true():
     return True
 
+
 def return_false():
     return False
+
 
 @pytest.fixture
 def fit_individual():
@@ -43,10 +41,12 @@ def fit_individual():
     indv = generator()
     return indv
 
+
 @pytest.fixture
 def strong_population():
     generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
-    return [generator() for i in range(INITIAL_POP_SIZE)]
+    return [generator() for _ in range(INITIAL_POP_SIZE)]
+
 
 @pytest.fixture
 def weak_individual():
@@ -55,10 +55,12 @@ def weak_individual():
     indv.genetic_age = 100
     return indv
 
+
 @pytest.fixture
 def weak_population():
     generator = MultipleValueGenerator(return_false, 2*SIMPLE_INDV_SIZE)
-    return [generator() for i in range(INITIAL_POP_SIZE)]
+    return [generator() for _ in range(INITIAL_POP_SIZE)]
+
 
 @pytest.fixture
 def non_dominated_population():
@@ -69,22 +71,25 @@ def non_dominated_population():
     old_fit.genetic_age = 2
     return [young_weak, middle_average, old_fit]
 
+
 @pytest.fixture
 def all_dominated_population(non_dominated_population):
     non_dominated_population[0].genetic_age = 2
     non_dominated_population[2].genetic_age = 0
     return non_dominated_population
 
+
 @pytest.fixture
 def pareto_front_population():
     size_of_list = 6
     population = []
-    for i in range (size_of_list):
-        values = [False]*(size_of_list - i) + [True]*(i)
+    for i in range(size_of_list):
+        values = [False]*(size_of_list - i) + [True]*i
         indv = MultipleValueChromosome(values)
         indv.genetic_age = i
         population.append(indv)
     return population
+
 
 @pytest.fixture
 def selected_indiviudals(pareto_front_population):
@@ -99,39 +104,38 @@ def selected_indiviudals(pareto_front_population):
     selected_indv_two.genetic_age = list_size + 1
     return [selected_indv_one, selected_indv_two]
 
-@pytest.fixture
-def evaluator():
-    fitness = MultipleValueFitnessFunction()
-    return SimpleEvaluation(fitness)
 
 def test_target_population_size_is_valid(strong_population):
     age_fitness_selection = AgeFitness()
     with pytest.raises(ValueError):
         age_fitness_selection(strong_population, len(strong_population) + 1)
 
-def test_none_selected_for_removal(non_dominated_population, evaluator):
+
+def test_none_selected_for_removal(non_dominated_population, onemax_evaluator):
     age_fitness_selection = AgeFitness()
-    evaluator(non_dominated_population)
+    onemax_evaluator(non_dominated_population)
 
     target_pop_size = 1
     new_population = age_fitness_selection(non_dominated_population,
                                            target_pop_size)
     assert len(new_population) == len(non_dominated_population)
 
-def test_all_but_one_removed(all_dominated_population, evaluator):
+
+def test_all_but_one_removed(all_dominated_population, onemax_evaluator):
     age_fitness_selection = AgeFitness()
-    evaluator(all_dominated_population)
+    onemax_evaluator(all_dominated_population)
 
     target_pop_size = 1
     new_population = age_fitness_selection(all_dominated_population,
                                            target_pop_size)
-    assert len(new_population) == target_pop_size 
+    assert len(new_population) == target_pop_size
+
 
 def test_all_but_one_removed_large_selection_size(strong_population,
                                                   weak_individual,
-                                                  evaluator):
+                                                  onemax_evaluator):
     population = strong_population +[weak_individual]
-    evaluator(population)
+    onemax_evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=len(strong_population))
 
@@ -142,11 +146,12 @@ def test_all_but_one_removed_large_selection_size(strong_population,
     assert new_population[0].list_of_values == [True]
     assert age_fitness_selection._selection_attempts == 2
 
+
 def test_all_removed_in_one_iteration(weak_individual,
                                       fit_individual,
-                                      evaluator):
-    population = [weak_individual for i in range(10)] + [fit_individual]
-    evaluator(population)
+                                      onemax_evaluator):
+    population = [weak_individual for _ in range(10)] + [fit_individual]
+    onemax_evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=len(population))
 
@@ -157,9 +162,11 @@ def test_all_removed_in_one_iteration(weak_individual,
     assert new_population[0].list_of_values == [True]
     assert age_fitness_selection._selection_attempts == 1
 
-def test_selection_size_larger_than_population(weak_population, fit_individual, evaluator):
+
+def test_selection_size_larger_than_population(weak_population, fit_individual,
+                                               onemax_evaluator):
     population = weak_population + [fit_individual]
-    evaluator(population)
+    onemax_evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=(len(population)+100))
 
@@ -177,13 +184,14 @@ def test_selection_size_larger_than_population(weak_population, fit_individual, 
 
     assert count == 6
 
+
 def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
-                                                evaluator,
+                                                onemax_evaluator,
                                                 selected_indiviudals):
     selected_indv_one = selected_indiviudals[0]
     selected_indv_two = selected_indiviudals[1]
     population = pareto_front_population + selected_indiviudals
-    evaluator(population)
+    onemax_evaluator(population)
 
     age_fitness_selection = AgeFitness(selection_size=len(population))
     new_population = age_fitness_selection(population, TARGET_POP_SIZE)
@@ -192,20 +200,23 @@ def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
 
     selected_indvs_removed = True
     for indv in new_population:
-        if (indv.genetic_age == selected_indv_one and \
+        if (indv.genetic_age == selected_indv_one and
                 indv.list_of_values == selected_indv_one.list_of_values) or \
-                (indv.genetic_age == selected_indv_two and \
+               (indv.genetic_age == selected_indv_two and
                 indv.list_of_values == selected_indv_two.list_of_values):
             selected_indvs_removed = False
             break
     assert selected_indvs_removed
 
-def test_age_fitness_ea_step(pareto_front_population, evaluator, selected_indiviudals):
+
+def test_age_fitness_ea_step(pareto_front_population, onemax_evaluator,
+                             selected_indiviudals):
     population = pareto_front_population + selected_indiviudals
     mutation = DumbyMutation()
     crossover = DumbyCrossover()
     generator = MultipleValueGenerator(return_false, COMPLEX_INDV_SIZE)
-    ea = AgeFitnessEA(evaluator, generator, crossover, mutation, 0, 0,
-                      len(pareto_front_population), selection_size=2*len(population))
-    new_population = ea.generational_step(population)
+    evo_alg = AgeFitnessEA(onemax_evaluator, generator, crossover, mutation,
+                           0, 0, len(pareto_front_population),
+                           selection_size=2*len(population))
+    new_population = evo_alg.generational_step(population)
     assert len(new_population) == len(population)

@@ -8,6 +8,7 @@ populations.
 from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 from bingo.EA.VarOr import VarOr
 
+
 class MuPlusLambda(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 

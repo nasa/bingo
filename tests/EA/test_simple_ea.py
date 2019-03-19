@@ -3,39 +3,14 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Base.Variation import Variation
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.Selection import Selection
 from bingo.EA.SimpleEa import SimpleEa
 
 from SingleValue import SingleValueChromosome
 
 
-class VariationAddV(Variation):
-    def __call__(self, population, number_offspring):
-        offspring = [parent.copy() for parent in population]
-        for indv in offspring:
-            indv.value += "v"
-        return offspring
-
-
-class EvaluationAddE(Evaluation):
-    def __call__(self, population):
-        for indv in population:
-            indv.fitness = indv.value
-            indv.value += "e"
-
-
-class SelectionAddS(Selection):
-    def __call__(self, population, _target_population_size):
-        for indv in population:
-            indv.value += "s"
-        return population
-
-
 @pytest.fixture
-def sample_ea():
-    return SimpleEa(VariationAddV(), EvaluationAddE(), SelectionAddS())
+def sample_ea(add_e_evaluation, add_v_variation, add_s_selection):
+    return SimpleEa(add_v_variation, add_e_evaluation, add_s_selection)
 
 
 @pytest.fixture

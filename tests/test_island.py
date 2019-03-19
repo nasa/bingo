@@ -1,13 +1,24 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import pytest
 import numpy as np
 
-from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, MultipleValueGenerator
-from bingo.EA.VarOr import VarOr
+from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, \
+                                 MultipleValueGenerator
 from bingo.Island import Island
 from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from examples.OneMaxExample import MultipleValueFitnessFunction
+from bingo.Base.FitnessFunction import FitnessFunction
+
+
+class MultipleValueFitnessFunction(FitnessFunction):
+    def __call__(self, individual):
+        fitness = np.count_nonzero(individual.list_of_values)
+        self.eval_count += 1
+        return len(individual.list_of_values) - fitness
+
 
 @pytest.fixture
 def island():
@@ -16,16 +27,20 @@ def island():
     selection = Tournament(10)
     fitness = MultipleValueFitnessFunction()
     evaluator = SimpleEvaluation(fitness)
-    ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.2, 0.4, 20)
+    ev_alg = MuPlusLambda(evaluator, selection, crossover, mutation,
+                          0.2, 0.4, 20)
     generator = MultipleValueGenerator(mutation_function, 10)
-    return Island(ea, generator, 25)
+    return Island(ev_alg, generator, 25)
+
 
 def mutation_function():
     return np.random.choice([True, False])
 
+
 def test_no_best_individual_unless_evaluated(island):
     with pytest.raises(ValueError):
         island.best_individual()
+
 
 def test_generational_steps_change_population_age(island):
     for indv in island.population:
@@ -34,11 +49,13 @@ def test_generational_steps_change_population_age(island):
     for indv in island.population:
         assert indv.genetic_age > 0
 
+
 def test_generational_age_increases(island):
     island.execute_generational_step()
     assert island.generational_age == 1
     island.execute_generational_step()
     assert island.generational_age == 2
+
 
 def test_best_individual(island):
     island.execute_generational_step()

@@ -6,36 +6,44 @@ import pytest
 from bingo.MultipleFloats import MultipleFloatChromosome,\
                                  MultipleFloatChromosomeGenerator
 
+LIST_SIZE = 10
+OPT_INDEX_START = 1
+OPT_INDEX_STOP = 3
+
 @pytest.fixture
 def list_of_floats():
     return [float(i) for i in range(10)]
 
 @pytest.fixture
 def opt_individual(list_of_floats):
-    return MultipleFloatChromosome(list_of_floats, [1, 2, 3])
+    opt_list = [i for i in range(OPT_INDEX_START, OPT_INDEX_STOP+1)]
+    return MultipleFloatChromosome(list_of_floats, opt_list)
 
 @pytest.fixture
 def individual(list_of_floats):
     return MultipleFloatChromosome(list_of_floats)
 
-def test_only_accepts_floats_for_value_list():
-    list_of_values = [str(i) for i in range (10)]
-    with pytest.raises(ValueError):
-        chromosome = MultipleFloatChromosome(list_of_values)
+def return_float_one():
+    return 1.0
 
 def test_accpets_valid_indicies(list_of_floats):
     with pytest.raises(ValueError):
-        chromosome = MultipleFloatChromosome(list_of_floats, [6, 1, 22])
+        MultipleFloatChromosomeGenerator(return_float_one, LIST_SIZE, [6, 1, 22])
     with pytest.raises(ValueError):
-        chromosome = MultipleFloatChromosome(list_of_floats, ['a', 2, 3])
+        MultipleFloatChromosomeGenerator(return_float_one, LIST_SIZE, ['a', 2, 3])
 
-# TODO: test for replicate indicies (possibly use set to raise error or convert iterables to set)
+def test_removes_duplicates():
+    list_of_dupes = [6, 1, 1, 2, 3, 4, 5, 5, 5, 0, 5, 5, 5, 5, 5, 9, 8, 7, 5]
+    generator = MultipleFloatChromosomeGenerator(return_float_one,
+                                                 LIST_SIZE,
+                                                 list_of_dupes)
+    assert generator._needs_opt_list == [i for i in range(LIST_SIZE)]
 
 def test_generator_function_produces_floats():
     def bad_function():
         return "This is not good"
     with pytest.raises(ValueError):
-        generator = MultipleFloatChromosomeGenerator(bad_function, 10)
+        MultipleFloatChromosomeGenerator(bad_function, LIST_SIZE)
 
 def test_needs_local_optimization(opt_individual, individual):
     assert not individual.needs_local_optimization()
@@ -45,6 +53,7 @@ def test_get_local_optimization_params(opt_individual):
     assert opt_individual.get_number_local_optimization_params() == 3
 
 def test_set_local_optimization_params(opt_individual):
-    params = [0, 0, 0]
+    params = [0 for _ in range(OPT_INDEX_START, OPT_INDEX_STOP+1)]
     opt_individual.set_local_optimization_params(params)
-    assert opt_individual.list_of_values[1:4] == params
+    new_values = opt_individual.list_of_values[OPT_INDEX_START:OPT_INDEX_STOP+1]
+    assert new_values == params

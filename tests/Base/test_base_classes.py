@@ -9,7 +9,6 @@ from bingo.Base.Mutation import Mutation
 from bingo.Base.Generator import Generator
 from bingo.Base.Selection import Selection
 from bingo.Base.Variation import Variation
-from bingo.Base.Evaluation import Evaluation
 from bingo.Base.FitnessFunction import FitnessFunction, VectorBasedFunction
 from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 from bingo.Base.ContinuousLocalOptimization import ChromosomeInterface
@@ -18,7 +17,7 @@ from bingo.Base.TrainingData import TrainingData
 
 @pytest.mark.parametrize("base_class", [Chromosome, Equation, Generator,
                                         Crossover, Mutation, Selection,
-                                        Variation, Evaluation,
+                                        Variation,
                                         FitnessFunction, VectorBasedFunction,
                                         EvolutionaryAlgorithm,
                                         ChromosomeInterface, TrainingData])

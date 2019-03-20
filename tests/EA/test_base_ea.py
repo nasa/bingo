@@ -3,14 +3,15 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.EA.SimpleEa import SimpleEa
+from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 
 from SingleValue import SingleValueChromosome
 
 
 @pytest.fixture
 def sample_ea(add_e_evaluation, add_v_variation, add_s_selection):
-    return SimpleEa(add_v_variation, add_e_evaluation, add_s_selection)
+    return EvolutionaryAlgorithm(add_v_variation, add_e_evaluation,
+                                 add_s_selection)
 
 
 @pytest.fixture

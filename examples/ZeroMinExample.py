@@ -12,7 +12,7 @@ from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
 from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation
 from bingo.MultipleFloats import MultipleFloatChromosomeGenerator
 
-class MultipleFloatValueFitnessFunction(FitnessFunction):
+class ZeroMinFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         return np.linalg.norm(individual.list_of_values)
 
@@ -23,7 +23,7 @@ def execute_generational_steps():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(get_random_float)
     selection = Tournament(10)
-    fitness = MultipleFloatValueFitnessFunction()
+    fitness = ZeroMinFitnessFunction()
     local_opt_fitness = ContinuousLocalOptimization(fitness)
     evaluator = SimpleEvaluation(local_opt_fitness)
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)

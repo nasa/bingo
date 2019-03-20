@@ -16,12 +16,10 @@ class MultipleFloatValueFitnessFunction(FitnessFunction):
         print(individual)
         return np.linalg.norm(individual.list_of_values)
 
-
 class FloatVectorFitnessFunction(VectorBasedFunction):
     def _evaluate_fitness_vector(self, individual):
         vals = individual.list_of_values
         return [x - 0 for x in vals]
-
 
 @pytest.fixture
 def opt_individual():

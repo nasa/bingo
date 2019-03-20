@@ -15,8 +15,9 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
     list_of_values : list of floats
         The genetic information stored in an individual chromsome.
     needs_opt_list : list of ints
-        The indices of the `individual_list` in a  `Chromosome` object
-        that are subject local optimization. This list may be empty
+        (optional) The indices of the `individual_list` in a
+        `Chromosome` object that are subject local optimization.
+        This list may be empty
     """
     def __init__(self, list_of_values, needs_opt_list=[]):
         super().__init__(list_of_values)
@@ -52,8 +53,8 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
         params : list-like of numeric
                  Values to set the parameters
         """
-        for i, index in enumerate(self._needs_opt_list):
-            self.list_of_values[index] = params[i]
+        for param, index in zip(params, self._needs_opt_list):
+            self.list_of_values[index] = param
 
 
 class MultipleFloatChromosomeGenerator(MultipleValueGenerator):
@@ -67,7 +68,7 @@ class MultipleFloatChromosomeGenerator(MultipleValueGenerator):
         constructor.
     values_per_chromosome : int
         The number of values that each chromosome will hold
-    needs_opt_list : list of ints 
+    needs_opt_list : list of ints
         The indices of the `individual_list` in a  `Chromosome` object
         that are subject local optimization. This list may be empty
     """
@@ -98,7 +99,7 @@ class MultipleFloatChromosomeGenerator(MultipleValueGenerator):
     def _check_function_produces_float(self, random_value_function):
         val = random_value_function()
         if not isinstance(val, float):
-            raise ValueError("Random Value Function must generate float values.")
+            raise ValueError("Random value function must generate floats.")
 
     def _check_list_contains_ints_in_valid_range(self, list_of_indices):
         if not list_of_indices:

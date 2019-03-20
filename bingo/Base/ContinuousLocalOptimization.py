@@ -56,7 +56,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         algorithm listing for details.
     algorithm : string
         An algorithm that is used in the local optimization of a
-        `MultipleFloatChromosome`. The default algorithm is *Nelder-Mead*. The
+        `Chromosome`. The default algorithm is *Nelder-Mead*. The
         other options are:
             1. FitnessFunction
                 - Nelder-Mead

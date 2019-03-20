@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import pytest
+import numpy as np
 
 from bingo.MultipleFloats import MultipleFloatChromosome,\
                                  MultipleFloatChromosomeGenerator
@@ -26,11 +27,16 @@ def individual(list_of_floats):
 def return_float_one():
     return 1.0
 
+def random_float_function():
+    return np.random.random()*10
+
 def test_accpets_valid_indicies(list_of_floats):
     with pytest.raises(ValueError):
-        MultipleFloatChromosomeGenerator(return_float_one, LIST_SIZE, [6, 1, 22])
+        MultipleFloatChromosomeGenerator(return_float_one,
+                                         LIST_SIZE, [6, 1, 22])
     with pytest.raises(ValueError):
-        MultipleFloatChromosomeGenerator(return_float_one, LIST_SIZE, ['a', 2, 3])
+        MultipleFloatChromosomeGenerator(return_float_one,
+                                         LIST_SIZE, ['a', 2, 3])
 
 def test_removes_duplicates():
     list_of_dupes = [6, 1, 1, 2, 3, 4, 5, 5, 5, 0, 5, 5, 5, 5, 5, 9, 8, 7, 5]
@@ -57,3 +63,17 @@ def test_set_local_optimization_params(opt_individual):
     opt_individual.set_local_optimization_params(params)
     new_values = opt_individual.list_of_values[OPT_INDEX_START:OPT_INDEX_STOP+1]
     assert new_values == params
+
+def test_generate_individual_with_opt_list():
+    opt_list = [1, 2, 3]
+    generator = MultipleFloatChromosomeGenerator(random_float_function,
+                                                 LIST_SIZE,
+                                                 opt_list)
+    individual = generator()
+    assert individual._needs_opt_list == opt_list
+
+def test_generate_individual_with_no_opt_list():
+    generator = MultipleFloatChromosomeGenerator(random_float_function,
+                                                 LIST_SIZE)
+    individual = generator()
+    assert not individual._needs_opt_list

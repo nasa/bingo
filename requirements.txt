@@ -3,5 +3,5 @@
 # mpi4py==2.0.0
 numpy==1.14.3
 pytest>=3.6
-# scipy==0.19.0
+scipy==1.2.0
 # sympy==1.0

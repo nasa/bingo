@@ -9,7 +9,8 @@ from bingo.Util.ArgumentValidation import argument_validation
 
 LOGGER = logging.getLogger(__name__)
 
-class Island(object):
+
+class Island:
     """
     Island: code for island of genetic algorithm
     """
@@ -20,19 +21,22 @@ class Island(object):
         Parameters
         ----------
         evolution_algorithm : EvolutionaryAlgorithm
-                              The desired algorithm to use in assessing the population
+                              The desired algorithm to use in assessing the
+                              population
         generator : Generator
-                    The generator class that returns an instance of a chromosome
+                    The generator class that returns an instance of a
+                    chromosome
         population_size : int
                           The desired size of the population
 
         Attributes
         ----------
         generational_age : int
-                          The number of generational steps that have been executed
-        
+                          The number of generational steps that have been
+                          executed
+
         population : list of Chromosomes
-                     The population to 
+                     The population that is evolving
         """
         self.population = [generator() for i in range(population_size)]
         self._ea = evolution_algorithm
@@ -40,12 +44,14 @@ class Island(object):
         self.generational_age = 0
 
     def execute_generational_step(self):
-        """Executes a single generational step using the provided evolutionary algorithm
+        """Executes a single generational step using the provided evolutionary
+        algorithm
 
         Returns
         -------
         population : list of Chromosomes
-                     The offspring generation yielded from the generational step
+                     The offspring generation yielded from the generational
+                     step
         """
         self.generational_age += 1
         self.population = self._ea.generational_step(self.population)
@@ -61,8 +67,9 @@ class Island(object):
                The Chromosome with the lowest fitness value
         """
         if self.generational_age < 1:
-            raise ValueError('ValueError: Must execute at least one generational step \
-             before finding the best individual')
+            raise ValueError('ValueError: Must execute at least one '
+                             'generational step before finding the best '
+                             'individual')
         best = self.population[0]
         for indv in self.population:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():

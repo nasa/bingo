@@ -9,6 +9,7 @@ from ..Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 from ..EA.VarAnd import VarAnd
 from ..EA.DeterministicCrowdingSelection import DeterministicCrowdingSelection
 
+
 class DeterministicCrowdingEA(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 

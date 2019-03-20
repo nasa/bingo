@@ -1,9 +1,9 @@
 """Variation where crossover, mutation, or replication may occur
 
 
-VarOr.py allows for definition of a variation by crossover, replication, and mutation
-probabilities. Offspring may be the result of either crossover, replication :or: mutation,
-hence the name. Only one may occur at a time.
+VarOr.py allows for definition of a variation by crossover, replication, and
+mutation probabilities. Offspring may be the result of either crossover,
+replication :or: mutation, hence the name. Only one may occur at a time.
 """
 
 import numpy as np
@@ -27,7 +27,8 @@ class VarOr(Variation):
                             Probability that crossover will occur on an
                             individual
     mutation_probability : float
-                           Probability that mutation will occur on an individual
+                           Probability that mutation will occur on an
+                           individual
 
     Attributes
     ----------
@@ -46,12 +47,14 @@ class VarOr(Variation):
                  mutation_probability):
         super().__init__()
         if (crossover_probability + mutation_probability) >= 1:
-            raise ValueError('The sum of crossover and mutation probabilities must be less than 1.0')
+            raise ValueError('The sum of crossover and mutation probabilities '
+                             'must be less than 1.0')
         self._crossover = crossover
         self._mutation = mutation
         self._crossover_probability = crossover_probability
         self._mutation_probability = mutation_probability
-        self._replication_probability = 1 - crossover_probability - mutation_probability
+        self._replication_probability = 1 - crossover_probability \
+                                          - mutation_probability
 
     @argument_validation(number_offspring={">=": 0})
     def __call__(self, population, number_offspring):
@@ -77,7 +80,8 @@ class VarOr(Variation):
             if choice <= self._mutation_probability:
                 self._do_mutation(population, offspring, i)
 
-            elif choice <= (self._mutation_probability + self._crossover_probability):
+            elif choice <= (self._mutation_probability +
+                            self._crossover_probability):
                 self._do_crossover(population, offspring, i)
 
             else:
@@ -94,7 +98,7 @@ class VarOr(Variation):
     def _do_crossover(self, population, offspring, i):
         parent_1 = self._get_random_parent(population)
         parent_2 = self._get_random_parent(population)
-        child_1, child_2 = self._crossover(parent_1, parent_2)
+        child_1, _ = self._crossover(parent_1, parent_2)
         self._append_new_individual_to_offspring(child_1, offspring)
         self.crossover_offspring[i] = True
 
@@ -102,10 +106,11 @@ class VarOr(Variation):
         child = self._get_random_parent(population)
         self._append_new_individual_to_offspring(child, offspring)
 
-    def _append_new_individual_to_offspring(self, child, offspring):
+    @staticmethod
+    def _append_new_individual_to_offspring(child, offspring):
         child.fit_set = False
         offspring.append(child)
 
-    def _get_random_parent(self, population):
+    @staticmethod
+    def _get_random_parent(population):
         return population[np.random.randint(len(population))].copy()
-

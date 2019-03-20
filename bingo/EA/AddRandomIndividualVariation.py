@@ -7,6 +7,7 @@ individual(s) to the offspring after the variation is carried out.
 from ..Base.Variation import Variation
 from ..Util.ArgumentValidation import argument_validation
 
+
 class AddRandomIndividualVariation(Variation):
     """A Variation object that takes in an implementation of Variation
     that adds a random individual to the population before performing
@@ -42,7 +43,7 @@ class AddRandomIndividualVariation(Variation):
         Returns
         -------
         list of Chromosome:
-            The offspring of the original population and the 
+            The offspring of the original population and the
             new random individuals
         """
         children = self._variation(population, number_offspring)

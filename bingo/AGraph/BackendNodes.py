@@ -160,14 +160,18 @@ def _sqrt_reverse_eval(reverse_index, param1, _param2, forward_eval,
                             forward_eval[reverse_index] *\
                             np.sign(forward_eval[param1])
 
+
 def forward_eval_function(node, param1, param2, x, constants, forward_eval):
     return FORWARD_EVAL_MAP[node](param1, param2, x, constants, forward_eval)
 
-def reverse_eval_function(node, reverse_index, param1, param2, forward_eval, reverse_eval):
-    REVERSE_EVAL_MAP[node](reverse_index, param1, param2, forward_eval, reverse_eval)
+
+def reverse_eval_function(node, reverse_index, param1, param2, forward_eval,
+                          reverse_eval):
+    REVERSE_EVAL_MAP[node](reverse_index, param1, param2, forward_eval,
+                           reverse_eval)
+
 
 # Node maps
-
 FORWARD_EVAL_MAP = {0: _loadx_forward_eval,
                     1: _loadc_forward_eval,
                     2: _add_forward_eval,

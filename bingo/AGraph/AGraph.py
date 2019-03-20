@@ -412,14 +412,14 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                                                str_list[param2])
         return tmp_str
 
-    def distance(self, individual):
+    def distance(self, chromosome):
         """Computes the distance to another Agraph
 
         Distance is a measure of similarity of the two command_arrays
 
         Parameters
         ----------
-        individual : Agraph
+        chromosome : Agraph
                      The individual to which distance will be calculated
 
         Returns
@@ -427,10 +427,10 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
          : int
             distance from self to individual
         """
-        dist = np.sum(self.command_array != individual.command_array)
-        
+        dist = np.sum(self.command_array != chromosome.command_array)
+
         return dist
-        
+
     def _raise_runtime_error(self, ex):
         LOGGER.error(str(self))
         LOGGER.error(str(ex))

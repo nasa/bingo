@@ -2,14 +2,14 @@
 The Age-Fitness Evolutionary Algorithm
 
 This module defines the evolutionary algorithm that implements, ``VarOr``
-variation on a population then performs Age-Fitness selection among 
+variation on a population then performs Age-Fitness selection among
 the variation result, the initial population, and a random chromosome.
 """
 
 from .AgeFitness import AgeFitness
 from .MuPlusLambda import MuPlusLambda
-from .VarOr import VarOr
 from .AddRandomIndividualVariation import AddRandomIndividualVariation
+
 
 class AgeFitnessEA(MuPlusLambda):
     """The algorithm used to perform generational steps.
@@ -39,9 +39,9 @@ class AgeFitnessEA(MuPlusLambda):
     def __init__(self, evaluation, generator, crossover, mutation,
                  crossover_probability, mutation_probability, number_offspring,
                  selection_size=2):
-        variation = VarOr(crossover, mutation, crossover_probability,
-                          mutation_probability)
-        self._variation = AddRandomIndividualVariation(variation, generator)
-        self._evaluation = evaluation
-        self._selection = AgeFitness(selection_size=selection_size)
-        self._number_offspring = number_offspring
+        selection = AgeFitness(selection_size=selection_size)
+        super().__init__(evaluation, selection, crossover, mutation,
+                         crossover_probability, mutation_probability,
+                         number_offspring)
+        self._variation = AddRandomIndividualVariation(self._variation,
+                                                       generator)

@@ -5,8 +5,8 @@ individuals (or "chromosomes") chosen at random from the population. The winner
 of each tournament (the one with the smallest fitness) is selected to advance
 into the next generation.
 """
-import numpy as np
 from operator import attrgetter
+import numpy as np
 
 from ..Base.Selection import Selection
 from ..Util.ArgumentValidation import argument_validation

@@ -13,7 +13,7 @@ class MuPlusLambda(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 
     A class for the "mu plus lambda" evolutionary algorithm in bingo.
-    
+
     Attributes
     ----------
     variation : VarOr
@@ -24,10 +24,11 @@ class MuPlusLambda(EvolutionaryAlgorithm):
                 Selection instance to perform selection on a population
     number_offspring : int
                        The desired size of the offspring population
-    
+
     """
-    def __init__(self, evaluation, selection, crossover, mutation, 
-                 crossover_probability, mutation_probability, number_offspring):
+    def __init__(self, evaluation, selection, crossover, mutation,
+                 crossover_probability, mutation_probability,
+                 number_offspring):
         self._variation = VarOr(crossover, mutation, crossover_probability,
                                 mutation_probability)
         self._evaluation = evaluation
@@ -50,4 +51,3 @@ class MuPlusLambda(EvolutionaryAlgorithm):
         offspring = self._variation(population, self._number_offspring)
         self._evaluation(population + offspring)
         return self._selection(population + offspring, len(population))
-

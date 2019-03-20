@@ -212,7 +212,7 @@ def calculate_partials(X):
         time_deriv = time_deriv[3:-4, :]
         x_seg = x_seg[3:-4, :]
 
-        if start is 0:
+        if start == 0:
             x_all = np.copy(x_seg)
             time_deriv_all = np.copy(time_deriv)
             inds_all = np.arange(start + 3, end - 4)
@@ -269,30 +269,30 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
        the Convolution (Savitzky-Golay) Method. Analytical Chemistry, 1990, 62,
        pp 570-573
     """
-    n = order  # order
-    m = np.int((window_size - 1) / 2)  # 2m + 1 = size of filter
-    s = deriv  # derivative order
+    n_order = order
+    m_half_filter_size = np.int((window_size - 1) / 2)  # 2m + 1 = filter size
+    s_derivative_order = deriv
 
-    def GenFact(a, b):
+    def generalized_factorial(a, b):
         """Generalized factorial"""
         g_f = 1
         for j in range(a - b + 1, a + 1):
             g_f *= j
         return g_f
 
-    def GramPoly(gp_i, gp_m, gp_k, gp_s):
+    def gram_polynomial(gp_i, gp_m, gp_k, gp_s):
         """
         Calculates the Gram Polynomial (gp_s=0) or its gp_s'th derivative
         evaluated at gp_i, order gp_k, over 2gp_m+1 points
         """
         if gp_k > 0:
-            gram_poly = (4. * gp_k - 2.) / (
-                        gp_k * (2. * gp_m - gp_k + 1.)) * \
-                        (gp_i * GramPoly(gp_i, gp_m, gp_k - 1, gp_s) + \
-                         gp_s * GramPoly(gp_i, gp_m, gp_k - 1, gp_s - 1)) - \
+            gram_poly = (4. * gp_k - 2.) / (gp_k * (2. * gp_m - gp_k + 1.)) * \
+                        (gp_i * gram_polynomial(gp_i, gp_m, gp_k - 1, gp_s) +
+                         gp_s * gram_polynomial(gp_i, gp_m, gp_k - 1,
+                                                gp_s - 1)) - \
                         ((gp_k - 1.) * (2. * gp_m + gp_k)) / \
                         (gp_k * (2. * gp_m - gp_k + 1.)) * \
-                        GramPoly(gp_i, gp_m, gp_k - 2, gp_s)
+                        gram_polynomial(gp_i, gp_m, gp_k - 2, gp_s)
 
         else:
             if gp_k == 0 and gp_s == 0:
@@ -301,7 +301,7 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
                 gram_poly = 0.
         return gram_poly
 
-    def GramWeight(gw_i, gw_t, gw_m, gw_n, gw_s):
+    def gram_weight(gw_i, gw_t, gw_m, gw_n, gw_s):
         """
         Calculate the weight og the gw_i'th data point for the gw_t'th
         Least-Square point of the gw_s'th derivative over 2gw_m+1 points,
@@ -309,33 +309,35 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
         """
         weight = 0
         for k in range(gw_n + 1):
-            weight += (2. * k + 1.) * GenFact(2 * gw_m, k) / \
-                      GenFact(2 * gw_m + k + 1, k + 1) * \
-                      GramPoly(gw_i, gw_m, k, 0) * \
-                      GramPoly(gw_t, gw_m, k, gw_s)
+            weight += (2. * k + 1.) * generalized_factorial(2 * gw_m, k) / \
+                      generalized_factorial(2 * gw_m + k + 1, k + 1) * \
+                      gram_polynomial(gw_i, gw_m, k, 0) * \
+                      gram_polynomial(gw_t, gw_m, k, gw_s)
         return weight
 
     # fill weights
-    weights = np.empty((2 * m + 1, 2 * m + 1))
-    for i in range(-m, m + 1):
-        for t in range(-m, m + 1):
-            weights[i + m, t + m] = GramWeight(i, t, m, n, s)
+    weights = np.empty((2 * m_half_filter_size + 1, 2 * m_half_filter_size + 1))
+    for i in range(-m_half_filter_size, m_half_filter_size + 1):
+        for t in range(-m_half_filter_size, m_half_filter_size + 1):
+            weights[i + m_half_filter_size, t + m_half_filter_size] = \
+                gram_weight(i, t, m_half_filter_size, n_order,
+                            s_derivative_order)
 
     # do convolution
     y_len = len(y)
     f = np.empty(y_len)
     for i in range(y_len):
-        if i < m:
-            y_center = m
+        if i < m_half_filter_size:
+            y_center = m_half_filter_size
             w_ind = i
-        elif y_len - i <= m:
-            y_center = y_len - m - 1
-            w_ind = 2 * m + 1 - (y_len - i)
+        elif y_len - i <= m_half_filter_size:
+            y_center = y_len - m_half_filter_size - 1
+            w_ind = 2 * m_half_filter_size + 1 - (y_len - i)
         else:
             y_center = i
-            w_ind = m
+            w_ind = m_half_filter_size
         f[i] = 0
-        for k in range(-m, m + 1):
-            f[i] += y[y_center + k] * weights[k + m, w_ind]
+        for k in range(-m_half_filter_size, m_half_filter_size + 1):
+            f[i] += y[y_center + k] * weights[k + m_half_filter_size, w_ind]
 
     return f

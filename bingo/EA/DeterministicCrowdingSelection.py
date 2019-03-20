@@ -5,9 +5,8 @@ selection algorithm in bingo analyses. The next generation
 is selected by pairing parents with their offspring and
 advancing the most fit of the two.
 """
-import numpy as np
-
 from ..Base.Selection import Selection
+
 
 class DeterministicCrowdingSelection(Selection):
     """The class that performs deterministic crowding selection on a population
@@ -18,9 +17,10 @@ class DeterministicCrowdingSelection(Selection):
         Parameters
         ----------
         population : list of Chromosomes
-                     The population on which to perform selection. This population
-                     includes both the parent and child populations, with the
-                     parents in the first half and the children in the latter half
+                     The population on which to perform selection. This
+                     population includes both the parent and child populations,
+                     with the parents in the first half and the children in the
+                     latter half
         target_population_size : int
                                  The size of the next generation
 
@@ -56,5 +56,6 @@ class DeterministicCrowdingSelection(Selection):
 
         return population
 
-    def _return_most_fit(self, child, parent):
+    @staticmethod
+    def _return_most_fit(child, parent):
         return child if child.fitness < parent.fitness else parent

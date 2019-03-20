@@ -10,6 +10,7 @@ import numpy as np
 from ..Base.Selection import Selection
 from ..Util.ArgumentValidation import argument_validation
 
+
 class AgeFitness(Selection):
     """Age-Fitness selection
 
@@ -111,7 +112,8 @@ class AgeFitness(Selection):
         population_list_index = self._population_index_array[index]
         return population[population_list_index]
 
-    def _first_dominates(self, indv_a, indv_b):
+    @staticmethod
+    def _first_dominates(indv_a, indv_b):
         return indv_a.genetic_age <= indv_b.genetic_age and \
                 indv_a.fitness <= indv_b.fitness
 
@@ -126,7 +128,8 @@ class AgeFitness(Selection):
             num_removed += 1
         return num_removed
 
-    def _swap(self, array, index_1, index_2):
+    @staticmethod
+    def _swap(array, index_1, index_2):
         array[index_1], array[index_2] = array[index_2], array[index_1]
 
     def _update_population(self, population, num_removed):

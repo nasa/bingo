@@ -6,7 +6,7 @@ training data for bingo evolutionary analysis.
 import abc
 
 
-class TrainingData(object, metaclass=abc.ABCMeta):
+class TrainingData(metaclass=abc.ABCMeta):
     """An index-able data containing class
 
     An abstract base class for a training data container.

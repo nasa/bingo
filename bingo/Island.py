@@ -38,7 +38,7 @@ class Island:
         population : list of Chromosomes
                      The population that is evolving
         """
-        self.population = [generator() for i in range(population_size)]
+        self.population = [generator() for _ in range(population_size)]
         self._ea = evolution_algorithm
         self._population_size = population_size
         self.generational_age = 0

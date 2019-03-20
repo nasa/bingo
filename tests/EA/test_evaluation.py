@@ -3,7 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
+from bingo.Base.Evaluation import Evaluation
 from SingleValue import SingleValueFitnessFunction
 
 
@@ -14,7 +14,7 @@ def fitness_function():
 
 def test_evaluation_evaluates_all_individuals(single_value_population_of_4,
                                               fitness_function):
-    evaluation = SimpleEvaluation(fitness_function)
+    evaluation = Evaluation(fitness_function)
     evaluation(single_value_population_of_4)
     assert evaluation.eval_count == 4
     for indv in single_value_population_of_4:
@@ -24,7 +24,7 @@ def test_evaluation_evaluates_all_individuals(single_value_population_of_4,
 
 def test_evaluation_skips_already_calculated_fitnesses(
         single_value_population_of_4, fitness_function):
-    evaluation = SimpleEvaluation(fitness_function)
+    evaluation = Evaluation(fitness_function)
     single_value_population_of_4[0].fitness = 1.0
     evaluation(single_value_population_of_4)
     assert evaluation.eval_count == 3
@@ -34,7 +34,7 @@ def test_evaluation_skips_already_calculated_fitnesses(
 
 
 def test_setting_eval_count(single_value_population_of_4, fitness_function):
-    evaluation = SimpleEvaluation(fitness_function)
+    evaluation = Evaluation(fitness_function)
     evaluation.eval_count = -4
     assert evaluation.eval_count == -4
     evaluation(single_value_population_of_4)

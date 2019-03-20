@@ -9,7 +9,7 @@ from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, \
 from bingo.Island import Island
 from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
+from bingo.Base.Evaluation import Evaluation
 from bingo.Base.FitnessFunction import FitnessFunction
 
 
@@ -26,7 +26,7 @@ def island():
     mutation = SinglePointMutation(mutation_function)
     selection = Tournament(10)
     fitness = MultipleValueFitnessFunction()
-    evaluator = SimpleEvaluation(fitness)
+    evaluator = Evaluation(fitness)
     ev_alg = MuPlusLambda(evaluator, selection, crossover, mutation,
                           0.2, 0.4, 20)
     generator = MultipleValueGenerator(mutation_function, 10)

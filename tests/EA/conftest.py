@@ -8,7 +8,6 @@ from SingleValue import SingleValueChromosome
 from bingo.Base.Variation import Variation
 from bingo.Base.Evaluation import Evaluation
 from bingo.Base.Selection import Selection
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.Base.FitnessFunction import FitnessFunction
 
 
@@ -35,6 +34,9 @@ class VariationAddV(Variation):
 
 
 class EvaluationAddE(Evaluation):
+    def __init__(self):
+        super().__init__(None)
+
     def __call__(self, population):
         for indv in population:
             indv.fitness = indv.value
@@ -77,4 +79,4 @@ def onemax_fitness():
 
 @pytest.fixture
 def onemax_evaluator(onemax_fitness):
-    return SimpleEvaluation(onemax_fitness)
+    return Evaluation(onemax_fitness)

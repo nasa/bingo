@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
+from bingo.Base.Evaluation import Evaluation
 from bingo.MultipleValues import  MultipleValueChromosome, \
                                   MultipleValueGenerator
 from OneMaxExample import MultipleValueFitnessFunction, \
@@ -13,7 +13,7 @@ def fitness_function():
 
 @pytest.fixture
 def sample_bool_list_chromosome():
-    chromosome = MultipleValueChromosome([np.random.choice([True, False]) for i in range(10)])
+    chromosome = MultipleValueChromosome([np.random.choice([True, False]) for _ in range(10)])
     return chromosome
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def test_fitness_evaluation_eval_count(sample_bool_list_chromosome, fitness_func
     assert fitness_function.eval_count == 1
 
 def test_evaluation_evaluates_all_list_values_per_individual(population, fitness_function):
-    evaluation = SimpleEvaluation(fitness_function)
+    evaluation = Evaluation(fitness_function)
     evaluation(population)
     assert evaluation.eval_count == 25
     for indv in population:
@@ -38,7 +38,7 @@ def test_evaluation_evaluates_all_list_values_per_individual(population, fitness
         assert indv.fitness is not None
 
 def test_evaluation_skips_already_calculated_fitnesses(population, fitness_function):
-    evaluation = SimpleEvaluation(fitness_function)
+    evaluation = Evaluation(fitness_function)
     population[0].fitness = 1.0
     evaluation(population)
     assert evaluation.eval_count == 24
@@ -47,7 +47,7 @@ def test_evaluation_skips_already_calculated_fitnesses(population, fitness_funct
         assert indv.fitness is not None
 
 def test_fitness_equals_true_value_count(fitness_function, population):
-    evaluation = SimpleEvaluation(fitness_function)
+    evaluation = Evaluation(fitness_function)
     evaluation(population)
 
     for indv in population:

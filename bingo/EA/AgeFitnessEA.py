@@ -35,6 +35,15 @@ class AgeFitnessEA(MuPlusLambda):
     selection_size : int
         The size of the group of individuals to be randomly
         compared. The size must be an integer greater than 1.
+
+    Attributes
+    ----------
+    variation : `Variation`
+                 Public access to the variation phase of the EA
+    evaluation : `Evaluation`
+                 Public access to the evaluation phase of the EA
+    selection : `Selection`
+                 Public access to the selection phase of the EA
     """
     def __init__(self, evaluation, generator, crossover, mutation,
                  crossover_probability, mutation_probability, number_offspring,
@@ -43,5 +52,5 @@ class AgeFitnessEA(MuPlusLambda):
         super().__init__(evaluation, selection, crossover, mutation,
                          crossover_probability, mutation_probability,
                          number_offspring)
-        self._variation = AddRandomIndividualVariation(self._variation,
-                                                       generator)
+        self.variation = AddRandomIndividualVariation(self.variation,
+                                                      generator)

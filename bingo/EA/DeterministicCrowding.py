@@ -15,6 +15,19 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
 
     A class for the deterministic crowding evolutionary algorithm in bingo.
 
+    Parameters
+    ----------
+    evaluation : Evaluation
+        The evaluation algorithm that sets the fitness on the population.
+    crossover : Crossover
+        The algorithm that performs crossover during variation.
+    mutation : Mutation
+        The algorithm that performs mutation during variation.
+    crossover_probability : float
+        Probability that crossover will occur on an individual.
+    mutation_probability : float
+        Probability that mutation will occur on an individual.
+
     Attributes
     ----------
     evaluation : Evaluation
@@ -26,10 +39,11 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
     """
     def __init__(self, evaluation, crossover, mutation, crossover_probability,
                  mutation_probability):
-        self._evaluation = evaluation
-        self._selection = DeterministicCrowdingSelection()
-        self._variation = VarAnd(crossover, mutation, crossover_probability,
-                                 mutation_probability)
+        super().__init__(variation=VarAnd(crossover, mutation,
+                                          crossover_probability,
+                                          mutation_probability),
+                         evaluation=evaluation,
+                         selection=DeterministicCrowdingSelection())
 
     def generational_step(self, population):
         """Performs selection on individuals.
@@ -44,6 +58,6 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
         list of Chromosome :
             The next generation of the population
         """
-        offspring = self._variation(population, len(population))
-        self._evaluation(population + offspring)
-        return self._selection(population + offspring, len(population))
+        offspring = self.variation(population, len(population))
+        self.evaluation(population + offspring)
+        return self.selection(population + offspring, len(population))

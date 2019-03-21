@@ -26,7 +26,7 @@ def plus_algo(add_e_evaluation, add_v_variation, add_s_selection):
     mutation = SinglePointMutation(mutation_function)
     evo_alg = MuPlusLambda(add_e_evaluation, add_s_selection, crossover,
                            mutation, 0.2, 0.4, 20)
-    evo_alg._variation = add_v_variation
+    evo_alg.variation = add_v_variation
     return evo_alg
 
 
@@ -36,7 +36,7 @@ def comma_algo(add_e_evaluation, add_v_variation, add_s_selection):
     mutation = SinglePointMutation(mutation_function)
     evo_alg = MuCommaLambda(add_e_evaluation, add_s_selection, crossover,
                             mutation, 0.2, 0.4, 20)
-    evo_alg._variation = add_v_variation
+    evo_alg.variation = add_v_variation
     return evo_alg
 
 

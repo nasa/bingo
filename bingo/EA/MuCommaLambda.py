@@ -13,6 +13,25 @@ class MuCommaLambda(EvolutionaryAlgorithm):
 
     A class for the "mu comma lambda" evolutionary algorithm in bingo.
 
+    Parameters
+    ----------
+    evaluation : Evaluation
+        The evaluation algorithm that sets the fitness on the population.
+    selection : Selection
+                Selection instance to perform selection on a population
+    crossover : Crossover
+                The algorithm that performs crossover during variation.
+    mutation : Mutation
+               The algorithm that performs mutation during variation.
+    crossover_probability : float
+                            Probability that crossover will occur on an
+                            individual.
+    mutation_probability : float
+                           Probability that mutation will occur on an
+                           individual.
+    number_offspring : int
+                       The number of offspring produced from variation.
+
     Attributes
     ----------
     variation : VarOr
@@ -21,17 +40,15 @@ class MuCommaLambda(EvolutionaryAlgorithm):
                  Evaluation instance to perform evaluation on a population
     selection : Selection
                 Selection instance to perform selection on a population
-    number_offspring : int
-                       The desired size of the offspring population
-
     """
     def __init__(self, evaluation, selection, crossover, mutation,
                  crossover_probability, mutation_probability,
                  number_offspring):
-        self._variation = VarOr(crossover, mutation, crossover_probability,
-                                mutation_probability)
-        self._evaluation = evaluation
-        self._selection = selection
+        super().__init__(variation=VarOr(crossover, mutation,
+                                         crossover_probability,
+                                         mutation_probability),
+                         evaluation=evaluation,
+                         selection=selection)
         self._number_offspring = number_offspring
 
     def generational_step(self, population):
@@ -47,6 +64,6 @@ class MuCommaLambda(EvolutionaryAlgorithm):
         list of Chromosome :
             The next generation of the population
         """
-        offspring = self._variation(population, self._number_offspring)
-        self._evaluation(offspring)
-        return self._selection(offspring, len(population))
+        offspring = self.variation(population, self._number_offspring)
+        self.evaluation(offspring)
+        return self.selection(offspring, len(population))

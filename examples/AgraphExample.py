@@ -16,8 +16,8 @@ from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
 
-
-POP_SIZE = 25
+POP_SIZE = 100
+STACK_SIZE = 10
 
 def init_x_vals(start, stop, num_points):
     return np.linspace(start, stop, num_points).reshape([-1, 1])
@@ -30,27 +30,36 @@ def execute_generational_steps():
     y = equation_eval(x)
     training_data = ExplicitTrainingData(x, y)
 
-    component_generator = ComponentGenerator(x.shape[0])
+    component_generator = ComponentGenerator(x.shape[1])
+    component_generator.add_operator(2)
+    component_generator.add_operator(3)
+    component_generator.add_operator(4)
+
     crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
-    agraph_generator = AGraphGenerator(10, component_generator)
+    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
+
     fitness = ExplicitRegression(training_data=training_data)
-    local_opt_fitness = ContinuousLocalOptimization(fitness)
+    local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
     evaluator = SimpleEvaluation(local_opt_fitness)
 
-    selection = Tournament(10)
-    ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
+    ea = AgeFitnessEA(evaluator, agraph_generator, crossover,
+                      mutation, 0.4, 0.4, POP_SIZE)
 
     island = Island(ea, agraph_generator, POP_SIZE)
-    for i in range(25):
+
+    curr_fitness = 10e6
+    i = 0
+    while (curr_fitness > 10e-6):
         island.execute_generational_step()
         print("\nGeneration #", i)
+        i += 1
         print("-"*80, "\n")
         report_max_min_mean_fitness(island.population)
-        print("\npopulation: \n")
-        for indv in island.population:
-            print(["{0:.2f}".format(val) for val in indv.list_of_values])
+        curr_fitness = island.best_individual().fitness
+
+    print("Success!", island.best_individual().get_latex_string())
 
 def report_max_min_mean_fitness(population):
     fitness = [indv.fitness for indv in population]

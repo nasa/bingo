@@ -66,11 +66,11 @@ import numpy as np
 from ..Base.Equation import Equation
 from ..Base import ContinuousLocalOptimization
 
-try:
-    from bingocpp.build import bingocpp as Backend
-except ImportError:
-    from . import Backend
-
+# try:
+#     from bingocpp.build import bingocpp as Backend
+# except ImportError:
+#     from . import Backend
+import bingo.AGraph.Backend as Backend
 
 LOGGER = logging.getLogger(__name__)
 
@@ -259,9 +259,11 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                                                    x,
                                                    self._constants)
             return f_of_x
-        except Exception as ex:
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as er:
             LOGGER.error("Error in stack evaluation")
-            self._raise_runtime_error(ex)
+            print(er)
+          #  self._raise_runtime_error(er)
+            return np.tile(np.nan, (x.shape[0], x.shape[1]))
 
     def evaluate_equation_with_x_gradient_at(self, x):
         """Evaluate Agraph and get its derivatives.
@@ -283,9 +285,12 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             f_of_x, df_dx = Backend.simplify_and_evaluate_with_derivative(
                 self._command_array, x, self._constants, True)
             return f_of_x, df_dx
-        except Exception as ex:
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as er:
             LOGGER.error("Error in stack evaluation/deriv")
-            self._raise_runtime_error(ex)
+            print(er)
+         #   self._raise_runtime_error(er)
+            nan_array = np.tile(np.nan, (x.shape[0], x.shape[1]))
+            return nan_array, nan_array.deepcopy()
 
     def evaluate_equation_with_local_opt_gradient_at(self, x):
         """Evaluate Agraph and get its derivatives.
@@ -308,9 +313,12 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             f_of_x, df_dc = Backend.simplify_and_evaluate_with_derivative(
                 self._command_array, x, self._constants, False)
             return f_of_x, df_dc
-        except Exception as ex:
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as er:
             LOGGER.error("Error in stack evaluation/const-deriv")
-            self._raise_runtime_error(ex)
+            print(er)
+         #   self._raise_runtime_error(er)
+            nan_array = np.tile(np.nan, (x.shape[0], x.shape[1]))
+            return nan_array, nan_array.deepcopy()
 
     def __str__(self):
         """Stack output of Agraph equation.

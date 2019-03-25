@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import random
+import copy
 
 import pytest
 import numpy as np
@@ -26,22 +27,39 @@ class MultipleValueFitnessFunction(FitnessFunction):
         self.eval_count += 1
         return len(individual.list_of_values) - fitness
 
+def generate_true():
+    return True
+
+def generate_false():
+    return False
+
+def mutation_function():
+    return np.random.choice([False, True])
 
 @pytest.fixture
-def island():
+def evol_alg():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(mutation_function)
     selection = Tournament(SELECTION_SIZE)
     fitness = MultipleValueFitnessFunction()
     evaluator = Evaluation(fitness)
-    ev_alg = MuPlusLambda(evaluator, selection, crossover, mutation,
+    return MuPlusLambda(evaluator, selection, crossover, mutation,
                           0.2, 0.4, OFFSPRING_SIZE)
+
+@pytest.fixture
+def zero_island(evol_alg):
+    generator = MultipleValueGenerator(generate_false, VALUE_LIST_SIZE)
+    return Island(evol_alg, generator, POP_SIZE)
+
+@pytest.fixture
+def one_island(evol_alg):
+    generator = MultipleValueGenerator(generate_true, VALUE_LIST_SIZE)
+    return Island(evol_alg, generator, POP_SIZE)
+
+@pytest.fixture
+def island(evol_alg):
     generator = MultipleValueGenerator(mutation_function, VALUE_LIST_SIZE)
-    return Island(ev_alg, generator, POP_SIZE)
-
-
-def mutation_function():
-    return np.random.choice([True, False])
+    return Island(evol_alg, generator, POP_SIZE)
 
 
 def test_archipelago_generated(island):
@@ -58,3 +76,12 @@ def test_generational_step_executed(island):
     archipelago.step_through_generations(1)
     for island_i in archipelago._islands:
         assert island_i.best_individual()
+
+
+def test_island_migration(one_island, zero_island):
+    archipelago = SerialArchipelago(one_island, num_islands=2)
+    archipelago._islands = [one_island, zero_island]
+    archipelago.coordinate_migration_between_islands()
+    for island in archipelago._islands:
+        for individual in island.population:
+            assert not all(individual.list_of_values)

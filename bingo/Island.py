@@ -75,3 +75,24 @@ class Island:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
         return best
+
+    def load_population(self, population, replace=True):
+        """
+        loads population from a pickleable object
+
+        Parameters
+        ----------
+        population: list of Chromosomes
+            population which is loaded into island
+        replace: boolean 
+            if true, value results in all of the population being
+            loaded/replaced. False value means that the population in pop_list
+            is appended to the current population
+        """
+        if replace:
+            self.population = []
+        self.population += population
+
+    def get_population(self):
+        return self.population
+        

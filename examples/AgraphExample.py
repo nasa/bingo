@@ -10,8 +10,6 @@ from bingo.AGraph.ComponentGenerator import ComponentGenerator
 from bingo.ExplicitRegression import ExplicitRegression, ExplicitTrainingData
 from bingo.EA.AgeFitnessEA import AgeFitnessEA
 
-from bingo.EA.MuPlusLambda import MuPlusLambda
-from bingo.EA.TournamentSelection import Tournament
 from bingo.EA.SimpleEvaluation import SimpleEvaluation
 from bingo.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
@@ -72,3 +70,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

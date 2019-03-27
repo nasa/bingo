@@ -1,112 +1,159 @@
 """
-This module contains most of the code necessary for the representation of an
-fitness predictor in the form of a subsampling list for real data
+This module contains the utilities for fitness predictors.
+
+Fitness predictors in bingo are Chromosomes that encode information necessary
+to make a prediction of fitness for other Chromosome types.  The type of
+fitness predicters used here are subset fitness predictors, which make a
+prediction of fitness by using only a subset of the training data used in
+preforming a full/true fitness calculation.  Subset fitness predictors use the
+MultilpleValueChromosome.
+
+Check out the works of the works of Schmidt and Lipson for more details:
+e.g., "Coevolution of Fitness Predictors" (2008) .
 """
 import logging
+from copy import copy
 import numpy as np
+from .Util.ArgumentValidation import argument_validation
+from .Base.FitnessFunction import FitnessFunction
 
 LOGGER = logging.getLogger(__name__)
 
-class FPManipulator(object):
+
+class FitnessPredictorFitnessFunction(FitnessFunction):
+    """A fitness function for subset fitness predictors
+
+    A fitness function for fitness predictors. The fitness of a fitness
+    predictor is based upon its ability to predict true/full fitness of trainer
+    individuals.
+
+    Parameters
+    ----------
+    training_data : list-like
+                    Training data used in full/true fitness evaluation
+    full_fitness_function : FitnessFunction
+                            The fitness function to be used in prediction
+                            (based on the training data)
+    potential_trainers : list of Chromosomes
+                         a list of individuals that could potentially be used
+                         as trainers
+    num_trainers : int
+                   number of trainers to use
     """
-    manipulates AGraph objects for generation, crossover, mutation,
-    and distance
+    @argument_validation(num_trainers={">": 0})
+    def __init__(self, training_data, full_fitness_function,
+                 potential_trainers, num_trainers):
+        super().__init__(training_data)
+        self._next_trainer_to_update = 0
+        self.point_eval_count = 0
+        self._fitness_function = copy(full_fitness_function)
+        self._trainers, self._true_fitness_for_trainers = \
+            self._make_initial_trainer_population(potential_trainers,
+                                                  num_trainers)
+
+    def __call__(self, individual):
+        """Fitness function for subset fitness predictors
+
+        The average absolute error of the predicted versus true/full fitness of
+        the trainers for a given fitness predictor individual.
+
+        Parameters
+        ----------
+        individual : MultipleValueChromosome
+                     A subset fitness predictor
+
+        Returns
+        -------
+        float :
+                fitness of the predictor
+        """
+        self.eval_count += 1
+        error_in_fitness_predictions = 0.0
+        for trainer, true_fitness in zip(self._trainers,
+                                         self._true_fitness_for_trainers):
+            predicted_fitness = \
+                self.predict_fitness_for_trainer(individual, trainer)
+            error_in_fitness_predictions += abs(true_fitness
+                                                - predicted_fitness)
+        return error_in_fitness_predictions / len(self._trainers)
+
+    def add_trainer(self, trainer):
+        """Add a trainer to the trainer population
+
+        Replaces one of the current trainers.
+
+        Parameters
+        ----------
+        trainer : Chromosome
+                  individual to add to the training population
+        """
+        self._trainers[self._next_trainer_to_update] = trainer.copy()
+        self._true_fitness_for_trainers[self._next_trainer_to_update] = \
+            self._get_true_fitness_for_trainer(trainer)
+        self._increment_next_trainer_to_update()
+
+    def predict_fitness_for_trainer(self, individual, trainer):
+        """Get predicted value of fitness for a trainer
+
+        Parameters
+        ----------
+        individual : MultipleValueChromosome
+                     subset fitness predictor to use in calculating predicted
+                     fitness
+        trainer : Chromosome
+                  the trainer of which to calculate fitness
+
+        Returns
+        -------
+        float :
+                predicted fitness
+        """
+        subset_training_data = \
+            self.training_data[individual.list_of_values]
+        self._fitness_function.training_data = subset_training_data
+        predicted_fitness = self._fitness_function(trainer)
+        self.point_eval_count += len(subset_training_data)
+        return predicted_fitness
+
+    def _get_true_fitness_for_trainer(self, trainer):
+        self._fitness_function.training_data = self.training_data
+        predicted_fitness = self._fitness_function(trainer)
+        self.point_eval_count += len(self.training_data)
+        return predicted_fitness
+
+    def _make_initial_trainer_population(self, potential_trainers,
+                                         num_trainers):
+        trainers = []
+        true_fitness_for_trainers = []
+        for indv in potential_trainers:
+            true_fitness = self._get_true_fitness_for_trainer(indv)
+            if not np.isnan(true_fitness):
+                trainers.append(indv.copy())
+                true_fitness_for_trainers.append(true_fitness)
+            # TODO could implement a check to make sure no fitness predictors
+            #  are nan for candidate individual
+            if len(trainers) == num_trainers:
+                return trainers, true_fitness_for_trainers
+
+        raise RuntimeError("FitnessPredictorFitnessFunction could not be "
+                           "initialized. Not enough valid trainers.")
+
+    def _increment_next_trainer_to_update(self):
+        self._next_trainer_to_update += 1
+        if self._next_trainer_to_update >= len(self._trainers):
+            self._next_trainer_to_update -= len(self._trainers)
+
+
+class FitnessPredictorIndexGenerator:
+    """Generator of ints within a range
+
+    Parameters
+    ----------
+    data_size : int
+                maximum value of randomly generated int (non inclusive)
     """
+    def __init__(self, data_size):
+        self._max = data_size
 
-    def __init__(self, size, max_index):
-        self.size = size
-        self.max_index = max_index
-
-    def generate(self):
-        """generate random individual"""
-        indices = np.random.randint(0, self.max_index, self.size).tolist()
-        return FitnessPredictor(indices)
-
-    def crossover(self, parent1, parent2):
-        """single point crossover, returns 2 new individuals"""
-        cx_point = np.random.randint(1, self.size)
-        child1 = parent1.copy()
-        child2 = parent2.copy()
-        child1.indices[cx_point:] = parent2.indices[cx_point:]
-        child2.indices[cx_point:] = parent1.indices[cx_point:]
-        child1.fitness = None
-        child2.fitness = None
-        child1.fit_set = False
-        child2.fit_set = False
-        child_age = max(parent1.genetic_age, parent2.genetic_age)
-        child1.genetic_age = child_age
-        child2.genetic_age = child_age
-        return child1, child2
-
-    def mutation(self, indv):
-        """performs 1pt mutation, does not create copy of indv"""
-        mut_point = np.random.randint(self.size)
-        indv.indices[mut_point] = np.random.randint(self.max_index)
-        indv.fitness = None
-        indv.fit_set = False
-        return indv
-
-    @staticmethod
-    def distance(indv1, indv2):
-        """
-        Calculates the distance between indv1 and indv2.
-        """
-        ind2 = list(indv2.indices)
-        # remove matching values
-        for i in indv1.indices:
-            if i in ind2:
-                ind2.remove(i)
-
-        return len(ind2)
-
-    @staticmethod
-    def dump(indv):
-        """
-        dumps indv to picklable object
-        """
-        return indv.indices, indv.genetic_age
-
-    @staticmethod
-    def load(indv_list):
-        """
-        loads indv from picklable object
-        """
-        return FitnessPredictor(indv_list[0], indv_list[1])
-
-
-class FitnessPredictor(object):
-    """
-    class for fitness predictor, mainly just a list of indices
-    """
-    def __init__(self, indices=None, genetic_age=0):
-        if indices is None:
-            self.indices = []
-        else:
-            self.indices = indices
-        self.fitness = None
-        self.fit_set = False
-        self.genetic_age = genetic_age
-
-    def copy(self):
-        """duplicates a fitness predictor via deep copy"""
-        dup = FitnessPredictor(list(self.indices))
-        dup.fitness = self.fitness
-        dup.fit_set = self.fit_set
-        dup.genetic_age = self.genetic_age
-        return dup
-
-    def __str__(self):
-        return str(self.indices)
-
-    def fit_func(self, individual, fitness_metric, training_data):
-        """fitness function for standard regression type"""
-        try:
-            data_subset = training_data[self.indices]
-
-            err = fitness_metric.evaluate_fitness(individual, data_subset)
-
-        except (OverflowError, FloatingPointError, ValueError):
-            LOGGER.error("fit_func error")
-            err = np.nan
-
-        return err
+    def __call__(self):
+        return np.random.randint(self._max)

@@ -58,6 +58,10 @@ class Island:
         for indv in self.population:
             indv.genetic_age += 1
 
+    def evaluate_population(self):
+        """Manually trigger evaluation of population"""
+        self._ea.evaluation(self.population)
+
     def best_individual(self):
         """Finds the individual with the lowest fitness in a population
 
@@ -66,10 +70,7 @@ class Island:
         best : Chromosome
                The Chromosome with the lowest fitness value
         """
-        if self.generational_age < 1:
-            raise ValueError('ValueError: Must execute at least one '
-                             'generational step before finding the best '
-                             'individual')
+        self.evaluate_population()
         best = self.population[0]
         for indv in self.population:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():

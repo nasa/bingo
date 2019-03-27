@@ -37,9 +37,10 @@ def mutation_function():
     return np.random.choice([True, False])
 
 
-def test_no_best_individual_unless_evaluated(island):
-    with pytest.raises(ValueError):
-        island.best_individual()
+def test_manual_evaluation(island):
+    island.evaluate_population()
+    for indv in island.population:
+        assert indv.fit_set
 
 
 def test_generational_steps_change_population_age(island):

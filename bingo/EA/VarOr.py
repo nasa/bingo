@@ -46,9 +46,9 @@ class VarOr(Variation):
     def __init__(self, crossover, mutation, crossover_probability,
                  mutation_probability):
         super().__init__()
-        if (crossover_probability + mutation_probability) >= 1:
+        if (crossover_probability + mutation_probability) > 1:
             raise ValueError('The sum of crossover and mutation probabilities '
-                             'must be less than 1.0')
+                             'must be less than or equal to 1.0')
         self._crossover = crossover
         self._mutation = mutation
         self._crossover_probability = crossover_probability

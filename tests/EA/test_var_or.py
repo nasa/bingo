@@ -31,7 +31,7 @@ def test_invalid_probabilities():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(mutation_function)
     with pytest.raises(ValueError):
-        _ = VarOr(crossover, mutation, 0.6, 0.4)
+        _ = VarOr(crossover, mutation, 0.6, 0.41)
 
 
 def test_offspring_not_equals_parents(population, var_or):

@@ -20,16 +20,21 @@ class MultipleValueChromosome(Chromosome):
 
     Parameters
     ----------
-    list_of_values : list of either ints, floats, or bools
+    values : list of either ints, floats, or bools
         contains the chromosome's list of values
 
+    Attributes
+    ----------
+    values : list
+             the genetic information of the individual
+
     """
-    def __init__(self, list_of_values):
+    def __init__(self, values):
         super().__init__()
-        self.list_of_values = list_of_values
+        self.values = values
 
     def __str__(self):
-        return str(self.list_of_values)
+        return str(self.values)
 
     def distance(self, chromosome):
         """Computes the distance (a measure of similarity) between
@@ -44,10 +49,11 @@ class MultipleValueChromosome(Chromosome):
         dist : float
             The distance between self and another chromosome
         """
-        dist = np.sum(self.list_of_values != chromosome.list_of_values)
+        dist = np.sum(self.values != chromosome.values)
         return dist
 
-class MultipleValueGenerator(Generator):
+
+class MultipleValueChromosomeGenerator(Generator):
     """Generation of a population of Multi-Value Chromosomes
 
         Parameters
@@ -80,6 +86,7 @@ class MultipleValueGenerator(Generator):
 
     def _generate_list(self, number_of_values):
         return [self._random_value_function() for i in range(number_of_values)]
+
 
 class SinglePointMutation(Mutation):
     """Mutation for multiple valued chromosomes
@@ -115,9 +122,10 @@ class SinglePointMutation(Mutation):
         """
         child = parent.copy()
         child.fit_set = False
-        mutation_point = np.random.randint(len(parent.list_of_values))
+        mutation_point = np.random.randint(len(parent.values))
         child.list_of_values[mutation_point] = self._mutation_function()
         return child
+
 
 class SinglePointCrossover(Crossover):
     """Crossover for multiple valued chromosomes
@@ -149,9 +157,11 @@ class SinglePointCrossover(Crossover):
         child_2 = parent_2.copy()
         child_1.fit_set = False
         child_2.fit_set = False
-        self._crossover_point = np.random.randint(len(parent_1.list_of_values))
-        child_1.list_of_values = parent_1.list_of_values[:self._crossover_point] + parent_2.list_of_values[self._crossover_point:]
-        child_2.list_of_values = parent_2.list_of_values[:self._crossover_point] + parent_1.list_of_values[self._crossover_point:]
+        self._crossover_point = np.random.randint(len(parent_1.values))
+        child_1.list_of_values = parent_1.values[:self._crossover_point] \
+                                 + parent_2.values[self._crossover_point:]
+        child_2.list_of_values = parent_2.values[:self._crossover_point] \
+                                 + parent_1.values[self._crossover_point:]
         if parent_1.genetic_age > parent_2.genetic_age:
             age = parent_1.genetic_age
         else:

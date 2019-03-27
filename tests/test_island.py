@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 
 from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, \
-                                 MultipleValueGenerator
+                                 MultipleValueChromosomeGenerator
 from bingo.Island import Island
 from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
@@ -29,7 +29,7 @@ def island():
     evaluator = Evaluation(fitness)
     ev_alg = MuPlusLambda(evaluator, selection, crossover, mutation,
                           0.2, 0.4, 20)
-    generator = MultipleValueGenerator(mutation_function, 10)
+    generator = MultipleValueChromosomeGenerator(mutation_function, 10)
     return Island(ev_alg, generator, 25)
 
 

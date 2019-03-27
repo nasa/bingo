@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 
 from bingo.MultipleValues import MultipleValueChromosome, \
-                                 MultipleValueGenerator, SinglePointCrossover,\
+                                 MultipleValueChromosomeGenerator, SinglePointCrossover,\
                                  SinglePointMutation
 
 
@@ -36,34 +36,34 @@ def sample_bool_list_chromosome():
 
 @pytest.fixture
 def population():
-    generator = MultipleValueGenerator(mutation_onemax_specific, 10)
+    generator = MultipleValueChromosomeGenerator(mutation_onemax_specific, 10)
     return [generator() for _ in range(25)]
 
 
 def test_length_of_list(sample_float_list_chromosome):
-    assert len(sample_float_list_chromosome.list_of_values) == 10
+    assert len(sample_float_list_chromosome.values) == 10
 
 
 def test_float_values_in_list(sample_float_list_chromosome):
     for i in range(10):
-        assert isinstance(sample_float_list_chromosome.list_of_values[i],
+        assert isinstance(sample_float_list_chromosome.values[i],
                           float)
 
 
 def test_int_values_in_list(sample_int_list_chromosome):
     for i in range(10):
-        assert isinstance(sample_int_list_chromosome.list_of_values[i],
+        assert isinstance(sample_int_list_chromosome.values[i],
                           (int, np.integer))
 
 
 def test_bool_values_in_list(sample_bool_list_chromosome):
     for i in range(10):
-        assert sample_bool_list_chromosome.list_of_values[i] or \
-               not sample_bool_list_chromosome.list_of_values[i]
+        assert sample_bool_list_chromosome.values[i] or \
+               not sample_bool_list_chromosome.values[i]
 
 
 def test_generator():
-    generator = MultipleValueGenerator(mutation_onemax_specific, 10)
+    generator = MultipleValueChromosomeGenerator(mutation_onemax_specific, 10)
     pop = [generator() for i in range(20)]
     assert len(pop) == 20
     assert len(pop[0].list_of_values) == 10
@@ -92,8 +92,8 @@ def test_mutation_is_single_point():
         [np.random.choice([True, False]) for _ in range(10)])
     child = mutator(parent)
     discrepancies = 0
-    for i in range(len(parent.list_of_values)):
-        if child.list_of_values[i] != parent.list_of_values[i]:
+    for i in range(len(parent.values)):
+        if child.values[i] != parent.values[i]:
             discrepancies += 1
 
     assert discrepancies <= 1
@@ -133,8 +133,8 @@ def test_genetic_age_is_oldest_parent():
 
 def test_distance(sample_bool_list_chromosome):
     chromosome = sample_bool_list_chromosome.copy()
-    for i, indv in enumerate(sample_bool_list_chromosome.list_of_values):
+    for i, indv in enumerate(sample_bool_list_chromosome.values):
         assert indv == chromosome.list_of_values[i]
     chromosome.list_of_values[0] = \
-        (not sample_bool_list_chromosome.list_of_values[0])
+        (not sample_bool_list_chromosome.values[0])
     assert sample_bool_list_chromosome.distance(chromosome) == 1

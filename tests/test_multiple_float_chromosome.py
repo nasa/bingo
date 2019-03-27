@@ -61,7 +61,7 @@ def test_get_local_optimization_params(opt_individual):
 def test_set_local_optimization_params(opt_individual):
     params = [0 for _ in range(OPT_INDEX_START, OPT_INDEX_STOP+1)]
     opt_individual.set_local_optimization_params(params)
-    new_values = opt_individual.list_of_values[OPT_INDEX_START:OPT_INDEX_STOP+1]
+    new_values = opt_individual.values[OPT_INDEX_START:OPT_INDEX_STOP + 1]
     assert new_values == params
 
 def test_generate_individual_with_opt_list():

@@ -6,7 +6,7 @@ from pytest_mock import mocker
 import numpy as np
 
 from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, \
-                                 MultipleValueGenerator
+                                 MultipleValueChromosomeGenerator
 from bingo.FitnessPredictorIsland import FitnessPredictorIsland as FPI
 from bingo import FitnessPredictorIsland
 from bingo.EA.MuPlusLambda import MuPlusLambda
@@ -43,7 +43,7 @@ def ev_alg():
 
 @pytest.fixture
 def generator():
-    return MultipleValueGenerator(np.random.random, 10)
+    return MultipleValueChromosomeGenerator(np.random.random, 10)
 
 
 @pytest.fixture

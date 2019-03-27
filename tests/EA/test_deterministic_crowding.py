@@ -6,7 +6,7 @@ import numpy as np
 
 from bingo.EA.DeterministicCrowding import DeterministicCrowdingEA
 from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation, \
-                                 MultipleValueGenerator
+                                 MultipleValueChromosomeGenerator
 
 
 @pytest.fixture
@@ -19,12 +19,12 @@ def dc_ea(onemax_evaluator):
 
 @pytest.fixture
 def unfit_generator():
-    return MultipleValueGenerator(return_false, 10)
+    return MultipleValueChromosomeGenerator(return_false, 10)
 
 
 @pytest.fixture
 def fit_generator():
-    return MultipleValueGenerator(return_true, 10)
+    return MultipleValueChromosomeGenerator(return_true, 10)
 
 
 @pytest.fixture

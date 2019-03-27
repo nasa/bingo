@@ -23,12 +23,12 @@ class Tournament(Selection):
 
     Parameters
     ----------
-    size : int
-           The size of the tournaments
+    tournament_size : int
+                      The size of the tournaments
     """
-    @argument_validation(size={">=": 1})
-    def __init__(self, size):
-        self._size = size
+    @argument_validation(tournament_size={">=": 1})
+    def __init__(self, tournament_size):
+        self._size = tournament_size
 
     def __call__(self, population, target_population_size):
         """Performs Tournament selection on individuals.

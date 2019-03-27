@@ -4,14 +4,14 @@
 import pytest
 import numpy as np
 
-from bingo.MultipleValues import MultipleValueGenerator, SinglePointCrossover, \
+from bingo.MultipleValues import MultipleValueChromosomeGenerator, SinglePointCrossover, \
                                  SinglePointMutation
 from bingo.EA.VarOr import VarOr
 
 
 @pytest.fixture
 def population():
-    generator = MultipleValueGenerator(mutation_function, 10)
+    generator = MultipleValueChromosomeGenerator(mutation_function, 10)
     return [generator() for _ in range(25)]
 
 

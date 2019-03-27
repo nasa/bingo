@@ -8,30 +8,33 @@ from bingo.EA.MuPlusLambda import MuPlusLambda
 from bingo.EA.TournamentSelection import Tournament
 from bingo.Base.Evaluation import Evaluation
 from bingo.Island import Island
-from bingo.MultipleValues import MultipleValueGenerator, \
+from bingo.MultipleValues import MultipleValueChromosomeGenerator, \
                                  SinglePointCrossover, \
                                  SinglePointMutation
 
 
-class MultipleValueFitnessFunction(FitnessFunction):
+class OneMaxFitnessFunction(FitnessFunction):
     def __call__(self, individual):
-        fitness = np.count_nonzero(individual.list_of_values)
         self.eval_count += 1
-        return len(individual.list_of_values) - fitness
+        return individual.list_of_values.count(0)
 
 
-def mutation_onemax_specific():
-    return np.random.choice([True, False])
+def generate_0_or_1():
+    return np.random.choice([0, 1])
 
 
 def execute_generational_steps():
     crossover = SinglePointCrossover()
-    mutation = SinglePointMutation(mutation_onemax_specific)
-    selection = Tournament(10)
-    fitness = MultipleValueFitnessFunction()
+    mutation = SinglePointMutation(generate_0_or_1)
+    selection = Tournament(tournament_size=10)
+    fitness = OneMaxFitnessFunction()
     evaluator = Evaluation(fitness)
-    ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
-    generator = MultipleValueGenerator(mutation_onemax_specific, 10)
+    ea = MuPlusLambda(evaluator, selection, crossover, mutation,
+                      crossover_probability=.4,
+                      mutation_probability=.4,
+                      number_offspring=20)
+    generator = MultipleValueChromosomeGenerator(generate_0_or_1,
+                                                 values_per_chromosome=10)
     island = Island(ea, generator, 25)
     for i in range(10):
         island.execute_generational_step()

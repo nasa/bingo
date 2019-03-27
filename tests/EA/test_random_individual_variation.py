@@ -3,7 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.MultipleValues import MultipleValueGenerator
+from bingo.MultipleValues import MultipleValueChromosomeGenerator
 from bingo.Base.Variation import Variation
 from bingo.EA.AddRandomIndividualVariation import AddRandomIndividualVariation
 
@@ -31,21 +31,21 @@ def true_multiple_variation_function():
 
 @pytest.fixture
 def weak_population():
-    generator = MultipleValueGenerator(false_variation_function,
-                                       SIMPLE_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(false_variation_function,
+                                                 SIMPLE_INDV_SIZE)
     return [generator() for i in range(25)]
 
 
 @pytest.fixture
 def weaker_population():
-    generator = MultipleValueGenerator(false_variation_function,
-                                       COMPLEX_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(false_variation_function,
+                                                 COMPLEX_INDV_SIZE)
     return [generator() for i in range(25)]
 
 
 @pytest.fixture
 def true_chromosome_generator():
-    return MultipleValueGenerator(true_variation_function, SIMPLE_INDV_SIZE)
+    return MultipleValueChromosomeGenerator(true_variation_function, SIMPLE_INDV_SIZE)
 
 
 @pytest.fixture
@@ -71,8 +71,8 @@ def test_random_individual_added_to_pop(init_replication_variation,
 def test_multiple_indviduals_added_to_pop(init_replication_variation,
                                           weaker_population):
     indvs_added = 2
-    generator = MultipleValueGenerator(true_multiple_variation_function,
-                                       COMPLEX_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(true_multiple_variation_function,
+                                                 COMPLEX_INDV_SIZE)
     rand_indv_var_or = AddRandomIndividualVariation(init_replication_variation,
                                                     generator,
                                                     num_rand_indvs=indvs_added)

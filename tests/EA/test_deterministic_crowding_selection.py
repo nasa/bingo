@@ -6,7 +6,7 @@ import numpy as np
 
 from bingo.EA.DeterministicCrowdingSelection import \
     DeterministicCrowdingSelection
-from bingo.MultipleValues import MultipleValueGenerator
+from bingo.MultipleValues import MultipleValueChromosomeGenerator
 
 
 @pytest.fixture
@@ -16,12 +16,12 @@ def selection():
 
 @pytest.fixture
 def unfit_generator():
-    return MultipleValueGenerator(return_false, 10)
+    return MultipleValueChromosomeGenerator(return_false, 10)
 
 
 @pytest.fixture
 def mixed_fit_generator():
-    return MultipleValueGenerator(mutation_function, 10)
+    return MultipleValueChromosomeGenerator(mutation_function, 10)
 
 
 @pytest.fixture

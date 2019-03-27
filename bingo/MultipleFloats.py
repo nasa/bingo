@@ -5,7 +5,7 @@ that contains a list of floats for their genetic information.
 """
 from .Base.ContinuousLocalOptimization import ChromosomeInterface
 from .Util.ArgumentValidation import argument_validation
-from .MultipleValues import MultipleValueChromosome, MultipleValueGenerator
+from .MultipleValues import MultipleValueChromosome, MultipleValueChromosomeGenerator
 
 class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
     """Multiple float-value individual
@@ -19,8 +19,8 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
         `Chromosome` object that are subject local optimization.
         This list may be empty
     """
-    def __init__(self, list_of_values, needs_opt_list=[]):
-        super().__init__(list_of_values)
+    def __init__(self, values, needs_opt_list=[]):
+        super().__init__(values)
         self._needs_opt_list = needs_opt_list
 
     def needs_local_optimization(self):
@@ -54,10 +54,10 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
                  Values to set the parameters
         """
         for param, index in zip(params, self._needs_opt_list):
-            self.list_of_values[index] = param
+            self.values[index] = param
 
 
-class MultipleFloatChromosomeGenerator(MultipleValueGenerator):
+class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):
     """Generation of a population of Multi-Value Chromosomes
 
     Parameters

@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.MultipleValues import MultipleValueGenerator, \
+from bingo.MultipleValues import MultipleValueChromosomeGenerator, \
                                  MultipleValueChromosome
 from bingo.Base.Mutation import Mutation
 from bingo.Base.Crossover import Crossover
@@ -37,20 +37,20 @@ def return_false():
 
 @pytest.fixture
 def fit_individual():
-    generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(return_true, SIMPLE_INDV_SIZE)
     indv = generator()
     return indv
 
 
 @pytest.fixture
 def strong_population():
-    generator = MultipleValueGenerator(return_true, SIMPLE_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(return_true, SIMPLE_INDV_SIZE)
     return [generator() for _ in range(INITIAL_POP_SIZE)]
 
 
 @pytest.fixture
 def weak_individual():
-    generator = MultipleValueGenerator(return_false, SIMPLE_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(return_false, SIMPLE_INDV_SIZE)
     indv = generator()
     indv.genetic_age = 100
     return indv
@@ -58,7 +58,7 @@ def weak_individual():
 
 @pytest.fixture
 def weak_population():
-    generator = MultipleValueGenerator(return_false, 2*SIMPLE_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(return_false, 2 * SIMPLE_INDV_SIZE)
     return [generator() for _ in range(INITIAL_POP_SIZE)]
 
 
@@ -93,7 +93,7 @@ def pareto_front_population():
 
 @pytest.fixture
 def selected_indiviudals(pareto_front_population):
-    list_size = len(pareto_front_population[0].list_of_values)
+    list_size = len(pareto_front_population[0].values)
     list_one = [False]*int(list_size/2)+[True]*int((list_size+1)/2)
     list_two = [False]*int((list_size+1)/2)+[True]*int(list_size/2)
 
@@ -201,9 +201,9 @@ def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
     selected_indvs_removed = True
     for indv in new_population:
         if (indv.genetic_age == selected_indv_one and
-                indv.list_of_values == selected_indv_one.list_of_values) or \
+                indv.list_of_values == selected_indv_one.values) or \
                (indv.genetic_age == selected_indv_two and
-                indv.list_of_values == selected_indv_two.list_of_values):
+                indv.list_of_values == selected_indv_two.values):
             selected_indvs_removed = False
             break
     assert selected_indvs_removed
@@ -214,7 +214,7 @@ def test_age_fitness_ea_step(pareto_front_population, onemax_evaluator,
     population = pareto_front_population + selected_indiviudals
     mutation = DumbyMutation()
     crossover = DumbyCrossover()
-    generator = MultipleValueGenerator(return_false, COMPLEX_INDV_SIZE)
+    generator = MultipleValueChromosomeGenerator(return_false, COMPLEX_INDV_SIZE)
     evo_alg = AgeFitnessEA(onemax_evaluator, generator, crossover, mutation,
                            0, 0, len(pareto_front_population),
                            selection_size=2*len(population))

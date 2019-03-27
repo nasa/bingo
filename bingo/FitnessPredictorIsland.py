@@ -21,7 +21,7 @@ from .Util.ArgumentValidation import argument_validation
 from .Base.Evaluation import Evaluation
 from .EA.DeterministicCrowding import DeterministicCrowdingEA
 from .Island import Island
-from .MultipleValues import MultipleValueGenerator, SinglePointCrossover, \
+from .MultipleValues import MultipleValueChromosomeGenerator, SinglePointCrossover, \
                             SinglePointMutation
 from .FitnessPredictor import FitnessPredictorFitnessFunction, \
                               FitnessPredictorIndexGenerator
@@ -137,8 +137,8 @@ class FitnessPredictorIsland(Island):
     def _make_predictor_island(self):
         index_generator = FitnessPredictorIndexGenerator(self._full_data_size)
         predictor_ea = self._make_predictor_ea(index_generator)
-        generator = MultipleValueGenerator(index_generator,
-                                           self._predictor_size)
+        generator = MultipleValueChromosomeGenerator(index_generator,
+                                                     self._predictor_size)
         predictor_island = Island(predictor_ea, generator,
                                   self._predictor_population_size)
         predictor_island.execute_generational_step()

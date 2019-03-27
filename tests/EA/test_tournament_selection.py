@@ -53,3 +53,9 @@ def test_tournament_returns_correct_size_population(tournament_of_4,
 def test_raises_error_invalid_tournament_size(tourn_size, expected_error):
     with pytest.raises(expected_error):
         _ = Tournament(tourn_size)
+
+
+def test_no_repeats_in_selected_population(tournament_of_4, population_with_0):
+    new_population = tournament_of_4(population_with_0, 4)
+    for i, indv in enumerate(new_population[:-1]):
+        assert indv not in new_population[i+1:]

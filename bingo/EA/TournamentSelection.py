@@ -50,6 +50,6 @@ class Tournament(Selection):
             tournament_members = np.random.choice(population, self._size,
                                                   replace=False)
             winner = min(tournament_members, key=attrgetter('fitness'))
-            next_generation.append(winner)
+            next_generation.append(winner.copy())
 
         return next_generation

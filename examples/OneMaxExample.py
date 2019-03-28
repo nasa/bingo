@@ -1,3 +1,6 @@
+"""
+An example of bingo genetic optimization used to solve the one max problem.
+"""
 import numpy as np
 from bingo.EA.VarOr import VarOr
 from bingo.Base.FitnessFunction import FitnessFunction
@@ -9,6 +12,46 @@ from bingo.MultipleValues import MultipleValueChromosomeGenerator, \
                                  SinglePointCrossover, \
                                  SinglePointMutation
 
+np.random.seed(0)  # used for reproducibility
+
+
+def run_one_max_problem():
+    generator = create_chromosome_generator()
+    ev_alg = create_evolutionary_algorithm()
+
+    island = Island(ev_alg, generator, population_size=10)
+    display_best_individual(island)
+
+    for _ in range(50):
+        island.execute_generational_step()
+
+    display_best_individual()
+
+
+def create_chromosome_generator():
+    return MultipleValueChromosomeGenerator(generate_0_or_1,
+                                            values_per_chromosome=16)
+
+
+def generate_0_or_1():
+    """A function used in generation of values in individuals"""
+    return np.random.choice([0, 1])
+
+
+def create_evolutionary_algorithm():
+    crossover = SinglePointCrossover()
+    mutation = SinglePointMutation(generate_0_or_1)
+    variation_phase = VarOr(crossover, mutation, crossover_probability=0.4,
+                            mutation_probability=0.4)
+
+    fitness = OneMaxFitnessFunction()
+    evaluation_phase = Evaluation(fitness)
+
+    selection_phase = Tournament(tournament_size=2)
+
+    return EvolutionaryAlgorithm(variation_phase, evaluation_phase,
+                                 selection_phase)
+
 
 class OneMaxFitnessFunction(FitnessFunction):
     """Callable class to calculate fitness"""
@@ -18,48 +61,11 @@ class OneMaxFitnessFunction(FitnessFunction):
         return individual.values.count(0)
 
 
-def generate_0_or_1():
-    """A function used in generation of values in individuals"""
-    return np.random.choice([0, 1])
+def display_best_individual(island):
+    best_individual = island.best_individual()
+    print("Best individual: ", best_individual)
+    print("Best individual's fitness: ", best_individual.fitness)
 
 
-# Define an object used in generating chromosomes in the population
-generator = MultipleValueChromosomeGenerator(generate_0_or_1,
-                                             values_per_chromosome=10)
-
-# Evolutionary Algorithms in bingo have 3 phases
-# Variation phase: often a utilizes mutation and crossover
-crossover = SinglePointCrossover()
-mutation = SinglePointMutation(generate_0_or_1)
-variation_phase = VarOr(crossover, mutation,
-                        crossover_probability=0.4,
-                        mutation_probability=0.4)
-
-# Evaluation phase: defines fitness
-fitness = OneMaxFitnessFunction()
-evaluation_phase = Evaluation(fitness)
-
-# Selection phase: how to select survivors into next generation
-selection_phase = Tournament(tournament_size=10)
-
-ev_alg = EvolutionaryAlgorithm(variation_phase,
-                               evaluation_phase,
-                               selection_phase)
-
-
-# An Island is the fundamental unit of genetic algorithms in bingo. It is
-# responsible for generating and evolving a population using a chromosome
-# generator and evolutionary algorithm
-island = Island(ev_alg, generator, population_size=25)
-best_individual = island.best_individual()
-print("Best individual at start: ", best_individual)
-print("Best individual's fitness: ", best_individual.fitness)
-
-# Evolve the population for 10 generations
-for _ in range(10):
-    island.execute_generational_step()
-
-# Show the new best individual
-best_individual = island.best_individual()
-print("Best individual at end: ", best_individual)
-print("Best individual's fitness: ", best_individual.fitness)
+if __name__ == "__main__":
+    run_one_max_problem()

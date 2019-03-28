@@ -76,10 +76,116 @@ pytest tests
 ```
 from the root directory of the repository.
 
-## Usage Example
-In addition to the example shown here, the best place to get started in bingo 
-is by going through the examples directory, which contains several scripts and 
+## Usage Examples
+In addition to the example sshown here, the best place to get started in bingo 
+is by going through the [examples directory](examples/)5. It contains several scripts and 
 jupyter notebooks.
+
+### A simple evolutionary analysis with bingo: the one max problem
+This example walks through the general steps needed to set up and run a bingo 
+analysis.  The example problem described here is the one max problem. In the 
+one max problem individuals in a population are defined by a chromosome with a 
+list of 0 or 1 values, e.g., `[0, 1, 1, 0, 1]`.  The goal of the optimization 
+is to evolve toward an optimum list containing all 1's.  A complete version of 
+this example is script is found [here](examples/OneMaxExample.py).
+
+#### Defining a chromosome generator
+Bingo's built-in `MultipleValueChromosome` is used here.  Individuals of this 
+contain their genetic information in a list attribute named `values`.  A 
+chromosome generator is used to generate members of the population.  The 
+`MultipleValueChromosomeGenerator` generates these individuals by populating 
+the indivudual's `values` from a given input function.
+```python 
+import numpy as np
+from bingo.MultipleValues import MultipleValueChromosomeGenerator
+np.random.seed(0)  # seeded for reproducible results
+
+def generate_0_or_1():
+    return np.random.choice([0, 1])
+
+generator = MultipleValueChromosomeGenerator(generate_0_or_1,
+                                             values_per_chromosome=16) 
+``` 
+
+#### Defining the evolutionary algorithm
+Evolutionary algorithms have 3 phases in bingo: variation, evaluation and 
+selection.  The variation phase is responsible for generating offspring of the 
+population, usually through some combination of mutation and crossover.  In 
+this example `VarOr` is used which creates offspring through either mutation or 
+crossover (never both).
+```python
+from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation
+from bingo.EA.VarOr import VarOr
+
+crossover = SinglePointCrossover()
+mutation = SinglePointMutation(generate_0_or_1)
+variation_phase = VarOr(crossover, mutation,
+                        crossover_probability=0.4,
+                        mutation_probability=0.4)
+```
+The evaluation phase is responsible for evaluating the fitness of new members 
+of a population.  It relies on the definition of a `FitnessFunction` class.  
+The goal of bingo analyses is to *minimize* fitness, so fitness functions 
+should be constructed accordingly.  In the one max problem fitness is defined 
+as the number of 0's in the individuals `values`.
+```python
+from bingo.Base.FitnessFunction import FitnessFunction
+from bingo.Base.Evaluation import Evaluation
+
+class OneMaxFitnessFunction(FitnessFunction):
+    """Callable class to calculate fitness"""
+    def __call__(self, individual):
+        return individual.values.count(0)
+
+fitness = OneMaxFitnessFunction()
+evaluation_phase = Evaluation(fitness)
+```
+The selection phase is responsible for choosing which members of the population 
+proceed to the next generation.  An implementation of the common tournament 
+selection algorithm is used here.
+```python
+from bingo.EA.TournamentSelection import Tournament
+
+selection_phase = Tournament(tournament_size=2)
+```
+Based on these phases, an `EvolutionaryAlgorithm` can be made.
+```python
+from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
+
+ev_alg = EvolutionaryAlgorithm(variation_phase, evaluation_phase, 
+                               selection_phase)
+```
+
+#### Creating an island and running the analysis
+An `Island` is the fundamental unit in bingo evolutionary analyses.  It is 
+responsible for generating and evolving a population (using a generator and 
+evolutionary algorithm).
+```python
+from bingo.Island import Island
+
+island = Island(ev_alg, generator, population_size=10)
+best_individual = island.best_individual()
+print("Best individual at start: ", best_individual)
+print("Best individual's fitness: ", best_individual.fitness)
+```
+```bash
+>> Best individual at start:  [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1]
+>> Best individual's fitness:  5
+```
+The island can be evolved directly using it's `execute_generational_step` 
+member function.  In this case the population is evolved for 50 generations
+```python
+for _ in range(50):
+    island.execute_generational_step()
+
+best_individual = island.best_individual()
+print("Best individual at end: ", best_individual)
+print("Best individual's fitness: ", best_individual.fitness)
+```
+```shell
+>> Best individual at end:  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+>> Best individual's fitness:  0
+```
 
 ## Contributing
 1. Fork it (<https://github.com/nasa/bingo/fork>)

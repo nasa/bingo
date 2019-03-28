@@ -25,7 +25,7 @@ def run_one_max_problem():
     for _ in range(50):
         island.execute_generational_step()
 
-    display_best_individual()
+    display_best_individual(island)
 
 
 def create_chromosome_generator():

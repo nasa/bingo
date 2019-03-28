@@ -109,7 +109,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
                 predicted fitness
         """
         subset_training_data = \
-            self.training_data[individual.list_of_values]
+            self.training_data[individual.values]
         self._fitness_function.training_data = subset_training_data
         predicted_fitness = self._fitness_function(trainer)
         self.point_eval_count += len(subset_training_data)

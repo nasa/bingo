@@ -15,12 +15,12 @@ NUM_OPT = 3
 class MultipleFloatValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         print(individual)
-        return np.linalg.norm(individual.list_of_values)
+        return np.linalg.norm(individual.values)
 
 
 class FloatVectorFitnessFunction(VectorBasedFunction):
     def _evaluate_fitness_vector(self, individual):
-        vals = individual.list_of_values
+        vals = individual.values
         return [x - 0 for x in vals]
 
 

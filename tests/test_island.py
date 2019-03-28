@@ -15,9 +15,9 @@ from bingo.Base.FitnessFunction import FitnessFunction
 
 class MultipleValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
-        fitness = np.count_nonzero(individual.list_of_values)
+        fitness = np.count_nonzero(individual.values)
         self.eval_count += 1
-        return len(individual.list_of_values) - fitness
+        return len(individual.values) - fitness
 
 
 @pytest.fixture

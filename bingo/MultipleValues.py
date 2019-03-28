@@ -123,7 +123,7 @@ class SinglePointMutation(Mutation):
         child = parent.copy()
         child.fit_set = False
         mutation_point = np.random.randint(len(parent.values))
-        child.list_of_values[mutation_point] = self._mutation_function()
+        child.values[mutation_point] = self._mutation_function()
         return child
 
 
@@ -158,10 +158,10 @@ class SinglePointCrossover(Crossover):
         child_1.fit_set = False
         child_2.fit_set = False
         self._crossover_point = np.random.randint(len(parent_1.values))
-        child_1.list_of_values = parent_1.values[:self._crossover_point] \
-                                 + parent_2.values[self._crossover_point:]
-        child_2.list_of_values = parent_2.values[:self._crossover_point] \
-                                 + parent_1.values[self._crossover_point:]
+        child_1.values = parent_1.values[:self._crossover_point] \
+                         + parent_2.values[self._crossover_point:]
+        child_2.values = parent_2.values[:self._crossover_point] \
+                         + parent_1.values[self._crossover_point:]
         if parent_1.genetic_age > parent_2.genetic_age:
             age = parent_1.genetic_age
         else:

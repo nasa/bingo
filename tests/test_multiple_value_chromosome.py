@@ -66,24 +66,24 @@ def test_generator():
     generator = MultipleValueChromosomeGenerator(mutation_onemax_specific, 10)
     pop = [generator() for i in range(20)]
     assert len(pop) == 20
-    assert len(pop[0].list_of_values) == 10
+    assert len(pop[0].values) == 10
 
 
 def test_crossover(population):
     crossover = SinglePointCrossover()
     child_1, child_2 = crossover(population[0], population[1])
     cross_pt = crossover._crossover_point
-    assert child_1.list_of_values[:cross_pt] == \
-        population[0].list_of_values[:cross_pt]
+    assert child_1.values[:cross_pt] == \
+        population[0].values[:cross_pt]
 
-    assert child_2.list_of_values[:cross_pt] == \
-        population[1].list_of_values[:cross_pt]
+    assert child_2.values[:cross_pt] == \
+        population[1].values[:cross_pt]
 
-    assert child_1.list_of_values[cross_pt:] == \
-        population[1].list_of_values[cross_pt:]
+    assert child_1.values[cross_pt:] == \
+        population[1].values[cross_pt:]
 
-    assert child_2.list_of_values[cross_pt:] == \
-        population[0].list_of_values[cross_pt:]
+    assert child_2.values[cross_pt:] == \
+        population[0].values[cross_pt:]
 
 
 def test_mutation_is_single_point():
@@ -134,7 +134,7 @@ def test_genetic_age_is_oldest_parent():
 def test_distance(sample_bool_list_chromosome):
     chromosome = sample_bool_list_chromosome.copy()
     for i, indv in enumerate(sample_bool_list_chromosome.values):
-        assert indv == chromosome.list_of_values[i]
-    chromosome.list_of_values[0] = \
+        assert indv == chromosome.values[i]
+    chromosome.values[0] = \
         (not sample_bool_list_chromosome.values[0])
     assert sample_bool_list_chromosome.distance(chromosome) == 1

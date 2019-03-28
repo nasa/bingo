@@ -177,7 +177,7 @@ class FitnessPredictorIsland(Island):
     def _update_to_use_best_fitness_predictor(self):
         best_predictor = self._predictor_island.best_individual()
         best_subset_data = \
-            self._full_training_data[best_predictor.list_of_values]
+            self._full_training_data[best_predictor.values]
         self._fitness_function.training_data = best_subset_data
 
     def _add_new_trainer(self):

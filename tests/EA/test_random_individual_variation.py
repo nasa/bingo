@@ -45,7 +45,8 @@ def weaker_population():
 
 @pytest.fixture
 def true_chromosome_generator():
-    return MultipleValueChromosomeGenerator(true_variation_function, SIMPLE_INDV_SIZE)
+    return MultipleValueChromosomeGenerator(true_variation_function,
+                                            SIMPLE_INDV_SIZE)
 
 
 @pytest.fixture
@@ -63,7 +64,7 @@ def test_random_individual_added_to_pop(init_replication_variation,
     offspring = rand_indv_var_or(weak_population, POP_SIZE)
     count = 0
     for indv in offspring:
-        if True in indv.list_of_values:
+        if True in indv.values:
             count += 1
     assert count == indvs_added
 
@@ -79,6 +80,6 @@ def test_multiple_indviduals_added_to_pop(init_replication_variation,
     offspring = rand_indv_var_or(weaker_population, POP_SIZE)
     count = 0
     for indv in offspring:
-        if all(indv.list_of_values):
+        if all(indv.values):
             count += 1
     assert count == indvs_added

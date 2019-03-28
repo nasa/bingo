@@ -77,11 +77,9 @@ pytest tests
 from the root directory of the repository.
 
 ## Usage Example
-Currently, the best place to get started in bingo is by going through some 
-examples.  The examples directory contains several python scripts and jupyter 
-notebook examples of varying complexity.  The simplegp examples illustrate the 
-very basics of symbolic regression in bingo, utilizing a simplified interface.  
-More complex (and more efficient) examples can be found as well.
+In addition to the example shown here, the best place to get started in bingo 
+is by going through the examples directory, which contains several scripts and 
+jupyter notebooks.
 
 ## Contributing
 1. Fork it (<https://github.com/nasa/bingo/fork>)

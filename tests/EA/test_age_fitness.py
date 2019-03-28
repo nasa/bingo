@@ -143,7 +143,7 @@ def test_all_but_one_removed_large_selection_size(strong_population,
     new_population = age_fitness_selection(population, target_pop_size)
 
     assert len(new_population) == target_pop_size
-    assert new_population[0].list_of_values == [True]
+    assert new_population[0].values == [True]
     assert age_fitness_selection._selection_attempts == 2
 
 
@@ -159,7 +159,7 @@ def test_all_removed_in_one_iteration(weak_individual,
     new_population = age_fitness_selection(population, target_pop_size)
 
     assert len(new_population) == target_pop_size
-    assert new_population[0].list_of_values == [True]
+    assert new_population[0].values == [True]
     assert age_fitness_selection._selection_attempts == 1
 
 
@@ -177,9 +177,9 @@ def test_selection_size_larger_than_population(weak_population, fit_individual,
     assert age_fitness_selection._selection_attempts == 1
     count = 1
     for indv in new_population:
-        if not any(indv.list_of_values):
+        if not any(indv.values):
             count *= 2
-        elif all(indv.list_of_values):
+        elif all(indv.values):
             count *= 3
 
     assert count == 6
@@ -201,9 +201,9 @@ def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
     selected_indvs_removed = True
     for indv in new_population:
         if (indv.genetic_age == selected_indv_one and
-                indv.list_of_values == selected_indv_one.values) or \
+                indv.values == selected_indv_one.values) or \
                (indv.genetic_age == selected_indv_two and
-                indv.list_of_values == selected_indv_two.values):
+                indv.values == selected_indv_two.values):
             selected_indvs_removed = False
             break
     assert selected_indvs_removed

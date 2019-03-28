@@ -26,7 +26,7 @@ class DistanceToAverage(FitnessFunction):
     def __call__(self, individual):
         self.eval_count += 1
         avg_data = np.mean(self.training_data)
-        return np.linalg.norm(individual.list_of_values - avg_data)
+        return np.linalg.norm(individual.values - avg_data)
 
 
 @pytest.fixture

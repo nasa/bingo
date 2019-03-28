@@ -1,12 +1,9 @@
-# Ignoring some linting rules in tests
-# pylint: disable=redefined-outer-name
-# pylint: disable=missing-docstring
 import numpy as np
-
+from bingo.EA.VarOr import VarOr
 from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.EA.MuPlusLambda import MuPlusLambda
-from bingo.EA.TournamentSelection import Tournament
 from bingo.Base.Evaluation import Evaluation
+from bingo.EA.TournamentSelection import Tournament
+from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
 from bingo.Island import Island
 from bingo.MultipleValues import MultipleValueChromosomeGenerator, \
                                  SinglePointCrossover, \
@@ -14,49 +11,55 @@ from bingo.MultipleValues import MultipleValueChromosomeGenerator, \
 
 
 class OneMaxFitnessFunction(FitnessFunction):
+    """Callable class to calculate fitness"""
     def __call__(self, individual):
+        """Fitness = number of 0 elements in the individual's values"""
         self.eval_count += 1
-        return individual.list_of_values.count(0)
+        return individual.values.count(0)
 
 
 def generate_0_or_1():
+    """A function used in generation of values in individuals"""
     return np.random.choice([0, 1])
 
 
-def execute_generational_steps():
-    crossover = SinglePointCrossover()
-    mutation = SinglePointMutation(generate_0_or_1)
-    selection = Tournament(tournament_size=10)
-    fitness = OneMaxFitnessFunction()
-    evaluator = Evaluation(fitness)
-    ea = MuPlusLambda(evaluator, selection, crossover, mutation,
-                      crossover_probability=.4,
-                      mutation_probability=.4,
-                      number_offspring=20)
-    generator = MultipleValueChromosomeGenerator(generate_0_or_1,
-                                                 values_per_chromosome=10)
-    island = Island(ea, generator, 25)
-    for i in range(10):
-        island.execute_generational_step()
-        print("\nGeneration #", i)
-        print("----------------------\n")
-        report_max_min_mean_fitness(island.population)
-        print("\npopulation: \n")
-        for indv in island.population:
-            print(indv.list_of_values)
+# Define an object used in generating chromosomes in the population
+generator = MultipleValueChromosomeGenerator(generate_0_or_1,
+                                             values_per_chromosome=10)
+
+# Evolutionary Algorithms in bingo have 3 phases
+# Variation phase: often a utilizes mutation and crossover
+crossover = SinglePointCrossover()
+mutation = SinglePointMutation(generate_0_or_1)
+variation_phase = VarOr(crossover, mutation,
+                        crossover_probability=0.4,
+                        mutation_probability=0.4)
+
+# Evaluation phase: defines fitness
+fitness = OneMaxFitnessFunction()
+evaluation_phase = Evaluation(fitness)
+
+# Selection phase: how to select survivors into next generation
+selection_phase = Tournament(tournament_size=10)
+
+ev_alg = EvolutionaryAlgorithm(variation_phase,
+                               evaluation_phase,
+                               selection_phase)
 
 
-def report_max_min_mean_fitness(population):
-    fitness = [indv.fitness for indv in population]
-    print(fitness)
-    print("Max fitness: \t", np.max(fitness))
-    print("Min fitness: \t", np.min(fitness))
-    print("Mean fitness: \t", np.mean(fitness))
+# An Island is the fundamental unit of genetic algorithms in bingo. It is
+# responsible for generating and evolving a population using a chromosome
+# generator and evolutionary algorithm
+island = Island(ev_alg, generator, population_size=25)
+best_individual = island.best_individual()
+print("Best individual at start: ", best_individual)
+print("Best individual's fitness: ", best_individual.fitness)
 
+# Evolve the population for 10 generations
+for _ in range(10):
+    island.execute_generational_step()
 
-def main():
-    execute_generational_steps()
-
-
-if __name__ == '__main__':
-    main()
+# Show the new best individual
+best_individual = island.best_individual()
+print("Best individual at end: ", best_individual)
+print("Best individual's fitness: ", best_individual.fitness)

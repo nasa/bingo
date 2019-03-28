@@ -11,7 +11,7 @@ from bingo.MultipleValues import MultipleValueChromosome
 
 class MinPlusMean(FitnessFunction):
     def __call__(self, individual):
-        return min(individual.list_of_values) + np.mean(self.training_data)
+        return min(individual.values) + np.mean(self.training_data)
 
 
 @pytest.fixture
@@ -65,7 +65,7 @@ def test_adding_trainers_to_predictor_fitness_function(
         trainer = MultipleValueChromosome([i])
         predictor_fitness_function.add_trainer(trainer)
         assert trainer not in predictor_fitness_function._trainers
-        assert np.any([[i] == trainer.list_of_values
+        assert np.any([[i] == trainer.values
                        for trainer in predictor_fitness_function._trainers])
 
 

@@ -168,7 +168,7 @@ best_individual = island.best_individual()
 print("Best individual at start: ", best_individual)
 print("Best individual's fitness: ", best_individual.fitness)
 ```
-```bash
+```
 >> Best individual at start:  [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1]
 >> Best individual's fitness:  5
 ```
@@ -182,7 +182,7 @@ best_individual = island.best_individual()
 print("Best individual at end: ", best_individual)
 print("Best individual's fitness: ", best_individual.fitness)
 ```
-```shell
+```
 >> Best individual at end:  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 >> Best individual's fitness:  0
 ```

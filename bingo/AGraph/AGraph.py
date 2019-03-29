@@ -286,7 +286,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as er:
             LOGGER.error("Error in stack evaluation/deriv")
             nan_array = np.tile(np.nan, (x.shape[0], x.shape[1]))
-            return nan_array, nan_array.deepcopy()
+            return nan_array, np.array(nan_array)
 
     def evaluate_equation_with_local_opt_gradient_at(self, x):
         """Evaluate Agraph and get its derivatives.
@@ -312,7 +312,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as er:
             LOGGER.error("Error in stack evaluation/const-deriv")
             nan_array = np.tile(np.nan, (x.shape[0], x.shape[1]))
-            return nan_array, nan_array.deepcopy()
+            return nan_array, np.array(nan_array)
 
     def __str__(self):
         """Stack output of Agraph equation.

@@ -16,7 +16,7 @@ from bingo.Base.Evaluation import Evaluation
 from bingo.Base.FitnessFunction import FitnessFunction
 from bingo.SerialArchipelago import SerialArchipelago
 
-POP_SIZE = 25
+POP_SIZE = 5
 SELECTION_SIZE = 10
 VALUE_LIST_SIZE = 10
 OFFSPRING_SIZE = 20
@@ -44,7 +44,7 @@ def evol_alg():
     fitness = MultipleValueFitnessFunction()
     evaluator = Evaluation(fitness)
     return MuPlusLambda(evaluator, selection, crossover, mutation,
-                          0.2, 0.4, OFFSPRING_SIZE)
+                        0.2, 0.4, OFFSPRING_SIZE)
 
 @pytest.fixture
 def zero_island(evol_alg):
@@ -81,7 +81,12 @@ def test_generational_step_executed(island):
 def test_island_migration(one_island, zero_island):
     archipelago = SerialArchipelago(one_island, num_islands=2)
     archipelago._islands = [one_island, zero_island]
+
     archipelago.coordinate_migration_between_islands()
-    for island in archipelago._islands:
+
+    for i, island in enumerate(archipelago._islands):
+        print("island "+str(i))
         for individual in island.population:
-            assert not all(individual.list_of_values)
+            print(individual)
+            # assert not all(individual.list_of_values)
+    assert False

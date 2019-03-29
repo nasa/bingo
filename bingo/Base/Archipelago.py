@@ -31,7 +31,7 @@ class Archipelago(metaclass=ABCMeta):
         """
 
     @staticmethod
-    def assign_send_receive(pop_size1, pop_size2):
+    def assign_send_receive(island_1, island_2):
         """
         Assign indices for exchange through random shuffling
 
@@ -39,6 +39,8 @@ class Archipelago(metaclass=ABCMeta):
                          exchanged (must be equal in population size)
         :return: the indices that each island will be swapping
         """
+        pop_size1 = len(island_1.population)
+        pop_size2 = len(island_2.population)
         tot_pop = pop_size1 + pop_size2
         pop_shuffle = list(range(tot_pop))
         random.shuffle(pop_shuffle)

@@ -78,7 +78,7 @@ from the root directory of the repository.
 
 ## Usage Examples
 In addition to the example sshown here, the best place to get started in bingo 
-is by going through the [examples directory](examples/)5. It contains several scripts and 
+is by going through the [examples directory](examples/). It contains several scripts and 
 jupyter notebooks.
 
 ### A simple evolutionary analysis with bingo: the one max problem

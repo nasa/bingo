@@ -13,7 +13,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="bingo package" href="bingo.html" />
@@ -190,37 +190,40 @@ node is a terminal</dd>
 </table>
 </td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_at" title="bingo.AGraph.AGraph.AGraph.evaluate_equation_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_equation_at</span></code></a>(x)</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.distance" title="bingo.AGraph.AGraph.AGraph.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>(chromosome)</td>
+<td>Computes the distance to another Agraph</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_at" title="bingo.AGraph.AGraph.AGraph.evaluate_equation_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_equation_at</span></code></a>(x)</td>
 <td>Evaluate the AGraph equation.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_with_local_opt_gradient_at" title="bingo.AGraph.AGraph.AGraph.evaluate_equation_with_local_opt_gradient_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_equation_with_local_opt_gradient_at</span></code></a>(x)</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_with_local_opt_gradient_at" title="bingo.AGraph.AGraph.AGraph.evaluate_equation_with_local_opt_gradient_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_equation_with_local_opt_gradient_at</span></code></a>(x)</td>
 <td>Evaluate Agraph and get its derivatives.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_with_x_gradient_at" title="bingo.AGraph.AGraph.AGraph.evaluate_equation_with_x_gradient_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_equation_with_x_gradient_at</span></code></a>(x)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.evaluate_equation_with_x_gradient_at" title="bingo.AGraph.AGraph.AGraph.evaluate_equation_with_x_gradient_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_equation_with_x_gradient_at</span></code></a>(x)</td>
 <td>Evaluate Agraph and get its derivatives.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_complexity" title="bingo.AGraph.AGraph.AGraph.get_complexity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_complexity</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_complexity" title="bingo.AGraph.AGraph.AGraph.get_complexity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_complexity</span></code></a>()</td>
 <td>Calculate complexity of AGraph equation.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_console_string" title="bingo.AGraph.AGraph.AGraph.get_console_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_console_string</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_console_string" title="bingo.AGraph.AGraph.AGraph.get_console_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_console_string</span></code></a>()</td>
 <td>Console version of Agraph equation.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_latex_string" title="bingo.AGraph.AGraph.AGraph.get_latex_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_latex_string</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_latex_string" title="bingo.AGraph.AGraph.AGraph.get_latex_string"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_latex_string</span></code></a>()</td>
 <td>Latex interpretable version of Agraph equation.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_number_local_optimization_params" title="bingo.AGraph.AGraph.AGraph.get_number_local_optimization_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_local_optimization_params</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_number_local_optimization_params" title="bingo.AGraph.AGraph.AGraph.get_number_local_optimization_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_local_optimization_params</span></code></a>()</td>
 <td>number of parameters for local optimization</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_utilized_commands" title="bingo.AGraph.AGraph.AGraph.get_utilized_commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utilized_commands</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.get_utilized_commands" title="bingo.AGraph.AGraph.AGraph.get_utilized_commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_utilized_commands</span></code></a>()</td>
 <td>“Find which commands are utilized.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.needs_local_optimization" title="bingo.AGraph.AGraph.AGraph.needs_local_optimization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">needs_local_optimization</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.needs_local_optimization" title="bingo.AGraph.AGraph.AGraph.needs_local_optimization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">needs_local_optimization</span></code></a>()</td>
 <td>The Agraph needs local optimization.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.notify_command_array_modification" title="bingo.AGraph.AGraph.AGraph.notify_command_array_modification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notify_command_array_modification</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.notify_command_array_modification" title="bingo.AGraph.AGraph.AGraph.notify_command_array_modification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notify_command_array_modification</span></code></a>()</td>
 <td>Notify individual of inplace modification of its command array</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.set_local_optimization_params" title="bingo.AGraph.AGraph.AGraph.set_local_optimization_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_local_optimization_params</span></code></a>(params)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.AGraph.AGraph.AGraph.set_local_optimization_params" title="bingo.AGraph.AGraph.AGraph.set_local_optimization_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_local_optimization_params</span></code></a>(params)</td>
 <td>Set the local optimization parameters.</td>
 </tr>
 </tbody>
@@ -231,6 +234,33 @@ node is a terminal</dd>
 <dd><p>Nx3 array of int: acyclic graph stack.</p>
 <p class="rubric">Notes</p>
 <p>Setting the command stack automatically resets fitness</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bingo.AGraph.AGraph.AGraph.distance">
+<code class="descname">distance</code><span class="sig-paren">(</span><em>chromosome</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.AGraph.AGraph.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the distance to another Agraph</p>
+<p>Distance is a measure of similarity of the two command_arrays</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>chromosome</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Agraph</span></dt>
+<dd><p class="first last">The individual to which distance will be calculated</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>: int</strong></dt>
+<dd><p class="first last">distance from self to individual</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -752,6 +782,16 @@ mathematical nodes used in Agraph</p>
 <dt>REVERSE_EVAL_MAP <span class="classifier-delimiter">:</span> <span class="classifier">dictionary {int: function}</span></dt>
 <dd>A map of node number to derivative evaluation function</dd>
 </dl>
+<dl class="function">
+<dt id="bingo.AGraph.BackendNodes.forward_eval_function">
+<code class="descclassname">bingo.AGraph.BackendNodes.</code><code class="descname">forward_eval_function</code><span class="sig-paren">(</span><em>node</em>, <em>param1</em>, <em>param2</em>, <em>x</em>, <em>constants</em>, <em>forward_eval</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.BackendNodes.forward_eval_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bingo.AGraph.BackendNodes.reverse_eval_function">
+<code class="descclassname">bingo.AGraph.BackendNodes.</code><code class="descname">reverse_eval_function</code><span class="sig-paren">(</span><em>node</em>, <em>reverse_index</em>, <em>param1</em>, <em>param2</em>, <em>forward_eval</em>, <em>reverse_eval</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.AGraph.BackendNodes.reverse_eval_function" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 </div>
 <div class="section" id="module-bingo.AGraph.ComponentGenerator">
@@ -1034,14 +1074,14 @@ generated</p>
 <li class="toctree-l1 current"><a class="reference internal" href="bingo.html">bingo package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="bingo.html#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.CoevolutionIsland">bingo.CoevolutionIsland module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-coevolutionisland-module">bingo.CoevolutionIsland module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-fitnessmetric-module">bingo.FitnessMetric module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Island">bingo.Island module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-islandmanager-module">bingo.IslandManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Plotting">bingo.Plotting module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-simplegp-module">bingo.SimpleGp module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.TrainingData">bingo.TrainingData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.html#bingo-trainingdata-module">bingo.TrainingData module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo.Utils">bingo.Utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bingo.html#module-bingo">Module contents</a></li>
 </ul>
@@ -1070,6 +1110,14 @@ generated</p>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -1078,8 +1126,8 @@ generated</p>
       &copy;2017, Geoffrey F. Bomarito.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/bingo.AGraph.rst.txt"

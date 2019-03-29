@@ -4,8 +4,8 @@
 import numpy as np
 import pytest
 
-from bingo.AGraph.AGraph import AGraph
-from bingo.AGraph.AgraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.AGraph import AGraph
+from bingo.SymbolicRegression.AGraph.AgraphMutation import AGraphMutation
 
 
 @pytest.fixture

@@ -5,7 +5,7 @@ import warnings
 import pytest
 import numpy as np
 
-from bingo.ImplicitRegression import ImplicitRegression, \
+from bingo.SymbolicRegression.ImplicitRegression import ImplicitRegression, \
                                      ImplicitRegressionSchmidt, \
                                      ImplicitTrainingData
 

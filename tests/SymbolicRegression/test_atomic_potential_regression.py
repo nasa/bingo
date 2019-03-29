@@ -5,7 +5,7 @@ import warnings
 import pytest
 import numpy as np
 
-from bingo.AtomicPotentialRegression import PairwiseAtomicPotential, \
+from bingo.SymbolicRegression.AtomicPotentialRegression import PairwiseAtomicPotential, \
                                             PairwiseAtomicTrainingData
 
 

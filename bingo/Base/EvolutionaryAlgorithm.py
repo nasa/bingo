@@ -1,7 +1,7 @@
 """The base of evolutionary algorithm definition
 
 This module defines the basis of evolutionary algorithms in bingo analyses.
-An EA in bingo is defined by three phases: Variation, Evaluation, and
+An Base in bingo is defined by three phases: Variation, Evaluation, and
 Selection.  These phases, when repeated, define the evolution of a population.
 """
 
@@ -9,8 +9,8 @@ Selection.  These phases, when repeated, define the evolution of a population.
 class EvolutionaryAlgorithm():
     """The algorithm used to perform generational steps.
 
-    The basic implementation used in this base EA implementation is a simple
-    steady-state EA (akin to simpleEA in DEAP)
+    The basic implementation used in this base Base implementation is a simple
+    steady-state Base (akin to simpleEA in DEAP)
 
     Parameters
     ----------
@@ -29,11 +29,11 @@ class EvolutionaryAlgorithm():
     Attributes
     ----------
     variation : `Variation`
-                 Public to the variation phase of the EA
+                 Public to the variation phase of the Base
     evaluation : `Evaluation`
-                 Public to the evaluation phase of the EA
+                 Public to the evaluation phase of the Base
     selection : `Selection`
-                 Public to the selection phase of the EA
+                 Public to the selection phase of the Base
     """
     def __init__(self, variation, evaluation, selection):
         self.variation = variation

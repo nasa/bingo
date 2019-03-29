@@ -4,13 +4,13 @@
 import numpy as np
 
 from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.EA.MuPlusLambda import MuPlusLambda
-from bingo.EA.TournamentSelection import Tournament
+from bingo.Base.MuPlusLambdaEA import MuPlusLambda
+from bingo.Base.TournamentSelection import Tournament
 from bingo.Base.Evaluation import Evaluation
-from bingo.Island import Island
+from bingo.Base.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation
-from bingo.MultipleFloats import MultipleFloatChromosomeGenerator
+from bingo.Base.MultipleValues import SinglePointCrossover, SinglePointMutation
+from bingo.Base.MultipleFloats import MultipleFloatChromosomeGenerator
 
 
 class ZeroMinFitnessFunction(FitnessFunction):

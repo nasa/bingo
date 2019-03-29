@@ -4,7 +4,7 @@
 import numpy as np
 import pytest
 
-from bingo.AGraph.AGraphCrossover import AGraphCrossover
+from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
 
 
 @pytest.fixture(params=[('sample_agraph_1', 'sample_agraph_2'),

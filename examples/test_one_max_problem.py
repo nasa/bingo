@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from bingo.Base.Evaluation import Evaluation
-from bingo.MultipleValues import  MultipleValueChromosome, \
+from bingo.Base.MultipleValues import  MultipleValueChromosome, \
                                   MultipleValueChromosomeGenerator
 from OneMaxExample import MultipleValueFitnessFunction, \
                           mutation_onemax_specific

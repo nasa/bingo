@@ -6,7 +6,7 @@ import numpy as np
 
 from bingo.Base.FitnessFunction import FitnessFunction, VectorBasedFunction
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-from bingo.MultipleFloats import MultipleFloatChromosome
+from bingo.Base.MultipleFloats import MultipleFloatChromosome
 
 NUM_VALS = 10
 NUM_OPT = 3

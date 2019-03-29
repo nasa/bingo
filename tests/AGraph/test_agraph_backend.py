@@ -5,7 +5,7 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.AGraph import Backend as PythonBackend
+from bingo.SymbolicRegression.AGraph import Backend as PythonBackend
 
 try:
     from bingocpp.build import bingocpp as CppBackend

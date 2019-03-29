@@ -2,13 +2,13 @@
 An example of bingo genetic optimization used to solve the one max problem.
 """
 import numpy as np
-from bingo.EA.VarOr import VarOr
+from bingo.Base.VarOr import VarOr
 from bingo.Base.FitnessFunction import FitnessFunction
 from bingo.Base.Evaluation import Evaluation
-from bingo.EA.TournamentSelection import Tournament
+from bingo.Base.TournamentSelection import Tournament
 from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
-from bingo.Island import Island
-from bingo.MultipleValues import MultipleValueChromosomeGenerator, \
+from bingo.Base.Island import Island
+from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator, \
                                  SinglePointCrossover, \
                                  SinglePointMutation
 

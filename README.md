@@ -15,8 +15,9 @@ can be used as a general purpose evolutionary optimization package.
   
 ### Note
 At this point the develop branch is significantly ahead of the master 
-branch but will not be released officially until a larger proportion of the 
-current master features are supported.
+branch.  The develop branch is much closer to the API that will be supported in 
+the future but is still working to bring in all the functionality of the latest 
+release on master.
 
 ## Getting Started
 
@@ -27,18 +28,18 @@ few dependencies which are relatively common for data science work in python:
   - scipy
   - matplotlib
   - mpi4py (if parallel implementations are to be run)
-  - pytest (if the testing suite is to be run)
+  - pytest, pytest-mock (if the testing suite is to be run)
   
 A requirements.txt file is included for easy installation of dependecies with 
 pip or conda.
 
 Installation with pip:
-```
+```shell
 pip install -r requirements.txt
 ```
 
 Installation with conda:
-```
+```shell
 conda install --yes --file requirements.txt
 ```
 
@@ -52,7 +53,7 @@ performance.
 
 If bingocpp has been properly installed, the following command should run 
 without error.
-```
+```shell
 python -c "import bingocpp"
 ```
 
@@ -71,7 +72,7 @@ doc/_build/html/index.html
 An extensive unit test suite is included with bingo to help ensure proper 
 installation. The tests can be run using pytest on the tests directory, e.g., 
 by running:
-``` 
+```shell
 pytest tests 
 ```
 from the root directory of the repository.

@@ -14,10 +14,8 @@ can be used as a general purpose evolutionary optimization package.
   * Coevolution of fitness predictors
   
 ### Note
-At this point the develop branch is significantly ahead of the master 
-branch.  The develop branch is much closer to the API that will be supported in 
-the future but is still working to bring in all the functionality of the latest 
-release on master.
+At this point the API is still in a state of flux. The current release has a 
+much more stable API but still lacks some of the features of older releases.
 
 ## Getting Started
 

@@ -27,11 +27,17 @@ class MultipleValueFitnessFunction(FitnessFunction):
         self.eval_count += 1
         return len(individual.list_of_values) - fitness
 
-def generate_true():
-    return True
+def generate_three():
+    return 3
 
-def generate_false():
-    return False
+def generate_two():
+    return 2
+
+def generate_one():
+    return 1
+
+def generate_zero():
+    return 0
 
 def mutation_function():
     return np.random.choice([False, True])
@@ -48,13 +54,27 @@ def evol_alg():
 
 @pytest.fixture
 def zero_island(evol_alg):
-    generator = MultipleValueGenerator(generate_false, VALUE_LIST_SIZE)
+    generator = MultipleValueGenerator(generate_zero, VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
 
 @pytest.fixture
 def one_island(evol_alg):
-    generator = MultipleValueGenerator(generate_true, VALUE_LIST_SIZE)
+    generator = MultipleValueGenerator(generate_one, VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
+
+@pytest.fixture
+def two_island(evol_alg):
+    generator = MultipleValueGenerator(generate_two, VALUE_LIST_SIZE)
+    return Island(evol_alg, generator, POP_SIZE)
+
+@pytest.fixture
+def three_island(evol_alg):
+    generator = MultipleValueGenerator(generate_three, VALUE_LIST_SIZE)
+    return Island(evol_alg, generator, POP_SIZE)
+
+@pytest.fixture
+def island_list(zero_island, one_island, two_island, three_island):
+    return [zero_island, one_island, two_island, three_island]
 
 @pytest.fixture
 def island(evol_alg):
@@ -78,15 +98,17 @@ def test_generational_step_executed(island):
         assert island_i.best_individual()
 
 
-def test_island_migration(one_island, zero_island):
-    archipelago = SerialArchipelago(one_island, num_islands=2)
-    archipelago._islands = [one_island, zero_island]
+def test_island_migration(one_island, island_list):
+    archipelago = SerialArchipelago(one_island, num_islands=4)
+    archipelago._islands = island_list 
 
     archipelago.coordinate_migration_between_islands()
 
+    migration_count = 0
     for i, island in enumerate(archipelago._islands):
-        print("island "+str(i))
+        initial_individual_values = [i]*VALUE_LIST_SIZE
         for individual in island.population:
-            print(individual)
-            # assert not all(individual.list_of_values)
-    assert False
+            if initial_individual_values != individual.list_of_values:
+                migration_count += 1
+                break
+    assert len(island_list) == migration_count

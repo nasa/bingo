@@ -24,22 +24,20 @@ class Island:
         Parameters
         ----------
         evolution_algorithm : EvolutionaryAlgorithm
-                              The desired algorithm to use in assessing the
-                              population
+            The desired algorithm to use in assessing the population
         generator : Generator
-                    The generator class that returns an instance of a
-                    chromosome
+            The generator class that returns an instance of a chromosome
         population_size : int
-                          The desired size of the population
+            The desired size of the population
 
         Attributes
         ----------
         generational_age : int
-                          The number of generational steps that have been
-                          executed
+            The number of generational steps that have been executed
 
         population : list of Chromosomes
-                     The population that is evolving
+            The population that is evolvingj
+            
         """
         self.population = [generator() for _ in range(population_size)]
         self.generational_age = 0
@@ -51,12 +49,7 @@ class Island:
     def execute_generational_step(self):
         """Executes a single generational step using the provided evolutionary
         algorithm
-
-        Returns
-        -------
-        population : list of Chromosomes
-                     The offspring generation yielded from the generational
-                     step
+        
         """
         self.generational_age += 1
         self.population = self._ea.generational_step(self.population)
@@ -74,7 +67,7 @@ class Island:
         Returns
         -------
         best : Chromosome
-               The Chromosome with the lowest fitness value
+            The Chromosome with the lowest fitness value
         """
         self.evaluate_population()
         best = self.population[0]
@@ -100,13 +93,31 @@ class Island:
         self.population += population
 
     def get_population(self):
+        """Getter for population
+
+        Returns
+        -------
+        list of Chromosome:
+            The list of Chromosomes in the island population
+        """
         return self.population
 
     def update_pareto_front(self):
+        """Updates a list of Chromosomes that form the pareto front based on 
+            the new population.
+        """
         self._pareto_front = self.pareto_front_selection.select_pareto_front(
             self._pareto_front + self.population)
         self._pareto_front.sort(key=lambda x: x.fitness)
 
     def get_pareto_front(self):
+        """Getter for the pareto front
+
+        Returns
+        -------
+        list of Chromsomes:
+            The list of Chromosomes in the population that represent the 
+            pareto front. The pareto front is returned in sorted order.
+        """
         return self._pareto_front
         

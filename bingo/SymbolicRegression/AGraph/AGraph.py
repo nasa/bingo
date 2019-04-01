@@ -65,7 +65,7 @@ import numpy as np
 
 from ..Equation import Equation
 from ...Base import ContinuousLocalOptimization
-import Backend
+from . import Backend
 # try:
 #     from bingocpp.build import bingocpp as Backend
 # except ImportError:

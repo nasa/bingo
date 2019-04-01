@@ -106,3 +106,7 @@ class Island:
         self._pareto_front = self.pareto_front_selection.select_pareto_front(
             self._pareto_front + self.population)
         self._pareto_front.sort(key=lambda x: x.fitness)
+
+    def get_pareto_front(self):
+        return self._pareto_front
+        

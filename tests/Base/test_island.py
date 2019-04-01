@@ -63,3 +63,12 @@ def test_best_individual(island):
     fitness = [indv.fitness for indv in island.population]
     best = island.best_individual()
     assert best.fitness == min(fitness)
+
+
+def test_pareto_front_sorted_by_fitness(island):
+    island.execute_generational_step()
+    island.update_pareto_front()
+    pareto_front = island.get_pareto_front()
+    assert all(pareto_front[i].fitness <= pareto_front[i+1].fitness \
+               for i in range(len(pareto_front)-1))
+

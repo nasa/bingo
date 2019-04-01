@@ -81,10 +81,25 @@ class AgeFitness(Selection):
         return self._update_population(population, num_removed)
 
     def select_pareto_front(self, population):
+        """Selects the pareto front for the `population`
+
+        Parameters
+        ----------
+            population: list of Chromosomes
+                The population to which the pareto front individuals will be 
+                selected from.
+
+        Returns
+        -------
+            list of Chromosomes:
+                The Chromosomes in the pareto front.
+        """
         num_removed = 0
         self._population_index_array = np.random.permutation(len(population))
 
-        self._get_unique_random_individuals(population, len(population), num_removed)
+        self._get_unique_random_individuals(population,
+                                            len(population),
+                                            num_removed)
         removed_indv_indexs = self._get_individuals_for_removal(
             population, 1, num_removed)
         num_removed = self._remove_indviduals(removed_indv_indexs, num_removed)

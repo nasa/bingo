@@ -6,16 +6,24 @@ class Archipelago(metaclass=ABCMeta):
     def __init__(self, island, num_islands):
         self.sim_time = 0
         self.start_time = 0
+        self.archipelago_age = 0
         self._island = island
         self._num_islands = num_islands
 
     @abstractmethod
     def run_islands(self, max_generations, error_tol,
                     min_generations, generation_step_report):
-        raise NotImplementedError
+        self.step_through_generations(generation_step_report)
+        converged = self.test_for_convergence(error_tol)
+        while self.archipelago_age < min_generations or \
+                (self.archipelago_age < max_generations and not converged):
+            self.coordinate_migration_between_islands()
+            self.step_through_generations(generation_step_report)
+            converged = self.test_for_convergence(generation_step_report)
+        return converged
 
     @abstractmethod
-    def step_through_generations(self):
+    def step_through_generations(self, num_steps):
         raise NotImplementedError
 
     @abstractmethod
@@ -23,12 +31,8 @@ class Archipelago(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def test_for_convergence(self):
-        """Test for convergence of island system
-
-        Parameters
-        ----------
-        """
+    def test_for_convergence(self, error_tol):
+        raise NotImplementedError
 
     @staticmethod
     def assign_send_receive(island_1, island_2):

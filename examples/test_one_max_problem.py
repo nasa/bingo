@@ -2,8 +2,8 @@ import pytest
 import numpy as np
 
 from bingo.Base.Evaluation import Evaluation
-from bingo.MultipleValues import  MultipleValueChromosome, \
-                                  MultipleValueGenerator
+from bingo.Base.MultipleValues import  MultipleValueChromosome, \
+                                  MultipleValueChromosomeGenerator
 from OneMaxExample import MultipleValueFitnessFunction, \
                           mutation_onemax_specific
 
@@ -18,7 +18,7 @@ def sample_bool_list_chromosome():
 
 @pytest.fixture
 def population():
-    generator = MultipleValueGenerator(mutation_onemax_specific, 10)
+    generator = MultipleValueChromosomeGenerator(mutation_onemax_specific, 10)
     return [generator() for i in range(25)]
 
 def test_fitness_evaluation_true_value_count_nonnegative(sample_bool_list_chromosome, fitness_function):
@@ -52,7 +52,7 @@ def test_fitness_equals_true_value_count(fitness_function, population):
 
     for indv in population:
         fitness = 0
-        for val in indv.list_of_values:
+        for val in indv.values:
             if val == False:
                 fitness += 1
         assert indv.fitness == fitness_function(indv)

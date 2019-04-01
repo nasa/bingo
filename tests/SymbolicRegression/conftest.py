@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.Base.Equation import Equation
+from bingo.SymbolicRegression.Equation import Equation
 
 
 class SumEqualtion(Equation):

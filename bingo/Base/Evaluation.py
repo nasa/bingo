@@ -6,7 +6,7 @@ evolutionary algorithms.
 
 
 class Evaluation:
-    """EA phase for calculating fitness of a population.
+    """Base phase for calculating fitness of a population.
 
     A base class for the fitness evaluation of populations of genetic
     individuals (list of Chromosomes) in bingo.  All individuals in the

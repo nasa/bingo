@@ -5,8 +5,7 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.AGraph import AGraph
-from bingo.AGraph import Backend as py_backend
+from bingo.SymbolicRegression.AGraph import AGraph, Backend as py_backend
 
 AGraph.Backend = py_backend
 

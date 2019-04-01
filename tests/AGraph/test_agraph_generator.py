@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.AGraph.AGraphGenerator import AGraphGenerator
+from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
 
 
 @pytest.mark.parametrize("agraph_size,expected_error", [

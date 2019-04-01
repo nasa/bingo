@@ -5,10 +5,9 @@ import csv
 import timeit
 import numpy as np
 
-from bingo.AGraph import AGraph
-from bingo.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.AGraph.ComponentGenerator import ComponentGenerator
-from bingo.AGraph import Backend as pyBackend
+from bingo.SymbolicRegression.AGraph import AGraph, Backend as pyBackend
+from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
+from bingo.SymbolicRegression.AGraph import ComponentGenerator
 from bingocpp.build import bingocpp as cppBackend
 
 

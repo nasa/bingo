@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from bingo.AGraph.AGraph import AGraph
-from bingo.AGraph.ComponentGenerator import ComponentGenerator
+from bingo.SymbolicRegression.AGraph.AGraph import AGraph
+from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
 
 
 @pytest.fixture

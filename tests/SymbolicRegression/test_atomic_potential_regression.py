@@ -1,10 +1,11 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
+import warnings
 import pytest
 import numpy as np
 
-from bingo.AtomicPotentialRegression import PairwiseAtomicPotential, \
+from bingo.SymbolicRegression.AtomicPotentialRegression import PairwiseAtomicPotential, \
                                             PairwiseAtomicTrainingData
 
 
@@ -73,9 +74,11 @@ def test_reshaping_of_training_data_energies():
     energies = np.ones((1, 1, 3))
     r_list = np.ones((3, 1))
     config_lims = np.arange(4)
-    training_data = PairwiseAtomicTrainingData(potential_energy=energies,
-                                               r_list=r_list,
-                                               config_lims_r=config_lims)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        training_data = PairwiseAtomicTrainingData(potential_energy=energies,
+                                                   r_list=r_list,
+                                                   config_lims_r=config_lims)
     assert training_data.potential_energy.ndim == 1
 
 

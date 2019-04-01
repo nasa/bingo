@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get install -y -q mpich libmpich-dev
   
 install:
-  - pip install pytest pytest-cov
+  - pip install pytest pytest-cov pytest-mock
   - pip install coveralls
   - pip install -r requirements.txt
   - cd bingocpp && ./build.sh && cd ..

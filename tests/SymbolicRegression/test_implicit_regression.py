@@ -1,10 +1,11 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
+import warnings
 import pytest
 import numpy as np
 
-from bingo.ImplicitRegression import ImplicitRegression, \
+from bingo.SymbolicRegression.ImplicitRegression import ImplicitRegression, \
                                      ImplicitRegressionSchmidt, \
                                      ImplicitTrainingData
 
@@ -56,7 +57,9 @@ def test_schmidt_regression(dummy_sum_equation, dummy_training_data):
 def test_reshaping_of_training_data():
     x = np.zeros(5)
     dx_dt = np.zeros((5, 1))
-    training_data = ImplicitTrainingData(x, dx_dt)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        training_data = ImplicitTrainingData(x, dx_dt)
     assert training_data.x.ndim == 2
 
 

@@ -10,7 +10,6 @@ class Archipelago(metaclass=ABCMeta):
         self._island = island
         self._num_islands = num_islands
 
-    @abstractmethod
     def run_islands(self, max_generations, error_tol,
                     min_generations, generation_step_report):
         self.step_through_generations(generation_step_report)

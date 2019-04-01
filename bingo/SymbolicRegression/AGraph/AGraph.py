@@ -65,12 +65,12 @@ import numpy as np
 
 from ..Equation import Equation
 from ...Base import ContinuousLocalOptimization
-
+import Backend
 # try:
 #     from bingocpp.build import bingocpp as Backend
 # except ImportError:
 #     from . import Backend
-import bingo.AGraph.Backend as Backend
+
 
 LOGGER = logging.getLogger(__name__)
 

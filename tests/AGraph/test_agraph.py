@@ -218,7 +218,7 @@ def test_setting_command_array_unsets_fitness(sample_agraph_1):
 
 
 def test_nans_on_evaluate_overflow(mocker, sample_agraph_1, sample_agraph_1_values):
-    mocker.patch('bingo.AGraph.AGraph.Backend.simplify_and_evaluate')
+    mocker.patch('bingo.SymbolicRegression.AGraph.AGraph.Backend.simplify_and_evaluate')
     AGraph.Backend.simplify_and_evaluate.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
@@ -227,7 +227,7 @@ def test_nans_on_evaluate_overflow(mocker, sample_agraph_1, sample_agraph_1_valu
 
 def test_nans_on_evaluate_with_gradient_overflow(mocker, sample_agraph_1,
                                    sample_agraph_1_values):
-    mocker.patch('bingo.AGraph.AGraph.Backend.simplify_and_evaluate_with_derivative')
+    mocker.patch('bingo.SymbolicRegression.AGraph.AGraph.Backend.simplify_and_evaluate_with_derivative')
     AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_x_gradient_at(sample_agraph_1_values.x)
@@ -236,7 +236,7 @@ def test_nans_on_evaluate_with_gradient_overflow(mocker, sample_agraph_1,
 
 def test_nans_on_evaluate_with_local_opt_gradient_overflow(mocker, sample_agraph_1,
                                    sample_agraph_1_values):
-    mocker.patch('bingo.AGraph.AGraph.Backend.simplify_and_evaluate_with_derivative')
+    mocker.patch('bingo.SymbolicRegression.AGraph.AGraph.Backend.simplify_and_evaluate_with_derivative')
     AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = ValueError
 
     values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(sample_agraph_1_values.x)

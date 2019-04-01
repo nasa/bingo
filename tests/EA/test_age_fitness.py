@@ -1,6 +1,8 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
+import collections
+
 import pytest
 import numpy as np
 
@@ -83,7 +85,7 @@ def all_dominated_population(non_dominated_population):
 def pareto_front_population():
     size_of_list = 6
     population = []
-    for i in range(size_of_list):
+    for i in range(size_of_list+1):
         values = [False]*(size_of_list - i) + [True]*i
         indv = MultipleValueChromosome(values)
         indv.genetic_age = i
@@ -220,3 +222,14 @@ def test_age_fitness_ea_step(pareto_front_population, onemax_evaluator,
                            selection_size=2*len(population))
     new_population = evo_alg.generational_step(population)
     assert len(new_population) == len(population)
+
+
+def test_get_pareto_front(pareto_front_population,
+                          selected_indiviudals,
+                          onemax_evaluator):
+    selection = AgeFitness()
+    population = pareto_front_population + selected_indiviudals
+    onemax_evaluator(population)
+    new_population = selection.select_pareto_front(population)
+    assert collections.Counter(new_population) == \
+    collections.Counter(pareto_front_population)

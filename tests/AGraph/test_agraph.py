@@ -242,3 +242,7 @@ def test_nans_on_evaluate_with_local_opt_gradient_overflow(mocker, sample_agraph
     values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
 
+
+def test_distance_between_graphs(sample_agraph_1):
+    assert sample_agraph_1.distance(sample_agraph_1) == 0
+    

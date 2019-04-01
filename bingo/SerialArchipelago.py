@@ -13,11 +13,7 @@ class SerialArchipelago(Archipelago):
     def __init__(self, island, num_islands=2):
         super().__init__(island, num_islands)
         self._islands = self._generate_islands()
-    
-    def run_islands(self, max_generations, min_generations,
-                    error_tol, generation_step_report):
-        pass
-    
+
     def step_through_generations(self, num_steps):
         t_0 = time.time()
         for i, island in enumerate(self._islands):
@@ -26,7 +22,7 @@ class SerialArchipelago(Archipelago):
                 island.execute_generational_step()
             t_2 = time.time()
             LOGGER.info("%2d >\tage: %d\ttime: %.1fs\tbest fitness: %s",
-                        i, 
+                        i,
                         self._get_generational_age(island),
                         t_2 - t_1,
                         self._get_pareto_front_fitness(island))
@@ -39,16 +35,23 @@ class SerialArchipelago(Archipelago):
         for i in range(self._num_islands//2):
             self._shuffle_island_and_swap_pairs(island_partners, i)
 
-    def test_for_convergence(self, max_generations, min_generations, error_tol):
-        pass
-        # list_of_individuals = self._get_list_of_pareto_indivdiuals()
-        # self._update_pareto_individuals()
-        #test convergance
-        #log output
+    def test_for_convergence(self, error_tol):
+        list_of_best_indvs = []
+        for island in self._islands:
+            list_of_best_indvs.append(island.best_individual())
+        list_of_best_indvs.sort(key=lambda x: x.fitness)
+
+        best_indv = list_of_best_indvs[0]
+        converged = best_indv.fitness < error_tol
+        LOGGER.info("current best true fitness: %s", str(best_indv.fitness))
+        LOGGER.info("best solution: %s", best_indv.get_latex_string())
+
+        return converged
+
 
     def _generate_islands(self):
         island_list = []
-        for island in range(self._num_islands):
+        for _ in range(self._num_islands):
             island_list.append(copy.deepcopy(self._island))
         return island_list
 
@@ -61,7 +64,7 @@ class SerialArchipelago(Archipelago):
     def _shuffle_island_indices(self):
         indices = list(range(self._num_islands))
         random.shuffle(indices)
-        return indices 
+        return indices
 
     def _shuffle_island_and_swap_pairs(self, island_indexes, pair_number):
         partner_1 = self._islands[island_indexes[pair_number*2]]

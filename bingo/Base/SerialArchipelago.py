@@ -5,7 +5,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-from .Base.Archipelago import Archipelago
+from .Archipelago import Archipelago
 
 class SerialArchipelago(Archipelago):
 

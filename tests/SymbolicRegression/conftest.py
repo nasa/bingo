@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.Base.Equation import Equation
+from bingo.SymbolicRegression.Equation import Equation
 
 
 class SumEqualtion(Equation):
@@ -30,7 +30,7 @@ class SumEqualtion(Equation):
     def __str__(self):
         pass
 
-    def distance(self, individual):
+    def distance(self, _chromosome):
         return 0
 
 

@@ -13,7 +13,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="bingo.AGraph package" href="bingo.AGraph.html" />
@@ -110,536 +110,55 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-bingo.CoevolutionIsland">
-<span id="bingo-coevolutionisland-module"></span><h2>bingo.CoevolutionIsland module<a class="headerlink" href="#module-bingo.CoevolutionIsland" title="Permalink to this headline">¶</a></h2>
-<p>Defines an island that has 3 populations and performs the simultaneous
-evolution of a main population, and a fitness predictor population.  The third
-population is a set of training individuals on which the quality of the fitness
-predictors is judged.
-This is loosely based on the work of Schmidt and Lipson 2008?</p>
-<dl class="class">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland">
-<em class="property">class </em><code class="descclassname">bingo.CoevolutionIsland.</code><code class="descname">CoevolutionIsland</code><span class="sig-paren">(</span><em>solution_training_data</em>, <em>solution_manipulator</em>, <em>predictor_manipulator</em>, <em>fitness_metric</em>, <em>solution_pop_size=64</em>, <em>solution_cx=0.7</em>, <em>solution_mut=0.01</em>, <em>solution_age_fitness=False</em>, <em>predictor_pop_size=16</em>, <em>predictor_cx=0.5</em>, <em>predictor_mut=0.1</em>, <em>predictor_ratio=0.1</em>, <em>predictor_update_freq=50</em>, <em>trainer_pop_size=16</em>, <em>trainer_update_freq=50</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Coevolution island with 3 populations
-solution_pop: the solutions to symbolic regression
-predictor_pop: sub sampling
-trainers: population of solutions which are used to train the predictors</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>solution_training_data</strong> – training data that is used in the
-evaluation of fitness of the solution
-population</li>
-<li><strong>solution_manipulator</strong> – a gene manipulator for the symbolic
-regression solution population</li>
-<li><strong>predictor_manipulator</strong> – a gene manipulator for the fitness
-predictor population</li>
-<li><strong>solution_pop_size</strong> – size of the solution population</li>
-<li><strong>solution_cx</strong> – crossover probability for the solution population</li>
-<li><strong>solution_mut</strong> – mutation probability for the solution population</li>
-<li><strong>predictor_pop_size</strong> – size of the fitness predictor population</li>
-<li><strong>predictor_cx</strong> – crossover probability for the fitness predictor
-population</li>
-<li><strong>predictor_mut</strong> – mutation probability for the fitness predictor
-population</li>
-<li><strong>predictor_ratio</strong> – approximate ratio of time spent on fitness
-predictor calculations and the total
-computation time</li>
-<li><strong>predictor_update_freq</strong> – number of generations of the solution
-population after which the fitness
-predictor is updated</li>
-<li><strong>trainer_pop_size</strong> – size of the trainer population</li>
-<li><strong>trainer_update_freq</strong> – number of generations of the solution
-population after which a new trainer is
-added to the trainer population</li>
-<li><strong>required_params</strong> – number of unique parameters that are required
-in implicit (constant) symbolic regression</li>
-<li><strong>verbose</strong> – True for extra output printed to screen</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.add_new_trainer" title="bingo.CoevolutionIsland.CoevolutionIsland.add_new_trainer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_new_trainer</span></code></a>()</td>
-<td>Add/replace trainer to current trainer population.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.dump_populations" title="bingo.CoevolutionIsland.CoevolutionIsland.dump_populations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_populations</span></code></a>([s_subset,&nbsp;p_subset,&nbsp;…])</td>
-<td>Dump the 3 populations to a pickleable object (tuple of lists)</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.generational_step" title="bingo.CoevolutionIsland.CoevolutionIsland.generational_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generational_step</span></code></a>()</td>
-<td>generational step for solution population, This function takes the necessary steps for the other populations to maintain desired predictor/solution computation ratio</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.load_populations" title="bingo.CoevolutionIsland.CoevolutionIsland.load_populations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_populations</span></code></a>(pop_lists[,&nbsp;replace])</td>
-<td>load 3 populations from pickleable object</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.predictor_fitness" title="bingo.CoevolutionIsland.CoevolutionIsland.predictor_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predictor_fitness</span></code></a>(predictor)</td>
-<td>Fitness function for predictor population, based on the ability to accurately describe the true fitness of the trainer population</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.print_trainers" title="bingo.CoevolutionIsland.CoevolutionIsland.print_trainers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_trainers</span></code></a>()</td>
-<td>For debugging: print trainers to screen</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_est" title="bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_est"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solution_fitness_est</span></code></a>(solution)</td>
-<td>Estimated fitness for solution pop based on the best predictor</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_true" title="bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_true"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solution_fitness_true</span></code></a>(solution)</td>
-<td>full calculation of fitness for solution population</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.true_fitness_plus_complexity" title="bingo.CoevolutionIsland.CoevolutionIsland.true_fitness_plus_complexity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_fitness_plus_complexity</span></code></a>(solution)</td>
-<td>Gets the true (full) fitness and complexity of a solution individual</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.CoevolutionIsland.CoevolutionIsland.use_true_fitness" title="bingo.CoevolutionIsland.CoevolutionIsland.use_true_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">use_true_fitness</span></code></a>()</td>
-<td>Sets the fitness function for the solution population to the true (full) fitness rather than using a fitness predictor.</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.add_new_trainer">
-<code class="descname">add_new_trainer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.add_new_trainer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add/replace trainer to current trainer population.  The trainer which
-maximizes discrepancy between fitness predictors is chosen</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.dump_populations">
-<code class="descname">dump_populations</code><span class="sig-paren">(</span><em>s_subset=None</em>, <em>p_subset=None</em>, <em>t_subset=None</em>, <em>with_removal=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.dump_populations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dump the 3 populations to a pickleable object (tuple of lists)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>s_subset</strong> – list of indices for the subset of the solution
-population which is dumped. A None value results in
-all of the population being dumped.</li>
-<li><strong>p_subset</strong> – list of indices for the subset of the fitness
-predictor population which is dumped. A None value
-results in all of the population being dumped.</li>
-<li><strong>t_subset</strong> – list of indices for the subset of the trainer
-population which is dumped. A None value results in
-all of the population being dumped.</li>
-<li><strong>with_removal</strong> – boolean describing whether the elements should be
-removed from population after dumping</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">tuple of lists of populations</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.generational_step">
-<code class="descname">generational_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.generational_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>generational step for solution population, This function
-takes the necessary steps for the other populations to maintain desired
-predictor/solution computation ratio</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.load_populations">
-<code class="descname">load_populations</code><span class="sig-paren">(</span><em>pop_lists</em>, <em>replace=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.load_populations" title="Permalink to this definition">¶</a></dt>
-<dd><p>load 3 populations from pickleable object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pop_lists</strong> – tuple of lists of the 3 populations</li>
-<li><strong>replace</strong> – default (True) value results in all of the population
-being loaded/replaced. False value means that the
-population in pop_list is appended to the current
-population</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.predictor_fitness">
-<code class="descname">predictor_fitness</code><span class="sig-paren">(</span><em>predictor</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.predictor_fitness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fitness function for predictor population, based on the ability to
-accurately describe the true fitness of the trainer population</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>predictor</strong> – predictor for which the fitness is assessed</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">fitness</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.print_trainers">
-<code class="descname">print_trainers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.print_trainers" title="Permalink to this definition">¶</a></dt>
-<dd><p>For debugging: print trainers to screen</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_est">
-<code class="descname">solution_fitness_est</code><span class="sig-paren">(</span><em>solution</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_est" title="Permalink to this definition">¶</a></dt>
-<dd><p>Estimated fitness for solution pop based on the best predictor</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>solution</strong> – individual of the solution population for which the
-fitness will be calculated</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">fitness, complexity</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_true">
-<code class="descname">solution_fitness_true</code><span class="sig-paren">(</span><em>solution</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.solution_fitness_true" title="Permalink to this definition">¶</a></dt>
-<dd><p>full calculation of fitness for solution population</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>solution</strong> – individual of the solution population for which the
-fitness will be calculated</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">fitness</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.true_fitness_plus_complexity">
-<code class="descname">true_fitness_plus_complexity</code><span class="sig-paren">(</span><em>solution</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.true_fitness_plus_complexity" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the true (full) fitness and complexity of a solution individual</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>solution</strong> – individual of the solution population for which the
-fitness will be calculated</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">fitness, complexity</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.CoevolutionIsland.CoevolutionIsland.use_true_fitness">
-<code class="descname">use_true_fitness</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.CoevolutionIsland.CoevolutionIsland.use_true_fitness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the fitness function for the solution population to the true
-(full) fitness rather than using a fitness predictor.</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="bingo-coevolutionisland-module">
+<h2>bingo.CoevolutionIsland module<a class="headerlink" href="#bingo-coevolutionisland-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-bingo.FitnessMetric">
-<span id="bingo-fitnessmetric-module"></span><h2>bingo.FitnessMetric module<a class="headerlink" href="#module-bingo.FitnessMetric" title="Permalink to this headline">¶</a></h2>
-<p>This module encapsulates different fitness metrics that can be used for
-symbolic regression in bingo</p>
-<dl class="class">
-<dt id="bingo.FitnessMetric.FitnessMetric">
-<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">FitnessMetric</code><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>fitness metric superclass</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric.evaluate_fitness" title="bingo.FitnessMetric.FitnessMetric.evaluate_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness</span></code></a>(individual,&nbsp;training_data)</td>
-<td>Evaluate the fitness of an individual and optimize it if necessary :param individual: an AGraph-like individual to be evaluated :param training_data: ExplicitTrainingData :return fitness of the individual</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric.evaluate_fitness_vector" title="bingo.FitnessMetric.FitnessMetric.evaluate_fitness_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code></a>(individual,&nbsp;…)</td>
-<td>returns the fitness vector of an individual using a given set of training data :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric :return: fitness vector</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric.optimize_constants" title="bingo.FitnessMetric.FitnessMetric.optimize_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_constants</span></code></a>(individual,&nbsp;training_data)</td>
-<td>perform levenberg-marquardt optimization on embedded constants :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.FitnessMetric.FitnessMetric.evaluate_fitness">
-<code class="descname">evaluate_fitness</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.evaluate_fitness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Evaluate the fitness of an individual and optimize it if necessary
-:param individual: an AGraph-like individual to be evaluated
-:param training_data: ExplicitTrainingData
-:return fitness of the individual</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessMetric.FitnessMetric.evaluate_fitness_vector">
-<code class="descname">evaluate_fitness_vector</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.evaluate_fitness_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the fitness vector of an individual using a given set of
-training data
-:param individual: a gene to be evaluated
-:param training_data: the data used by the fitness metric
-:return: fitness vector</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessMetric.FitnessMetric.optimize_constants">
-<code class="descname">optimize_constants</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.FitnessMetric.optimize_constants" title="Permalink to this definition">¶</a></dt>
-<dd><p>perform levenberg-marquardt optimization on embedded constants
-:param individual: a gene to be evaluated
-:param training_data: the data used by the fitness metric</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.FitnessMetric.ImplicitRegression">
-<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">ImplicitRegression</code><span class="sig-paren">(</span><em>required_params=None</em>, <em>normalize_dot=False</em>, <em>acceptable_nans=0.1</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
-<p>Implicit Regression, version 2</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessMetric.ImplicitRegression.evaluate_fitness" title="bingo.FitnessMetric.ImplicitRegression.evaluate_fitness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness</span></code></a>(individual,&nbsp;training_data)</td>
-<td>Fitness of this metric is related cos of angle between between df_dx and dx_dt.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessMetric.ImplicitRegression.evaluate_fitness_vector" title="bingo.FitnessMetric.ImplicitRegression.evaluate_fitness_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code></a>(individual,&nbsp;…)</td>
-<td>Fitness of this metric is related cos of angle between between df_dx and dx_dt.</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_constants</span></code>(individual,&nbsp;training_data)</td>
-<td>perform levenberg-marquardt optimization on embedded constants :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.FitnessMetric.ImplicitRegression.evaluate_fitness">
-<code class="descname">evaluate_fitness</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression.evaluate_fitness" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fitness of this metric is related cos of angle between between df_dx
-and dx_dt. Different normalization and erorr checking are available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>individual</strong> – an AGraph-like individual to be evaluated</li>
-<li><strong>training_data</strong> – ImplicitTrainingData</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the mean of the fitness vector, ignoring nans</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessMetric.ImplicitRegression.evaluate_fitness_vector">
-<code class="descname">evaluate_fitness_vector</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegression.evaluate_fitness_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fitness of this metric is related cos of angle between between df_dx
-and dx_dt. Different normalization and erorr checking are available.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>individual</strong> – an AGraph-like individual to be evaluated</li>
-<li><strong>training_data</strong> – ImplicitTrainingData</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">fitness vector</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.FitnessMetric.ImplicitRegressionSchmidt">
-<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">ImplicitRegressionSchmidt</code><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionSchmidt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
-<p>Implicit Regression, version from schmidt and lipson</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness</span></code>(individual,&nbsp;training_data)</td>
-<td>Evaluate the fitness of an individual and optimize it if necessary :param individual: an AGraph-like individual to be evaluated :param training_data: ExplicitTrainingData :return fitness of the individual</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessMetric.ImplicitRegressionSchmidt.evaluate_fitness_vector" title="bingo.FitnessMetric.ImplicitRegressionSchmidt.evaluate_fitness_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code></a>(individual,&nbsp;…)</td>
-<td>from schmidt and lipson’s papers</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_constants</span></code>(individual,&nbsp;training_data)</td>
-<td>perform levenberg-marquardt optimization on embedded constants :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.FitnessMetric.ImplicitRegressionSchmidt.evaluate_fitness_vector">
-<code class="descname">evaluate_fitness_vector</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.ImplicitRegressionSchmidt.evaluate_fitness_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>from schmidt and lipson’s papers</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>individual</strong> – an AGraph-like individual to be evaluated</li>
-<li><strong>training_data</strong> – ImplicitTrainingData</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the fitness for each row</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.FitnessMetric.PairwiseAtomicPotential">
-<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">PairwiseAtomicPotential</code><a class="headerlink" href="#bingo.FitnessMetric.PairwiseAtomicPotential" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
-<p>Pairwise atomic potential which is fit with total potential energy for a
-set of configurations</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness</span></code>(individual,&nbsp;training_data)</td>
-<td>Evaluate the fitness of an individual and optimize it if necessary :param individual: an AGraph-like individual to be evaluated :param training_data: ExplicitTrainingData :return fitness of the individual</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessMetric.PairwiseAtomicPotential.evaluate_fitness_vector" title="bingo.FitnessMetric.PairwiseAtomicPotential.evaluate_fitness_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code></a>(individual,&nbsp;…)</td>
-<td>Fitness is calculated as how well total potential energies are matched by the summation of pairwise energies which are calculated by the individual fitness = sum( f(r_i) ) - U_true      for i in config</td>
-</tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_constants</span></code>(individual,&nbsp;training_data)</td>
-<td>perform levenberg-marquardt optimization on embedded constants :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.FitnessMetric.PairwiseAtomicPotential.evaluate_fitness_vector">
-<code class="descname">evaluate_fitness_vector</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.PairwiseAtomicPotential.evaluate_fitness_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fitness is calculated as how well total potential energies are matched
-by the summation of pairwise energies which are calculated by the
-individual
-fitness = sum( f(r_i) ) - U_true      for i in config</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>individual</strong> – an AGraph-like individual to be evaluated</li>
-<li><strong>training_data</strong> – ImplicitTrainingData</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the fitness for each row</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.FitnessMetric.StandardRegression">
-<em class="property">class </em><code class="descclassname">bingo.FitnessMetric.</code><code class="descname">StandardRegression</code><span class="sig-paren">(</span><em>const_deriv=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.FitnessMetric.FitnessMetric" title="bingo.FitnessMetric.FitnessMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.FitnessMetric.FitnessMetric</span></code></a></p>
-<p>Traditional fitness evaluation</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessMetric.StandardRegression.evaluate_fit_vec_w_const_deriv" title="bingo.FitnessMetric.StandardRegression.evaluate_fit_vec_w_const_deriv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fit_vec_w_const_deriv</span></code></a>(individual,&nbsp;…)</td>
-<td>returns the fitness vector and its derivatove with respect any included constantsof an individual using a given set of training data :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric :return: fitness vector, dfitness/dconstants array</td>
-</tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness</span></code>(individual,&nbsp;training_data)</td>
-<td>Evaluate the fitness of an individual and optimize it if necessary :param individual: an AGraph-like individual to be evaluated :param training_data: ExplicitTrainingData :return fitness of the individual</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessMetric.StandardRegression.evaluate_fitness_vector" title="bingo.FitnessMetric.StandardRegression.evaluate_fitness_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code></a>(individual,&nbsp;…)</td>
-<td>fitness vector = f(x) - y where f is defined by the individual and x, y are in the training data :param individual: an AGraph-like individual to be evaluated :param training_data: ExplicitTrainingData :return fitness vector</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessMetric.StandardRegression.optimize_constants" title="bingo.FitnessMetric.StandardRegression.optimize_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">optimize_constants</span></code></a>(individual,&nbsp;training_data)</td>
-<td>perform levenberg-marquardt optimization on embedded constants :param individual: a gene to be evaluated :param training_data: the data used by the fitness metric</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.FitnessMetric.StandardRegression.evaluate_fit_vec_w_const_deriv">
-<code class="descname">evaluate_fit_vec_w_const_deriv</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression.evaluate_fit_vec_w_const_deriv" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns the fitness vector and its derivatove with respect any included
-constantsof an individual using a given set of training data
-:param individual: a gene to be evaluated
-:param training_data: the data used by the fitness metric
-:return: fitness vector, dfitness/dconstants array</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessMetric.StandardRegression.evaluate_fitness_vector">
-<code class="descname">evaluate_fitness_vector</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression.evaluate_fitness_vector" title="Permalink to this definition">¶</a></dt>
-<dd><p>fitness vector = f(x) - y
-where f is defined by the individual and x, y are in the training data
-:param individual: an AGraph-like individual to be evaluated
-:param training_data: ExplicitTrainingData
-:return fitness vector</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessMetric.StandardRegression.optimize_constants">
-<code class="descname">optimize_constants</code><span class="sig-paren">(</span><em>individual</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessMetric.StandardRegression.optimize_constants" title="Permalink to this definition">¶</a></dt>
-<dd><p>perform levenberg-marquardt optimization on embedded constants
-:param individual: a gene to be evaluated
-:param training_data: the data used by the fitness metric</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="bingo-fitnessmetric-module">
+<h2>bingo.FitnessMetric module<a class="headerlink" href="#bingo-fitnessmetric-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-bingo.FitnessPredictor">
 <span id="bingo-fitnesspredictor-module"></span><h2>bingo.FitnessPredictor module<a class="headerlink" href="#module-bingo.FitnessPredictor" title="Permalink to this headline">¶</a></h2>
-<p>This module contains most of the code necessary for the representation of an
-fitness predictor in the form of a subsampling list for real data</p>
+<p>This module contains the utilities for fitness predictors.</p>
+<p>Fitness predictors in bingo are Chromosomes that encode information necessary
+to make a prediction of fitness for other Chromosome types.  The type of
+fitness predicters used here are subset fitness predictors, which make a
+prediction of fitness by using only a subset of the training data used in
+preforming a full/true fitness calculation.  Subset fitness predictors use the
+MultilpleValueChromosome.</p>
+<p>Check out the works of the works of Schmidt and Lipson for more details:
+e.g., “Coevolution of Fitness Predictors” (2008) .</p>
 <dl class="class">
-<dt id="bingo.FitnessPredictor.FPManipulator">
-<em class="property">class </em><code class="descclassname">bingo.FitnessPredictor.</code><code class="descname">FPManipulator</code><span class="sig-paren">(</span><em>size</em>, <em>max_index</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>manipulates AGraph objects for generation, crossover, mutation,
-and distance</p>
+<dt id="bingo.FitnessPredictor.FitnessPredictorFitnessFunction">
+<em class="property">class </em><code class="descclassname">bingo.FitnessPredictor.</code><code class="descname">FitnessPredictorFitnessFunction</code><span class="sig-paren">(</span><em>training_data</em>, <em>full_fitness_function</em>, <em>potential_trainers</em>, <em>num_trainers</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictorFitnessFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.Base.FitnessFunction.FitnessFunction</span></code></p>
+<p>A fitness function for subset fitness predictors</p>
+<p>A fitness function for fitness predictors. The fitness of a fitness
+predictor is based upon its ability to predict true/full fitness of trainer
+individuals.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>training_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list-like</span></dt>
+<dd><p class="first last">Training data used in full/true fitness evaluation</p>
+</dd>
+<dt><strong>full_fitness_function</strong> <span class="classifier-delimiter">:</span> <span class="classifier">FitnessFunction</span></dt>
+<dd><p class="first last">The fitness function to be used in prediction
+(based on the training data)</p>
+</dd>
+<dt><strong>potential_trainers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of Chromosomes</span></dt>
+<dd><p class="first last">a list of individuals that could potentially be used
+as trainers</p>
+</dd>
+<dt><strong>num_trainers</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">number of trainers to use</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -647,69 +166,87 @@ and distance</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessPredictor.FPManipulator.crossover" title="bingo.FitnessPredictor.FPManipulator.crossover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crossover</span></code></a>(parent1,&nbsp;parent2)</td>
-<td>single point crossover, returns 2 new individuals</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>(individual)</td>
+<td>Fitness function for subset fitness predictors</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessPredictor.FPManipulator.distance" title="bingo.FitnessPredictor.FPManipulator.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>(indv1,&nbsp;indv2)</td>
-<td>Calculates the distance between indv1 and indv2.</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessPredictor.FitnessPredictorFitnessFunction.add_trainer" title="bingo.FitnessPredictor.FitnessPredictorFitnessFunction.add_trainer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_trainer</span></code></a>(trainer)</td>
+<td>Add a trainer to the trainer population</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessPredictor.FPManipulator.dump" title="bingo.FitnessPredictor.FPManipulator.dump"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code></a>(indv)</td>
-<td>dumps indv to picklable object</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessPredictor.FPManipulator.generate" title="bingo.FitnessPredictor.FPManipulator.generate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate</span></code></a>()</td>
-<td>generate random individual</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessPredictor.FPManipulator.load" title="bingo.FitnessPredictor.FPManipulator.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(indv_list)</td>
-<td>loads indv from picklable object</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessPredictor.FPManipulator.mutation" title="bingo.FitnessPredictor.FPManipulator.mutation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mutation</span></code></a>(indv)</td>
-<td>performs 1pt mutation, does not create copy of indv</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessPredictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer" title="bingo.FitnessPredictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_fitness_for_trainer</span></code></a>(individual,&nbsp;trainer)</td>
+<td>Get predicted value of fitness for a trainer</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="bingo.FitnessPredictor.FPManipulator.crossover">
-<code class="descname">crossover</code><span class="sig-paren">(</span><em>parent1</em>, <em>parent2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator.crossover" title="Permalink to this definition">¶</a></dt>
-<dd><p>single point crossover, returns 2 new individuals</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="bingo.FitnessPredictor.FPManipulator.distance">
-<em class="property">static </em><code class="descname">distance</code><span class="sig-paren">(</span><em>indv1</em>, <em>indv2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator.distance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the distance between indv1 and indv2.</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="bingo.FitnessPredictor.FPManipulator.dump">
-<em class="property">static </em><code class="descname">dump</code><span class="sig-paren">(</span><em>indv</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator.dump" title="Permalink to this definition">¶</a></dt>
-<dd><p>dumps indv to picklable object</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessPredictor.FPManipulator.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator.generate" title="Permalink to this definition">¶</a></dt>
-<dd><p>generate random individual</p>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="bingo.FitnessPredictor.FPManipulator.load">
-<em class="property">static </em><code class="descname">load</code><span class="sig-paren">(</span><em>indv_list</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>loads indv from picklable object</p>
+<dt id="bingo.FitnessPredictor.FitnessPredictorFitnessFunction.add_trainer">
+<code class="descname">add_trainer</code><span class="sig-paren">(</span><em>trainer</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictorFitnessFunction.add_trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a trainer to the trainer population</p>
+<p>Replaces one of the current trainers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>trainer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Chromosome</span></dt>
+<dd><p class="first last">individual to add to the training population</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
-<dt id="bingo.FitnessPredictor.FPManipulator.mutation">
-<code class="descname">mutation</code><span class="sig-paren">(</span><em>indv</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FPManipulator.mutation" title="Permalink to this definition">¶</a></dt>
-<dd><p>performs 1pt mutation, does not create copy of indv</p>
+<dt id="bingo.FitnessPredictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer">
+<code class="descname">predict_fitness_for_trainer</code><span class="sig-paren">(</span><em>individual</em>, <em>trainer</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get predicted value of fitness for a trainer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>individual</strong> <span class="classifier-delimiter">:</span> <span class="classifier">MultipleValueChromosome</span></dt>
+<dd><p class="first last">subset fitness predictor to use in calculating predicted
+fitness</p>
+</dd>
+<dt><strong>trainer</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Chromosome</span></dt>
+<dd><p class="first last">the trainer of which to calculate fitness</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>float :</strong></dt>
+<dd><p class="first last">predicted fitness</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="bingo.FitnessPredictor.FitnessPredictor">
-<em class="property">class </em><code class="descclassname">bingo.FitnessPredictor.</code><code class="descname">FitnessPredictor</code><span class="sig-paren">(</span><em>indices=None</em>, <em>genetic_age=0</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictor" title="Permalink to this definition">¶</a></dt>
+<dt id="bingo.FitnessPredictor.FitnessPredictorIndexGenerator">
+<em class="property">class </em><code class="descclassname">bingo.FitnessPredictor.</code><code class="descname">FitnessPredictorIndexGenerator</code><span class="sig-paren">(</span><em>data_size</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictorIndexGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>class for fitness predictor, mainly just a list of indices</p>
+<p>Generator of ints within a range</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">maximum value of randomly generated int (non inclusive)</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
@@ -717,36 +254,21 @@ and distance</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.FitnessPredictor.FitnessPredictor.copy" title="bingo.FitnessPredictor.FitnessPredictor.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</td>
-<td>duplicates a fitness predictor via deep copy</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.FitnessPredictor.FitnessPredictor.fit_func" title="bingo.FitnessPredictor.FitnessPredictor.fit_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_func</span></code></a>(individual,&nbsp;fitness_metric,&nbsp;…)</td>
-<td>fitness function for standard regression type</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">__call__</span></code>()</td>
+<td>Call self as a function.</td>
 </tr>
 </tbody>
 </table>
-<dl class="method">
-<dt id="bingo.FitnessPredictor.FitnessPredictor.copy">
-<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictor.copy" title="Permalink to this definition">¶</a></dt>
-<dd><p>duplicates a fitness predictor via deep copy</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.FitnessPredictor.FitnessPredictor.fit_func">
-<code class="descname">fit_func</code><span class="sig-paren">(</span><em>individual</em>, <em>fitness_metric</em>, <em>training_data</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.FitnessPredictor.FitnessPredictor.fit_func" title="Permalink to this definition">¶</a></dt>
-<dd><p>fitness function for standard regression type</p>
-</dd></dl>
-
 </dd></dl>
 
 </div>
 <div class="section" id="module-bingo.Island">
 <span id="bingo-island-module"></span><h2>bingo.Island module<a class="headerlink" href="#module-bingo.Island" title="Permalink to this headline">¶</a></h2>
-<p>This module contains the code for an island in an island-based GA optimization
-it is general enough to work on any representation/fitness</p>
+<p>This module contains the code for an island in an island-based GA optimization</p>
+<p>it is general enough to work on any representation/fitness</p>
 <dl class="class">
 <dt id="bingo.Island.Island">
-<em class="property">class </em><code class="descclassname">bingo.Island.</code><code class="descname">Island</code><span class="sig-paren">(</span><em>gene_manipulator</em>, <em>fitness_function</em>, <em>target_pop_size=64</em>, <em>cx_prob=0.7</em>, <em>mut_prob=0.01</em>, <em>age_fitness=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bingo.Island.</code><code class="descname">Island</code><span class="sig-paren">(</span><em>evolution_algorithm</em>, <em>generator</em>, <em>population_size</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Island: code for island of genetic algorithm</p>
 <p class="rubric">Methods</p>
@@ -756,178 +278,61 @@ it is general enough to work on any representation/fitness</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.age_fitness_pareto_step" title="bingo.Island.Island.age_fitness_pareto_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">age_fitness_pareto_step</span></code></a>()</td>
-<td>Performs a age-fitness pareto generational step</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.best_individual" title="bingo.Island.Island.best_individual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">best_individual</span></code></a>()</td>
+<td>Finds the individual with the lowest fitness in a population</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.Island.Island.best_indv" title="bingo.Island.Island.best_indv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">best_indv</span></code></a>()</td>
-<td>Finds individual with best (lowest) fitness</td>
+<tr class="row-even"><td><a class="reference internal" href="#bingo.Island.Island.evaluate_population" title="bingo.Island.Island.evaluate_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">evaluate_population</span></code></a>()</td>
+<td>Manually trigger evaluation of population</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.deterministic_crowding_step" title="bingo.Island.Island.deterministic_crowding_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deterministic_crowding_step</span></code></a>()</td>
-<td>Performs a deterministic crowding generational step</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.Island.Island.dominate" title="bingo.Island.Island.dominate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dominate</span></code></a>(indv1,&nbsp;indv2)</td>
-<td>Returns whether or not individual1 dominates individual 2 in all their fitness measures: i.e.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.dump_pareto" title="bingo.Island.Island.dump_pareto"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_pareto</span></code></a>()</td>
-<td>Dumps the pareto population to a pickleable object</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.Island.Island.dump_population" title="bingo.Island.Island.dump_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump_population</span></code></a>([subset,&nbsp;with_removal])</td>
-<td>Dumps the population to a pickleable object</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.generate_population" title="bingo.Island.Island.generate_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_population</span></code></a>()</td>
-<td>Generates a new random population using the gene manipulator to fill the island</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.Island.Island.load_population" title="bingo.Island.Island.load_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_population</span></code></a>(pop_list[,&nbsp;replace])</td>
-<td>loads population from a pickleable object</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.similar" title="bingo.Island.Island.similar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">similar</span></code></a>(indv1,&nbsp;indv2)</td>
-<td>Returns whether the fitness measures are equal for two individuals</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#bingo.Island.Island.update_pareto_front" title="bingo.Island.Island.update_pareto_front"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_pareto_front</span></code></a>()</td>
-<td>Updates the pareto front based on the current population</td>
+<tr class="row-odd"><td><a class="reference internal" href="#bingo.Island.Island.execute_generational_step" title="bingo.Island.Island.execute_generational_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_generational_step</span></code></a>()</td>
+<td>Executes a single generational step using the provided evolutionary algorithm</td>
 </tr>
 </tbody>
 </table>
 <dl class="method">
-<dt id="bingo.Island.Island.age_fitness_pareto_step">
-<code class="descname">age_fitness_pareto_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.age_fitness_pareto_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs a age-fitness pareto generational step</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.best_indv">
-<code class="descname">best_indv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.best_indv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds individual with best (lowest) fitness</p>
+<dt id="bingo.Island.Island.best_individual">
+<code class="descname">best_individual</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.best_individual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the individual with the lowest fitness in a population</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">fitness of best individual</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>best</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Chromosome</span></dt>
+<dd><p class="first last">The Chromosome with the lowest fitness value</p>
+</dd>
+</dl>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="method">
-<dt id="bingo.Island.Island.deterministic_crowding_step">
-<code class="descname">deterministic_crowding_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.deterministic_crowding_step" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs a deterministic crowding generational step</p>
+<dt id="bingo.Island.Island.evaluate_population">
+<code class="descname">evaluate_population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.evaluate_population" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manually trigger evaluation of population</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="bingo.Island.Island.dominate">
-<code class="descname">dominate</code><span class="sig-paren">(</span><em>indv1</em>, <em>indv2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.dominate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether or not individual1 dominates individual 2 in all their
-fitness measures: i.e. True if all values in indv1.fitness tuple are
-less than or equal to the counterpart in individual 2 else False</p>
+<dt id="bingo.Island.Island.execute_generational_step">
+<code class="descname">execute_generational_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.execute_generational_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Executes a single generational step using the provided evolutionary
+algorithm</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>indv1</strong> – first individual with fitness member</li>
-<li><strong>indv2</strong> – second individual with fitness member</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Does indv1 dominate indv2 (boolean)</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.dump_pareto">
-<code class="descname">dump_pareto</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.dump_pareto" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dumps the pareto population to a pickleable object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">pareto front in list form</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.dump_population">
-<code class="descname">dump_population</code><span class="sig-paren">(</span><em>subset=None</em>, <em>with_removal=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.dump_population" title="Permalink to this definition">¶</a></dt>
-<dd><p>Dumps the population to a pickleable object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>subset</strong> – list of indices for the subset of the population which
-is dumped. A None value results in all of the population
-being dumped.</li>
-<li><strong>with_removal</strong> – boolean describing whether the elements should be
-removed from population after dumping</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">population in list form</p>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>population</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of Chromosomes</span></dt>
+<dd><p class="first last">The offspring generation yielded from the generational
+step</p>
+</dd>
+</dl>
 </td>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.generate_population">
-<code class="descname">generate_population</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.generate_population" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generates a new random population using the gene manipulator to fill
-the island</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.load_population">
-<code class="descname">load_population</code><span class="sig-paren">(</span><em>pop_list</em>, <em>replace=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.load_population" title="Permalink to this definition">¶</a></dt>
-<dd><p>loads population from a pickleable object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pop_list</strong> – list of population which is loaded</li>
-<li><strong>replace</strong> – default (True) value results in all of the population
-being loaded/replaced. False value means that the
-population in pop_list is appended to the current
-population</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.similar">
-<code class="descname">similar</code><span class="sig-paren">(</span><em>indv1</em>, <em>indv2</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.similar" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns whether the fitness measures are equal for two individuals</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>indv1</strong> – first individual with fitness member</li>
-<li><strong>indv2</strong> – second individual with fitness member</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">is indv1.fitness == indv2.fitness (boolean)</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bingo.Island.Island.update_pareto_front">
-<code class="descname">update_pareto_front</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Island.Island.update_pareto_front" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the pareto front based on the current population</p>
 </dd></dl>
 
 </dd></dl>
@@ -1045,253 +450,17 @@ latexstring() member function</li>
 <div class="section" id="bingo-simplegp-module">
 <h2>bingo.SimpleGp module<a class="headerlink" href="#bingo-simplegp-module" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="module-bingo.TrainingData">
-<span id="bingo-trainingdata-module"></span><h2>bingo.TrainingData module<a class="headerlink" href="#module-bingo.TrainingData" title="Permalink to this headline">¶</a></h2>
-<p>This module contains the definition of various data containers that store
-training data for bingo.</p>
-<dl class="class">
-<dt id="bingo.TrainingData.ExplicitTrainingData">
-<em class="property">class </em><code class="descclassname">bingo.TrainingData.</code><code class="descname">ExplicitTrainingData</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.ExplicitTrainingData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.TrainingData.TrainingData" title="bingo.TrainingData.TrainingData"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.TrainingData.TrainingData</span></code></a></p>
-<p>ExplicitTrainingData: Training data of this type contains an input array of
-data (x)  and an output array of data (y).  Both must be 2 dimensional
-numpy arrays</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.TrainingData.ExplicitTrainingData.size" title="bingo.TrainingData.ExplicitTrainingData.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a>()</td>
-<td>gets the length of the first dimension of the data :return: indexable size</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.TrainingData.ExplicitTrainingData.size">
-<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.ExplicitTrainingData.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>gets the length of the first dimension of the data
-:return: indexable size</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.TrainingData.ImplicitTrainingData">
-<em class="property">class </em><code class="descclassname">bingo.TrainingData.</code><code class="descname">ImplicitTrainingData</code><span class="sig-paren">(</span><em>x</em>, <em>dx_dt=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.ImplicitTrainingData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.TrainingData.TrainingData" title="bingo.TrainingData.TrainingData"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.TrainingData.TrainingData</span></code></a></p>
-<p>ImplicitTrainingData: Training data of this type contains an input array of
-data (x)  and its time derivative (dx_dt).  Both must be 2 dimensional
-numpy arrays</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.TrainingData.ImplicitTrainingData.size" title="bingo.TrainingData.ImplicitTrainingData.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a>()</td>
-<td>gets the length of the first dimension of the data :return: indexable size</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.TrainingData.ImplicitTrainingData.size">
-<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.ImplicitTrainingData.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>gets the length of the first dimension of the data
-:return: indexable size</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.TrainingData.PairwiseAtomicTrainingData">
-<em class="property">class </em><code class="descclassname">bingo.TrainingData.</code><code class="descname">PairwiseAtomicTrainingData</code><span class="sig-paren">(</span><em>potential_energy</em>, <em>configurations=None</em>, <em>r_list=None</em>, <em>config_lims_r=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.PairwiseAtomicTrainingData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bingo.TrainingData.TrainingData" title="bingo.TrainingData.TrainingData"><code class="xref py py-class docutils literal notranslate"><span class="pre">bingo.TrainingData.TrainingData</span></code></a></p>
-<p>PairwiseAtomicTrainingData: Training data of this type contains distances
-(r) between ataoms in several configurations. each configuration has an
-associated potential energy.  The r values beloning to each configuration
-are bounded by configuration limits (config_lims_r)</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.TrainingData.PairwiseAtomicTrainingData.size" title="bingo.TrainingData.PairwiseAtomicTrainingData.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a>()</td>
-<td>gets the number of configurations :return: indexable size</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.TrainingData.PairwiseAtomicTrainingData.size">
-<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.PairwiseAtomicTrainingData.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>gets the number of configurations
-:return: indexable size</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="bingo.TrainingData.TrainingData">
-<em class="property">class </em><code class="descclassname">bingo.TrainingData.</code><code class="descname">TrainingData</code><a class="headerlink" href="#bingo.TrainingData.TrainingData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Training Data superclass which defines the methods needed for derived
-classes</p>
-<p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#bingo.TrainingData.TrainingData.size" title="bingo.TrainingData.TrainingData.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a>()</td>
-<td>gets the number of indexable points in the training data :return: size of the training dataset</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="bingo.TrainingData.TrainingData.size">
-<code class="descname">size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.TrainingData.TrainingData.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>gets the number of indexable points in the training data
-:return: size of the training dataset</p>
-</dd></dl>
-
-</dd></dl>
-
+<div class="section" id="bingo-trainingdata-module">
+<h2>bingo.TrainingData module<a class="headerlink" href="#bingo-trainingdata-module" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-bingo.Utils">
 <span id="bingo-utils-module"></span><h2>bingo.Utils module<a class="headerlink" href="#module-bingo.Utils" title="Permalink to this headline">¶</a></h2>
 <p>Utils contains useful utility functions for doing and testing symbolic
 regression problems in the bingo package</p>
 <dl class="function">
-<dt id="bingo.Utils.calculate_partials">
-<code class="descclassname">bingo.Utils.</code><code class="descname">calculate_partials</code><span class="sig-paren">(</span><em>X</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Utils.calculate_partials" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate derivatves with respect to time (first dimension).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>X</strong> – 2d numpy array in for which derivatives will be calculated in the
-first diminsion. Distinct trajectories can be specified by
-separating the datasets within X by rows of np.nan</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">updated X array and corresponding time derivatives</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="bingo.Utils.post_process_logfile">
 <code class="descclassname">bingo.Utils.</code><code class="descname">post_process_logfile</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Utils.post_process_logfile" title="Permalink to this definition">¶</a></dt>
 <dd><p>does same basic post processing of log files</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="bingo.Utils.savitzky_golay">
-<code class="descclassname">bingo.Utils.</code><code class="descname">savitzky_golay</code><span class="sig-paren">(</span><em>y</em>, <em>window_size</em>, <em>order</em>, <em>deriv=0</em>, <em>rate=1</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Utils.savitzky_golay" title="Permalink to this definition">¶</a></dt>
-<dd><p>Smooth (and optionally differentiate) data with a Savitzky-Golay filter
-The Savitzky-Golay filter removes high frequency noise from data.
-It has the advantage of preserving the original shape and
-features of the signal better than other types of filtering
-approaches, such as moving averages techniques.</p>
-<p>The Savitzky-Golay is a type of low-pass filter, particularly
-suited for smoothing noisy data. The main idea behind this
-approach is to make for each point a least-square fit with a
-polynomial of high order over a odd-sized window centered at
-the point.</p>
-<table class="docutils citation" frame="void" id="rca605fdb7208-1" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[1]</td><td>A. Savitzky, M. J. E. Golay, Smoothing and Differentiation of
-Data by Simplified Least Squares Procedures. Analytical
-Chemistry, 1964, 36 (8), pp 1627-1639.</td></tr>
-</tbody>
-</table>
-<table class="docutils citation" frame="void" id="rca605fdb7208-2" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[2]</td><td>Numerical Recipes 3rd Edition: The Art of Scientific Computing
-W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P. Flannery
-Cambridge University Press ISBN-13: 9780521880688</td></tr>
-</tbody>
-</table>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y</strong> – array_like, shape (N,)
-the values of the time history of the signal.</li>
-<li><strong>window_size</strong> – int
-the length of the window. Must be an odd integer number.</li>
-<li><strong>order</strong> – int
-the order of the polynomial used in the filtering.
-Must be less then <cite>window_size</cite> - 1.</li>
-<li><strong>deriv</strong> – int
-the order of the derivative to compute (default = 0 means only
-smoothing)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ys : ndarray, shape (N)
-the smoothed signal (or it’s n-th derivative).</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="bingo.Utils.savitzky_golay_gram">
-<code class="descclassname">bingo.Utils.</code><code class="descname">savitzky_golay_gram</code><span class="sig-paren">(</span><em>y</em>, <em>window_size</em>, <em>order</em>, <em>deriv=0</em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.Utils.savitzky_golay_gram" title="Permalink to this definition">¶</a></dt>
-<dd><p>Smooth (and optionally differentiate) data with a Savitzky-Golay filter
-The Savitzky-Golay filter removes high frequency noise from data.
-It has the advantage of preserving the original shape and
-features of the signal better than other types of filtering
-approaches, such as moving averages techniques.</p>
-<p>The Savitzky-Golay is a type of low-pass filter, particularly
-suited for smoothing noisy data. The main idea behind this
-approach is to make for each point a least-square fit with a
-polynomial of high order over a odd-sized window centered at
-the point.</p>
-<p>A Gram polynomial version of this is used to have better estimates near the
-boundaries of the data.</p>
-<table class="docutils citation" frame="void" id="r5456b0f4bd79-3" rules="none">
-<colgroup><col class="label" /><col /></colgroup>
-<tbody valign="top">
-<tr><td class="label">[3]</td><td>P.A. Gorry, General Least-Squares Smoothing and Differentiation by
-the Convolution (Savitzky-Golay) Method. Analytical Chemistry, 1990, 62,
-pp 570-573</td></tr>
-</tbody>
-</table>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y</strong> – array_like, shape (N,)
-the values of the time history of the signal.</li>
-<li><strong>window_size</strong> – int
-the length of the window. Must be an odd integer number.</li>
-<li><strong>order</strong> – int
-the order of the polynomial used in the filtering.
-Must be less then <cite>window_size</cite> - 1.</li>
-<li><strong>deriv</strong> – int
-the order of the derivative to compute (default = 0 means only
-smoothing)</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">ys : ndarray, shape (N)
-the smoothed signal (or it’s n-th derivative).</p>
-</td>
-</tr>
-</tbody>
-</table>
 </dd></dl>
 
 <dl class="function">
@@ -1335,14 +504,14 @@ the smoothed signal (or it’s n-th derivative).</p>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">bingo package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-bingo.CoevolutionIsland">bingo.CoevolutionIsland module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-bingo.FitnessMetric">bingo.FitnessMetric module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bingo-coevolutionisland-module">bingo.CoevolutionIsland module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bingo-fitnessmetric-module">bingo.FitnessMetric module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.FitnessPredictor">bingo.FitnessPredictor module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.Island">bingo.Island module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bingo-islandmanager-module">bingo.IslandManager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.Plotting">bingo.Plotting module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bingo-simplegp-module">bingo.SimpleGp module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-bingo.TrainingData">bingo.TrainingData module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bingo-trainingdata-module">bingo.TrainingData module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo.Utils">bingo.Utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-bingo">Module contents</a></li>
 </ul>
@@ -1370,6 +539,14 @@ the smoothed signal (or it’s n-th derivative).</p>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -1378,8 +555,8 @@ the smoothed signal (or it’s n-th derivative).</p>
       &copy;2017, Geoffrey F. Bomarito.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/bingo.rst.txt"

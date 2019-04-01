@@ -56,7 +56,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         algorithm listing for details.
     algorithm : string
         An algorithm that is used in the local optimization of a
-        `MultipleFloatChromosome`. The default algorithm is *Nelder-Mead*. The
+        `Chromosome`. The default algorithm is *Nelder-Mead*. The
         other options are:
             1. FitnessFunction
                 - Nelder-Mead
@@ -85,19 +85,46 @@ class ContinuousLocalOptimization(FitnessFunction):
                 - krylov (not available yet)
                 - df-sane (not available yet)
 
+    Attributes
+    ----------
+    eval_count : int
+                 the number of evaluations that have been performed by the
+                 wrapped fitness function
+    training_data :
+                   (Optional) data that can be used in the wrapped fitness
+                   function
+
     Raises
     ------
     KeyError:
         `algorithm` must be an algorithm provided by the interface
     TypeError :
-        `fitness_function` must Be a valid `FitnessFunction` for the specified algorithm
+        `fitness_function` must Be a valid `FitnessFunction` for the specified
+        algorithm
     """
     def __init__(self, fitness_function, algorithm='Nelder-Mead'):
-        super().__init__()
         self._check_algorithm_is_valid(algorithm)
         self._check_root_alg_returns_vector(fitness_function, algorithm)
         self._fitness_function = fitness_function
         self._algorithm = algorithm
+
+    @property
+    def training_data(self):
+        """TrainingData : data that can be used in fitness evaluations"""
+        return self._fitness_function.training_data
+
+    @training_data.setter
+    def training_data(self, value):
+        self._fitness_function.training_data = value
+
+    @property
+    def eval_count(self):
+        """int : the number of evaluations that have been performed"""
+        return self._fitness_function.eval_count
+
+    @eval_count.setter
+    def eval_count(self, value):
+        self._fitness_function.eval_count = value
 
     def __call__(self, individual):
         """Evaluates the fitness of the individual. Provides local optimization

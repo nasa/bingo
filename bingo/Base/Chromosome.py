@@ -69,4 +69,3 @@ class Chromosome(metaclass=ABCMeta):
             distance from self to chromosome
         """
         raise NotImplementedError
-

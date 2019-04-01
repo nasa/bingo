@@ -23,6 +23,8 @@ class FitnessFunction(metaclass=ABCMeta):
     ----------
     eval_count : int
                  the number of evaluations that have been performed
+    training_data :
+                   (Optional) data that can be used in fitness evaluation
     """
     def __init__(self, training_data=None):
         self.eval_count = 0

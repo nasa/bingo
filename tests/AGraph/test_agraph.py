@@ -217,12 +217,14 @@ def test_setting_command_array_unsets_fitness(sample_agraph_1):
     sample_agraph_1.command_array = np.ones((1, 3))
     assert not sample_agraph_1.fit_set
 
+
 def test_nans_on_evaluate_overflow(mocker, sample_agraph_1, sample_agraph_1_values):
     mocker.patch('bingo.AGraph.AGraph.Backend.simplify_and_evaluate')
     AGraph.Backend.simplify_and_evaluate.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
+
 
 def test_nans_on_evaluate_with_gradient_overflow(mocker, sample_agraph_1,
                                    sample_agraph_1_values):
@@ -231,6 +233,7 @@ def test_nans_on_evaluate_with_gradient_overflow(mocker, sample_agraph_1,
 
     values = sample_agraph_1.evaluate_equation_with_x_gradient_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
+
 
 def test_nans_on_evaluate_with_local_opt_gradient_overflow(mocker, sample_agraph_1,
                                    sample_agraph_1_values):

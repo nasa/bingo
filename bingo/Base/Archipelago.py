@@ -10,15 +10,17 @@ class Archipelago(metaclass=ABCMeta):
         self._island = island
         self._num_islands = num_islands
 
-    def run_islands(self, max_generations, error_tol,
-                    min_generations, generation_step_report):
+    def run_islands(self, max_generations, min_generations, 
+                    generation_step_report, error_tol=10e-6):
         self.step_through_generations(generation_step_report)
         converged = self.test_for_convergence(error_tol)
+
         while self.archipelago_age < min_generations or \
                 (self.archipelago_age < max_generations and not converged):
             self.coordinate_migration_between_islands()
             self.step_through_generations(generation_step_report)
             converged = self.test_for_convergence(generation_step_report)
+
         return converged
 
     @abstractmethod

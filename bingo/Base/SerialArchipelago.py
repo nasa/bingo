@@ -5,7 +5,7 @@ import logging
 
 LOGGER = logging.getLogger(__name__)
 
-from .Base.Archipelago import Archipelago
+from .Archipelago import Archipelago
 
 class SerialArchipelago(Archipelago):
 
@@ -27,6 +27,7 @@ class SerialArchipelago(Archipelago):
                         self._get_pareto_front_fitness(island))
         t_3 = time.time()
         LOGGER.info("total time: %.1fs", (t_3 - t_0))
+        self.archipelago_age += 1
 
     def coordinate_migration_between_islands(self):
         island_partners = self._shuffle_island_indices()
@@ -37,16 +38,14 @@ class SerialArchipelago(Archipelago):
     def test_for_convergence(self, error_tol):
         list_of_best_indvs = []
         for island in self._islands:
-            list_of_best_indvs.append(island.best_individual())
+            best_indv = island.best_individual()
+            list_of_best_indvs.append(best_indv)
         list_of_best_indvs.sort(key=lambda x: x.fitness)
 
         best_indv = list_of_best_indvs[0]
-        converged = best_indv.fitness < error_tol
-        LOGGER.info("current best true fitness: %s", str(best_indv.fitness))
-        LOGGER.info("best solution: %s", best_indv.get_latex_string())
+        converged = best_indv.fitness <= error_tol
 
         return converged
-
 
     def _generate_islands(self):
         island_list = []

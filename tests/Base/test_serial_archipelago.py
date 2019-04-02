@@ -142,6 +142,13 @@ def test_convergence_of_archipelago_unconverged(one_island):
     assert not converged
 
 
+def test_assign_and_receive(one_island, two_island):
+    send, receive = \
+                SerialArchipelago.assign_send_receive(one_island, two_island)
+    for s, r in zip(send, receive):
+        assert 0 <= s < len(one_island.population) <= len(two_island.population)
+        assert 0 <= r < len(one_island.population) <= len(two_island.population)
+
 def test_archipelago_runs(one_island, two_island, three_island):
     max_generations = 100
     min_generations = 10

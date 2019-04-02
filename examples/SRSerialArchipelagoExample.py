@@ -49,25 +49,11 @@ def execute_generational_steps():
 
     island = Island(ea, agraph_generator, POP_SIZE)
     archipelago = SerialArchipelago(island)
-    curr_fitness = 10e6
-    i = 0
-    #archipelago.run_islands(500, 100, 10)
-    archipelago.step_through_generations(200)
-    # while (curr_fitness > 10e-6):
-    #     island.execute_generational_step()
-    #     print("\nGeneration #", i)
-    #     i += 1
-    #     print("-"*80, "\n")
-    #     report_max_min_mean_fitness(island.population)
-    #     curr_fitness = island.best_individual().fitness
 
-   # print("Success!", island.best_individual().get_latex_string())
-
-def report_max_min_mean_fitness(population):
-    fitness = [indv.fitness for indv in population]
-    print("Max fitness: \t", np.max(fitness))
-    print("Min fitness: \t", np.min(fitness))
-    print("Mean fitness: \t", np.mean(fitness))
+    if archipelago.run_islands(500, 100, 10):
+        print(archipelago.get_best_individual().get_latex_string())
+    else:
+        print("Failed.")
 
 def main():
     execute_generational_steps()

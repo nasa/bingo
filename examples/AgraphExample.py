@@ -3,15 +3,15 @@
 # pylint: disable=missing-docstring
 import numpy as np
 
-from bingo.AGraph.AGraphCrossover import AGraphCrossover
-from bingo.AGraph.AgraphMutation import AGraphMutation
-from bingo.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.AGraph.ComponentGenerator import ComponentGenerator
-from bingo.ExplicitRegression import ExplicitRegression, ExplicitTrainingData
-from bingo.EA.AgeFitnessEA import AgeFitnessEA
+from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
+from bingo.SymbolicRegression.AGraph.AgraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
+from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
+from bingo.SymbolicRegression.ExplicitRegression import ExplicitRegression, ExplicitTrainingData
 
-from bingo.EA.SimpleEvaluation import SimpleEvaluation
-from bingo.Island import Island
+from bingo.Base.AgeFitnessEA import AgeFitnessEA
+from bingo.Base.Evaluation import Evaluation
+from bingo.Base.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
 
 POP_SIZE = 100

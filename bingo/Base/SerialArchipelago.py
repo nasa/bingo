@@ -72,6 +72,7 @@ class SerialArchipelago(Archipelago):
         converged = best_indv.fitness <= error_tol
 
         self._best_indv = best_indv
+        self._converged = converged
         return converged
 
     def get_best_individual(self):

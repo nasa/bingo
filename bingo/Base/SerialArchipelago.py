@@ -8,12 +8,29 @@ LOGGER = logging.getLogger(__name__)
 from .Archipelago import Archipelago
 
 class SerialArchipelago(Archipelago):
+    """An archipelago that executes island generations serially.
 
+    Parameters
+    ----------
+    island : Island
+             The island from which other islands will be copied
+    num_islands : int, default = 2
+                  The number of islands to create in the archipelago's
+                  list of islands
+    """
     def __init__(self, island, num_islands=2):
         super().__init__(island, num_islands)
         self._islands = self._generate_islands()
 
     def step_through_generations(self, num_steps):
+        """ Executes 'num_steps' number of generations for
+        each island in the archipelago's list of islands
+
+        Parameters
+        ----------
+        num_steps : int
+                    The number of generations to execute per island
+        """
         t_0 = time.time()
         for i, island in enumerate(self._islands):
             t_1 = time.time()
@@ -30,12 +47,23 @@ class SerialArchipelago(Archipelago):
         self.archipelago_age += 1
 
     def coordinate_migration_between_islands(self):
+        """Shuffles island populations for migration and performs
+        migration by swapping pairs of individuals between islands
+        """
         island_partners = self._shuffle_island_indices()
 
         for i in range(self._num_islands//2):
             self._shuffle_island_and_swap_pairs(island_partners, i)
 
     def test_for_convergence(self, error_tol):
+        """Tests that the fitness of individuals is less than
+        or equal to the specified error tolerance
+
+        Parameters
+        ----------
+        error_tol : int
+                    Upper bound for acceptable fitness of an individual
+        """
         list_of_best_indvs = []
         for island in self._islands:
             best_indv = island.best_individual()
@@ -72,13 +100,13 @@ class SerialArchipelago(Archipelago):
     def _swap_island_individuals(self, island_1, island_2):
         indexes_to_2, indexes_to_1 = self._get_send_and_receive_pairs(
             island_1, island_2)
-        self._exchange_indidividuals(island_1, island_2, 
-                                     indexes_to_1, indexes_to_2)
+        self._exchange_individuals(island_1, island_2, 
+                                   indexes_to_1, indexes_to_2)
 
     def _get_send_and_receive_pairs(self, island_1, island_2):
         return Archipelago.assign_send_receive(island_1, island_2)
 
-    def _exchange_indidividuals(self, island_1, island_2,
+    def _exchange_individuals(self, island_1, island_2,
                                 list_of_indexes_to_1, list_of_indexes_to_2):
         indexes_to_1 = set(list_of_indexes_to_1)
         indexes_to_2 = set(list_of_indexes_to_2)

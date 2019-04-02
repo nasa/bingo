@@ -1,9 +1,10 @@
-import time
+"""The serial implemenation of the Archipelago
+
+This module dfines the Archipelago data structure that runs serially on
+one processor.
+"""
 import copy
 import random
-import logging
-
-LOGGER = logging.getLogger(__name__)
 
 from .Archipelago import Archipelago
 
@@ -13,14 +14,16 @@ class SerialArchipelago(Archipelago):
     Parameters
     ----------
     island : Island
-             The island from which other islands will be copied
+        The island from which other islands will be copied
     num_islands : int, default = 2
-                  The number of islands to create in the archipelago's
-                  list of islands
+        The number of islands to create in the archipelago's
+        list of islands
     """
     def __init__(self, island, num_islands=2):
         super().__init__(island, num_islands)
         self._islands = self._generate_islands()
+        self._converged = False
+        self._best_indv = None
 
     def step_through_generations(self, num_steps):
         """ Executes 'num_steps' number of generations for
@@ -29,21 +32,11 @@ class SerialArchipelago(Archipelago):
         Parameters
         ----------
         num_steps : int
-                    The number of generations to execute per island
+            The number of generations to execute per island
         """
-        t_0 = time.time()
-        for i, island in enumerate(self._islands):
-            t_1 = time.time()
+        for island in self._islands:
             for _ in range(num_steps):
                 island.execute_generational_step()
-            t_2 = time.time()
-            LOGGER.info("%2d >\tage: %d\ttime: %.1fs\tbest fitness: %s",
-                        i,
-                        self._get_generational_age(island),
-                        t_2 - t_1,
-                        self._get_pareto_front_fitness(island))
-        t_3 = time.time()
-        LOGGER.info("total time: %.1fs", (t_3 - t_0))
         self.archipelago_age += 1
 
     def coordinate_migration_between_islands(self):
@@ -62,7 +55,12 @@ class SerialArchipelago(Archipelago):
         Parameters
         ----------
         error_tol : int
-                    Upper bound for acceptable fitness of an individual
+            Upper bound for acceptable fitness of an individual
+
+        Returns
+        -------
+        bool :
+            Indicates whether a chromosome has converged.
         """
         list_of_best_indvs = []
         for island in self._islands:
@@ -73,7 +71,20 @@ class SerialArchipelago(Archipelago):
         best_indv = list_of_best_indvs[0]
         converged = best_indv.fitness <= error_tol
 
+        self._best_indv = best_indv
         return converged
+
+    def get_best_individual(self):
+        """Returns the best individual if the islands converged to an
+        acceptable fitness.
+
+        Returns
+        -------
+        Chromosome :
+            The best individual whose fitness was within the error
+            tolerance.
+        """
+        return self._best_indv if self._converged else None
 
     def _generate_islands(self):
         island_list = []

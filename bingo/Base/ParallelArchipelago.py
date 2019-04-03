@@ -62,3 +62,33 @@ class ParallelArchipelago(Archipelago):
                 if self.comm.iprobe(source=0, tag=0):
                     average_age = self.comm.recv(source=0, tag=0)
             self._island.generational_step()
+
+    def test_convergence(self, error_tol):
+        """Tests that the fitness of individuals is less than
+        or equal to the specified error tolerance
+
+        Parameters
+        ----------
+        error_tol : int
+            Upper bound for acceptable fitness of an individual
+
+        Returns
+        -------
+        bool :
+            Indicates whether a chromosome has converged.
+        """
+        list_of_best_indvs = []
+        list_of_best_indvs = self.comm.gather(list_of_best_indvs, root=0)
+
+        if self.comm.rank == 0:
+            best_indv = self._island.best_individual()
+            list_of_best_indvs.append(best_indv)
+            list_of_best_indvs.sort(key=lambda x: x.fitness)
+            best_indv = list_of_best_indvs[0]
+            converged = best_indv.fitness <= error_tol
+
+        self._best_indv = best_indv
+        
+        self._converged = converged
+        converged = self.comm.bcast(converged, root=0)
+        return converged

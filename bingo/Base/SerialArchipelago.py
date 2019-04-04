@@ -37,7 +37,7 @@ class SerialArchipelago(Archipelago):
         for island in self._islands:
             for _ in range(num_steps):
                 island.execute_generational_step()
-        self.archipelago_age += 1
+        self.archipelago_age += num_steps
 
     def coordinate_migration_between_islands(self):
         """Shuffles island populations for migration and performs
@@ -85,7 +85,7 @@ class SerialArchipelago(Archipelago):
             The best individual whose fitness was within the error
             tolerance.
         """
-        return self._best_indv if self._converged else None
+        return self._best_indv
 
     def _generate_islands(self):
         island_list = []

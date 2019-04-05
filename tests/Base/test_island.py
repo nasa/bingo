@@ -39,12 +39,12 @@ def mutation_function():
 
 def test_manual_evaluation(island):
     island.evaluate_population()
-    for indv in island.population:
+    for indv in island.get_population():
         assert indv.fit_set
 
 
 def test_generational_steps_change_population_age(island):
-    for indv in island.population:
+    for indv in island.get_population():
         assert indv.genetic_age == 0
     island.execute_generational_step()
     for indv in island.population:
@@ -60,7 +60,7 @@ def test_generational_age_increases(island):
 
 def test_best_individual(island):
     island.execute_generational_step()
-    fitness = [indv.fitness for indv in island.population]
+    fitness = [indv.fitness for indv in island.get_population()]
     best = island.best_individual()
     assert best.fitness == min(fitness)
 

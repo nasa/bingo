@@ -1,14 +1,9 @@
-import time
-import copy
 import random
-import logging
+import sys
 
-from mpi4py import MPI 
-import numpy as np
+from mpi4py import MPI
 
 from .Archipelago import Archipelago
-
-LOGGER = logging.getLogger(__name__)
 
 class ParallelArchipelago(Archipelago):
 
@@ -17,13 +12,22 @@ class ParallelArchipelago(Archipelago):
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
         super().__init__(island, self.comm_size)
+        self._best_indv = None
+        self._converged = False
 
     def step_through_generations(self, num_steps, non_block=True,
                                  when_to_update=10):
         if non_block:
+            print("here")
+            sys.stdout.flush()
             self._non_blocking_execution(num_steps, when_to_update)
+            print("1")
+            sys.stdout.flush()
             self.comm.Barrier()
+            print("2")
+            sys.stdout.flush()
             if self.comm_rank == 0:
+                print("check the status")
                 status = MPI.Status()
                 while self.comm.iprobe(source=MPI.ANY_SOURCE,
                                        tag=2,
@@ -31,9 +35,10 @@ class ParallelArchipelago(Archipelago):
                     data = self.comm.recv(source=status.Get_source(), tag=2)
         else:
             for _ in range(num_steps):
-                self._island.generational_step()
+                self._island.execute_generational_step()
 
-        self.archipelago_age += 1
+        print("increase age")
+        self.archipelago_age += num_steps
 
     def coordinate_migration_between_islands(self):
         """Shuffles island populations for migration and performs
@@ -49,7 +54,7 @@ class ParallelArchipelago(Archipelago):
 
         self._partner_exchange_program(island_index, island_partners)
 
-    def test_convergence(self, error_tol):
+    def test_for_convergence(self, error_tol):
         """Tests that the fitness of individuals is less than
         or equal to the specified error tolerance
 
@@ -63,19 +68,24 @@ class ParallelArchipelago(Archipelago):
         bool :
             Indicates whether a chromosome has converged.
         """
-        list_of_best_indvs = []
-        list_of_best_indvs = self.comm.gather(list_of_best_indvs, root=0)
+        best_indvs = self._island.best_individual()
+        self._best_inv = best_indvs
+        best_indvs = self.comm.gather(best_indvs, root=0)
 
+        list_of_best_indvs = []
+        converged = None
         if self.comm.rank == 0:
-            best_indv = self._island.best_individual()
-            list_of_best_indvs.append(best_indv)
+            for indv in best_indvs:
+                list_of_best_indvs.append(indv)
             list_of_best_indvs.sort(key=lambda x: x.fitness)
             best_indv = list_of_best_indvs[0]
             converged = best_indv.fitness <= error_tol
+            self._best_indv = best_indv
+            self._converged = converged
 
-        self._best_indv = best_indv
-        self._converged = converged
         converged = self.comm.bcast(converged, root=0)
+        self._converged = converged
+
         return converged
 
 
@@ -89,7 +99,10 @@ class ParallelArchipelago(Archipelago):
             The best individual whose fitness was within the error
             tolerance.
         """
-        return self._best_indv if self._converged else None
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            return self._best_indv if self._converged else None
+        else:
+            return None
 
     def _shuffle_island_indices(self):
         indices = list(range(self._num_islands))
@@ -136,12 +149,17 @@ class ParallelArchipelago(Archipelago):
         total_age = {}
         average_age = self.archipelago_age
         target_age = self.archipelago_age + num_steps
+        print("3")
+        sys.stdout.flush()
         while average_age < target_age:
             if self._island.generational_age % when_to_update == 0:
                 if self.comm_rank == 0:
                     total_age.update({0: self._island.generational_age})
                     status = MPI.Status()
-
+                    print("4")
+                    print("average_age", average_age)
+                    print("target_age", target_age)
+                    sys.stdout.flush()
                     while self.comm.iprobe(source=MPI.ANY_SOURCE,
                                            tag=2,
                                            status=status):
@@ -149,6 +167,8 @@ class ParallelArchipelago(Archipelago):
                                               tag=2)
                         total_age.update(data)
                     average_age = (sum(total_age.values())) / self.comm.size
+                    print("5")
+                    sys.stdout.flush()
                     # send average to all other ranks if time to stop
                     if average_age >= num_steps:
                         send_count = 1
@@ -164,5 +184,5 @@ class ParallelArchipelago(Archipelago):
             if self.comm_rank != 0:
                 if self.comm.iprobe(source=0, tag=0):
                     average_age = self.comm.recv(source=0, tag=0)
-            self._island.generational_step()
+            self._island.execute_generational_step()
 

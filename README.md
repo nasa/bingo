@@ -205,7 +205,7 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
   * Tyler Townsend
   * Diana Vera
   
-## Licence 
+## License 
 #### Notices
 Copyright 2018 United States Government as represented by the Administrator of 
 the National Aeronautics and Space Administration. No copyright is claimed in 

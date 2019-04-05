@@ -94,9 +94,9 @@ contain their genetic information in a list attribute named `values`.  A
 chromosome generator is used to generate members of the population.  The 
 `MultipleValueChromosomeGenerator` generates these individuals by populating 
 the indivudual's `values` from a given input function.
-```python 
+```python
 import numpy as np
-from bingo.MultipleValues import MultipleValueChromosomeGenerator
+from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator
 np.random.seed(0)  # seeded for reproducible results
 
 def generate_0_or_1():
@@ -104,7 +104,7 @@ def generate_0_or_1():
 
 generator = MultipleValueChromosomeGenerator(generate_0_or_1,
                                              values_per_chromosome=16) 
-``` 
+```
 
 #### Defining the evolutionary algorithm
 Evolutionary algorithms have 3 phases in bingo: variation, evaluation and 
@@ -113,8 +113,8 @@ population, usually through some combination of mutation and crossover.  In
 this example `VarOr` is used which creates offspring through either mutation or 
 crossover (never both).
 ```python
-from bingo.MultipleValues import SinglePointCrossover, SinglePointMutation
-from bingo.EA.VarOr import VarOr
+from bingo.Base.MultipleValues import SinglePointCrossover, SinglePointMutation
+from bingo.Base.VarOr import VarOr
 
 crossover = SinglePointCrossover()
 mutation = SinglePointMutation(generate_0_or_1)
@@ -143,7 +143,7 @@ The selection phase is responsible for choosing which members of the population
 proceed to the next generation.  An implementation of the common tournament 
 selection algorithm is used here.
 ```python
-from bingo.EA.TournamentSelection import Tournament
+from bingo.Base.TournamentSelection import Tournament
 
 selection_phase = Tournament(tournament_size=2)
 ```
@@ -160,7 +160,7 @@ An `Island` is the fundamental unit in bingo evolutionary analyses.  It is
 responsible for generating and evolving a population (using a generator and 
 evolutionary algorithm).
 ```python
-from bingo.Island import Island
+from bingo.Base.Island import Island
 
 island = Island(ev_alg, generator, population_size=10)
 best_individual = island.best_individual()
@@ -168,8 +168,8 @@ print("Best individual at start: ", best_individual)
 print("Best individual's fitness: ", best_individual.fitness)
 ```
 ```
->> Best individual at start:  [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1]
->> Best individual's fitness:  5
+    Best individual at start:  [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1]
+    Best individual's fitness:  5
 ```
 The island can be evolved directly using it's `execute_generational_step` 
 member function.  In this case the population is evolved for 50 generations
@@ -182,8 +182,8 @@ print("Best individual at end: ", best_individual)
 print("Best individual's fitness: ", best_individual.fitness)
 ```
 ```
->> Best individual at end:  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
->> Best individual's fitness:  0
+    Best individual at end:  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    Best individual's fitness:  0
 ```
 
 ## Contributing
@@ -205,7 +205,7 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
   * Tyler Townsend
   * Diana Vera
   
-## Licence 
+## License 
 #### Notices
 Copyright 2018 United States Government as represented by the Administrator of 
 the National Aeronautics and Space Administration. No copyright is claimed in 

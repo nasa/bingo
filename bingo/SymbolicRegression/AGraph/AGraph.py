@@ -259,9 +259,10 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                                                    x,
                                                    self._constants)
             return f_of_x
-        except Exception as ex:
-            LOGGER.error("Error in stack evaluation")
-            self._raise_runtime_error(ex)
+        except (ArithmeticError, OverflowError, ValueError,
+                FloatingPointError) as err:
+            LOGGER.warning("%s in stack evaluation", err)
+            return np.full(x.shape, np.nan)
 
     def evaluate_equation_with_x_gradient_at(self, x):
         """Evaluate Agraph and get its derivatives.
@@ -283,9 +284,11 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             f_of_x, df_dx = Backend.simplify_and_evaluate_with_derivative(
                 self._command_array, x, self._constants, True)
             return f_of_x, df_dx
-        except Exception as ex:
-            LOGGER.error("Error in stack evaluation/deriv")
-            self._raise_runtime_error(ex)
+        except (ArithmeticError, OverflowError, ValueError,
+                FloatingPointError) as err:
+            LOGGER.warning("%s in stack evaluation/deriv", err)
+            nan_array = np.full(x.shape, np.nan)
+            return nan_array, np.array(nan_array)
 
     def evaluate_equation_with_local_opt_gradient_at(self, x):
         """Evaluate Agraph and get its derivatives.
@@ -308,23 +311,21 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             f_of_x, df_dc = Backend.simplify_and_evaluate_with_derivative(
                 self._command_array, x, self._constants, False)
             return f_of_x, df_dc
-        except Exception as ex:
-            LOGGER.error("Error in stack evaluation/const-deriv")
-            self._raise_runtime_error(ex)
+        except (ArithmeticError, OverflowError, ValueError,
+                FloatingPointError) as err:
+            LOGGER.warning("%s in stack evaluation/const-deriv", err)
+            nan_array = np.full((x.shape[0], len(self._constants)), np.nan)
+            return nan_array, np.array(nan_array)
 
     def __str__(self):
-        """Stack output of Agraph equation.
+        """Console string output of Agraph equation.
 
         Returns
         -------
         str
-            equation in stack form and simplified stack form
+            equation in console form
         """
-        print_str = "---full stack---\n"
-        print_str += self._get_stack_string(short=False)
-        print_str += "---small stack---\n"
-        print_str += self._get_stack_string(short=True)
-        return print_str
+        return self.get_console_string()
 
     def get_latex_string(self):
         """Latex interpretable version of Agraph equation.
@@ -345,6 +346,20 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             Equation in simple form
         """
         return self._get_formatted_string_using(CONSOLE_PRINT_MAP)
+
+    def get_stack_string(self):
+        """Stack output of Agraph equation.
+
+        Returns
+        -------
+        str
+            equation in stack form and simplified stack form
+        """
+        print_str = "---full stack---\n"
+        print_str += self._get_stack_string(short=False)
+        print_str += "---small stack---\n"
+        print_str += self._get_stack_string(short=True)
+        return print_str
 
     def get_complexity(self):
         """Calculate complexity of AGraph equation.
@@ -430,8 +445,3 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         dist = np.sum(self.command_array != chromosome.command_array)
 
         return dist
-
-    def _raise_runtime_error(self, ex):
-        LOGGER.error(str(self))
-        LOGGER.error(str(ex))
-        raise RuntimeError

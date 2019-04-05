@@ -54,7 +54,7 @@ def simplify_and_evaluate_with_derivative(stack, x, constants,
                                           wrt_param_x_or_c):
     """Evaluate equation and take derivative
 
-    Evauluate the derivatives of the equation associated with an Agraph, at the
+    Evaluate the derivatives of the equation associated with an Agraph, at the
     values x.  Simplification ensures that only the commands utilized in the
     result are considered.
 

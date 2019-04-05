@@ -93,12 +93,6 @@ class SerialArchipelago(Archipelago):
             island_list.append(copy.deepcopy(self._island))
         return island_list
 
-    def _get_generational_age(self, island):
-        return island.generational_age
-
-    def _get_pareto_front_fitness(self, island):
-        return island.best_individual().fitness
-
     def _shuffle_island_indices(self):
         indices = list(range(self._num_islands))
         random.shuffle(indices)
@@ -110,23 +104,16 @@ class SerialArchipelago(Archipelago):
         self._swap_island_individuals(partner_1, partner_2)
 
     def _swap_island_individuals(self, island_1, island_2):
-        indexes_to_2, indexes_to_1 = self._get_send_and_receive_pairs(
+        indexes_to_2, indexes_to_1 = Archipelago.assign_send_receive(
             island_1, island_2)
-        self._exchange_individuals(island_1, island_2, 
-                                   indexes_to_1, indexes_to_2)
 
-    def _get_send_and_receive_pairs(self, island_1, island_2):
-        return Archipelago.assign_send_receive(island_1, island_2)
-
-    def _exchange_individuals(self, island_1, island_2,
-                                list_of_indexes_to_1, list_of_indexes_to_2):
-        indexes_to_1 = set(list_of_indexes_to_1)
-        indexes_to_2 = set(list_of_indexes_to_2)
         indvs_to_2 = [island_1.population[indv] for indv in indexes_to_2]
         indvs_to_1 = [island_2.population[indv] for indv in indexes_to_1]
 
-        new_pop_island_1 = [indv for i, indv in enumerate(island_1.population) if i not in indexes_to_2] + indvs_to_1
-        new_pop_island_2 = [indv for i, indv in enumerate(island_2.population) if i not in indexes_to_1] + indvs_to_2
+        new_pop_island_1 = [indv for i, indv in enumerate(island_1.population)
+                            if i not in indexes_to_2] + indvs_to_1
+        new_pop_island_2 = [indv for i, indv in enumerate(island_2.population)
+                            if i not in indexes_to_1] + indvs_to_2
 
         island_1.load_population(new_pop_island_1)
         island_2.load_population(new_pop_island_2)

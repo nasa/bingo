@@ -261,7 +261,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
-            LOGGER.error("%s in stack evaluation", err)
+            LOGGER.warning("%s in stack evaluation", err)
             return np.full(x.shape, np.nan)
 
     def evaluate_equation_with_x_gradient_at(self, x):
@@ -286,7 +286,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             return f_of_x, df_dx
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
-            LOGGER.error("%s in stack evaluation/deriv", err)
+            LOGGER.warning("%s in stack evaluation/deriv", err)
             nan_array = np.full(x.shape, np.nan)
             return nan_array, np.array(nan_array)
 
@@ -313,7 +313,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             return f_of_x, df_dc
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
-            LOGGER.error("%s in stack evaluation/const-deriv", err)
+            LOGGER.warning("%s in stack evaluation/const-deriv", err)
             nan_array = np.full((x.shape[0], len(self._constants)), np.nan)
             return nan_array, np.array(nan_array)
 
@@ -445,8 +445,3 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         dist = np.sum(self.command_array != chromosome.command_array)
 
         return dist
-
-    def _raise_runtime_error(self, ex):
-        LOGGER.error(str(self))
-        LOGGER.error(str(ex))
-        raise RuntimeError

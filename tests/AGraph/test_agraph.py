@@ -8,6 +8,12 @@ import numpy as np
 from bingo.SymbolicRegression.AGraph import AGraph, Backend as py_backend
 
 AGraph.Backend = py_backend
+SIMPLIFY_AND_EVALUATE = ("bingo.SymbolicRegression.AGraph.AGraph.Backend"
+                         ".simplify_and_evaluate")
+SIMPLIFY_AND_EVALUATE_WTIH_DERIV = ("bingo.SymbolicRegression.AGraph."
+                                    "AGraph.Backend."
+                                    "simplify_and_evaluate_with_derivative")
+
 
 
 @pytest.fixture
@@ -98,7 +104,7 @@ def test_agraph_latex_print(expected_agraph_behavior):
 
 def test_agraph_console_print(expected_agraph_behavior):
     assert expected_agraph_behavior["console string"] == \
-           expected_agraph_behavior["agraph"].get_console_string()
+           expected_agraph_behavior["agraph"].__str__()
 
 
 def test_agraph_complexity(expected_agraph_behavior):
@@ -120,7 +126,7 @@ def test_agraph_stack_print(sample_agraph_1):
                    "(2) <= (0) + (1)\n" +\
                    "(3) <= sin (2)\n" +\
                    "(5) <= (3) + (1)\n"
-    assert sample_agraph_1.__str__() == expected_str
+    assert sample_agraph_1.get_stack_string() == expected_str
 
 
 def test_invalid_agraph_stack_print(invalid_agraph):
@@ -137,7 +143,7 @@ def test_invalid_agraph_stack_print(invalid_agraph):
                    "(2) <= (0) + (1)\n" +\
                    "(3) <= sin (2)\n" +\
                    "(5) <= (3) + (1)\n"
-    assert invalid_agraph.__str__() == expected_str
+    assert invalid_agraph.get_stack_string() == expected_str
 
 
 def test_evaluate_agraph(sample_agraph_1, sample_agraph_1_values):
@@ -217,29 +223,35 @@ def test_setting_command_array_unsets_fitness(sample_agraph_1):
     assert not sample_agraph_1.fit_set
 
 
-def test_nans_on_evaluate_overflow(mocker, sample_agraph_1, sample_agraph_1_values):
-    mocker.patch('bingo.SymbolicRegression.AGraph.AGraph.Backend.simplify_and_evaluate')
+def test_evaluate_overflow_exception(mocker,
+                                    sample_agraph_1,
+                                    sample_agraph_1_values):
+    mocker.patch(SIMPLIFY_AND_EVALUATE)
     AGraph.Backend.simplify_and_evaluate.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
 
 
-def test_nans_on_evaluate_with_gradient_overflow(mocker, sample_agraph_1,
-                                   sample_agraph_1_values):
-    mocker.patch('bingo.SymbolicRegression.AGraph.AGraph.Backend.simplify_and_evaluate_with_derivative')
+def test_evaluate_gradient_overflow_exception(mocker,
+                                              sample_agraph_1,
+                                              sample_agraph_1_values):
+    mocker.patch(SIMPLIFY_AND_EVALUATE_WTIH_DERIV)
     AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = OverflowError
 
-    values = sample_agraph_1.evaluate_equation_with_x_gradient_at(sample_agraph_1_values.x)
+    values = sample_agraph_1.evaluate_equation_with_x_gradient_at(
+        sample_agraph_1_values.x)
     assert np.isnan(values).all()
 
 
-def test_nans_on_evaluate_with_local_opt_gradient_overflow(mocker, sample_agraph_1,
-                                   sample_agraph_1_values):
-    mocker.patch('bingo.SymbolicRegression.AGraph.AGraph.Backend.simplify_and_evaluate_with_derivative')
-    AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = ValueError
+def test_evaluate_local_opt_gradient_overflow_exception(mocker,
+                                                        sample_agraph_1,
+                                                        sample_agraph_1_values):
+    mocker.patch(SIMPLIFY_AND_EVALUATE_WTIH_DERIV)
+    AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = OverflowError
 
-    values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(sample_agraph_1_values.x)
+    values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
+        sample_agraph_1_values.x)
     assert np.isnan(values).all()
 
 

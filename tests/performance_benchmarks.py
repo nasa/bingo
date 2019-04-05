@@ -7,7 +7,7 @@ import numpy as np
 
 from bingo.SymbolicRegression.AGraph import AGraph, Backend as pyBackend
 from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.SymbolicRegression.AGraph import ComponentGenerator
+from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
 from bingocpp.build import bingocpp as cppBackend
 
 

@@ -18,26 +18,19 @@ class ParallelArchipelago(Archipelago):
     def step_through_generations(self, num_steps, non_block=True,
                                  when_to_update=10):
         if non_block:
-            print("here")
-            sys.stdout.flush()
             self._non_blocking_execution(num_steps, when_to_update)
-            print("1")
-            sys.stdout.flush()
             self.comm.Barrier()
-            print("2")
             sys.stdout.flush()
             if self.comm_rank == 0:
-                print("check the status")
                 status = MPI.Status()
                 while self.comm.iprobe(source=MPI.ANY_SOURCE,
                                        tag=2,
                                        status=status):
-                    data = self.comm.recv(source=status.Get_source(), tag=2)
+                    self.comm.recv(source=status.Get_source(), tag=2)
         else:
             for _ in range(num_steps):
                 self._island.execute_generational_step()
 
-        print("increase age")
         self.archipelago_age += num_steps
 
     def coordinate_migration_between_islands(self):
@@ -100,7 +93,7 @@ class ParallelArchipelago(Archipelago):
             tolerance.
         """
         if MPI.COMM_WORLD.Get_rank() == 0:
-            return self._best_indv if self._converged else None
+            return self._best_indv
         else:
             return None
 
@@ -108,7 +101,7 @@ class ParallelArchipelago(Archipelago):
         indices = list(range(self._num_islands))
         random.shuffle(indices)
         return indices
-    
+
     def _partner_exchange_program(self, island_index, island_partners):
         primary_partner = (island_index % 2 == 0)
         if primary_partner:
@@ -126,22 +119,23 @@ class ParallelArchipelago(Archipelago):
 
         else:
             my_partner = island_partners[island_index - 1]
-            # send the island
             self.comm.send(self._island, dest=my_partner, tag=4)
 
-            # recieve indvs to send
             indexes_to_send = self.comm.recv(source=my_partner, tag=4)
 
         if my_partner is not None:
             indexes_to_partner = set(indexes_to_send)
-            indvs_to_send = [self._island.population[indv] for indv in indexes_to_partner]
+            indvs_to_send = [self._island.population[indv] \
+                            for indv in indexes_to_partner]
             traded_individuals = self.comm.sendrecv(indvs_to_send,
                                                     my_partner,
                                                     sendtag=4,
                                                     source=my_partner,
                                                     recvtag=4)
-            new_population = [indv for i, indv, in enumerate(self._island.population) \
-                             if i not in indexes_to_partner] + traded_individuals
+            new_population = [indv for i, indv, \
+                             in enumerate(self._island.population) \
+                             if i not in indexes_to_partner] \
+                             + traded_individuals
             self._island.load_population(new_population)
 
 
@@ -149,17 +143,11 @@ class ParallelArchipelago(Archipelago):
         total_age = {}
         average_age = self.archipelago_age
         target_age = self.archipelago_age + num_steps
-        print("3")
-        sys.stdout.flush()
         while average_age < target_age:
             if self._island.generational_age % when_to_update == 0:
                 if self.comm_rank == 0:
                     total_age.update({0: self._island.generational_age})
                     status = MPI.Status()
-                    print("4")
-                    print("average_age", average_age)
-                    print("target_age", target_age)
-                    sys.stdout.flush()
                     while self.comm.iprobe(source=MPI.ANY_SOURCE,
                                            tag=2,
                                            status=status):
@@ -167,8 +155,6 @@ class ParallelArchipelago(Archipelago):
                                               tag=2)
                         total_age.update(data)
                     average_age = (sum(total_age.values())) / self.comm.size
-                    print("5")
-                    sys.stdout.flush()
                     # send average to all other ranks if time to stop
                     if average_age >= num_steps:
                         send_count = 1

@@ -103,13 +103,13 @@ class Archipelago(metaclass=ABCMeta):
         tot_pop = pop_size1 + pop_size2
         pop_shuffle = list(range(tot_pop))
         random.shuffle(pop_shuffle)
-        indvs_to_send = []
-        indvs_to_receive = []
+        indvs_to_send = set() 
+        indvs_to_receive = set() 
         for i, indv in enumerate(pop_shuffle):
             my_new = (i < tot_pop/2)
             my_old = (indv < pop_size1)
             if my_new and not my_old:
-                indvs_to_receive.append(indv-pop_size1)
+                indvs_to_receive.add(indv-pop_size1)
             if not my_new and my_old:
-                indvs_to_send.append(indv)
+                indvs_to_send.add(indv)
         return indvs_to_send, indvs_to_receive

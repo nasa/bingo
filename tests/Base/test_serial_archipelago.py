@@ -21,6 +21,7 @@ POP_SIZE = 5
 SELECTION_SIZE = 10
 VALUE_LIST_SIZE = 10
 OFFSPRING_SIZE = 20
+ERROR_TOL = 10e-6
 
 
 class MultipleValueFitnessFunction(FitnessFunction):
@@ -63,25 +64,29 @@ def evol_alg():
 
 @pytest.fixture
 def zero_island(evol_alg):
-    generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(generate_zero,
+                                                 VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
 
 
 @pytest.fixture
 def one_island(evol_alg):
-    generator = MultipleValueChromosomeGenerator(generate_one, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(generate_one,
+                                                 VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
 
 
 @pytest.fixture
 def two_island(evol_alg):
-    generator = MultipleValueChromosomeGenerator(generate_two, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(generate_two,
+                                                 VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
 
 
 @pytest.fixture
 def three_island(evol_alg):
-    generator = MultipleValueChromosomeGenerator(generate_three, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(generate_three,
+                                                 VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
 
 
@@ -92,7 +97,8 @@ def island_list(zero_island, one_island, two_island, three_island):
 
 @pytest.fixture
 def island(evol_alg):
-    generator = MultipleValueChromosomeGenerator(mutation_function, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(mutation_function,
+                                                 VALUE_LIST_SIZE)
     return Island(evol_alg, generator, POP_SIZE)
 
 
@@ -149,9 +155,18 @@ def test_assign_and_receive(one_island, two_island):
         assert 0 <= s < len(one_island.population) <= len(two_island.population)
         assert 0 <= r < len(one_island.population) <= len(two_island.population)
 
+def test_best_individual_returned(one_island):
+    generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
+    best_indv = generator()
+    one_island.load_population([best_indv], replace=False)
+    archipelago = SerialArchipelago(one_island)
+    assert archipelago.test_for_convergence(error_tol=ERROR_TOL)
+    assert archipelago.get_best_individual().fitness == 0
+
+
 def test_archipelago_runs(one_island, two_island, three_island):
     max_generations = 100
-    min_generations = 10
+    min_generations = 20
     error_tol = 0
     generation_step_report = 10
     archipelago = SerialArchipelago(one_island, num_islands=4)

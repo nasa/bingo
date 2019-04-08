@@ -31,7 +31,7 @@ def init_x_vals(start, stop, num_points):
 def equation_eval(x):
     return x**2 + 3.5*x**3
 
-def main():
+def init_island():
     x = init_x_vals(START, STOP, NUM_POINTS)
     y = equation_eval(x)
     training_data = ExplicitTrainingData(x, y)
@@ -55,16 +55,14 @@ def main():
                       CROSSOVER_PROBABILITY, POP_SIZE)
 
     island = Island(ea, agraph_generator, POP_SIZE)
+    return island
 
-    i = 0
-    while island.best_individual().fitness > 10e-6:
-        island.execute_generational_step()
-        print("\nGeneration #", i)
-        i += 1
-        print("-"*80, "\n")
-        report_max_min_mean_fitness(island.population)
+def main():
+    test_island = init_island()
+    while test_island.best_individual().fitness > 10e-6:
+        test_island.execute_generational_step()
 
-    print("Success!", island.best_individual().get_latex_string())
+    print("Success!", test_island.best_individual().get_latex_string())
 
 def report_max_min_mean_fitness(population):
     fitness = [indv.fitness for indv in population]

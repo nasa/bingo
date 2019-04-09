@@ -69,7 +69,9 @@ class AgeFitness(Selection):
               self._selection_attempts < \
               start_pop_size * self.WORST_CASE_FACTOR:
 
-            self._get_unique_random_individuals(population, num_removed)
+            self._get_unique_random_individuals(population,
+                                                self._selection_size,
+                                                num_removed)
             removed_indv_indexs = self._get_individuals_for_removal(
                 population, target_population_size, num_removed)
             num_removed = self._remove_indviduals(removed_indv_indexs,
@@ -78,9 +80,38 @@ class AgeFitness(Selection):
 
         return self._update_population(population, num_removed)
 
-    def _get_unique_random_individuals(self, population, num_removed):
+    def select_pareto_front(self, population):
+        """Selects the pareto front for the `population`
+
+        Parameters
+        ----------
+            population: list of Chromosomes
+                The population to which the pareto front individuals will be 
+                selected from.
+
+        Returns
+        -------
+            list of Chromosomes:
+                The Chromosomes in the pareto front.
+        """
+        num_removed = 0
+        self._population_index_array = np.random.permutation(len(population))
+
+        self._get_unique_random_individuals(population,
+                                            len(population),
+                                            num_removed)
+        removed_indv_indexs = self._get_individuals_for_removal(
+            population, 1, num_removed)
+        num_removed = self._remove_indviduals(removed_indv_indexs, num_removed)
+
+        return self._update_population(population, num_removed)
+
+    def _get_unique_random_individuals(self,
+                                       population,
+                                       selection_size,
+                                       num_removed):
         index_range = range(num_removed, len(population))
-        selection_size = min(self._selection_size, len(index_range))
+        selection_size = min(selection_size, len(index_range))
         self._selected_indices = np.random.choice(index_range,
                                                   selection_size,
                                                   replace=False)

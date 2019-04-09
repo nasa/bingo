@@ -76,7 +76,7 @@ pytest tests
 from the root directory of the repository.
 
 ## Usage Examples
-In addition to the example sshown here, the best place to get started in bingo 
+In addition to the example shown here, the best place to get started in bingo 
 is by going through the [examples directory](examples/). It contains several scripts and 
 jupyter notebooks.
 

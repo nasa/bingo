@@ -48,7 +48,7 @@ class Archipelago(metaclass=ABCMeta):
         generation_step_report: int
             The number of generations that will run before checking for
             convergence.
-        error_tol: float
+        error_tol: float, default 10e-6
             The minimum fitness that must be achieved in order for the
             algorithm to converge.
 

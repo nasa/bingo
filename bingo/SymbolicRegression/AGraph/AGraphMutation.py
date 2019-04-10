@@ -76,7 +76,6 @@ class AGraphMutation(Mutation):
         Agraph :
             The child of the mutation
         """
-
         child = parent.copy()
         mutation_algorithm = self._mutation_function_pmf.draw_sample()
         mutation_algorithm(child)
@@ -147,13 +146,20 @@ class AGraphMutation(Mutation):
         mutated_command = individual.command_array[mutation_location]
 
         if self._is_new_param_possible(old_command[0], mutation_location):
-            self._force_mutated_parameters(mutated_command, old_command)
+            self._force_mutated_parameters(mutated_command,
+                                           old_command,
+                                           mutation_location)
 
-    def _force_mutated_parameters(self, mutated_command, old_command):
+    def _force_mutated_parameters(self,
+                                  mutated_command,
+                                  old_command,
+                                  mutation_location):
         is_terminal = IS_TERMINAL_MAP[old_command[0]]
         unique_params = False
         while not unique_params:
-            self._randomize_parameters(is_terminal, mutated_command)
+            self._randomize_parameters(is_terminal,
+                                       mutated_command,
+                                       mutation_location)
             if mutated_command[0] == 1:  # TODO hard coded info about node map
                 break
             unique_params = not np.array_equal(mutated_command,
@@ -167,7 +173,10 @@ class AGraphMutation(Mutation):
             return True
         return mutation_location > 1
 
-    def _randomize_parameters(self, is_terminal, mutated_command):
+    def _randomize_parameters(self,
+                              is_terminal,
+                              mutated_command,
+                              mutation_location):
         if is_terminal:
             mutated_command[1] = \
                 self._component_generator.random_terminal_parameter(
@@ -179,11 +188,11 @@ class AGraphMutation(Mutation):
         else:
             mutated_command[1] = \
                 self._component_generator.random_operator_parameter(
-                    mutated_command[0])
+                    mutation_location)
             if IS_ARITY_2_MAP[mutated_command[0]]:
                 mutated_command[2] = \
                     self._component_generator.random_operator_parameter(
-                        mutated_command[0])
+                        mutation_location)
 
     @staticmethod
     def _prune_branch(individual):

@@ -15,5 +15,5 @@ def profile_and_print_stats(routine, sortby="time"):
     stats.print_stats()
 
 if __name__ == '__main__':
-    profile_and_print_stats(main, sortby="cumulative")
-    profile_and_print_stats(main)
+    main()
+    

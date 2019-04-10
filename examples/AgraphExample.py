@@ -17,13 +17,13 @@ from bingo.Base.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
 
 POP_SIZE = 128
-STACK_SIZE = 64 
+STACK_SIZE = 10
 MUTATION_PROBABILITY = 0.4
 CROSSOVER_PROBABILITY = 0.4
 NUM_POINTS = 100
 START = -10
 STOP = 10
-ERROR_TOLERANCE = 10e-6
+ERROR_TOLERANCE = 1e-6
 
 def init_x_vals(start, stop, num_points):
     return np.linspace(start, stop, num_points).reshape([-1, 1])
@@ -32,7 +32,7 @@ def equation_eval(x):
     return x**2 + 3.5*x**3
 
 def init_island():
-    np.random.seed(0)
+    np.random.seed(10)
     x = init_x_vals(START, STOP, NUM_POINTS)
     y = equation_eval(x)
     training_data = ExplicitTrainingData(x, y)
@@ -62,9 +62,13 @@ TEST_ISLAND = init_island()
 
 def main():
     test_island = TEST_ISLAND
-    while test_island.best_individual().fitness > 10e-6:
+    i = 0
+    while test_island.best_individual().fitness > ERROR_TOLERANCE:
+        # print("Generation: ", i)
         test_island.execute_generational_step()
+        i+=1
 
+    print("Generation: ", i)
     print("Success!", test_island.best_individual().get_latex_string())
 
 def report_max_min_mean_fitness(population):

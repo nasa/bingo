@@ -4,7 +4,7 @@
 import numpy as np
 
 from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
-from bingo.SymbolicRegression.AGraph.AgraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
 from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
 from bingo.SymbolicRegression.AGraph.ComponentGenerator \
     import ComponentGenerator
@@ -16,8 +16,8 @@ from bingo.Base.Evaluation import Evaluation
 from bingo.Base.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
 
-POP_SIZE = 100
-STACK_SIZE = 10
+POP_SIZE = 128
+STACK_SIZE = 64 
 MUTATION_PROBABILITY = 0.4
 CROSSOVER_PROBABILITY = 0.4
 NUM_POINTS = 100
@@ -32,6 +32,7 @@ def equation_eval(x):
     return x**2 + 3.5*x**3
 
 def init_island():
+    np.random.seed(0)
     x = init_x_vals(START, STOP, NUM_POINTS)
     y = equation_eval(x)
     training_data = ExplicitTrainingData(x, y)
@@ -57,8 +58,10 @@ def init_island():
     island = Island(ea, agraph_generator, POP_SIZE)
     return island
 
+TEST_ISLAND = init_island()
+
 def main():
-    test_island = init_island()
+    test_island = TEST_ISLAND
     while test_island.best_individual().fitness > 10e-6:
         test_island.execute_generational_step()
 

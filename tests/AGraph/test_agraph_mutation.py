@@ -6,7 +6,7 @@ import pytest
 
 import bingo.SymbolicRegression.AGraph.AGraph as AcyclicGraph
 from bingo.SymbolicRegression.AGraph.AGraph import AGraph
-from bingo.SymbolicRegression.AGraph.AgraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
 from bingo.SymbolicRegression.AGraph.ComponentGenerator \
     import ComponentGenerator
 

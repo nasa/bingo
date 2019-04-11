@@ -4,9 +4,15 @@
 import numpy as np
 import pytest
 
+import bingo.SymbolicRegression.AGraph.AGraph as AcyclicGraph
 from bingo.SymbolicRegression.AGraph.AGraph import AGraph
-from bingo.SymbolicRegression.AGraph.AgraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.ComponentGenerator \
+    import ComponentGenerator
 
+NODE_TYPE = 0
+PARAM_1 = 1
+PARAM_2 = 2
 
 @pytest.fixture
 def terminal_only_agraph():
@@ -159,3 +165,24 @@ def test_pruning_mutation_on_unprunable_agraph(terminal_only_agraph,
         p_stack = terminal_only_agraph.command_array
         c_stack = child.command_array
         np.testing.assert_array_equal(p_stack, c_stack)
+
+
+def test_mutation_creates_valid_parameters(sample_agraph_1):
+    comp_generator = ComponentGenerator(input_x_dimension=2,
+                                        num_initial_load_statements=2,
+                                        terminal_probability=0.4,
+                                        constant_probability=0.5)
+    for operator in range(2, 13):
+        comp_generator.add_operator(operator)
+    np.random.seed(0)
+    mutation = AGraphMutation(comp_generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=1.0,
+                              prune_probability=0.0)
+    for _ in range(20):
+        child = mutation(sample_agraph_1)
+        for row, operation in enumerate(child.command_array):
+            if not AcyclicGraph.IS_TERMINAL_MAP[operation[NODE_TYPE]]:
+                assert operation[PARAM_1] < row
+                assert operation[PARAM_2] < row

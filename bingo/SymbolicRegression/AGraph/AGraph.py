@@ -283,9 +283,8 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             :math:`f(x)`
         """
         try:
-            f_of_x = Backend.simplify_and_evaluate(self._command_array,
-                                                   x,
-                                                   self._constants)
+            f_of_x = Backend.evaluate(self._short_command_array,
+                                      x, self._constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -309,8 +308,8 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             :math:`f(x)` and :math:`df(x)/dx_i`
         """
         try:
-            f_of_x, df_dx = Backend.simplify_and_evaluate_with_derivative(
-                self._command_array, x, self._constants, True)
+            f_of_x, df_dx = Backend.evaluate_with_derivative(
+                self._short_command_array, x, self._constants, True)
             return f_of_x, df_dx
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -336,8 +335,8 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             :math:`f(x)` and :math:`df(x)/dc_i`
         """
         try:
-            f_of_x, df_dc = Backend.simplify_and_evaluate_with_derivative(
-                self._command_array, x, self._constants, False)
+            f_of_x, df_dc = Backend.evaluate_with_derivative(
+                self._short_command_array, x, self._constants, False)
             return f_of_x, df_dc
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:

@@ -8,11 +8,9 @@ import numpy as np
 from bingo.SymbolicRegression.AGraph import AGraph, Backend as py_backend
 
 AGraph.Backend = py_backend
-SIMPLIFY_AND_EVALUATE = ("bingo.SymbolicRegression.AGraph.AGraph.Backend"
-                         ".simplify_and_evaluate")
-SIMPLIFY_AND_EVALUATE_WTIH_DERIV = ("bingo.SymbolicRegression.AGraph."
-                                    "AGraph.Backend."
-                                    "simplify_and_evaluate_with_derivative")
+EVALUATE = "bingo.SymbolicRegression.AGraph.AGraph.Backend.evaluate"
+EVALUATE_WTIH_DERIV = ("bingo.SymbolicRegression.AGraph.AGraph.Backend."
+                       "evaluate_with_derivative")
 
 
 
@@ -173,6 +171,7 @@ def test_raises_error_evaluate_invalid_agraph(invalid_agraph,
     with pytest.raises(IndexError):
         _ = invalid_agraph.evaluate_equation_at(sample_agraph_1_values.x)
 
+
 def test_raises_error_x_gradient_invalid_agraph(invalid_agraph,
                                                 sample_agraph_1_values):
     with pytest.raises(IndexError):
@@ -185,6 +184,7 @@ def test_raises_error_c_gradient_invalid_agraph(invalid_agraph,
     with pytest.raises(IndexError):
         _ = invalid_agraph.evaluate_equation_with_local_opt_gradient_at(
             sample_agraph_1_values.x)
+
 
 def test_invalid_agraph_needs_optimization(invalid_agraph):
     assert invalid_agraph.needs_local_optimization()
@@ -226,8 +226,8 @@ def test_setting_command_array_unsets_fitness(sample_agraph_1):
 def test_evaluate_overflow_exception(mocker,
                                     sample_agraph_1,
                                     sample_agraph_1_values):
-    mocker.patch(SIMPLIFY_AND_EVALUATE)
-    AGraph.Backend.simplify_and_evaluate.side_effect = OverflowError
+    mocker.patch(EVALUATE)
+    AGraph.Backend.evaluate.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
@@ -236,8 +236,8 @@ def test_evaluate_overflow_exception(mocker,
 def test_evaluate_gradient_overflow_exception(mocker,
                                               sample_agraph_1,
                                               sample_agraph_1_values):
-    mocker.patch(SIMPLIFY_AND_EVALUATE_WTIH_DERIV)
-    AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = OverflowError
+    mocker.patch(EVALUATE_WTIH_DERIV)
+    AGraph.Backend.evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_x_gradient_at(
         sample_agraph_1_values.x)
@@ -247,8 +247,8 @@ def test_evaluate_gradient_overflow_exception(mocker,
 def test_evaluate_local_opt_gradient_overflow_exception(mocker,
                                                         sample_agraph_1,
                                                         sample_agraph_1_values):
-    mocker.patch(SIMPLIFY_AND_EVALUATE_WTIH_DERIV)
-    AGraph.Backend.simplify_and_evaluate_with_derivative.side_effect = OverflowError
+    mocker.patch(EVALUATE_WTIH_DERIV)
+    AGraph.Backend.evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
         sample_agraph_1_values.x)
@@ -257,4 +257,3 @@ def test_evaluate_local_opt_gradient_overflow_exception(mocker,
 
 def test_distance_between_graphs(sample_agraph_1):
     assert sample_agraph_1.distance(sample_agraph_1) == 0
-    

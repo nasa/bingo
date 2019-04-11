@@ -41,8 +41,11 @@ class AGraphMutation(Mutation):
     -----
     The input probabilities are normalized if their sum is not equal to 1.
 
-    Mutation can result in no change if, for instance, a prune mutation is
-    executed on a Agraph utilizing only a single terminal.
+    Mutation can result in no change if, for instance,
+      * a prune mutation is executed on a Agraph utilizing only a single
+        terminal.
+      * a parameter mutation occurs on a Agraph utilizing only a single
+        constant.
     """
 
     @argument_validation(command_probability={">=": 0, "<=": 1},
@@ -89,8 +92,8 @@ class AGraphMutation(Mutation):
     @staticmethod
     def _get_random_mutation_location(child):
         utilized_commands = child.get_utilized_commands()
-        index = np.random.randint(sum(utilized_commands))
-        return [n for n, x in enumerate(utilized_commands) if x][index]
+        indices = [n for n, x in enumerate(utilized_commands) if x]
+        return np.random.choice(indices)
 
     def _mutate_command(self, individual):
         mutation_location = self._get_random_mutation_location(individual)
@@ -142,13 +145,30 @@ class AGraphMutation(Mutation):
                 self._component_generator.random_operator()
 
     def _mutate_parameters(self, individual):
-        mutation_location = self._get_random_mutation_location(individual)
+        mutation_location = self._get_random_param_mut_location(individual)
+        if mutation_location is None:
+            return
         old_command = np.copy(individual.command_array[mutation_location])
         print(old_command)
         mutated_command = individual.command_array[mutation_location]
 
         if self._is_new_param_possible(old_command[0], mutation_location):
             self._force_mutated_parameters(mutated_command, old_command)
+
+    @staticmethod
+    def _get_random_param_mut_location(individual):
+        utilized_commands = individual.get_utilized_commands()
+        non_constant_indices = []
+        for i, (util, node) in enumerate(zip(utilized_commands,
+                                             individual.command_array[:, 0])):
+            if util:
+                if node != 1:
+                    non_constant_indices.append(i)
+
+        if not non_constant_indices:
+            return None
+
+        return np.random.choice(non_constant_indices)
 
     def _force_mutated_parameters(self, mutated_command, old_command):
         is_terminal = IS_TERMINAL_MAP[old_command[0]]
@@ -227,3 +247,5 @@ class AGraphMutation(Mutation):
 
         index = np.random.randint(len(operators))
         return operators[index]
+
+

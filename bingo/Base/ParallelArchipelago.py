@@ -1,6 +1,8 @@
 import random
 import sys
 
+import numpy as np
+
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
@@ -19,13 +21,15 @@ class ParallelArchipelago(Archipelago):
                                  when_to_update=10):
         if non_block:
             self._non_blocking_execution(num_steps, when_to_update)
+
             self.comm.Barrier()
-            sys.stdout.flush()
+
             if self.comm_rank == 0:
                 status = MPI.Status()
                 while self.comm.iprobe(source=MPI.ANY_SOURCE,
                                        tag=2,
                                        status=status):
+
                     self.comm.recv(source=status.Get_source(), tag=2)
         else:
             for _ in range(num_steps):
@@ -143,7 +147,8 @@ class ParallelArchipelago(Archipelago):
         total_age = {}
         average_age = self.archipelago_age
         target_age = self.archipelago_age + num_steps
-        while average_age < target_age:
+        stop = None
+        while average_age < target_age and not stop:
             if self._island.generational_age % when_to_update == 0:
                 if self.comm_rank == 0:
                     total_age.update({0: self._island.generational_age})
@@ -155,20 +160,34 @@ class ParallelArchipelago(Archipelago):
                                               tag=2)
                         total_age.update(data)
                     average_age = (sum(total_age.values())) / self.comm.size
+                    
+                    # if average_age >= num_steps:
+                    #     average_age = self.comm.allreduce(average_age, op=MPI.SUM) 
+                    #     average_age = self.comm.bcast(average_age, root=0)
+                    #     #average_age = self.comm.bcast(average_age, root=0)
+
+                        
                     # send average to all other ranks if time to stop
-                    if average_age >= num_steps:
-                        send_count = 1
-                        while send_count < self.comm_size:
-                            self.comm.send(average_age, dest=send_count, tag=0)
-                            send_count += 1
+                    #self.comm.bcast(average_age, root=0)
                 # for every other rank, store rank:age, and send it off to 0
                 else:
                     data = {self.comm_rank : self._island.generational_age}
                     req = self.comm.isend(data, dest=0, tag=2)
                     req.Wait()
             # if there is a message from 0 to stop, update averageAge
-            if self.comm_rank != 0:
-                if self.comm.iprobe(source=0, tag=0):
-                    average_age = self.comm.recv(source=0, tag=0)
+            # if self.comm_rank != 0:
+            #     self.comm.bcast(average_age, root=0)
+            # print("rank ", self.comm_rank, " average age before bcast: ", average_age)
+            # sys.stdout.flush()
+            average_age = self.comm.bcast(average_age, root=0)
+            #allgather = self.comm.gather(self._island.generational_age)
+            # print("rank ", self.comm_rank, " average age after bcast: ", average_age, ", stop: ", stop)
+            # sys.stdout.flush()
+            # if self.comm_rank != 0:
+            #     average_age = self.comm.bcast(average_age, root=0)
+          #ave = self.comm.allreduce(average_age, op=MPI.SUM) 
+            #average_age = np.sum(self.comm.gather(average_age, root=0))
+            print("rank: ", self.comm_rank, " average_age: ", average_age)
+            sys.stdout.flush()
             self._island.execute_generational_step()
 

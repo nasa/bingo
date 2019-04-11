@@ -1,6 +1,8 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
+import time
+import sys
 import numpy as np
 from mpi4py import MPI
 
@@ -58,16 +60,25 @@ def execute_generational_steps():
     ea = AgeFitnessEA(evaluator, agraph_generator, crossover,
                       mutation, 0.4, 0.4, POP_SIZE)
 
+
     island = Island(ea, agraph_generator, POP_SIZE)
+
     archipelago = ParallelArchipelago(island)
+
     if archipelago.run_islands(2000, 1000, 1000):
         if rank == 0:
             print("print the best indv", archipelago.get_best_individual())
+
     else:
         print("Failed.")
 
 def main():
+    time1 = time.time()
     execute_generational_steps()
+    time2 = time.time()
+    print("Time: ", time2 - time1)
 
 if __name__ == '__main__':
+
     main()
+

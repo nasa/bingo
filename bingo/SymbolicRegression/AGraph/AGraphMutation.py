@@ -148,7 +148,6 @@ class AGraphMutation(Mutation):
         if mutation_location is None:
             return
         old_command = np.copy(individual.command_array[mutation_location])
-        print(old_command)
         mutated_command = individual.command_array[mutation_location]
 
         if self._is_new_param_possible(old_command[0], mutation_location):

@@ -152,7 +152,10 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     def __init__(self):
         super().__init__()
         self._command_array = np.empty([0, 3], dtype=int)
+        self._short_command_array = np.empty([0, 3], dtype=int)
         self._constants = []
+        self._needs_opt = False
+        self._num_constants = 0
 
     @property
     def command_array(self):
@@ -169,11 +172,49 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         self._command_array = command_array
         self._fitness = None
         self.fit_set = False
+        self._process_modified_command_array()
 
     def notify_command_array_modification(self):
         """Notify individual of inplace modification of its command array"""
         self._fitness = None
         self.fit_set = False
+        self._process_modified_command_array()
+
+    def _process_modified_command_array(self):
+        util = self.get_utilized_commands()
+
+        self._needs_opt = self._check_optimization_requirement(util)
+        if self._needs_opt:
+            self._renumber_constants(util)
+
+        self._update_short_command_array(util)
+
+    def _update_short_command_array(self, util):
+        self._short_command_array = self._command_array[util]
+
+        buffer_map = np.cumsum(util)
+        for command in self._short_command_array:
+            if command[0] > 1:
+                command[1] = buffer_map[command[1]] - 1
+                command[2] = buffer_map[command[2]] - 1
+
+    def _check_optimization_requirement(self, util):
+        for i in range(self._command_array.shape[0]):
+            if util[i]:
+                if self._command_array[i][0] == 1:
+                    if self._command_array[i][1] == -1 or \
+                            self._command_array[i][1] >= len(self._constants):
+                        return True
+        return False
+
+    def _renumber_constants(self, util):
+        const_num = 0
+        for i in range(self._command_array.shape[0]):
+            if util[i]:
+                if self._command_array[i][0] == 1:
+                    self._command_array[i] = (1, const_num, const_num)
+                    const_num += 1
+        self._num_constants = const_num
 
     def needs_local_optimization(self):
         """The Agraph needs local optimization.
@@ -185,14 +226,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         bool
             Constants need optimization
         """
-        util = self.get_utilized_commands()
-        for i in range(self._command_array.shape[0]):
-            if util[i]:
-                if self._command_array[i][0] == 1:
-                    if self._command_array[i][1] == -1 or \
-                            self._command_array[i][1] >= len(self._constants):
-                        return True
-        return False
+        return self._needs_opt
 
     def get_utilized_commands(self):
         """"Find which commands are utilized.
@@ -217,14 +251,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         int
             Number of constants that need to be optimized
         """
-        util = self.get_utilized_commands()
-        const_num = 0
-        for i in range(self._command_array.shape[0]):
-            if util[i]:
-                if self._command_array[i][0] == 1:
-                    self._command_array[i] = (1, const_num, const_num)
-                    const_num += 1
-        return const_num
+        return self._num_constants
 
     def set_local_optimization_params(self, params):
         """Set the local optimization parameters.
@@ -237,6 +264,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                  Values to set constants
         """
         self._constants = params
+        self._needs_opt = False
 
     def evaluate_equation_at(self, x):
         """Evaluate the AGraph equation.
@@ -373,18 +401,17 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
 
     def _get_stack_string(self, short=False):
         if short:
-            rows_to_show = self.get_utilized_commands()
+            stack = self._short_command_array
         else:
-            rows_to_show = np.ones(self._command_array.shape[0], bool)
+            stack = self._command_array
         tmp_str = ""
-        for i, show_command in enumerate(rows_to_show):
-            if show_command:
-                tmp_str += self._get_stack_element_string(i)
+        for i, stack_element in enumerate(stack):
+            tmp_str += self._get_stack_element_string(i, stack_element)
 
         return tmp_str
 
-    def _get_stack_element_string(self, command_index):
-        node, param1, param2 = self._command_array[command_index]
+    def _get_stack_element_string(self, command_index, stack_element):
+        node, param1, param2 = stack_element
         tmp_str = "(%d) <= " % command_index
         if node == 0:
             tmp_str += "X_%d" % param1
@@ -401,20 +428,17 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         return tmp_str
 
     def _get_formatted_string_using(self, format_dict):
-        utilized_rows = self.get_utilized_commands()
         str_list = []
-        for i, show_command in enumerate(utilized_rows):
-            if show_command:
-                tmp_str = self._get_formatted_element_string(i, str_list,
-                                                             format_dict)
-            else:
-                tmp_str = ""
+        for stack_element in self._short_command_array:
+            tmp_str = self._get_formatted_element_string(stack_element,
+                                                         str_list,
+                                                         format_dict)
             str_list.append(tmp_str)
         return str_list[-1]
 
-    def _get_formatted_element_string(self, command_index, str_list,
+    def _get_formatted_element_string(self, stack_element, str_list,
                                       format_dict):
-        node, param1, param2 = self._command_array[command_index]
+        node, param1, param2 = stack_element
         if node == 0:
             tmp_str = "X_%d" % param1
         elif node == 1:

@@ -125,7 +125,7 @@ def test_agraph_stack_print(sample_agraph_1):
                    "(1) <= C_0 = 1.0\n" +\
                    "(2) <= (0) + (1)\n" +\
                    "(3) <= sin (2)\n" +\
-                   "(5) <= (3) + (1)\n"
+                   "(4) <= (3) + (1)\n"
     assert sample_agraph_1.get_stack_string() == expected_str
 
 
@@ -142,7 +142,7 @@ def test_invalid_agraph_stack_print(invalid_agraph):
                    "(1) <= C\n" +\
                    "(2) <= (0) + (1)\n" +\
                    "(3) <= sin (2)\n" +\
-                   "(5) <= (3) + (1)\n"
+                   "(4) <= (3) + (1)\n"
     assert invalid_agraph.get_stack_string() == expected_str
 
 

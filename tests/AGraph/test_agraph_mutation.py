@@ -69,8 +69,14 @@ def test_single_point_mutations(mutation_parent, algo_index,
         child = mutation(mutation_parent)
         p_stack = mutation_parent.command_array
         c_stack = child.command_array
-        changed_commands = np.sum(np.max(p_stack != c_stack, axis=1))
-
+        changed_commands = 0
+        for p, c in zip(p_stack, c_stack):
+            if (p != c).any():
+                if p[0] != 1 or c[0] != 1:
+                    changed_commands += 1
+        if changed_commands != 1:
+            print("parent\n", p_stack)
+            print("child\n", c_stack)
         assert changed_commands == 1
 
 

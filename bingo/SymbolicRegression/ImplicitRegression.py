@@ -46,6 +46,7 @@ class ImplicitRegression(VectorBasedFunction):
         self._normalize_dot = normalize_dot
 
     def _evaluate_fitness_vector(self, individual):
+        self.eval_count += 1
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)
 

@@ -71,7 +71,6 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
          :
            fitness of the individual
         """
-        self.eval_count += 1
         fitness_vector = self._evaluate_fitness_vector(individual)
         return np.mean(np.abs(fitness_vector))
 

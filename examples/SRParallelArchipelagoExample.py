@@ -2,7 +2,6 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import time
-import sys
 import numpy as np
 from mpi4py import MPI
 

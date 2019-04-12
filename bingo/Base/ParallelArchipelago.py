@@ -1,8 +1,6 @@
 import random
 import sys
 
-import numpy as np
-
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
@@ -147,8 +145,8 @@ class ParallelArchipelago(Archipelago):
         total_age = {}
         average_age = self.archipelago_age
         target_age = self.archipelago_age + num_steps
-        stop = None
-        while average_age < target_age and not stop:
+
+        while average_age < target_age:
             if self._island.generational_age % when_to_update == 0:
                 if self.comm_rank == 0:
                     total_age.update({0: self._island.generational_age})
@@ -160,11 +158,9 @@ class ParallelArchipelago(Archipelago):
                                               tag=2)
                         total_age.update(data)
                     average_age = (sum(total_age.values())) / self.comm.size
-                    
                     # if average_age >= num_steps:
-                    #     average_age = self.comm.allreduce(average_age, op=MPI.SUM) 
-                    #     average_age = self.comm.bcast(average_age, root=0)
-                    #     #average_age = self.comm.bcast(average_age, root=0)
+                    #     self.comm.bcast(average_age, root=0)
+                        #average_age = self.comm.bcast(average_age, root=0)
 
                         
                     # send average to all other ranks if time to stop
@@ -175,19 +171,11 @@ class ParallelArchipelago(Archipelago):
                     req = self.comm.isend(data, dest=0, tag=2)
                     req.Wait()
             # if there is a message from 0 to stop, update averageAge
-            # if self.comm_rank != 0:
-            #     self.comm.bcast(average_age, root=0)
+            average_age = self.comm.bcast(average_age, root=0)
             # print("rank ", self.comm_rank, " average age before bcast: ", average_age)
             # sys.stdout.flush()
-            average_age = self.comm.bcast(average_age, root=0)
-            #allgather = self.comm.gather(self._island.generational_age)
-            # print("rank ", self.comm_rank, " average age after bcast: ", average_age, ", stop: ", stop)
-            # sys.stdout.flush()
-            # if self.comm_rank != 0:
-            #     average_age = self.comm.bcast(average_age, root=0)
-          #ave = self.comm.allreduce(average_age, op=MPI.SUM) 
-            #average_age = np.sum(self.comm.gather(average_age, root=0))
-            print("rank: ", self.comm_rank, " average_age: ", average_age)
+            #average_age = self.comm.bcast(average_age, root=0)
+            print("rank ", self.comm_rank, " average age after bcast: ", average_age)
             sys.stdout.flush()
             self._island.execute_generational_step()
 

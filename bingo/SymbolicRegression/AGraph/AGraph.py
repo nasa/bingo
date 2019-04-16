@@ -194,7 +194,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
 
         buffer_map = np.cumsum(util)
         for command in self._short_command_array:
-            if command[0] > 1:
+            if not IS_TERMINAL_MAP[command[0]]:
                 command[1] = buffer_map[command[1]] - 1
                 command[2] = buffer_map[command[2]] - 1
 

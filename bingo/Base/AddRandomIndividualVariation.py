@@ -28,7 +28,6 @@ class AddRandomIndividualVariation(Variation):
         self._chromosome_generator = chromosome_generator
         self._num_rand_indvs = num_rand_indvs
 
-    @argument_validation(number_offspring={">=": 0})
     def __call__(self, population, number_offspring):
         """Generates a number of random indiviudals and adds the to the
         population then performs variation on the new population.

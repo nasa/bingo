@@ -29,7 +29,6 @@ class AgeFitness(Selection):
         self._population_index_array = np.array([])
         self._selection_attempts = 0
 
-    @argument_validation(target_population_size={">": 0})
     def __call__(self, population, target_population_size):
         """Performs Age-Fitness selection on a population. If ``selection_size``
         is larger than the population, the population size is used as the

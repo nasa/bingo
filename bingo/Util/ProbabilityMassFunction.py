@@ -31,9 +31,6 @@ class ProbabilityMassFunction:
     """
 
     def __init__(self, items=None, weights=None):
-        """
-
-        """
         if items is None:
             items = []
         self.items = items
@@ -43,6 +40,7 @@ class ProbabilityMassFunction:
         self._is_weights_same_size_as_items(weights)
         self._total_weight, self.normalized_weights = \
             self._normalize_weights(weights)
+        self._cumulative_weights = np.cumsum(self.normalized_weights)
 
     def _get_default_weights(self):
         n_items = len(self.items)
@@ -99,6 +97,7 @@ class ProbabilityMassFunction:
 
         self._total_weight, self.normalized_weights = \
             self._normalize_weights(weights)
+        self._cumulative_weights = np.cumsum(self.normalized_weights)
 
     def _get_mean_current_weight(self):
         if self.normalized_weights.size == 0:
@@ -115,4 +114,5 @@ class ProbabilityMassFunction:
         -------
             A single item
         """
-        return np.random.choice(self.items, 1, p=self.normalized_weights)[0]
+        index = np.searchsorted(self._cumulative_weights, np.random.random())
+        return self.items[index]

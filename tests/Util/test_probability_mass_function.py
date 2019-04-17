@@ -48,7 +48,7 @@ def test_raises_exception_for_non_numeric_weight():
 
 
 def test_raises_exception_for_draw_from_empty_pmf(empty_pmf):
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         _ = empty_pmf.draw_sample()
 
 

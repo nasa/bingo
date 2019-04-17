@@ -52,9 +52,9 @@ def test_raises_error_random_operator_with_no_operators():
     no_operator_generator = ComponentGenerator(input_x_dimension=1,
                                                terminal_probability=0.0)
     _ = no_operator_generator.random_command(0)
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         _ = no_operator_generator.random_command(1)
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         _ = no_operator_generator.random_operator()
 
 

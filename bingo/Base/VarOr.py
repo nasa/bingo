@@ -56,7 +56,6 @@ class VarOr(Variation):
         self._replication_probability = 1 - crossover_probability \
                                           - mutation_probability
 
-    @argument_validation(number_offspring={">=": 0})
     def __call__(self, population, number_offspring):
         """Performs "Or" variation on a population.
 
@@ -103,7 +102,7 @@ class VarOr(Variation):
         self.crossover_offspring[i] = True
 
     def _do_replication(self, population, offspring):
-        child = self._get_random_parent(population)
+        child = self._get_random_parent(population).copy()
         self._append_new_individual_to_offspring(child, offspring)
 
     @staticmethod
@@ -113,4 +112,4 @@ class VarOr(Variation):
 
     @staticmethod
     def _get_random_parent(population):
-        return population[np.random.randint(len(population))].copy()
+        return population[np.random.randint(len(population))]

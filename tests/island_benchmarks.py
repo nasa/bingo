@@ -72,15 +72,13 @@ def explicit_regression_benchmark():
     island = init_island()
     while island.best_individual().fitness > ERROR_TOLERANCE:
         island.execute_generational_step()
-    print("Finished with age", island.generational_age,
-          "and evals", island._ea.evaluation.fitness_function.eval_count)
 
 def do_benchmarking():
     printer = IslandStatsPrinter()
     printer.add_stats("Explicit Regression",
                       timeit.repeat(explicit_regression_benchmark,
-                                    number=3,
-                                    repeat=3))
+                                    number=10,
+                                    repeat=10))
     printer.print()
 
 if __name__ == "__main__":

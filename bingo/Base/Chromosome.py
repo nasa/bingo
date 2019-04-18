@@ -24,10 +24,10 @@ class Chromosome(metaclass=ABCMeta):
     fit_set : bool
               Whether the fitness has been calculated for the individual
     """
-    def __init__(self):
-        self.genetic_age = 0
-        self._fitness = None
-        self.fit_set = False
+    def __init__(self, genetic_age=0, fitness=None, fit_set=False):
+        self.genetic_age = genetic_age
+        self._fitness = fitness
+        self.fit_set = fit_set
 
     @property
     def fitness(self):

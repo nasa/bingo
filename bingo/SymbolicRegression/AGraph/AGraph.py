@@ -149,13 +149,20 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     ----------
     command_array
     """
-    def __init__(self):
-        super().__init__()
-        self._command_array = np.empty([0, 3], dtype=int)
-        self._short_command_array = np.empty([0, 3], dtype=int)
-        self._constants = []
-        self._needs_opt = False
-        self._num_constants = 0
+    def __init__(self, genetic_age=0, fitness=None, fit_set=False,
+                 command_array=np.empty([0, 3], dtype=int),
+                 short_command_array=np.empty([0, 3], dtype=int),
+                 constants=None,
+                 needs_opt=False,
+                 num_constants=0):
+        super().__init__(genetic_age, fitness, fit_set)
+        self._command_array = command_array
+        self._short_command_array = short_command_array
+        if constants is None:
+            constants = []
+        self._constants = constants
+        self._needs_opt = needs_opt
+        self._num_constants = num_constants
 
     @property
     def command_array(self):
@@ -468,3 +475,13 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         dist = np.sum(self.command_array != chromosome.command_array)
 
         return dist
+
+    def __deepcopy__(self, memodict=None):
+        duplicate = AGraph(genetic_age=self.genetic_age,
+                           fitness=self._fitness, fit_set=self.fit_set,
+                           command_array=np.copy(self._command_array),
+                           short_command_array=np.copy(self._short_command_array),
+                           constants=list(self._constants),
+                           needs_opt=self._needs_opt,
+                           num_constants=self._num_constants)
+        return duplicate

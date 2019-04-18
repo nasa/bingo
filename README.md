@@ -14,7 +14,7 @@ can be used as a general purpose evolutionary optimization package.
   * Coevolution of fitness predictors
   
 ### Note
-At this point the API is still in a state of flux. The current release has a 
+At this point, the API is still in a state of flux. The current release has a 
 much more stable API but still lacks some of the features of older releases.
 
 ## Getting Started

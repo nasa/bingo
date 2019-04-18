@@ -193,9 +193,15 @@ def test_keep_pareto_front_miss_target_pop_size(pareto_front_population,
     selected_indv_two = selected_indiviudals[1]
     population = pareto_front_population + selected_indiviudals
     onemax_evaluator(population)
+    print("starting population")
+    for i in population:
+        print(i.fitness, i.genetic_age)
 
     age_fitness_selection = AgeFitness(selection_size=len(population))
     new_population = age_fitness_selection(population, TARGET_POP_SIZE)
+    print("new population")
+    for i in new_population:
+        print(i.fitness, i.genetic_age)
 
     assert len(new_population) == len(pareto_front_population)
 

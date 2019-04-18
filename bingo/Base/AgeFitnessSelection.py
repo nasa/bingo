@@ -6,6 +6,7 @@ This module expects to be used in conjunction with the
 ``RandomIndividualVariation`` module that wraps the ``VarOr`` module.
 """
 import numpy as np
+import random
 
 from .Selection import Selection
 from ..Util.ArgumentValidation import argument_validation
@@ -109,11 +110,13 @@ class AgeFitness(Selection):
                                        population,
                                        selection_size,
                                        num_removed):
-        index_range = range(num_removed, len(population))
-        selection_size = min(selection_size, len(index_range))
-        self._selected_indices = np.random.choice(index_range,
-                                                  selection_size,
-                                                  replace=False)
+        selection_size = min(selection_size, len(population) - num_removed)
+        for i in range(num_removed, num_removed + selection_size):
+            random_index = np.random.randint(i, len(population))
+            if i != random_index:
+                self._swap(self._population_index_array, i, random_index)
+        self._selected_indices = range(num_removed,
+                                       num_removed + selection_size)
 
     # TODO look into optimizing. Possibly greedy approach
     def _get_individuals_for_removal(self, population,

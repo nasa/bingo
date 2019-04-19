@@ -15,7 +15,7 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
     Parameters
     ----------
     values : list of floats
-        The genetic information stored in an individual chromsome.
+        The genetic information stored in an individual chromosome.
     needs_opt_list : list of ints
         (optional) The indices of the `individual_list` in a
         `Chromosome` object that are subject local optimization.

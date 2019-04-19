@@ -28,8 +28,8 @@ few dependencies which are relatively common for data science work in python:
   - mpi4py (if parallel implementations are to be run)
   - pytest, pytest-mock (if the testing suite is to be run)
   
-A requirements.txt file is included for easy installation of dependecies with 
-pip or conda.
+A `requirements.txt` file is included for easy installation of dependencies with 
+`pip` or `conda`.
 
 Installation with pip:
 ```shell
@@ -63,7 +63,7 @@ virtual environment.
 ### Documentation
 Sphynx is used for automatically generating API documentation for bingo. The 
 most recent build of the documentation can be found in the repository at: 
-doc/_build/html/index.html 
+`doc/_build/html/index.html`
 
 
 ## Running Tests

@@ -194,16 +194,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         if self._needs_opt:
             self._renumber_constants(util)
 
-        self._update_short_command_array(util)
-
-    def _update_short_command_array(self, util):
-        self._short_command_array = self._command_array[util]
-
-        buffer_map = np.cumsum(util)
-        for command in self._short_command_array:
-            if command[0] > 1:
-                command[1] = buffer_map[command[1]] - 1
-                command[2] = buffer_map[command[2]] - 1
+        self._short_command_array = Backend.simplify_stack(self._command_array)
 
     def _check_optimization_requirement(self, util):
         for i in range(self._command_array.shape[0]):

@@ -166,6 +166,46 @@ def get_utilized_commands(stack):
     return util
 
 
+def simplify_stack(stack):
+    """Simplifies a stack.
+
+    An acyclic graph is given in stack form.  The stack is first simplified to
+    consist only of the commands used by the last command.
+
+    Parameters
+    ----------
+    stack : Nx3 numpy array of int.
+            The command stack associated with an equation. N is the number of
+            commands in the stack.
+
+    Returns
+    -------
+    Mx3 numpy array of int. :
+        a simplified stack where M is the number of  used commands
+    """
+    used_commands = get_utilized_commands(stack)
+    reduced_param_map = {}
+    num_commands = np.sum(used_commands)
+    new_stack = np.empty((num_commands, 3), int)
+
+    j = 0
+    for i, (node, param1, param2) in enumerate(stack):
+        if used_commands[i]:
+            new_stack[j, 0] = node
+            if AGraph.IS_TERMINAL_MAP[node]:
+                new_stack[j, 1] = param1
+                new_stack[j, 2] = param2
+            else:
+                new_stack[j, 1] = reduced_param_map[param1]
+                if AGraph.IS_ARITY_2_MAP[node]:
+                    new_stack[j, 2] = reduced_param_map[param2]
+                else:
+                    new_stack[j, 2] = new_stack[j, 2]
+            reduced_param_map[i] = j
+            j += 1
+    return new_stack
+
+
 def _forward_eval(stack, x, constants):
     forward_eval = np.empty((stack.shape[0], x.shape[0]))
     for i, (node, param1, param2) in enumerate(stack):

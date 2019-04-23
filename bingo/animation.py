@@ -36,7 +36,7 @@ def animate_data(list_of_best_indv_values):
     plt.xlabel('Chromosome Value Index', fontsize=15)
     plt.ylabel('Value Magnitude', fontsize=15)
     plt.title("Values of Best Individual in Island", fontsize=15)
-    plt.ylim(-0.01,2.05)
+    plt.ylim(-0.01, 2.05)
     ax.tick_params(axis='y', labelsize=15)
     ax.tick_params(axis='x', labelsize=15)
 

@@ -14,7 +14,7 @@ can be used as a general purpose evolutionary optimization package.
   * Coevolution of fitness predictors
   
 ### Note
-At this point the API is still in a state of flux. The current release has a 
+At this point, the API is still in a state of flux. The current release has a 
 much more stable API but still lacks some of the features of older releases.
 
 ## Getting Started
@@ -28,8 +28,8 @@ few dependencies which are relatively common for data science work in python:
   - mpi4py (if parallel implementations are to be run)
   - pytest, pytest-mock (if the testing suite is to be run)
   
-A requirements.txt file is included for easy installation of dependecies with 
-pip or conda.
+A `requirements.txt` file is included for easy installation of dependencies with 
+`pip` or `conda`.
 
 Installation with pip:
 ```shell
@@ -63,7 +63,7 @@ virtual environment.
 ### Documentation
 Sphynx is used for automatically generating API documentation for bingo. The 
 most recent build of the documentation can be found in the repository at: 
-doc/_build/html/index.html 
+`doc/_build/html/index.html`
 
 
 ## Running Tests
@@ -76,7 +76,7 @@ pytest tests
 from the root directory of the repository.
 
 ## Usage Examples
-In addition to the example sshown here, the best place to get started in bingo 
+In addition to the example shown here, the best place to get started in bingo 
 is by going through the [examples directory](examples/). It contains several scripts and 
 jupyter notebooks.
 
@@ -210,27 +210,13 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
 Copyright 2018 United States Government as represented by the Administrator of 
 the National Aeronautics and Space Administration. No copyright is claimed in 
 the United States under Title 17, U.S. Code. All Other Rights Reserved.
- 
-#### Disclaimers
-No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF 
-ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED 
-TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY 
-IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR 
-FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR 
-FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE 
-SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER, CONSTITUTE AN 
-ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT OF ANY RESULTS, 
-RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY OTHER APPLICATIONS 
-RESULTING FROM USE OF THE SUBJECT SOFTWARE.  FURTHER, GOVERNMENT AGENCY 
-DISCLAIMS ALL WARRANTIES AND LIABILITIES REGARDING THIRD-PARTY SOFTWARE, IF 
-PRESENT IN THE ORIGINAL SOFTWARE, AND DISTRIBUTES IT "AS IS." 
- 
-Waiver and Indemnity:  RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS AGAINST THE 
-UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY 
-PRIOR RECIPIENT.  IF RECIPIENT'S USE OF THE SUBJECT SOFTWARE RESULTS IN ANY 
-LIABILITIES, DEMANDS, DAMAGES, EXPENSES OR LOSSES ARISING FROM SUCH USE, 
-INCLUDING ANY DAMAGES FROM PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE 
-OF THE SUBJECT SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED 
-STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR 
-RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE REMEDY FOR ANY 
-SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
+
+The Bingo Mini-app framework is licensed under the Apache License, Version 2.0 
+(the "License"); you may not use this application except in compliance with the 
+License. You may obtain a copy of the License at 
+[http://www.apache.org/licenses/LICENSE-2.0].
+
+Unless required by applicable law or agreed to in writing, software distributed 
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
+CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+specific language governing permissions and limitations under the License.

@@ -15,6 +15,7 @@ from bingo.Base.AgeFitnessEA import AgeFitnessEA
 from bingo.Base.Evaluation import Evaluation
 from bingo.Base.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
+import bingo.animation
 
 POP_SIZE = 128
 STACK_SIZE = 10
@@ -63,11 +64,14 @@ TEST_ISLAND = init_island()
 def main():
     test_island = TEST_ISLAND
     i = 0
+    best_indv_values = []
+    best_indv_values.append(test_island.best_individual().values)
     while test_island.best_individual().fitness > ERROR_TOLERANCE:
-        # print("Generation: ", i)
         test_island.execute_generational_step()
+        best_indv_values.append(test_island.best_individual().values)
         i+=1
 
+    bingo.animation.animate_data(best_indv_values)
     print("Generation: ", i)
     print("Success!", test_island.best_individual().get_latex_string())
 

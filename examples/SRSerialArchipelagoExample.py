@@ -5,7 +5,7 @@
 import numpy as np
 
 from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
-from bingo.SymbolicRegression.AGraph.AgraphMutation import AGraphMutation
+from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
 from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
 from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
 from bingo.SymbolicRegression.ExplicitRegression import ExplicitRegression, ExplicitTrainingData

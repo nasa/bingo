@@ -116,8 +116,8 @@ def do_benchmarking():
     printer = IslandStatsPrinter()
     printer.add_stats("Explicit Regression",
                       timeit.repeat(explicit_regression_benchmark,
-                                    number=10,
-                                    repeat=10))
+                                    number=2,
+                                    repeat=2))
     printer.print()
 
 if __name__ == "__main__":

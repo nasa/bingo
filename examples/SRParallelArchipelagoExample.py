@@ -68,8 +68,6 @@ def execute_generational_steps():
         if rank == 0:
             print("print the best indv", archipelago.get_best_individual())
 
-    else:
-        print("Failed.")
 
 def main():
     time1 = time.time()

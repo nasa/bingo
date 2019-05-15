@@ -12,6 +12,8 @@ from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
 from bingo.Base.MultipleValues import SinglePointCrossover, SinglePointMutation
 from bingo.Base.MultipleFloats import MultipleFloatChromosomeGenerator
 
+import bingo.animation
+
 
 class ZeroMinFitnessFunction(FitnessFunction):
     def __call__(self, individual):
@@ -19,7 +21,7 @@ class ZeroMinFitnessFunction(FitnessFunction):
 
 
 def get_random_float():
-    return np.random.random_sample()
+    return np.random.random_sample() * 2.
 
 
 def main():
@@ -32,14 +34,14 @@ def main():
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
     generator = MultipleFloatChromosomeGenerator(get_random_float, 8)
     island = Island(ea, generator, 25)
-    for i in range(25):
+
+    best_indv_values = []
+    best_indv_values.append(island.best_individual().values)
+    for i in range(500):
         island.execute_generational_step()
-        print("\nGeneration #", i)
-        print("-"*80, "\n")
-        report_max_min_mean_fitness(island.population)
-        print("\npopulation: \n")
-        for indv in island.population:
-            print(["{0:.2f}".format(val) for val in indv.values])
+        best_indv_values.append(island.best_individual().values)
+ 
+    bingo.animation.animate_data(best_indv_values)
 
 
 def report_max_min_mean_fitness(population):

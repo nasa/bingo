@@ -19,6 +19,7 @@ script:
   - python -c "import bingo"
   - pytest tests --cov=bingo
   - python tests/performance_benchmarks.py
+  - python tests/island_benchmarks.py
 
 after_script:
   - coveralls

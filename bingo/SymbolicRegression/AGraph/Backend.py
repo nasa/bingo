@@ -200,7 +200,7 @@ def simplify_stack(stack):
                 if AGraph.IS_ARITY_2_MAP[node]:
                     new_stack[j, 2] = reduced_param_map[param2]
                 else:
-                    new_stack[j, 2] = new_stack[j, 2]
+                    new_stack[j, 2] = new_stack[j, 1]
             reduced_param_map[i] = j
             j += 1
     return new_stack

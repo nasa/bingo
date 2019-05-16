@@ -56,6 +56,8 @@ def test_generational_age_increases(island):
     assert island.generational_age == 1
     island.execute_generational_step()
     assert island.generational_age == 2
+    island.evolve(10)
+    assert island.generational_age == 12
 
 
 def test_best_individual(island):
@@ -63,6 +65,13 @@ def test_best_individual(island):
     fitness = [indv.fitness for indv in island.get_population()]
     best = island.best_individual()
     assert best.fitness == min(fitness)
+
+
+def test_best_fitness(island):
+    island.execute_generational_step()
+    fitness = [indv.fitness for indv in island.get_population()]
+    best_fitness = island.get_best_fitness()
+    assert best_fitness == min(fitness)
 
 
 def test_pareto_front_sorted_by_fitness(island):

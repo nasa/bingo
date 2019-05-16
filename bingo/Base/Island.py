@@ -7,13 +7,14 @@ import logging
 
 import numpy as np
 
+from .EvolutionaryOptimizer import EvolutionaryOptimizer
 from ..Util.ArgumentValidation import argument_validation
 from .AgeFitnessSelection import AgeFitness
 
 LOGGER = logging.getLogger(__name__)
 
 
-class Island:
+class Island(EvolutionaryOptimizer):
     """
     Island: code for island of genetic algorithm
     """
@@ -40,16 +41,26 @@ class Island:
             
         """
         self.population = [generator() for _ in range(population_size)]
-        self.generational_age = 0
         self.pareto_front_selection = AgeFitness()
         self._ea = evolution_algorithm
         self._population_size = population_size
         self._pareto_front = []
+        super().__init__()
+
+    def evolve(self, num_generations):
+        """Generational evolution
+
+        Parameters
+        ----------
+        num_generations : int
+            The number of generations to evolve
+        """
+        for _ in range(num_generations):
+            self.execute_generational_step()
 
     def execute_generational_step(self):
         """Executes a single generational step using the provided evolutionary
         algorithm
-        
         """
         self.generational_age += 1
         self.population = self._ea.generational_step(self.population)
@@ -75,6 +86,16 @@ class Island:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():
                 best = indv
         return best
+
+    def get_best_fitness(self):
+        """ finds the fitness value of the most fit individual
+
+        Returns
+        -------
+         :
+            Fitness of best individual
+        """
+        return self.best_individual().fitness
 
     def load_population(self, population, replace=True):
         """Loads population from a pickleable object
@@ -120,4 +141,3 @@ class Island:
             pareto front. The pareto front is returned in sorted order.
         """
         return self._pareto_front
-        

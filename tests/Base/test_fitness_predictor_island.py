@@ -47,6 +47,8 @@ def generator():
 
 @pytest.fixture
 def fitness_predictor_island(ev_alg, generator):
+    np.random.seed(0)  # seeding becuse mutaion prob of predictor cant be set
+                       # until after init
     island = FPI(ev_alg, generator, MAIN_POPULATION_SIZE,
         predictor_population_size=PREDICTOR_POPULATION_SIZE,
         trainer_population_size=TRAINER_POPULATION_SIZE,
@@ -78,12 +80,11 @@ def test_predictor_compute_ratios(fitness_predictor_island):
     # init
     point_evals_predictor = FULL_TRAINING_DATA_SIZE*TRAINER_POPULATION_SIZE
     point_evals_predictor += 2 * point_evals_per_predictor_step()
-    point_evals_main = 0
+    point_evals_main = point_evals_per_main_step()
     assert_expected_compute_ratio(fitness_predictor_island,
                                   point_evals_main, point_evals_predictor)
 
     # main step
-    point_evals_main += point_evals_per_main_step()
     fitness_predictor_island.execute_generational_step()
     point_evals_main += point_evals_per_main_step()
     assert_expected_compute_ratio(fitness_predictor_island,
@@ -167,9 +168,9 @@ def test_nan_on_predicted_variance_of_trainer(mocker,
 
 def assert_expected_compute_ratio(fitness_predictor_island, point_evals_main,
                                   point_evals_predictor):
-    ratio_after_init = \
+    current_ratio = \
         fitness_predictor_island._get_predictor_computation_ratio()
-    np.testing.assert_almost_equal(ratio_after_init,
+    np.testing.assert_almost_equal(current_ratio,
                                    point_evals_predictor /
                                    (point_evals_predictor + point_evals_main))
 

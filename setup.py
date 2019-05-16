@@ -78,7 +78,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="bingo-nasa",
-    version=get_property('__version__', bingo),
+    version=get_property('__version__', 'bingo'),
     author="Geoffrey Bomarito",
     author_email="geoffrey.f.bomarito@nasa.gov",
     description="A package for genetic optimization and symbolic regression",

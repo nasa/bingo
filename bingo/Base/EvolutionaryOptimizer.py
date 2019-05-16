@@ -96,7 +96,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             self._fitness_improvement_age = self.generational_age
 
     def _convergence(self, threshold):
-        return self._best_fitness < threshold
+        return self._best_fitness <= threshold
 
     def _stagnation(self, threshold):
         if threshold is None:

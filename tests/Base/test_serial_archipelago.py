@@ -113,7 +113,7 @@ def test_archipelago_generated(island):
 def test_generational_step_executed(island):
     random.seed(0)
     archipelago = SerialArchipelago(island, num_islands=3)
-    archipelago.step_through_generations(1)
+    archipelago._step_through_generations(1)
     for island_i in archipelago._islands:
         assert island_i.best_individual()
 
@@ -122,7 +122,7 @@ def test_island_migration(one_island, island_list):
     archipelago = SerialArchipelago(one_island, num_islands=4)
     archipelago._islands = island_list
 
-    archipelago.coordinate_migration_between_islands()
+    archipelago._coordinate_migration_between_islands()
 
     migration_count = 0
     for i, island in enumerate(archipelago._islands):
@@ -138,14 +138,12 @@ def test_convergence_of_archipelago(one_island, island_list):
     archipelago = SerialArchipelago(one_island, num_islands=4)
     archipelago._islands = island_list
 
-    converged = archipelago.test_for_convergence(0)
-    assert converged
+    assert archipelago.get_best_fitness() <= 0
 
 
 def test_convergence_of_archipelago_unconverged(one_island):
     archipelago = SerialArchipelago(one_island, num_islands=6)
-    converged = archipelago.test_for_convergence(0)
-    assert not converged
+    assert archipelago.get_best_fitness() > 0
 
 
 def test_assign_and_receive(one_island, two_island):
@@ -155,12 +153,12 @@ def test_assign_and_receive(one_island, two_island):
         assert 0 <= s < len(one_island.population) <= len(two_island.population)
         assert 0 <= r < len(one_island.population) <= len(two_island.population)
 
+
 def test_best_individual_returned(one_island):
     generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
     best_indv = generator()
     one_island.load_population([best_indv], replace=False)
     archipelago = SerialArchipelago(one_island)
-    assert archipelago.test_for_convergence(error_tol=ERROR_TOL)
     assert archipelago.get_best_individual().fitness == 0
 
 
@@ -171,8 +169,8 @@ def test_archipelago_runs(one_island, two_island, three_island):
     generation_step_report = 10
     archipelago = SerialArchipelago(one_island, num_islands=4)
     archipelago._islands = [one_island, two_island, three_island, three_island]
-    converged = archipelago.run_islands(max_generations,
-                                        min_generations,
-                                        generation_step_report,
-                                        error_tol)
-    assert converged
+    result = archipelago.evolve_until_convergence(max_generations,
+                                                  error_tol,
+                                                  generation_step_report,
+                                                  min_generations)
+    assert result.success

@@ -8,6 +8,7 @@ import random
 
 from .Archipelago import Archipelago
 
+
 class SerialArchipelago(Archipelago):
     """An archipelago that executes island generations serially.
 
@@ -20,60 +21,29 @@ class SerialArchipelago(Archipelago):
         list of islands
     """
     def __init__(self, island, num_islands=2):
+        self._islands = self._generate_islands(island, num_islands)
         super().__init__(island, num_islands)
-        self._islands = self._generate_islands()
-        self._converged = False
-        self._best_indv = None
 
-    def step_through_generations(self, num_steps):
-        """ Executes 'num_steps' number of generations for
-        each island in the archipelago's list of islands
-
-        Parameters
-        ----------
-        num_steps : int
-            The number of generations to execute per island
-        """
+    def _step_through_generations(self, num_steps):
         for island in self._islands:
-            for _ in range(num_steps):
-                island.execute_generational_step()
-        self.archipelago_age += num_steps
+            island.evolve(num_steps)
+        self.generational_age += num_steps
 
-    def coordinate_migration_between_islands(self):
-        """Shuffles island populations for migration and performs
-        migration by swapping pairs of individuals between islands
-        """
+    def _coordinate_migration_between_islands(self):
         island_partners = self._shuffle_island_indices()
 
         for i in range(self._num_islands//2):
             self._shuffle_island_and_swap_pairs(island_partners, i)
 
-    def test_for_convergence(self, error_tol):
-        """Tests that the fitness of individuals is less than
-        or equal to the specified error tolerance
-
-        Parameters
-        ----------
-        error_tol : int
-            Upper bound for acceptable fitness of an individual
+    def get_best_fitness(self):
+        """Gets the fitness of most fit island member
 
         Returns
         -------
-        bool :
-            Indicates whether a chromosome has converged.
+         :
+            Fitness of best individual in the archipelago
         """
-        list_of_best_indvs = []
-        for island in self._islands:
-            best_indv = island.best_individual()
-            list_of_best_indvs.append(best_indv)
-        list_of_best_indvs.sort(key=lambda x: x.fitness)
-
-        best_indv = list_of_best_indvs[0]
-        converged = best_indv.fitness <= error_tol
-
-        self._best_indv = best_indv
-        self._converged = converged
-        return converged
+        return self.get_best_individual().fitness
 
     def get_best_individual(self):
         """Returns the best individual if the islands converged to an
@@ -85,12 +55,14 @@ class SerialArchipelago(Archipelago):
             The best individual whose fitness was within the error
             tolerance.
         """
-        return self._best_indv
+        list_of_best_indvs = [i.best_individual() for i in self._islands]
+        list_of_best_indvs.sort(key=lambda x: x.fitness)
+        return list_of_best_indvs[0]
 
-    def _generate_islands(self):
-        island_list = []
-        for _ in range(self._num_islands):
-            island_list.append(copy.deepcopy(self._island))
+    @staticmethod
+    def _generate_islands(island, num_islands):
+        island_list = [copy.deepcopy(island)
+                       for _ in range(num_islands)]
         return island_list
 
     def _shuffle_island_indices(self):

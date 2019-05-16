@@ -7,9 +7,11 @@ the islands until convergence or until a maximal number of steps is reached.
 from abc import ABCMeta, abstractmethod
 import random
 
+from .EvolutionaryOptimizer import EvolutionaryOptimizer
 from ..Util.ArgumentValidation import argument_validation
 
-class Archipelago(metaclass=ABCMeta):
+
+class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
     """Collection of islands
 
     Parameters
@@ -23,61 +25,20 @@ class Archipelago(metaclass=ABCMeta):
     def __init__(self, island, num_islands):
         self.sim_time = 0
         self.start_time = 0
-        self.archipelago_age = 0
         self._island = island
         self._num_islands = num_islands
+        super().__init__()
 
-
-    @argument_validation(max_generations={">=": 1},
-                         min_generations={">=": 0},
-                         generation_step_report={">=": 0},
-                         error_tol={">=": 0})
-    def run_islands(self, max_generations, min_generations, 
-                    generation_step_report, error_tol=10e-6):
-        """Executes generational steps on all the islands for at least
-        'min_generations' until 'max_generations' or until `error_tol`
-        is acheived for any individual `Chromosome`. Convergence is checked
-        every `generation_step_report` generations.
-
-        Parameters
-        ----------
-        max_generations: int
-            The maximum number of generations the algorithm will run.
-        min_generations: int
-            The minimum number of generations the algorithm will run.
-        generation_step_report: int
-            The number of generations that will run before checking for
-            convergence.
-        error_tol: float, default 10e-6
-            The minimum fitness that must be achieved in order for the
-            algorithm to converge.
-
-        Returns:
-        --------
-        bool :
-            Indicates whether convergence has been acheived.
-        """
-        self.step_through_generations(generation_step_report)
-        converged = self.test_for_convergence(error_tol)
-
-        while self.archipelago_age < min_generations or \
-                (self.archipelago_age < max_generations and not converged):
-            self.coordinate_migration_between_islands()
-            self.step_through_generations(generation_step_report)
-            converged = self.test_for_convergence(generation_step_report)
-
-        return converged
+    def evolve(self, num_generations):
+        self._coordinate_migration_between_islands()
+        self._step_through_generations(num_generations)
 
     @abstractmethod
-    def step_through_generations(self, num_steps):
+    def _step_through_generations(self, num_steps):
         raise NotImplementedError
 
     @abstractmethod
-    def coordinate_migration_between_islands(self):
-        raise NotImplementedError
-
-    @abstractmethod
-    def test_for_convergence(self, error_tol):
+    def _coordinate_migration_between_islands(self):
         raise NotImplementedError
 
     @staticmethod

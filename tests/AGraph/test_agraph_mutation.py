@@ -14,6 +14,7 @@ NODE_TYPE = 0
 PARAM_1 = 1
 PARAM_2 = 2
 
+
 @pytest.fixture
 def terminal_only_agraph():
     test_graph = AGraph()
@@ -22,6 +23,19 @@ def terminal_only_agraph():
                                          [3, 1, 1],
                                          [4, 0, 2],
                                          [0, 0, 0]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([1.0, 1.0])
+    return test_graph
+
+
+@pytest.fixture
+def constant_only_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[0, 1, 3],  # 1.0
+                                         [1, 1, 2],
+                                         [3, 1, 1],
+                                         [4, 0, 2],
+                                         [1, 0, 0]], dtype=int)
     test_graph.genetic_age = 1
     test_graph.set_local_optimization_params([1.0, 1.0])
     return test_graph
@@ -186,3 +200,18 @@ def test_mutation_creates_valid_parameters(sample_agraph_1):
             if not AcyclicGraph.IS_TERMINAL_MAP[operation[NODE_TYPE]]:
                 assert operation[PARAM_1] < row
                 assert operation[PARAM_2] < row
+
+
+def test_param_mutation_constant_graph(constant_only_agraph,
+                                       sample_component_generator):
+    np.random.seed(10)
+    mutation = AGraphMutation(sample_component_generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=1.0,
+                              prune_probability=0.0)
+    for _ in range(5):
+        child = mutation(constant_only_agraph)
+        p_stack = constant_only_agraph.command_array
+        c_stack = child.command_array
+        np.testing.assert_array_equal(p_stack, c_stack)

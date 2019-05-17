@@ -162,7 +162,7 @@ class AGraphMutation(Mutation):
         for i, (util, node) in enumerate(zip(utilized_commands,
                                              individual.command_array[:, 0])):
             if util:
-                if node != 1:
+                if node != 1:  # TODO hard coded info about node map
                     non_constant_indices.append(i)
 
         if not non_constant_indices:
@@ -180,8 +180,6 @@ class AGraphMutation(Mutation):
             self._randomize_parameters(is_terminal,
                                        mutated_command,
                                        mutation_location)
-            if mutated_command[0] == 1:  # TODO hard coded info about node map
-                break
             unique_params = not np.array_equal(mutated_command,
                                                old_command)
 
@@ -189,8 +187,6 @@ class AGraphMutation(Mutation):
         # TODO hard coded info about node map
         if node == 0:
             return self._component_generator.input_x_dimension > 1
-        if node == 1:
-            return True
         return mutation_location > 1
 
     def _randomize_parameters(self,

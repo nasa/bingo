@@ -35,10 +35,9 @@ def main():
     generator = MultipleFloatChromosomeGenerator(get_random_float, 8)
     island = Island(ea, generator, 25)
 
-    best_indv_values = []
-    best_indv_values.append(island.get_best_individual().values)
+    best_indv_values = [island.get_best_individual().values, ]
     for i in range(500):
-        island.execute_generational_step()
+        island.evolve(1)
         best_indv_values.append(island.get_best_individual().values)
  
     bingo.animation.animate_data(best_indv_values)

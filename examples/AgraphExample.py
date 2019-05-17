@@ -26,11 +26,14 @@ START = -10
 STOP = 10
 ERROR_TOLERANCE = 1e-6
 
+
 def init_x_vals(start, stop, num_points):
     return np.linspace(start, stop, num_points).reshape([-1, 1])
 
+
 def equation_eval(x):
     return x**2 + 3.5*x**3
+
 
 def init_island():
     np.random.seed(10)
@@ -59,27 +62,27 @@ def init_island():
     island = Island(ea, agraph_generator, POP_SIZE)
     return island
 
-TEST_ISLAND = init_island()
 
 def main():
-    test_island = TEST_ISLAND
+    test_island = init_island()
     i = 0
-    best_indv_values = []
-    best_indv_values.append(test_island.get_best_individual().values)
+    best_indv_values = [test_island.get_best_individual().values, ]
     while test_island.get_best_individual().fitness > ERROR_TOLERANCE:
-        test_island.execute_generational_step()
+        test_island.evolve(1)
         best_indv_values.append(test_island.get_best_individual().values)
-        i+=1
+        i += 1
 
     bingo.animation.animate_data(best_indv_values)
     print("Generation: ", i)
     print("Success!", test_island.get_best_individual().get_latex_string())
+
 
 def report_max_min_mean_fitness(population):
     fitness = [indv.fitness for indv in population]
     print("Max fitness: \t", np.max(fitness))
     print("Min fitness: \t", np.min(fitness))
     print("Mean fitness: \t", np.mean(fitness))
+
 
 if __name__ == '__main__':
     main()

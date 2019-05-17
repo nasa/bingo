@@ -70,7 +70,7 @@ class IslandStatsPrinter(StatsPrinter):
 
 def explicit_regression_benchmark():
     island = init_island()
-    while island.best_individual().fitness > ERROR_TOLERANCE:
+    while island.get_best_individual().fitness > ERROR_TOLERANCE:
         island.execute_generational_step()
 
 def do_benchmarking():

@@ -55,7 +55,7 @@ class SerialArchipelago(Archipelago):
             The best individual whose fitness was within the error
             tolerance.
         """
-        list_of_best_indvs = [i.best_individual() for i in self._islands]
+        list_of_best_indvs = [i.get_best_individual() for i in self._islands]
         list_of_best_indvs.sort(key=lambda x: x.fitness)
         return list_of_best_indvs[0]
 

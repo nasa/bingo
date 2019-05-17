@@ -63,7 +63,7 @@ def test_generational_age_increases(island):
 def test_best_individual(island):
     island.execute_generational_step()
     fitness = [indv.fitness for indv in island.get_population()]
-    best = island.best_individual()
+    best = island.get_best_individual()
     assert best.fitness == min(fitness)
 
 

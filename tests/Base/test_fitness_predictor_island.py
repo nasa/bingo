@@ -27,14 +27,17 @@ class DistanceToAverage(FitnessFunction):
         avg_data = np.mean(self.training_data)
         return np.linalg.norm(individual.values - avg_data)
 
+@pytest.fixture
+def full_training_data():
+    return np.linspace(0.1, 1, FULL_TRAINING_DATA_SIZE)
+
 
 @pytest.fixture
-def ev_alg():
+def ev_alg(full_training_data):
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(np.random.random)
     selection = Tournament(2)
-    training_data = np.linspace(0.1, 1, FULL_TRAINING_DATA_SIZE)
-    fitness = DistanceToAverage(training_data)
+    fitness = DistanceToAverage(full_training_data)
     evaluator = Evaluation(fitness)
     return MuPlusLambda(evaluator, selection, crossover, mutation,
                         0., 1.0, MAIN_POPULATION_SIZE)
@@ -47,8 +50,6 @@ def generator():
 
 @pytest.fixture
 def fitness_predictor_island(ev_alg, generator):
-    np.random.seed(0)  # seeding becuse mutaion prob of predictor cant be set
-                       # until after init
     island = FPI(ev_alg, generator, MAIN_POPULATION_SIZE,
         predictor_population_size=PREDICTOR_POPULATION_SIZE,
         trainer_population_size=TRAINER_POPULATION_SIZE,
@@ -76,17 +77,27 @@ def test_raises_error_on_illegal_value_in_init(ev_alg, generator, param,
         _ = FPI(ev_alg, generator, 10, **kwargs)
 
 
+def test_best_fitness_is_true_fitness(fitness_predictor_island,
+                                      full_training_data):
+
+    true_fitness_function = DistanceToAverage(full_training_data)
+    best_individual = fitness_predictor_island.get_best_individual()
+    best_fitness = fitness_predictor_island.get_best_fitness()
+    expected_best_fitness = true_fitness_function(best_individual)
+    assert best_fitness == expected_best_fitness
+
+
 def test_predictor_compute_ratios(fitness_predictor_island):
     # init
     point_evals_predictor = FULL_TRAINING_DATA_SIZE*TRAINER_POPULATION_SIZE
     point_evals_predictor += 2 * point_evals_per_predictor_step()
-    point_evals_main = point_evals_per_main_step()
+    point_evals_main = 0
     assert_expected_compute_ratio(fitness_predictor_island,
                                   point_evals_main, point_evals_predictor)
 
     # main step
     fitness_predictor_island.execute_generational_step()
-    point_evals_main += point_evals_per_main_step()
+    point_evals_main += 2 * point_evals_per_main_step()
     assert_expected_compute_ratio(fitness_predictor_island,
                                   point_evals_main, point_evals_predictor)
 

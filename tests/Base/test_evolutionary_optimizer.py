@@ -19,6 +19,9 @@ class DummyEO(EvolutionaryOptimizer):
     def get_best_fitness(self):
         return self.best_fitness
 
+    def get_best_individual(self):
+        return [self.best_fitness]
+
 
 @pytest.fixture
 def converging_eo():

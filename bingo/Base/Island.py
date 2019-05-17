@@ -37,15 +37,15 @@ class Island(EvolutionaryOptimizer):
             The number of generational steps that have been executed
 
         population : list of Chromosomes
-            The population that is evolvingj
+            The population that is evolving
             
         """
+        super().__init__()
         self.population = [generator() for _ in range(population_size)]
         self.pareto_front_selection = AgeFitness()
         self._ea = evolution_algorithm
         self._population_size = population_size
         self._pareto_front = []
-        super().__init__()
 
     def evolve(self, num_generations):
         """Generational evolution
@@ -72,7 +72,7 @@ class Island(EvolutionaryOptimizer):
         """Manually trigger evaluation of population"""
         self._ea.evaluation(self.population)
 
-    def best_individual(self):
+    def get_best_individual(self):
         """Finds the individual with the lowest fitness in a population
 
         Returns
@@ -95,7 +95,7 @@ class Island(EvolutionaryOptimizer):
          :
             Fitness of best individual
         """
-        return self.best_individual().fitness
+        return self.get_best_individual().fitness
 
     def load_population(self, population, replace=True):
         """Loads population from a pickleable object

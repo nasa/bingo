@@ -36,10 +36,10 @@ def main():
     island = Island(ea, generator, 25)
 
     best_indv_values = []
-    best_indv_values.append(island.best_individual().values)
+    best_indv_values.append(island.get_best_individual().values)
     for i in range(500):
         island.execute_generational_step()
-        best_indv_values.append(island.best_individual().values)
+        best_indv_values.append(island.get_best_individual().values)
  
     bingo.animation.animate_data(best_indv_values)
 

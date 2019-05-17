@@ -28,7 +28,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         self.generational_age = 0
         self._starting_age = 0
         self._fitness_improvement_age = 0
-        self._best_fitness = self.get_best_fitness()
+        self._best_fitness = None
 
     @argument_validation(max_generations={">=": 1},
                          min_generations={">=": 0},
@@ -68,6 +68,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             Object containing information about the result of the run
         """
         self._starting_age = self.generational_age
+        self._update_best_fitness()
 
         while self.generational_age - self._starting_age < min_generations:
             self.evolve(convergence_check_frequency)
@@ -92,7 +93,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     def _update_best_fitness(self):
         last_best_fitness = self._best_fitness
         self._best_fitness = self.get_best_fitness()
-        if self._best_fitness < last_best_fitness:
+        if last_best_fitness is None or self._best_fitness < last_best_fitness:
             self._fitness_improvement_age = self.generational_age
 
     def _convergence(self, threshold):
@@ -139,8 +140,19 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
+    def get_best_individual(self):
+        """ Gets the most fit individual
+
+        Returns
+        -------
+        Chromosome :
+            Best individual
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def get_best_fitness(self):
-        """ Gets the value of the most fit individual
+        """ Gets the fitness value of the most fit individual
 
         Returns
         -------

@@ -115,7 +115,7 @@ def test_generational_step_executed(island):
     archipelago = SerialArchipelago(island, num_islands=3)
     archipelago._step_through_generations(1)
     for island_i in archipelago._islands:
-        assert island_i.best_individual()
+        assert island_i.get_best_individual()
 
 
 def test_island_migration(one_island, island_list):

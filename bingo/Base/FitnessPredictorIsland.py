@@ -127,6 +127,17 @@ class FitnessPredictorIsland(Island):
         self._update_predictor_if_needed()
         self._update_trainer_if_needed()
 
+    def get_best_fitness(self):
+        """ finds the true fitness value of the most fit individual
+
+        Returns
+        -------
+         :
+            Fitness of best individual
+        """
+        return self._predictor_fitness_function.get_true_fitness_for_trainer(
+                self.get_best_individual())
+
     def _make_fitness_predictor_fitness_function(self):
         pred_fit_func = \
             FitnessPredictorFitnessFunction(self._full_training_data,
@@ -176,7 +187,7 @@ class FitnessPredictorIsland(Island):
             self._predictor_island.evaluate_population()
 
     def _update_to_use_best_fitness_predictor(self):
-        best_predictor = self._predictor_island.best_individual()
+        best_predictor = self._predictor_island.get_best_individual()
         best_subset_data = \
             self._full_training_data[best_predictor.values]
         self._fitness_function.training_data = best_subset_data

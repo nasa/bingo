@@ -89,7 +89,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         """
         self._trainers[self._next_trainer_to_update] = trainer.copy()
         self._true_fitness_for_trainers[self._next_trainer_to_update] = \
-            self._get_true_fitness_for_trainer(trainer)
+            self.get_true_fitness_for_trainer(trainer)
         self._increment_next_trainer_to_update()
 
     def predict_fitness_for_trainer(self, individual, trainer):
@@ -115,7 +115,22 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         self.point_eval_count += len(subset_training_data)
         return predicted_fitness
 
-    def _get_true_fitness_for_trainer(self, trainer):
+    def get_true_fitness_for_trainer(self, trainer):
+        """Gets true (full) fitness of trainer
+
+        True fitness is the fitness calculated using the entire set of training
+        data.
+
+        Parameters
+        ----------
+        trainer : Chromosome
+            The chromosome to be evaluated
+
+        Returns
+        -------
+         :
+            true (full) fitness of trainer
+        """
         self._fitness_function.training_data = self.training_data
         predicted_fitness = self._fitness_function(trainer)
         self.point_eval_count += len(self.training_data)
@@ -126,7 +141,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         trainers = []
         true_fitness_for_trainers = []
         for indv in potential_trainers:
-            true_fitness = self._get_true_fitness_for_trainer(indv)
+            true_fitness = self.get_true_fitness_for_trainer(indv)
             if not np.isnan(true_fitness):
                 trainers.append(indv.copy())
                 true_fitness_for_trainers.append(true_fitness)

@@ -11,6 +11,11 @@ from ...Base.Mutation import Mutation
 from ...Util.ArgumentValidation import argument_validation
 from ...Util.ProbabilityMassFunction import ProbabilityMassFunction
 
+COMMAND_MUTATION = 0
+NODE_MUTATION = 1
+PARAMETER_MUTATION = 2
+PRUNE_MUTATION = 3
+
 
 class AGraphMutation(Mutation):
     """Mutation of acyclic graph individual
@@ -67,6 +72,8 @@ class AGraphMutation(Mutation):
                                      prune_probability])
         self._manual_constants = \
             not component_generator.automatic_constant_optimization
+        self._last_mutation_location = None
+        self._last_mutation_type = None
 
     def __call__(self, parent):
         """Single point mutation.
@@ -85,8 +92,17 @@ class AGraphMutation(Mutation):
         mutation_algorithm = self._mutation_function_pmf.draw_sample()
         mutation_algorithm(child)
 
+        if self._manual_constants:
+            self._track_constants(parent, child)
+
         # TODO can we shift this responsibility to agraph?
         child.notify_command_array_modification()
+
+
+
+        if child.num_constants != len(child.constants):
+            print("~~~~~~~~~~~~~~~~~~issue found in child for mutation3~~~~~~~~~~~~~~~~~~~~~")
+
 
         return child
 
@@ -108,31 +124,31 @@ class AGraphMutation(Mutation):
             continue_search_for_new_command = \
                 np.array_equal(individual.command_array[mutation_location],
                                old_command)
+        self._last_mutation_location = mutation_location
+        self._last_mutation_type = COMMAND_MUTATION
 
-        self._check_for_updating_manual_constants(individual,
-                                                  mutation_location,
-                                                  old_command[0])
-
-    def _check_for_updating_manual_constants(self, individual,
-                                             mutation_location, old_operator,
-                                             modify_old_constant=False):
-        if self._manual_constants and \
-                individual.command_array[mutation_location][0] == 1:
-            individual.force_renumber_constants()
-            new_const_location = \
-                individual.command_array[mutation_location][1]
-            new_constant = \
-                self._component_generator.random_numerical_constant()
-
-            if old_operator == 1:
-                if modify_old_constant:
-                    new_constant = \
-                        self._component_generator.random_numerical_constant(
-                            individual.constants[new_const_location])
-                individual.constants[new_const_location] = new_constant
-            else:
-                individual.constants.insert(new_const_location,
-                                            new_constant)
+    def _track_constants(self, parent, child):
+        child.force_renumber_constants()
+        child.constants = [0., ]*child.num_constants
+        for i, (command, param1, _) in enumerate(child.command_array):
+            if command == 1 and param1 != -1:
+                if i == self._last_mutation_location:
+                    if self._last_mutation_type == PARAMETER_MUTATION:
+                        old_constant_num = parent.command_array[i, 1]
+                        constant = \
+                            self._component_generator.random_numerical_constant(
+                                    parent.constants[old_constant_num])
+                    else:
+                        constant = \
+                            self._component_generator.random_numerical_constant()
+                else:
+                    old_constant_num = parent.command_array[i, 1]
+                    if old_constant_num == -1:
+                        constant = \
+                            self._component_generator.random_numerical_constant()
+                    else:
+                        constant = parent.constants[old_constant_num]
+                child.constants[param1] = constant
 
     def _mutate_node(self, individual):
         mutation_location = self._get_random_mutation_location(individual)
@@ -143,9 +159,8 @@ class AGraphMutation(Mutation):
         if self._is_new_node_possible(is_terminal):
             self._force_mutated_node(is_terminal, mutated_command, old_node)
 
-        self._check_for_updating_manual_constants(individual,
-                                                  mutation_location,
-                                                  old_node)
+        self._last_mutation_location = mutation_location
+        self._last_mutation_type = NODE_MUTATION
 
     def _is_new_node_possible(self, is_terminal):
         if is_terminal:
@@ -186,10 +201,8 @@ class AGraphMutation(Mutation):
                                            old_command,
                                            mutation_location)
 
-        self._check_for_updating_manual_constants(individual,
-                                                  mutation_location,
-                                                  old_command[0],
-                                                  True)
+        self._last_mutation_location = mutation_location
+        self._last_mutation_type = PARAMETER_MUTATION
 
     def _get_random_param_mut_location(self, individual):
         utilized_commands = individual.get_utilized_commands()
@@ -247,8 +260,7 @@ class AGraphMutation(Mutation):
                     self._component_generator.random_operator_parameter(
                         mutation_location)
 
-    @staticmethod
-    def _prune_branch(individual):
+    def _prune_branch(self, individual):
         mutation_location = \
             AGraphMutation._get_random_prune_location(individual)
         if mutation_location is None:
@@ -271,6 +283,9 @@ class AGraphMutation(Mutation):
                 if p_2 == mutation_location:
                     individual.command_array[mutation_location + i, 2] = \
                         pruned_param
+
+        self._last_mutation_location = mutation_location
+        self._last_mutation_type = PRUNE_MUTATION
 
     @staticmethod
     def _get_random_prune_location(individual):

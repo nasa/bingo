@@ -237,7 +237,6 @@ def _assert_arrays_not_almost_equal(array_1, array_2):
 
 @pytest.mark.parametrize("command_prob, node_prob", [(1.0, 0.), (0.0, 1.0)])
 def test_new_manual_constants_added(terminal_only_agraph,
-                                    sample_component_generator,
                                     command_prob, node_prob):
     np.random.seed(0)
     comp_generator = ComponentGenerator(input_x_dimension=2,
@@ -254,3 +253,22 @@ def test_new_manual_constants_added(terminal_only_agraph,
 
     assert child.num_constants == 1
     assert len(child.constants) == 1
+
+
+def test_multiple_manual_constsnt_mutations_for_consistency():
+    np.random.seed(0)
+    test_graph = AGraph(manual_constants=True)
+    test_graph.command_array = np.array([[1, -1, -1],
+                                         [1, -1, -1],
+                                         [1, -1, -1],
+                                         [1, 0, 0]])
+    test_graph.genetic_age = 10
+    test_graph.set_local_optimization_params([1.0, ])
+    test_graph.fitness = 1
+    comp_generator = ComponentGenerator(input_x_dimension=2,
+                                        automatic_constant_optimization=False)
+    comp_generator.add_operator(2)
+    mutation = AGraphMutation(comp_generator)
+    for _ in range(20):
+        test_graph = mutation(test_graph)
+        assert test_graph.num_constants == len(test_graph.constants)

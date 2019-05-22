@@ -37,13 +37,15 @@ class AGraphGenerator(Generator):
         Agraph
             new random acyclic graph individual
         """
-        individual = AGraph()
+        individual = AGraph(manual_constants=self._manual_constants)
         individual.command_array = self._create_command_array()
         if self._manual_constants:
             individual.constants = self._generate_manual_constants(individual)
         return individual
 
     def _generate_manual_constants(self, individual):
+        individual.force_renumber_constants()
+        individual.notify_command_array_modification()
         num_consts = individual.get_number_local_optimization_params()
         return [self.component_generator.random_numerical_constant()
                 for _ in range(num_consts)]

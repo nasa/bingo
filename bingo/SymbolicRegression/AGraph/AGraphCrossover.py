@@ -49,9 +49,7 @@ class AGraphCrossover(Crossover):
             parent_1.command_array[cross_point:]
 
         if self._manual_constants:
-            child_1.force_renumber_constants()
             self._track_constants(parent_1, parent_2, child_1, cross_point)
-            child_2.force_renumber_constants()
             self._track_constants(parent_2, parent_1, child_2, cross_point)
 
         # TODO can we shift this responsibility to agraph?
@@ -65,6 +63,7 @@ class AGraphCrossover(Crossover):
         return child_1, child_2
 
     def _track_constants(self, parent_start, parent_end, child, cross_point):
+        child.force_renumber_constants()
         child.constants = [0., ]*child.num_constants
         for i, (command, param1, _) in enumerate(child.command_array):
             if command == 1 and param1 != -1:

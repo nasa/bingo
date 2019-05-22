@@ -36,7 +36,7 @@ def equation_eval(x):
 
 
 def init_island():
-    np.random.seed(10)
+    np.random.seed(4)
     x = init_x_vals(START, STOP, NUM_POINTS)
     y = equation_eval(x)
     training_data = ExplicitTrainingData(x, y)
@@ -46,7 +46,7 @@ def init_island():
     component_generator.add_operator(3)
     component_generator.add_operator(4)
 
-    crossover = AGraphCrossover()
+    crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
@@ -65,16 +65,11 @@ def init_island():
 
 def main():
     test_island = init_island()
-    i = 0
-    best_indv_values = [test_island.get_best_individual().values, ]
-    while test_island.get_best_individual().fitness > ERROR_TOLERANCE:
-        test_island.evolve(1)
-        best_indv_values.append(test_island.get_best_individual().values)
-        i += 1
-
-    bingo.animation.animate_data(best_indv_values)
-    print("Generation: ", i)
-    print("Success!", test_island.get_best_individual().get_latex_string())
+    print("Best individual at start", test_island.get_best_individual())
+    test_island.evolve_until_convergence(max_generations=1000,
+                                         absolute_error_threshold=ERROR_TOLERANCE)
+    print("Generation: ", test_island.generational_age)
+    print("Best individual!", test_island.get_best_individual())
 
 
 def report_max_min_mean_fitness(population):

@@ -29,13 +29,13 @@ class AGraphMutation(Mutation):
     Parameters
     ----------
     command_probability : float
-                          probability of command mutation
+                          probability of command mutation. Default 0.2
     node_probability : float
-                           probability of node mutation
+                           probability of node mutation. Default 0.3
     parameter_probability : float
-                            probability of parameter mutation
+                            probability of parameter mutation. Default 0.3
     prune_probability : float
-                        probability of pruning
+                        probability of pruning. Default 0.2
 
     Notes
     -----
@@ -65,6 +65,8 @@ class AGraphMutation(Mutation):
                                      node_probability,
                                      parameter_probability,
                                      prune_probability])
+        self._manual_constants = \
+            not component_generator.automatic_constant_optimization
 
     def __call__(self, parent):
         """Single point mutation.
@@ -107,6 +109,31 @@ class AGraphMutation(Mutation):
                 np.array_equal(individual.command_array[mutation_location],
                                old_command)
 
+        self._check_for_updating_manual_constants(individual,
+                                                  mutation_location,
+                                                  old_command[0])
+
+    def _check_for_updating_manual_constants(self, individual,
+                                             mutation_location, old_operator,
+                                             modify_old_constant=False):
+        if self._manual_constants and \
+                individual.command_array[mutation_location][0] == 1:
+            individual.force_renumber_constants()
+            new_const_location = \
+                individual.command_array[mutation_location][1]
+            new_constant = \
+                self._component_generator.random_numerical_constant()
+
+            if old_operator == 1:
+                if modify_old_constant:
+                    new_constant = \
+                        self._component_generator.random_numerical_constant(
+                            individual.constants[new_const_location])
+                individual.constants[new_const_location] = new_constant
+            else:
+                individual.constants.insert(new_const_location,
+                                            new_constant)
+
     def _mutate_node(self, individual):
         mutation_location = self._get_random_mutation_location(individual)
         old_node = individual.command_array[mutation_location, 0]
@@ -115,6 +142,10 @@ class AGraphMutation(Mutation):
 
         if self._is_new_node_possible(is_terminal):
             self._force_mutated_node(is_terminal, mutated_command, old_node)
+
+        self._check_for_updating_manual_constants(individual,
+                                                  mutation_location,
+                                                  old_node)
 
     def _is_new_node_possible(self, is_terminal):
         if is_terminal:
@@ -155,20 +186,24 @@ class AGraphMutation(Mutation):
                                            old_command,
                                            mutation_location)
 
-    @staticmethod
-    def _get_random_param_mut_location(individual):
+        self._check_for_updating_manual_constants(individual,
+                                                  mutation_location,
+                                                  old_command[0],
+                                                  True)
+
+    def _get_random_param_mut_location(self, individual):
         utilized_commands = individual.get_utilized_commands()
-        non_constant_indices = []
+        acceptable_indices = []
         for i, (util, node) in enumerate(zip(utilized_commands,
                                              individual.command_array[:, 0])):
             if util:
-                if node != 1:  # TODO hard coded info about node map
-                    non_constant_indices.append(i)
+                if self._manual_constants or node != 1:  # TODO hard coded info about node map
+                    acceptable_indices.append(i)
 
-        if not non_constant_indices:
+        if not acceptable_indices:
             return None
 
-        return np.random.choice(non_constant_indices)
+        return np.random.choice(acceptable_indices)
 
     def _force_mutated_parameters(self,
                                   mutated_command,
@@ -187,6 +222,8 @@ class AGraphMutation(Mutation):
         # TODO hard coded info about node map
         if node == 0:
             return self._component_generator.input_x_dimension > 1
+        if node == 1:
+            return True
         return mutation_location > 1
 
     def _randomize_parameters(self,

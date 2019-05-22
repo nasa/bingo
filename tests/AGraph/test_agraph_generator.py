@@ -4,6 +4,7 @@
 import pytest
 import numpy as np
 
+from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
 from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
 
 
@@ -30,3 +31,19 @@ def test_generate(sample_component_generator):
     agraph = generate_agraph()
     np.testing.assert_array_equal(agraph.command_array,
                                   expected_command_array)
+
+
+def test_generate_manual_constants():
+    np.random.seed(0)
+    generator = ComponentGenerator(input_x_dimension=1,
+                                   num_initial_load_statements=2,
+                                   terminal_probability=0.7,
+                                   constant_probability=1.0,
+                                   automatic_constant_optimization=False,
+                                   numerical_constant_range=1.0)
+    generator.add_operator(2)
+    generate_agraph = AGraphGenerator(6, generator)
+    agraph = generate_agraph()
+    expected_constants = [0.8511932765853221, -0.8579278836042261]
+    np.testing.assert_array_equal(agraph.constants,
+                                  expected_constants)

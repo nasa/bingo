@@ -24,6 +24,8 @@ class AGraphGenerator(Generator):
     def __init__(self, agraph_size, component_generator):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
+        self._manual_constants = \
+            not component_generator.automatic_constant_optimization
 
     def __call__(self):
         """Generates random agraph individual.
@@ -37,7 +39,14 @@ class AGraphGenerator(Generator):
         """
         individual = AGraph()
         individual.command_array = self._create_command_array()
+        if self._manual_constants:
+            individual.constants = self._generate_manual_constants(individual)
         return individual
+
+    def _generate_manual_constants(self, individual):
+        num_consts = individual.get_number_local_optimization_params()
+        return [self.component_generator.random_numerical_constant()
+                for _ in range(num_consts)]
 
     def _create_command_array(self):
         command_array = np.empty((self.agraph_size, 3), dtype=int)

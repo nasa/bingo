@@ -148,21 +148,25 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     Attributes
     ----------
     command_array
+    constants
+    num_constants
     """
     def __init__(self, genetic_age=0, fitness=None, fit_set=False,
                  command_array=np.empty([0, 3], dtype=int),
                  short_command_array=np.empty([0, 3], dtype=int),
                  constants=None,
                  needs_opt=False,
-                 num_constants=0):
+                 num_constants=0,
+                 manual_constants=False):
         super().__init__(genetic_age, fitness, fit_set)
         self._command_array = command_array
         self._short_command_array = short_command_array
         if constants is None:
             constants = []
-        self._constants = constants
+        self.constants = constants
         self._needs_opt = needs_opt
-        self._num_constants = num_constants
+        self.num_constants = num_constants
+        self._manual_constants = manual_constants
 
     @property
     def command_array(self):
@@ -187,12 +191,18 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         self.fit_set = False
         self._process_modified_command_array()
 
-    def _process_modified_command_array(self):
+    def force_renumber_constants(self):
+        """force the renumbering of constants"""
         util = self.get_utilized_commands()
+        self._renumber_constants(util)
 
-        self._needs_opt = self._check_optimization_requirement(util)
-        if self._needs_opt:
-            self._renumber_constants(util)
+    def _process_modified_command_array(self):
+        if not self._manual_constants:
+            util = self.get_utilized_commands()
+
+            self._needs_opt = self._check_optimization_requirement(util)
+            if self._needs_opt:
+                self._renumber_constants(util)
 
         self._short_command_array = Backend.simplify_stack(self._command_array)
 
@@ -201,18 +211,20 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             if util[i]:
                 if self._command_array[i][0] == 1:
                     if self._command_array[i][1] == -1 or \
-                            self._command_array[i][1] >= len(self._constants):
+                            self._command_array[i][1] >= len(self.constants):
                         return True
         return False
 
     def _renumber_constants(self, util):
         const_num = 0
         for i in range(self._command_array.shape[0]):
-            if util[i]:
-                if self._command_array[i][0] == 1:
+            if self._command_array[i][0] == 1:
+                if util[i]:
                     self._command_array[i] = (1, const_num, const_num)
                     const_num += 1
-        self._num_constants = const_num
+                else:
+                    self._command_array[i] = (1, -1, -1)
+        self.num_constants = const_num
 
     def needs_local_optimization(self):
         """The Agraph needs local optimization.
@@ -249,7 +261,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         int
             Number of constants that need to be optimized
         """
-        return self._num_constants
+        return self.num_constants
 
     def set_local_optimization_params(self, params):
         """Set the local optimization parameters.
@@ -261,7 +273,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         params : list of numeric
                  Values to set constants
         """
-        self._constants = params
+        self.constants = params
         self._needs_opt = False
 
     def evaluate_equation_at(self, x):
@@ -282,7 +294,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         """
         try:
             f_of_x = Backend.evaluate(self._short_command_array,
-                                      x, self._constants)
+                                      x, self.constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -307,7 +319,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         """
         try:
             f_of_x, df_dx = Backend.evaluate_with_derivative(
-                self._short_command_array, x, self._constants, True)
+                self._short_command_array, x, self.constants, True)
             return f_of_x, df_dx
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -334,12 +346,12 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         """
         try:
             f_of_x, df_dc = Backend.evaluate_with_derivative(
-                self._short_command_array, x, self._constants, False)
+                self._short_command_array, x, self.constants, False)
             return f_of_x, df_dc
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
             LOGGER.warning("%s in stack evaluation/const-deriv", err)
-            nan_array = np.full((x.shape[0], len(self._constants)), np.nan)
+            nan_array = np.full((x.shape[0], len(self.constants)), np.nan)
             return nan_array, np.array(nan_array)
 
     def __str__(self):
@@ -413,11 +425,11 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         if node == 0:
             tmp_str += "X_%d" % param1
         elif node == 1:
-            if param1 == -1 or param1 >= len(self._constants):
+            if param1 == -1 or param1 >= len(self.constants):
                 tmp_str += "C"
             else:
                 tmp_str += "C_{} = {}".format(param1,
-                                              self._constants[param1])
+                                              self.constants[param1])
         else:
             tmp_str += STACK_PRINT_MAP[node].format(param1,
                                                     param2)
@@ -439,10 +451,10 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         if node == 0:
             tmp_str = "X_%d" % param1
         elif node == 1:
-            if param1 == -1 or param1 >= len(self._constants):
+            if param1 == -1 or param1 >= len(self.constants):
                 tmp_str = "?"
             else:
-                tmp_str = str(self._constants[param1])
+                tmp_str = str(self.constants[param1])
         else:
             tmp_str = format_dict[node].format(str_list[param1],
                                                str_list[param2])
@@ -472,7 +484,8 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                            fitness=self._fitness, fit_set=self.fit_set,
                            command_array=np.copy(self._command_array),
                            short_command_array=np.copy(self._short_command_array),
-                           constants=list(self._constants),
+                           constants=list(self.constants),
                            needs_opt=self._needs_opt,
-                           num_constants=self._num_constants)
+                           num_constants=self.num_constants,
+                           manual_constants=self._manual_constants)
         return duplicate

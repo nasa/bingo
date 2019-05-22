@@ -9,10 +9,18 @@ from ...Base.Crossover import Crossover
 
 
 class AGraphCrossover(Crossover):
-    """Crossover between acyclic graph individuals"""
+    """Crossover between acyclic graph individuals
 
-    def __init__(self):
-        pass
+    Parameters
+    ----------
+    component_generator : ComponentGenerator
+        Component generator used for generating numerical constants.
+    """
+
+    def __init__(self, component_generator):
+        self._component_generator = component_generator
+        self._manual_constants = \
+            not component_generator.automatic_constant_optimization
 
     def __call__(self, parent_1, parent_2):
         """Single point crossover.
@@ -40,6 +48,12 @@ class AGraphCrossover(Crossover):
         child_2.command_array[cross_point:] = \
             parent_1.command_array[cross_point:]
 
+        if self._manual_constants:
+            child_1.force_renumber_constants()
+            self._track_constants(parent_1, parent_2, child_1, cross_point)
+            child_2.force_renumber_constants()
+            self._track_constants(parent_2, parent_1, child_2, cross_point)
+
         # TODO can we shift this responsibility to agraph?
         child_1.notify_command_array_modification()
         child_2.notify_command_array_modification()
@@ -49,3 +63,19 @@ class AGraphCrossover(Crossover):
         child_2.genetic_age = child_age
 
         return child_1, child_2
+
+    def _track_constants(self, parent_start, parent_end, child, cross_point):
+        child.constants = [0., ]*child.num_constants
+        for i, (command, param1, _) in enumerate(child.command_array):
+            if command == 1 and param1 != -1:
+                if i < cross_point:
+                    parent = parent_start
+                else:
+                    parent = parent_end
+                old_constant_num = parent.command_array[i, 1]
+                if old_constant_num == -1:
+                    constant = \
+                        self._component_generator.random_numerical_constant()
+                else:
+                    constant = parent.constants[old_constant_num]
+                child.constants[param1] = constant

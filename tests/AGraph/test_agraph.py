@@ -92,7 +92,7 @@ def test_deep_copy_agraph(sample_agraph_1):
 
     assert agraph_copy.genetic_age == 10
     assert agraph_copy.command_array[1, 1] == 0
-    assert pytest.approx(agraph_copy._constants[0]) == 1.0
+    assert pytest.approx(agraph_copy.constants[0]) == 1.0
 
 
 def test_agraph_latex_print(expected_agraph_behavior):

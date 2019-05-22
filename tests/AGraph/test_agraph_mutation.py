@@ -19,12 +19,12 @@ PARAM_2 = 2
 def terminal_only_agraph():
     test_graph = AGraph()
     test_graph.command_array = np.array([[0, 1, 3],  # X_0
-                                         [1, 1, 2],
+                                         [1, -1, -1],
                                          [3, 1, 1],
                                          [4, 0, 2],
                                          [0, 0, 0]], dtype=int)
     test_graph.genetic_age = 1
-    test_graph.set_local_optimization_params([1.0, 1.0])
+    test_graph.set_local_optimization_params([])
     return test_graph
 
 
@@ -32,12 +32,12 @@ def terminal_only_agraph():
 def constant_only_agraph():
     test_graph = AGraph()
     test_graph.command_array = np.array([[0, 1, 3],  # 1.0
-                                         [1, 1, 2],
+                                         [1, -1, -1],
                                          [3, 1, 1],
                                          [4, 0, 2],
                                          [1, 0, 0]], dtype=int)
     test_graph.genetic_age = 1
-    test_graph.set_local_optimization_params([1.0, 1.0])
+    test_graph.set_local_optimization_params([1.0])
     return test_graph
 
 
@@ -202,16 +202,55 @@ def test_mutation_creates_valid_parameters(sample_agraph_1):
                 assert operation[PARAM_2] < row
 
 
+@pytest.mark.parametrize('manual_constants', [False, True])
 def test_param_mutation_constant_graph(constant_only_agraph,
-                                       sample_component_generator):
+                                       manual_constants):
     np.random.seed(10)
-    mutation = AGraphMutation(sample_component_generator,
+    comp_generator = ComponentGenerator(input_x_dimension=2,
+        num_initial_load_statements=2,
+        terminal_probability=1.0,
+        constant_probability=1.0,
+        automatic_constant_optimization=not manual_constants)
+    mutation = AGraphMutation(comp_generator,
                               command_probability=0.0,
                               node_probability=0.0,
                               parameter_probability=1.0,
                               prune_probability=0.0)
-    for _ in range(5):
-        child = mutation(constant_only_agraph)
-        p_stack = constant_only_agraph.command_array
-        c_stack = child.command_array
-        np.testing.assert_array_equal(p_stack, c_stack)
+
+    child = mutation(constant_only_agraph)
+    p_stack = constant_only_agraph.command_array
+    c_stack = child.command_array
+    np.testing.assert_array_equal(p_stack, c_stack)
+
+    if manual_constants:
+        _assert_arrays_not_almost_equal(child.constants,
+                                        constant_only_agraph.constants)
+    else:
+        np.testing.assert_array_almost_equal(child.constants,
+                                             constant_only_agraph.constants)
+
+
+def _assert_arrays_not_almost_equal(array_1, array_2):
+    with pytest.raises(AssertionError):
+        np.testing.assert_array_almost_equal(array_1, array_2)
+
+
+@pytest.mark.parametrize("command_prob, node_prob", [(1.0, 0.), (0.0, 1.0)])
+def test_new_manual_constants_added(terminal_only_agraph,
+                                    sample_component_generator,
+                                    command_prob, node_prob):
+    np.random.seed(0)
+    comp_generator = ComponentGenerator(input_x_dimension=2,
+                                        num_initial_load_statements=2,
+                                        terminal_probability=1.0,
+                                        constant_probability=1.0,
+                                        automatic_constant_optimization=False)
+    mutation = AGraphMutation(comp_generator,
+                              command_probability=command_prob,
+                              node_probability=node_prob,
+                              parameter_probability=0.0,
+                              prune_probability=0.0)
+    child = mutation(terminal_only_agraph)
+
+    assert child.num_constants == 1
+    assert len(child.constants) == 1

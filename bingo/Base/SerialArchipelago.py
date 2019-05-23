@@ -59,6 +59,17 @@ class SerialArchipelago(Archipelago):
         list_of_best_indvs.sort(key=lambda x: x.fitness)
         return list_of_best_indvs[0]
 
+    def get_fitness_evaluation_count(self):
+        """ Gets the number of fitness evaluations performed
+
+        Returns
+        -------
+        int :
+            number of fitness evaluations
+        """
+        return sum([island.get_fitness_evaluation_count()
+                    for island in self._islands])
+
     @staticmethod
     def _generate_islands(island, num_islands):
         island_list = [copy.deepcopy(island)

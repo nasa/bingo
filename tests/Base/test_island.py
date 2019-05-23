@@ -74,6 +74,12 @@ def test_best_fitness(island):
     assert best_fitness == min(fitness)
 
 
+def test_best_evaluation_count(island):
+    assert island.get_fitness_evaluation_count() == 0
+    island.execute_generational_step()
+    assert island.get_fitness_evaluation_count() == 45
+
+
 def test_pareto_front_sorted_by_fitness(island):
     island.execute_generational_step()
     island.update_pareto_front()

@@ -97,6 +97,16 @@ class Island(EvolutionaryOptimizer):
         """
         return self.get_best_individual().fitness
 
+    def get_fitness_evaluation_count(self):
+        """ Gets the number of fitness evaluations performed
+
+        Returns
+        -------
+        int :
+            number of fitness evaluations
+        """
+        return self._ea.evaluation.eval_count
+
     def load_population(self, population, replace=True):
         """Loads population from a pickleable object
 

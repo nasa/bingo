@@ -161,3 +161,14 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def get_fitness_evaluation_count(self):
+        """ Gets the number of fitness evaluations performed
+
+        Returns
+        -------
+        int :
+            number of fitness evaluations
+        """
+        raise NotImplementedError
+

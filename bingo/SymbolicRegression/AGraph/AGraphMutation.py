@@ -98,12 +98,6 @@ class AGraphMutation(Mutation):
         # TODO can we shift this responsibility to agraph?
         child.notify_command_array_modification()
 
-
-
-        if child.num_constants != len(child.constants):
-            print("~~~~~~~~~~~~~~~~~~issue found in child for mutation3~~~~~~~~~~~~~~~~~~~~~")
-
-
         return child
 
     @staticmethod

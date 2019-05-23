@@ -162,6 +162,16 @@ def test_best_individual_returned(one_island):
     assert archipelago.get_best_individual().fitness == 0
 
 
+def test_best_fitness_eval_count(one_island):
+    num_islands = 4
+    archipelago = SerialArchipelago(one_island,
+                                    num_islands=num_islands)
+    assert archipelago.get_fitness_evaluation_count() == 0
+    archipelago.evolve(1)
+    expected_evaluations = num_islands * (POP_SIZE+OFFSPRING_SIZE)
+    assert archipelago.get_fitness_evaluation_count() == expected_evaluations
+
+
 def test_archipelago_runs(one_island, two_island, three_island):
     max_generations = 100
     min_generations = 20

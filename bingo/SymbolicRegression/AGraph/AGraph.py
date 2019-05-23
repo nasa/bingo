@@ -139,6 +139,20 @@ IS_TERMINAL_MAP = {0: True,
                    11: False,
                    12: False}
 
+OPERATOR_NAMES = {0: ["load", "x"],
+                  1: ["constant", "c"],
+                  2: ["add", "addition", "+"],
+                  3: ["subtract", "subtraction", "-"],
+                  4: ["multiply", "multiplication", "*"],
+                  5: ["divide", "division", "/"],
+                  6: ["sine", "sin"],
+                  7: ["cosine", "cos"],
+                  8: ["exponential", "exp", "e"],
+                  9: ["logarithm", "log"],
+                  10: ["power", "pow", "^"],
+                  11: ["absolute value", "||", "|"],
+                  12: ["square root", "sqrt"]}
+
 
 class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     """Acyclic graph representation of an equation.

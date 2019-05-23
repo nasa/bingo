@@ -42,9 +42,9 @@ def init_island():
     training_data = ExplicitTrainingData(x, y)
 
     component_generator = ComponentGenerator(x.shape[1])
-    component_generator.add_operator(2)
-    component_generator.add_operator(3)
-    component_generator.add_operator(4)
+    component_generator.add_operator("+")
+    component_generator.add_operator("-")
+    component_generator.add_operator("*")
 
     crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
@@ -65,18 +65,17 @@ def init_island():
 
 def main():
     test_island = init_island()
-    print("Best individual at start", test_island.get_best_individual())
+    report_island_status(test_island)
     test_island.evolve_until_convergence(max_generations=1000,
                                          absolute_error_threshold=ERROR_TOLERANCE)
-    print("Generation: ", test_island.generational_age)
-    print("Best individual!", test_island.get_best_individual())
+    report_island_status(test_island)
 
 
-def report_max_min_mean_fitness(population):
-    fitness = [indv.fitness for indv in population]
-    print("Max fitness: \t", np.max(fitness))
-    print("Min fitness: \t", np.min(fitness))
-    print("Mean fitness: \t", np.mean(fitness))
+def report_island_status(test_island):
+    print("-----  Generation %d  -----" % test_island.generational_age)
+    print("Best individual:     ", test_island.get_best_individual())
+    print("Best fitness:        ", test_island.get_best_fitness())
+    print("Fitness evaluations: ", test_island.get_fitness_evaluation_count())
 
 
 if __name__ == '__main__':

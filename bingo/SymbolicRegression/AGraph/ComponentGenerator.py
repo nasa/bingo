@@ -7,6 +7,7 @@ operators, terminals, and their associated parameters.
 import logging
 import numpy as np
 
+from .AGraph import OPERATOR_NAMES
 from ...Util.ProbabilityMassFunction import ProbabilityMassFunction
 from ...Util.ArgumentValidation import argument_validation
 
@@ -84,17 +85,31 @@ class ComponentGenerator:
                                               self._random_operator_command],
                                        weights=command_weights)
 
-    def add_operator(self, operator_number, operator_weight=None):
+    def add_operator(self, operator_to_add, operator_weight=None):
         """Add an operator number to the set of possible operators
 
         Parameters
         ----------
-        operator_number : int
-                          operator code defined in Agraph operator maps
+        operator_to_add : int, str
+            operator integer code (e.g. 2, 3) defined in Agraph operator maps
+            or an operator string description (e.g. "+", "addition")
         operator_weight : number
                           relative weight of operator probability
         """
+        if isinstance(operator_to_add, str):
+            operator_number = self._get_operator_number_from_string(
+                operator_to_add)
+        else:
+            operator_number = operator_to_add
+
         self._operator_pmf.add_item(operator_number, operator_weight)
+
+    @staticmethod
+    def _get_operator_number_from_string(operator_string):
+        for operator_number, operator_names in OPERATOR_NAMES.items():
+            if operator_string in operator_names:
+                return operator_number
+        raise ValueError("Could not find operator %s. " % operator_string)
 
     def random_command(self, stack_location):
         """Get a random command

@@ -89,12 +89,19 @@ def test_random_terminal_parameter(sample_component_generator):
         assert sample_component_generator.random_terminal_parameter(1) == -1
 
 
-def test_add_operator(sample_component_generator):
+@pytest.mark.parametrize("operator_to_add", [3, "subtraction", "-"])
+def test_add_operator(sample_component_generator, operator_to_add):
     np.random.seed(0)
-    sample_component_generator.add_operator(3)
+    sample_component_generator.add_operator(operator_to_add)
     operators = [sample_component_generator.random_operator()
                  for _ in range(10)]
     assert 3 in operators
+
+
+def test_raises_error_on_invalid_add_operator(sample_component_generator):
+    np.random.seed(0)
+    with pytest.raises(ValueError):
+        sample_component_generator.add_operator("chuck norris")
 
 
 def test_add_operator_with_weight(sample_component_generator):
@@ -117,3 +124,4 @@ def test_random_command(sample_component_generator):
         generated_commands[stack_location, :] = \
             sample_component_generator.random_command(stack_location)
     np.testing.assert_array_equal(generated_commands, expected_commands)
+

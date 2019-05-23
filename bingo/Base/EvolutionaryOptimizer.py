@@ -34,7 +34,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                          min_generations={">=": 0},
                          convergence_check_frequency={">": 0})
     def evolve_until_convergence(self, max_generations,
-                                 absolute_error_threshold,
+                                 fitness_threshold,
                                  convergence_check_frequency=1,
                                  min_generations=0,
                                  stagnation_generations=None,
@@ -52,7 +52,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         ----------
         max_generations: int
             The maximum number of generations the optimization will run.
-        absolute_error_threshold: float
+        fitness_threshold: float
             The minimum fitness that must be achieved in order for the
             algorithm to converge.
         convergence_check_frequency: int, default 1
@@ -79,8 +79,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
 
-        if self._convergence(absolute_error_threshold):
-            return self._make_optim_result(0, absolute_error_threshold)
+        if self._convergence(fitness_threshold):
+            return self._make_optim_result(0, fitness_threshold)
         if self._stagnation(stagnation_generations):
             return self._make_optim_result(1, stagnation_generations)
         if self._hit_max_evals(max_fitness_evaluations):
@@ -90,8 +90,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
 
-            if self._convergence(absolute_error_threshold):
-                return self._make_optim_result(0, absolute_error_threshold)
+            if self._convergence(fitness_threshold):
+                return self._make_optim_result(0, fitness_threshold)
             if self._stagnation(stagnation_generations):
                 return self._make_optim_result(1, stagnation_generations)
             if self._hit_max_evals(max_fitness_evaluations):

@@ -40,7 +40,7 @@ def test_run_until_absolute_convergence(converging_eo):
     optimization_result = \
         converging_eo.evolve_until_convergence(max_generations=10,
                                                convergence_check_frequency=1,
-                                               absolute_error_threshold=0.126,
+                                               fitness_threshold=0.126,
                                                stagnation_generations=10)
     assert optimization_result.success
     assert optimization_result.status == 0
@@ -53,7 +53,7 @@ def test_run_min_generations_converge(converging_eo):
         converging_eo.evolve_until_convergence(max_generations=10,
                                                min_generations=25,
                                                convergence_check_frequency=1,
-                                               absolute_error_threshold=0.126,
+                                               fitness_threshold=0.126,
                                                stagnation_generations=10)
     assert optimization_result.status == 0
     assert optimization_result.ngen == 25
@@ -64,7 +64,7 @@ def test_run_min_generations_stagnate(stale_eo):
         stale_eo.evolve_until_convergence(max_generations=10,
                                           min_generations=25,
                                           convergence_check_frequency=1,
-                                          absolute_error_threshold=0.126,
+                                          fitness_threshold=0.126,
                                           stagnation_generations=10)
     assert optimization_result.status == 1
     assert optimization_result.ngen == 25
@@ -74,13 +74,13 @@ def test_num_gens_taken_in_optimization(converging_eo):
     optimization_result = \
         converging_eo.evolve_until_convergence(max_generations=10,
                                                convergence_check_frequency=1,
-                                               absolute_error_threshold=0.26,
+                                               fitness_threshold=0.26,
                                                stagnation_generations=10)
     assert optimization_result.ngen == 2
     optimization_result = \
         converging_eo.evolve_until_convergence(max_generations=10,
                                                convergence_check_frequency=1,
-                                               absolute_error_threshold=0.126,
+                                               fitness_threshold=0.126,
                                                stagnation_generations=10)
     assert optimization_result.ngen == 1
 
@@ -89,7 +89,7 @@ def test_run_convergence_check_chunks(converging_eo):
     optimization_result = \
         converging_eo.evolve_until_convergence(max_generations=100,
                                                convergence_check_frequency=5,
-                                               absolute_error_threshold=0.126,
+                                               fitness_threshold=0.126,
                                                stagnation_generations=10)
     assert optimization_result.ngen == 15
 
@@ -98,7 +98,7 @@ def test_run_until_stagnation(stale_eo):
     optimization_result = \
         stale_eo.evolve_until_convergence(max_generations=10,
                                           convergence_check_frequency=1,
-                                          absolute_error_threshold=0.126,
+                                          fitness_threshold=0.126,
                                           stagnation_generations=5)
     assert not optimization_result.success
     assert optimization_result.status == 1
@@ -110,7 +110,7 @@ def test_run_until_max_steps(converging_eo):
     optimization_result = \
         converging_eo.evolve_until_convergence(max_generations=2,
                                                convergence_check_frequency=1,
-                                               absolute_error_threshold=0.126)
+                                               fitness_threshold=0.126)
     assert not optimization_result.success
     assert optimization_result.status == 2
     assert optimization_result.ngen == 2
@@ -123,7 +123,7 @@ def test_run_until_max_fitness_evaluations(converging_eo, min_generations):
         converging_eo.evolve_until_convergence(max_generations=10,
                                                min_generations=min_generations,
                                                convergence_check_frequency=1,
-                                               absolute_error_threshold=0.126,
+                                               fitness_threshold=0.126,
                                                max_fitness_evaluations=4)
     assert not optimization_result.success
     assert optimization_result.status == 3

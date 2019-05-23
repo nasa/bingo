@@ -15,7 +15,6 @@ from bingo.Base.AgeFitnessEA import AgeFitnessEA
 from bingo.Base.Evaluation import Evaluation
 from bingo.Base.Island import Island
 from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-import bingo.animation
 
 POP_SIZE = 128
 STACK_SIZE = 10
@@ -67,7 +66,7 @@ def main():
     test_island = init_island()
     report_island_status(test_island)
     test_island.evolve_until_convergence(max_generations=1000,
-                                         absolute_error_threshold=ERROR_TOLERANCE)
+                                         fitness_threshold=ERROR_TOLERANCE)
     report_island_status(test_island)
 
 

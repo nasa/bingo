@@ -163,23 +163,20 @@ evolutionary algorithm).
 from bingo.Base.Island import Island
 
 island = Island(ev_alg, generator, population_size=10)
-best_individual = island.best_individual()
-print("Best individual at start: ", best_individual)
-print("Best individual's fitness: ", best_individual.fitness)
+print("Best individual at start: ", island.get_best_individual())
+print("Best individual's fitness: ", island.get_best_fitness())
 ```
 ```
     Best individual at start:  [1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1]
     Best individual's fitness:  5
 ```
-The island can be evolved directly using it's `execute_generational_step` 
+The island can be evolved directly using it's `evolve` 
 member function.  In this case the population is evolved for 50 generations
 ```python
-for _ in range(50):
-    island.execute_generational_step()
+island.evolve(50)
 
-best_individual = island.best_individual()
-print("Best individual at end: ", best_individual)
-print("Best individual's fitness: ", best_individual.fitness)
+print("Best individual at start: ", island.get_best_individual())
+print("Best individual's fitness: ", island.get_best_fitness())
 ```
 ```
     Best individual at end:  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]

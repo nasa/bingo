@@ -33,6 +33,9 @@ class ComponentGenerator:
         maximum and -minimum value for randomly generated numerical constants.
         Only used if automatic constant optimization is off in
         mutation/generation/crossover. Default 100.0
+    numerical_constant_std : float
+        standard deviation of modifications of numerical constants. Default
+        numerical_constant_range / 100
 
     Attributes
     ----------
@@ -49,7 +52,8 @@ class ComponentGenerator:
                  terminal_probability=0.1,
                  constant_probability=None,
                  automatic_constant_optimization=True,
-                 numerical_constant_range=100):
+                 numerical_constant_range=100,
+                 numerical_constant_std=None):
 
         self.input_x_dimension = input_x_dimension
         self._num_initial_load_statements = num_initial_load_statements
@@ -61,6 +65,9 @@ class ComponentGenerator:
 
         self.automatic_constant_optimization = automatic_constant_optimization
         self._numerical_constant_range = numerical_constant_range
+        if numerical_constant_std is None:
+            numerical_constant_std = numerical_constant_range / 100
+        self._numerical_constant_std = numerical_constant_std
 
     def _make_terminal_pdf(self, constant_probability):
         if constant_probability is None:
@@ -220,7 +227,7 @@ class ComponentGenerator:
             A random numerical constant
         """
         if near is not None:
-            return np.random.normal(near, self._numerical_constant_range/1000)
+            return np.random.normal(near, self._numerical_constant_std)
 
         return np.random.uniform(-self._numerical_constant_range,
                                  self._numerical_constant_range)

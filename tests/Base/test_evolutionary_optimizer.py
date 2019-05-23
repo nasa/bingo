@@ -23,7 +23,7 @@ class DummyEO(EvolutionaryOptimizer):
         return [self.best_fitness]
 
     def get_fitness_evaluation_count(self):
-        return 0
+        return self.generational_age * 2
 
 
 @pytest.fixture
@@ -113,6 +113,20 @@ def test_run_until_max_steps(converging_eo):
                                                absolute_error_threshold=0.126)
     assert not optimization_result.success
     assert optimization_result.status == 2
+    assert optimization_result.ngen == 2
+    assert pytest.approx(optimization_result.fitness, 0.25)
+
+
+@pytest.mark.parametrize("min_generations", [0, 2])
+def test_run_until_max_fitness_evaluations(converging_eo, min_generations):
+    optimization_result = \
+        converging_eo.evolve_until_convergence(max_generations=10,
+                                               min_generations=min_generations,
+                                               convergence_check_frequency=1,
+                                               absolute_error_threshold=0.126,
+                                               max_fitness_evaluations=4)
+    assert not optimization_result.success
+    assert optimization_result.status == 3
     assert optimization_result.ngen == 2
     assert pytest.approx(optimization_result.fitness, 0.25)
 

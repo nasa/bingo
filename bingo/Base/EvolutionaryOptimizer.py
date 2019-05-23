@@ -37,14 +37,16 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                                  absolute_error_threshold,
                                  convergence_check_frequency=1,
                                  min_generations=0,
-                                 stagnation_generations=None):
-        """Evolution occurs until one of three convergence criteria is met
+                                 stagnation_generations=None,
+                                 max_fitness_evaluations=None):
+        """Evolution occurs until one of four convergence criteria is met
 
         Convergence criteria:
           * a maximum number of generations have been evolved
           * a fitness below an absolute threshold has been achieved
           * improvement upon best fitness has not happened for a set number of
             generations
+          * the maximum number of fitness function evaluations has been reached
 
         Parameters
         ----------
@@ -61,6 +63,9 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         stagnation_generations: int (optional)
             The number of generations after which evolution will stop if no
             improvement is seen.
+        max_fitness_evaluations: int (optional)
+            The maximum number of fitness function evaluations (approx) the
+            optimizer will run.
 
         Returns
         --------
@@ -78,6 +83,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             return self._make_optim_result(0, absolute_error_threshold)
         if self._stagnation(stagnation_generations):
             return self._make_optim_result(1, stagnation_generations)
+        if self._hit_max_evals(max_fitness_evaluations):
+            return self._make_optim_result(3, max_fitness_evaluations)
 
         while self.generational_age - self._starting_age < max_generations:
             self.evolve(convergence_check_frequency)
@@ -87,6 +94,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                 return self._make_optim_result(0, absolute_error_threshold)
             if self._stagnation(stagnation_generations):
                 return self._make_optim_result(1, stagnation_generations)
+            if self._hit_max_evals(max_fitness_evaluations):
+                return self._make_optim_result(3, max_fitness_evaluations)
 
         return self._make_optim_result(2, max_generations)
 
@@ -105,6 +114,11 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         stagnation_time = self.generational_age - self._fitness_improvement_age
         return stagnation_time >= threshold
 
+    def _hit_max_evals(self, threshold):
+        if threshold is None:
+            return False
+        return self.get_fitness_evaluation_count() >= threshold
+
     def _make_optim_result(self, status, aux_info):
         ngen = self.generational_age - self._starting_age
         if status == 0:
@@ -115,9 +129,14 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             message = "Stagnation occurred with no improvement for more " + \
                       "than {} generations".format(aux_info)
             success = False
-        else:  # status == 2:
+        elif status == 2:
             message = "The maximum number of generational steps " + \
                       "({}) occurred".format(aux_info)
+            success = False
+        else:  # status == 3:
+            message = "The maximum number of fitness evaluations " + \
+                      "({}) was exceeded. Total fitness ".format(aux_info) + \
+                      "evaluations:".format(self.get_fitness_evaluation_count())
             success = False
 
         return OptimizeResult(success, status, message, ngen,

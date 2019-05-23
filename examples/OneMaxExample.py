@@ -61,9 +61,8 @@ class OneMaxFitnessFunction(FitnessFunction):
 
 
 def display_best_individual(island):
-    best_individual = island.get_best_individual()
-    print("Best individual: ", best_individual)
-    print("Best individual's fitness: ", best_individual.fitness)
+    print("Best individual: ", island.get_best_individual())
+    print("Best individual's fitness: ", island.get_best_fitness())
 
 
 if __name__ == "__main__":

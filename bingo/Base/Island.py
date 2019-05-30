@@ -9,7 +9,6 @@ import numpy as np
 
 from .EvolutionaryOptimizer import EvolutionaryOptimizer
 from ..Util.ArgumentValidation import argument_validation
-from .AgeFitnessSelection import AgeFitness
 
 LOGGER = logging.getLogger(__name__)
 
@@ -19,7 +18,8 @@ class Island(EvolutionaryOptimizer):
     Island: code for island of genetic algorithm
     """
     @argument_validation(population_size={">=": 0})
-    def __init__(self, evolution_algorithm, generator, population_size):
+    def __init__(self, evolution_algorithm, generator, population_size,
+                 hall_of_fame=None):
         """Initialization of island
 
         Parameters
@@ -30,6 +30,8 @@ class Island(EvolutionaryOptimizer):
             The generator class that returns an instance of a chromosome
         population_size : int
             The desired size of the population
+        hall_of_fame : HallOfFame (optional)
+            The hall of fame object to be used for storing best individuals
 
         Attributes
         ----------
@@ -40,33 +42,20 @@ class Island(EvolutionaryOptimizer):
             The population that is evolving
             
         """
-        super().__init__()
+        super().__init__(hall_of_fame)
         self.population = [generator() for _ in range(population_size)]
-        self.pareto_front_selection = AgeFitness()
         self._ea = evolution_algorithm
         self._population_size = population_size
-        self._pareto_front = []
 
-    def evolve(self, num_generations):
-        """Generational evolution
-
-        Parameters
-        ----------
-        num_generations : int
-            The number of generations to evolve
-        """
+    def _do_evolution(self, num_generations):
         for _ in range(num_generations):
-            self.execute_generational_step()
+            self._execute_generational_step()
 
-    def execute_generational_step(self):
-        """Executes a single generational step using the provided evolutionary
-        algorithm
-        """
+    def _execute_generational_step(self):
         self.generational_age += 1
         self.population = self._ea.generational_step(self.population)
         for indv in self.population:
             indv.genetic_age += 1
-        # self.update_pareto_front()
 
     def evaluate_population(self):
         """Manually trigger evaluation of population"""
@@ -133,21 +122,5 @@ class Island(EvolutionaryOptimizer):
         """
         return self.population
 
-    def update_pareto_front(self):
-        """Updates a list of Chromosomes that form the pareto front based on 
-            the new population.
-        """
-        self._pareto_front = self.pareto_front_selection.select_pareto_front(
-            self._pareto_front + self.population)
-        self._pareto_front.sort(key=lambda x: x.fitness)
-
-    def get_pareto_front(self):
-        """Getter for the pareto front
-
-        Returns
-        -------
-        list of Chromsomes:
-            The list of Chromosomes in the population that represent the 
-            pareto front. The pareto front is returned in sorted order.
-        """
-        return self._pareto_front
+    def _get_potential_hof_members(self):
+        return self.population

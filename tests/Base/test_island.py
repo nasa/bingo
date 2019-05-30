@@ -46,29 +46,29 @@ def test_manual_evaluation(island):
 def test_generational_steps_change_population_age(island):
     for indv in island.get_population():
         assert indv.genetic_age == 0
-    island.execute_generational_step()
+    island._execute_generational_step()
     for indv in island.population:
         assert indv.genetic_age > 0
 
 
 def test_generational_age_increases(island):
-    island.execute_generational_step()
+    island.evolve(1)
     assert island.generational_age == 1
-    island.execute_generational_step()
+    island.evolve(1)
     assert island.generational_age == 2
     island.evolve(10)
     assert island.generational_age == 12
 
 
 def test_best_individual(island):
-    island.execute_generational_step()
+    island.evolve(1)
     fitness = [indv.fitness for indv in island.get_population()]
     best = island.get_best_individual()
     assert best.fitness == min(fitness)
 
 
 def test_best_fitness(island):
-    island.execute_generational_step()
+    island.evolve(1)
     fitness = [indv.fitness for indv in island.get_population()]
     best_fitness = island.get_best_fitness()
     assert best_fitness == min(fitness)
@@ -76,14 +76,25 @@ def test_best_fitness(island):
 
 def test_best_evaluation_count(island):
     assert island.get_fitness_evaluation_count() == 0
-    island.execute_generational_step()
+    island.evolve(1)
     assert island.get_fitness_evaluation_count() == 45
 
 
-def test_pareto_front_sorted_by_fitness(island):
-    island.execute_generational_step()
-    island.update_pareto_front()
-    pareto_front = island.get_pareto_front()
-    assert all(pareto_front[i].fitness <= pareto_front[i+1].fitness \
-               for i in range(len(pareto_front)-1))
+def test_island_hof(mocker):
+    hof = mocker.Mock()
+    crossover = SinglePointCrossover()
+    mutation = SinglePointMutation(mutation_function)
+    selection = Tournament(10)
+    fitness = MultipleValueFitnessFunction()
+    evaluator = Evaluation(fitness)
+    ev_alg = MuPlusLambda(evaluator, selection, crossover, mutation,
+                          0.2, 0.4, 20)
+    generator = MultipleValueChromosomeGenerator(mutation_function, 10)
+    island = Island(ev_alg, generator, 25, hall_of_fame=hof)
 
+    island.evolve(10)
+
+    hof.update.assert_called_once()
+    hof_update_pop = hof.update.call_args[0][0]
+    for h, i in zip(hof_update_pop, island.population):
+        assert h == i

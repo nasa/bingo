@@ -167,7 +167,7 @@ def test_best_fitness_eval_count(one_island):
     archipelago = SerialArchipelago(one_island,
                                     num_islands=num_islands)
     assert archipelago.get_fitness_evaluation_count() == 0
-    archipelago.evolve(1)
+    archipelago._do_evolution(1)
     expected_evaluations = num_islands * (POP_SIZE+OFFSPRING_SIZE)
     assert archipelago.get_fitness_evaluation_count() == expected_evaluations
 
@@ -184,3 +184,12 @@ def test_archipelago_runs(one_island, two_island, three_island):
                                                   generation_step_report,
                                                   min_generations)
     assert result.success
+
+
+def test_potential_hof_members(mocker, one_island):
+    island_a = mocker.Mock(population=['a'])
+    island_b = mocker.Mock(population=['b'])
+    island_c = mocker.Mock(population=['c'])
+    archipelago = SerialArchipelago(one_island, num_islands=3)
+    archipelago._islands = [island_a, island_b, island_c]
+    assert archipelago._get_potential_hof_members() == ['a', 'b', 'c']

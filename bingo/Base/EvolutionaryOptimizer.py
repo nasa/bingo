@@ -24,11 +24,12 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     generational_age: int
         The number of generations the optimizer has been evolved
     """
-    def __init__(self):
+    def __init__(self, hall_of_fame=None):
         self.generational_age = 0
         self._starting_age = 0
         self._fitness_improvement_age = 0
         self._best_fitness = None
+        self._hall_of_fame = hall_of_fame
 
     @argument_validation(max_generations={">=": 1},
                          min_generations={">=": 0},
@@ -142,19 +143,43 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         return OptimizeResult(success, status, message, ngen,
                               self._best_fitness)
 
-    @abstractmethod
     def evolve(self, num_generations):
         """The function responsible for generational evolution.
-
-        Notes
-        -----
-        Implementation of this function should include increasing the
-        generational_age
 
         Parameters
         ----------
         num_generations : int
             The number of generations to evolve
+        """
+        self._do_evolution(num_generations)
+        if self._hall_of_fame is not None:
+            self._hall_of_fame.update(self._get_potential_hof_members())
+
+    @abstractmethod
+    def _do_evolution(self, num_generations):
+        """Definition of this function should do the heavy lifting of
+        performing evolutionary development.
+
+        Parameters
+        ----------
+        num_generations : int
+            The number of generations to evolve
+
+        Notes
+        -----
+        This function is responsible for incrementing generational age
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def _get_potential_hof_members(self):
+        """Definition of this function should return the individuals which
+        should be considered for induction into the hall of fame.
+
+        Returns
+        ----------
+        list of Chromosomes :
+            Potential hall of fame members
         """
         raise NotImplementedError
 

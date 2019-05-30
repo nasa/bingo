@@ -2,17 +2,21 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import pytest
+from collections import namedtuple
 
 from bingo.Base.EvolutionaryOptimizer import EvolutionaryOptimizer
 
 
+DummyIndv = namedtuple('DummyIndv', ['fitness', ])
+
+
 class DummyEO(EvolutionaryOptimizer):
-    def __init__(self, convergence_rate):
+    def __init__(self, convergence_rate, hall_of_fame=None):
         self.best_fitness = 1.0
         self.convergence_rate = convergence_rate
-        super().__init__()
+        super().__init__(hall_of_fame)
 
-    def evolve(self, num_generations):
+    def _do_evolution(self, num_generations):
         self.best_fitness *= self.convergence_rate
         self.generational_age += num_generations
 
@@ -20,10 +24,13 @@ class DummyEO(EvolutionaryOptimizer):
         return self.best_fitness
 
     def get_best_individual(self):
-        return [self.best_fitness]
+        return DummyIndv(self.best_fitness)
 
     def get_fitness_evaluation_count(self):
         return self.generational_age * 2
+
+    def _get_potential_hof_members(self):
+        return DummyIndv(self.best_fitness)
 
 
 @pytest.fixture
@@ -144,3 +151,17 @@ def test_raises_error_on_invalid_input(converging_eo, invalid_arg_dict):
     arg_dict.update(invalid_arg_dict)
     with pytest.raises(ValueError):
         _ = converging_eo.evolve_until_convergence(**arg_dict)
+
+
+def test_hof_update(mocker):
+    hof = mocker.Mock()
+    mocker.spy(hof, "update")
+    eo = DummyEO(1.0, hof)
+    eo.evolve(1)
+    eo.evolve(1)
+    eo.evolve(1)
+    assert hof.update.call_count == 3
+    for call in hof.update.call_args_list:
+        called_with_population = call[0]
+        assert len(called_with_population) == 1
+        assert called_with_population[0].fitness == 1.0

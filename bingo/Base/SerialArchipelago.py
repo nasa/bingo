@@ -26,8 +26,7 @@ class SerialArchipelago(Archipelago):
 
     def _step_through_generations(self, num_steps):
         for island in self._islands:
-            island.evolve(num_steps)
-        self.generational_age += num_steps
+            island._do_evolution(num_steps)
 
     def _coordinate_migration_between_islands(self):
         island_partners = self._shuffle_island_indices()
@@ -100,3 +99,9 @@ class SerialArchipelago(Archipelago):
 
         island_1.load_population(new_pop_island_1)
         island_2.load_population(new_pop_island_2)
+
+    def _get_potential_hof_members(self):
+        potential_members = []
+        for i in self._islands:
+            potential_members += i.population
+        return potential_members

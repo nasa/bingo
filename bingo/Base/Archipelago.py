@@ -29,9 +29,10 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
         self._num_islands = num_islands
         super().__init__()
 
-    def evolve(self, num_generations):
+    def _do_evolution(self, num_generations):
         self._coordinate_migration_between_islands()
         self._step_through_generations(num_generations)
+        self.generational_age += num_generations
 
     @abstractmethod
     def _step_through_generations(self, num_steps):

@@ -32,6 +32,7 @@ def all_pfs(request, empty_pf, full_pf):
         return empty_pf
     return full_pf
 
+
 @pytest.mark.parametrize("pop, new_len",
                         [([DummyIndv(-1, -1, 5, 3)], 6),
                          ([DummyIndv(-1, 0, 5, 3)], 5),
@@ -40,7 +41,7 @@ def all_pfs(request, empty_pf, full_pf):
                          ([DummyIndv(-1, -1, 5, 3),
                            DummyIndv(-1, -2, -1, 3)], 1),
                          ])
-def test_update_adds_indvs_propoerly(full_pf, pop, new_len):
+def test_update_adds_indvs_properly(full_pf, pop, new_len):
     full_pf.update(pop)
     assert len(full_pf) == new_len
 

@@ -13,7 +13,7 @@ class ParetoFront(HallOfFame):
     def update(self, population):
         for indv in population:
             if self._not_dominated(indv) and self._not_similar(indv):
-                self._remove_dominated_pf_memebers(indv)
+                self._remove_dominated_pf_members(indv)
                 self.insert(indv)
 
     def _not_dominated(self, individual):
@@ -34,7 +34,7 @@ class ParetoFront(HallOfFame):
             first_keys[1] != second_keys[1]
         return not_equal
 
-    def _remove_dominated_pf_memebers(self, individual):
+    def _remove_dominated_pf_members(self, individual):
         dominated_hof_members = self._get_dominated_hof_members(individual)
         for i in reversed(dominated_hof_members):
             self.remove(i)

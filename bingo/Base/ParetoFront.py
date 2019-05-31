@@ -1,7 +1,33 @@
+"""
+The Pareto Front is an extension of hall of fame to construct a list of all the
+non-dominated individuals.  An individual dominates another if all of it's keys
+are not worse and at least one is better (smaller) than the other's keys.
+"""
 from bingo.Base.HallOfFame import HallOfFame
 
 
 class ParetoFront(HallOfFame):
+    """A hall of fame object for storing the pareto front of individuals
+
+    The Pareto front is the group of individuals who are not dominated by any
+    other individuals in a population.  Domination is calculated based on two
+    keys given to the constructor.
+
+    Parameters
+    ----------
+    secondary_key : function
+        Function used to specify the second key to be used in domination
+        calculations in the Pareto front. The signature of the function should
+        be `func(Chromosome)`
+    primary_key : function (optional)
+        Function used to specify the second key to be used in domination
+        calculations in the Pareto front. Default is the use of an individual's
+        fitness attribute. The signature of the function should be
+        `func(Chromosome)`
+    similarity_function : function (optional)
+        The function used to identify similar individuals. The signature of the
+        function should be`func(Chromosome, Chromosome)`
+    """
 
     def __init__(self, secondary_key, primary_key=None,
                  similarity_function=None):
@@ -11,14 +37,22 @@ class ParetoFront(HallOfFame):
         self._key_func_2 = secondary_key
 
     def update(self, population):
+        """Update the Pareto front based on the given population
+
+        Parameters
+        ----------
+        population : list of Chromosomes
+            The list of individuals to be considered for induction into the
+            Pareto front
+        """
         for indv in population:
             if self._not_dominated(indv) and self._not_similar(indv):
                 self._remove_dominated_pf_members(indv)
                 self.insert(indv)
 
     def _not_dominated(self, individual):
-        for hof_memeber in self:
-            if self._first_dominates(hof_memeber, individual):
+        for hof_member in self:
+            if self._first_dominates(hof_member, individual):
                 return False
         return True
 
@@ -41,7 +75,7 @@ class ParetoFront(HallOfFame):
 
     def _get_dominated_hof_members(self, individual):
         dominated_members = []
-        for i, hof_memeber in enumerate(self):
-            if self._first_dominates(individual, hof_memeber):
+        for i, hof_member in enumerate(self):
+            if self._first_dominates(individual, hof_member):
                 dominated_members.append(i)
         return dominated_members

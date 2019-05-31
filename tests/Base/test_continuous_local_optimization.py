@@ -58,7 +58,8 @@ def test_optimize_params(opt_individual, reg_individual, algorithm):
         fitness_function, algorithm)
     opt_indv_fitness = local_opt_fitness_function(opt_individual)
     reg_indv_fitness = local_opt_fitness_function(reg_individual)
-    assert opt_indv_fitness == pytest.approx(np.sqrt(NUM_VALS - NUM_OPT))
+    assert opt_indv_fitness == pytest.approx(np.sqrt(NUM_VALS - NUM_OPT),
+                                             rel=5.e-6)
     assert reg_indv_fitness == pytest.approx(np.sqrt(NUM_VALS))
 
 

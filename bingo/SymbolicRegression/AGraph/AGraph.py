@@ -420,7 +420,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         int
             number of utilized commands in stack
         """
-        return np.count_nonzero(self.get_utilized_commands())
+        return self._short_command_array.shape[0]
 
     def _get_stack_string(self, short=False):
         if short:

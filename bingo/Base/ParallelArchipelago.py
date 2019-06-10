@@ -1,3 +1,9 @@
+"""The parallel implemenation of the Archipelago
+
+This module defines the Archipelago data structure that runs in parallel on
+multiple processors.
+"""
+
 import random
 import sys
 
@@ -6,7 +12,13 @@ from mpi4py import MPI
 from .Archipelago import Archipelago
 
 class ParallelArchipelago(Archipelago):
+    """An archipelago that executes island generations serially.
 
+    Parameters
+    ----------
+    island : Island
+        The island from which other islands will be copied
+    """
     def __init__(self, island):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
@@ -17,6 +29,19 @@ class ParallelArchipelago(Archipelago):
 
     def step_through_generations(self, num_steps, non_block=True,
                                  when_to_update=10):
+        """ Executes 'num_steps' number of generations for
+        each island in the archipelago's list of islands
+
+        Parameters
+        ----------
+        num_steps : int
+            The number of generations to execute per island
+        non_block : boolean, default = True
+            Specifies whether to use blocking or non-blocking execution.
+            Default is non-blocking.
+        when_to_update : int, default = 10
+            How frequently to update the average age for each island
+        """
         if non_block:
             self._non_blocking_execution(num_steps, when_to_update)
 
@@ -96,8 +121,7 @@ class ParallelArchipelago(Archipelago):
         """
         if MPI.COMM_WORLD.Get_rank() == 0:
             return self._best_indv
-        else:
-            return None
+        return None
 
     def _shuffle_island_indices(self):
         indices = list(range(self._num_islands))
@@ -167,4 +191,3 @@ class ParallelArchipelago(Archipelago):
             average_age = self.comm.bcast(average_age, root=0)
             sys.stdout.flush()
             self._island.execute_generational_step()
-

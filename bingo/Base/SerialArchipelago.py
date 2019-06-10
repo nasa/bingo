@@ -1,6 +1,6 @@
 """The serial implemenation of the Archipelago
 
-This module dfines the Archipelago data structure that runs serially on
+This module defines the Archipelago data structure that runs serially on
 one processor.
 """
 import copy

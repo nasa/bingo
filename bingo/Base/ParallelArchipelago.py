@@ -158,23 +158,13 @@ class ParallelArchipelago(Archipelago):
                                               tag=2)
                         total_age.update(data)
                     average_age = (sum(total_age.values())) / self.comm.size
-                   # if average_age >= num_steps:
-                   #     send_count = 1
-                  #      while send_count < self.comm_size:
-                 #           self.comm.send(average_age, dest=send_count, tag=0)
-                #            send_count += 1
-                # for every other rank, store rank:age, and send it off to 0
+
                 else:
                     data = {self.comm_rank : self._island.generational_age}
                     req = self.comm.isend(data, dest=0, tag=2)
                     req.Wait()
             # update averageAge
             average_age = self.comm.bcast(average_age, root=0)
-           # if self.comm_rank != 0:
-            #    if self.comm.iprobe(source=0, tag=0):
-            #        average_age = self.comm.recv(source=0, tag=0)
-
-            print("rank ", self.comm_rank, " average age after bcast: ", average_age)
             sys.stdout.flush()
             self._island.execute_generational_step()
 

@@ -66,16 +66,13 @@ def execute_generational_steps():
 
     if archipelago.run_islands(2000, 1000, 1000):
         if rank == 0:
-            print("print the best indv", archipelago.get_best_individual())
+            print("best: ", archipelago.get_best_individual())
 
 
 def main():
-    time1 = time.time()
     execute_generational_steps()
-    time2 = time.time()
-    print("Time: ", time2 - time1)
 
 if __name__ == '__main__':
-
     main()
+    
 

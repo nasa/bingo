@@ -98,3 +98,14 @@ def test_island_hof(mocker):
     hof_update_pop = hof.update.call_args[0][0]
     for h, i in zip(hof_update_pop, island.population):
         assert h == i
+
+
+def test_load_population(island):
+    initial_pop = list(island.population)
+    island.load_population(["added indv"], replace=False)
+    assert island.population == initial_pop + ["added indv"]
+
+
+def test_load_replacement_population(island):
+    island.load_population(["added indv"], replace=True)
+    assert island.population == ["added indv"]

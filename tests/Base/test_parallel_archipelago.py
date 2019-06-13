@@ -102,34 +102,10 @@ def island(evol_alg):
     return Island(evol_alg, generator, POP_SIZE)
 
 
-def test_archipelago_generated_not_converged(island):
-    archipelago = ParallelArchipelago(island)
-    assert not archipelago._converged
-
-
-def test_generational_step_executed(island):
-    random.seed(0)
-    archipelago = ParallelArchipelago(island)
-    archipelago.step_through_generations(1)
-
-
-def test_convergence_of_archipelago(one_island):
-    archipelago = ParallelArchipelago(one_island)
-    converged = archipelago.test_for_convergence(10)
-    assert converged
-
-
-def test_convergence_of_archipelago_unconverged(one_island):
-    archipelago = ParallelArchipelago(one_island)
-    converged = archipelago.test_for_convergence(0)
-    assert not converged
-
-
 def test_best_individual_returned(one_island):
     generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
     best_indv = generator()
     one_island.load_population([best_indv], replace=False)
     archipelago = ParallelArchipelago(one_island)
-    assert archipelago.test_for_convergence(error_tol=ERROR_TOL)
     assert archipelago.get_best_individual().fitness == 0
-    
+

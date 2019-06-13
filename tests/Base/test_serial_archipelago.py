@@ -159,7 +159,7 @@ def test_best_fitness_eval_count(one_island):
     archipelago = SerialArchipelago(one_island,
                                     num_islands=num_islands)
     assert archipelago.get_fitness_evaluation_count() == 0
-    archipelago._do_evolution(1)
+    archipelago.evolve(1)
     expected_evaluations = num_islands * (POP_SIZE+OFFSPRING_SIZE)
     assert archipelago.get_fitness_evaluation_count() == expected_evaluations
 

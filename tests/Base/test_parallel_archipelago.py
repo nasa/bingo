@@ -28,6 +28,7 @@ class MultipleValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         fitness = np.count_nonzero(individual.values)
         self.eval_count += 1
+        print("f :", fitness, individual)
         return fitness
 
 
@@ -109,3 +110,62 @@ def test_best_individual_returned(one_island):
     archipelago = ParallelArchipelago(one_island)
     assert archipelago.get_best_individual().fitness == 0
 
+
+# def test_island_migration(one_island, island_list):
+#     archipelago = SerialArchipelago(one_island, num_islands=4)
+#     archipelago._islands = island_list
+#
+#     archipelago._coordinate_migration_between_islands()
+#
+#     migration_count = 0
+#     for i, island in enumerate(archipelago._islands):
+#         initial_individual_values = [i]*VALUE_LIST_SIZE
+#         for individual in island.population:
+#             if initial_individual_values != individual.values:
+#                 migration_count += 1
+#                 break
+#     assert len(island_list) == migration_count
+
+
+@pytest.mark.parametrize("sync_freq", [1, 10])
+def test_best_fitness_eval_count(one_island, sync_freq):
+    num_islands = 1
+    archipelago = ParallelArchipelago(one_island, sync_frequency=sync_freq)
+    assert archipelago.get_fitness_evaluation_count() == 0
+    print(len(archipelago._island.population))
+    archipelago.evolve(1)
+    print(len(archipelago._island.population))
+    expected_evaluations = num_islands * (POP_SIZE +
+                                          sync_freq * OFFSPRING_SIZE)
+    assert archipelago.get_fitness_evaluation_count() == expected_evaluations
+
+
+# def test_archipelago_runs(one_island, two_island, three_island):
+#     max_generations = 100
+#     min_generations = 20
+#     error_tol = 0
+#     generation_step_report = 10
+#     archipelago = SerialArchipelago(one_island, num_islands=4)
+#     archipelago._islands = [one_island, two_island, three_island, three_island]
+#     result = archipelago.evolve_until_convergence(max_generations,
+#                                                   error_tol,
+#                                                   generation_step_report,
+#                                                   min_generations)
+#     assert result.success
+
+
+# def test_total_population_not_affected_by_migration(one_island):
+#     archipelago = SerialArchipelago(one_island, num_islands=4)
+#     total_pop_before = sum([len(i.population) for i in archipelago._islands])
+#     archipelago._coordinate_migration_between_islands()
+#     total_pop_after = sum([len(i.population) for i in archipelago._islands])
+#     assert total_pop_after == total_pop_before
+
+
+# def test_potential_hof_members(mocker, one_island):
+#     island_a = mocker.Mock(hall_of_fame=['a'])
+#     island_b = mocker.Mock(hall_of_fame=['b'])
+#     island_c = mocker.Mock(hall_of_fame=['c'])
+#     archipelago = SerialArchipelago(one_island, num_islands=3)
+#     archipelago._islands = [island_a, island_b, island_c]
+#     assert archipelago._get_potential_hof_members() == ['a', 'b', 'c']

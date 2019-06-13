@@ -10,13 +10,9 @@ from mpi4py import MPI
 
 from .Archipelago import Archipelago
 
-BEST_FITNESS = 0
-BEST_INDIVIDUAL = 1
 AGE_UPDATE = 2
 EXIT_NOTIFICATION = 3
 MIGRATION = 4
-HOF_MEMBERS = 5
-FITNESS_EVAL = 6
 
 
 # TODO update all documentation here
@@ -54,8 +50,7 @@ class ParallelArchipelago(Archipelago):
             Fitness of best individual in the archipelago
         """
         best_on_proc = self._island.get_best_fitness()
-        best_fitness = self.comm.allreduce(best_on_proc, op=MPI.MIN,
-                                           tag=BEST_FITNESS)
+        best_fitness = self.comm.allreduce(best_on_proc, op=MPI.MIN)
         return best_fitness
 
     def get_best_individual(self):
@@ -69,8 +64,7 @@ class ParallelArchipelago(Archipelago):
             tolerance.
         """
         best_on_proc = self._island.get_best_individual()
-        all_best_indvs = self.comm.allgather(best_on_proc,
-                                             tag=BEST_INDIVIDUAL)
+        all_best_indvs = self.comm.allgather(best_on_proc)
         best_indv = min(all_best_indvs, key=lambda x: x.fitness)
         return best_indv
 
@@ -181,11 +175,10 @@ class ParallelArchipelago(Archipelago):
                                                  recvtag=MIGRATION)
         self._island.load_population(received_population, replace=False)
 
+    # TODO manually trigger HOF updates
     def _get_potential_hof_members(self):
         potential_members = [i for i in self._island.hall_of_fame]
-        all_potential_members = self.comm.gather(potential_members,
-                                                 root=0,
-                                                 tag=HOF_MEMBERS)
+        all_potential_members = self.comm.gather(potential_members, root=0)
         print(len(all_potential_members))
         return all_potential_members
 
@@ -198,6 +191,5 @@ class ParallelArchipelago(Archipelago):
             number of fitness evaluations
         """
         my_eval_count = self._island.get_fitness_evaluation_count()
-        total_eval_count = self.comm.allreduce(my_eval_count, op=MPI.SUM,
-                                               tag=FITNESS_EVAL)
+        total_eval_count = self.comm.allreduce(my_eval_count, op=MPI.SUM)
         return total_eval_count

@@ -4,11 +4,12 @@ This module defines the Archipelago data structure that runs serially on
 one processor.
 """
 import copy
-import random
+import numpy as np
 
 from .Archipelago import Archipelago
 
-
+# TODO update all documentation here
+# TODO add inherrited attributes in doc
 class SerialArchipelago(Archipelago):
     """An archipelago that executes island generations serially.
 
@@ -20,9 +21,12 @@ class SerialArchipelago(Archipelago):
         The number of islands to create in the archipelago's
         list of islands
     """
-    def __init__(self, island, num_islands=2):
+    def __init__(self, island, num_islands=2, hall_of_fame=None):
+        super().__init__(island, num_islands, hall_of_fame)
         self._islands = self._generate_islands(island, num_islands)
-        super().__init__(island, num_islands)
+        for i in self._islands:
+            if i.hall_of_fame is None:
+                i.hall_of_fame = copy.deepcopy(self.hall_of_fame)
 
     def _step_through_generations(self, num_steps):
         for island in self._islands:
@@ -35,7 +39,7 @@ class SerialArchipelago(Archipelago):
             self._shuffle_island_and_swap_pairs(island_partners, i)
 
     def get_best_fitness(self):
-        """Gets the fitness of most fit island member
+        """Gets the fitness of most fit member
 
         Returns
         -------
@@ -69,6 +73,7 @@ class SerialArchipelago(Archipelago):
         return sum([island.get_fitness_evaluation_count()
                     for island in self._islands])
 
+    # TODO Below should regenerate populations for better random seeding
     @staticmethod
     def _generate_islands(island, num_islands):
         island_list = [copy.deepcopy(island)
@@ -77,31 +82,20 @@ class SerialArchipelago(Archipelago):
 
     def _shuffle_island_indices(self):
         indices = list(range(self._num_islands))
-        random.shuffle(indices)
+        np.random.shuffle(indices)
         return indices
 
     def _shuffle_island_and_swap_pairs(self, island_indexes, pair_number):
         partner_1 = self._islands[island_indexes[pair_number*2]]
         partner_2 = self._islands[island_indexes[pair_number*2 + 1]]
-        self._swap_island_individuals(partner_1, partner_2)
+        self._population_exchange_program(partner_1, partner_2)
 
-    def _swap_island_individuals(self, island_1, island_2):
-        indexes_to_2, indexes_to_1 = Archipelago.assign_send_receive(
-            island_1, island_2)
-
-        indvs_to_2 = [island_1.population[indv] for indv in indexes_to_2]
-        indvs_to_1 = [island_2.population[indv] for indv in indexes_to_1]
-
-        new_pop_island_1 = [indv for i, indv in enumerate(island_1.population)
-                            if i not in indexes_to_2] + indvs_to_1
-        new_pop_island_2 = [indv for i, indv in enumerate(island_2.population)
-                            if i not in indexes_to_1] + indvs_to_2
-
-        island_1.load_population(new_pop_island_1)
-        island_2.load_population(new_pop_island_2)
+    def _population_exchange_program(self, island_1, island_2):
+        indvs_to_2 = island_1.dump_fraction_of_population(0.5)
+        indvs_to_1 = island_2.dump_fraction_of_population(0.5)
+        island_1.load_population(indvs_to_1, replace=False)
+        island_2.load_population(indvs_to_2, replace=False)
 
     def _get_potential_hof_members(self):
-        potential_members = []
-        for i in self._islands:
-            potential_members += i.population
+        potential_members = [h for i in self._islands for h in i.hall_of_fame]
         return potential_members

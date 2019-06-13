@@ -11,7 +11,7 @@ from ..Util.ArgumentValidation import argument_validation
 OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
                                                'ngen', 'fitness'])
 
-
+# TODO hof in attributes doc
 class EvolutionaryOptimizer(metaclass=ABCMeta):
     """ Fundamental bingo object that coordinates evolutionary optimization
 
@@ -29,7 +29,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         self._starting_age = 0
         self._fitness_improvement_age = 0
         self._best_fitness = None
-        self._hall_of_fame = hall_of_fame
+        self.hall_of_fame = hall_of_fame
 
     @argument_validation(max_generations={">=": 1},
                          min_generations={">=": 0},
@@ -152,8 +152,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             The number of generations to evolve
         """
         self._do_evolution(num_generations)
-        if self._hall_of_fame is not None:
-            self._hall_of_fame.update(self._get_potential_hof_members())
+        if self.hall_of_fame is not None:
+            self.hall_of_fame.update(self._get_potential_hof_members())
 
     @abstractmethod
     def _do_evolution(self, num_generations):

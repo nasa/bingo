@@ -110,12 +110,12 @@ def test_archipelago_generated(island):
         assert island_i._population_size == island._population_size
 
 
-def test_generational_step_executed(island):
-    random.seed(0)
-    archipelago = SerialArchipelago(island, num_islands=3)
-    archipelago._step_through_generations(1)
-    for island_i in archipelago._islands:
-        assert island_i.get_best_individual()
+# def test_generational_step_executed(island):
+#     random.seed(0)
+#     archipelago = SerialArchipelago(island, num_islands=3)
+#     archipelago._step_through_generations(1)
+#     for island_i in archipelago._islands:
+#         assert island_i.get_best_individual()
 
 
 def test_island_migration(one_island, island_list):
@@ -144,14 +144,6 @@ def test_convergence_of_archipelago(one_island, island_list):
 def test_convergence_of_archipelago_unconverged(one_island):
     archipelago = SerialArchipelago(one_island, num_islands=6)
     assert archipelago.get_best_fitness() > 0
-
-
-def test_assign_and_receive(one_island, two_island):
-    send, receive = \
-                SerialArchipelago.assign_send_receive(one_island, two_island)
-    for s, r in zip(send, receive):
-        assert 0 <= s < len(one_island.population) <= len(two_island.population)
-        assert 0 <= r < len(one_island.population) <= len(two_island.population)
 
 
 def test_best_individual_returned(one_island):
@@ -186,10 +178,18 @@ def test_archipelago_runs(one_island, two_island, three_island):
     assert result.success
 
 
+def test_total_population_not_affected_by_migration(one_island):
+    archipelago = SerialArchipelago(one_island, num_islands=4)
+    total_pop_before = sum([len(i.population) for i in archipelago._islands])
+    archipelago._coordinate_migration_between_islands()
+    total_pop_after = sum([len(i.population) for i in archipelago._islands])
+    assert total_pop_after == total_pop_before
+
+
 def test_potential_hof_members(mocker, one_island):
-    island_a = mocker.Mock(population=['a'])
-    island_b = mocker.Mock(population=['b'])
-    island_c = mocker.Mock(population=['c'])
+    island_a = mocker.Mock(hall_of_fame=['a'])
+    island_b = mocker.Mock(hall_of_fame=['b'])
+    island_c = mocker.Mock(hall_of_fame=['c'])
     archipelago = SerialArchipelago(one_island, num_islands=3)
     archipelago._islands = [island_a, island_b, island_c]
     assert archipelago._get_potential_hof_members() == ['a', 'b', 'c']

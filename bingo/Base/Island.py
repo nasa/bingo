@@ -13,6 +13,7 @@ from ..Util.ArgumentValidation import argument_validation
 LOGGER = logging.getLogger(__name__)
 
 
+# TODO add inherrited attributes in doc
 class Island(EvolutionaryOptimizer):
     """
     Island: code for island of genetic algorithm
@@ -124,3 +125,12 @@ class Island(EvolutionaryOptimizer):
 
     def _get_potential_hof_members(self):
         return self.population
+
+    def dump_fraction_of_population(self, fraction):
+        # TODO doc
+        np.random.shuffle(self.population)
+        index = int(round(fraction * len(self.population)))
+        dumped_population = self.population[:index]
+        self.population = self.population[index:]
+        return dumped_population
+

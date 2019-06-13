@@ -4,13 +4,23 @@ This module defines the Archipelago data structure that runs in parallel on
 multiple processors.
 """
 
-import random
-import sys
-
+from copy import deepcopy
+import numpy as np
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
 
+BEST_FITNESS = 0
+BEST_INDIVIDUAL = 1
+AGE_UPDATE = 2
+EXIT_NOTIFICATION = 3
+MIGRATION = 4
+HOF_MEMBERS = 5
+FITNESS_EVAL = 6
+
+
+# TODO update all documentation here
+# TODO add inherrited attributes in doc
 class ParallelArchipelago(Archipelago):
     """An archipelago that executes island generations serially.
 
@@ -18,96 +28,35 @@ class ParallelArchipelago(Archipelago):
     ----------
     island : Island
         The island from which other islands will be copied
+    non_blocking : boolean, default = True
+        Specifies whether to use blocking or non-blocking execution.
+        Default is non-blocking.
+    sync_frequency : int, default = 10
+        How frequently to update the average age for each island
     """
-    def __init__(self, island):
+    def __init__(self, island, hall_of_fame=None, non_blocking=True,
+                 sync_frequency=10):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
-        super().__init__(island, self.comm_size)
-        self._best_indv = None
-        self._converged = False
+        super().__init__(island, self.comm_size, hall_of_fame)
+        self._non_blocking = non_blocking
+        self._sync_frequency = sync_frequency
+        if self._island.hall_of_fame is None:
+            self._island.hall_of_fame = deepcopy(self.hall_of_fame)
 
-    def step_through_generations(self, num_steps, non_block=True,
-                                 when_to_update=10):
-        """ Executes 'num_steps' number of generations for
-        each island in the archipelago's list of islands
-
-        Parameters
-        ----------
-        num_steps : int
-            The number of generations to execute per island
-        non_block : boolean, default = True
-            Specifies whether to use blocking or non-blocking execution.
-            Default is non-blocking.
-        when_to_update : int, default = 10
-            How frequently to update the average age for each island
-        """
-        if non_block:
-            self._non_blocking_execution(num_steps, when_to_update)
-
-            self.comm.Barrier()
-
-            if self.comm_rank == 0:
-                status = MPI.Status()
-                while self.comm.iprobe(source=MPI.ANY_SOURCE,
-                                       tag=2,
-                                       status=status):
-
-                    self.comm.recv(source=status.Get_source(), tag=2)
-        else:
-            for _ in range(num_steps):
-                self._island.execute_generational_step()
-
-        self.archipelago_age += num_steps
-
-    def coordinate_migration_between_islands(self):
-        """Shuffles island populations for migration and performs
-        migration by swapping pairs of individuals between islands
-        """
-        if self.comm_rank == 0:
-            island_partners = self._shuffle_island_indices()
-        else:
-            island_partners = None
-
-        island_partners = self.comm.bcast(island_partners, root=0)
-        island_index = island_partners.index(self.comm_rank)
-
-        self._partner_exchange_program(island_index, island_partners)
-
-    def test_for_convergence(self, error_tol):
-        """Tests that the fitness of individuals is less than
-        or equal to the specified error tolerance
-
-        Parameters
-        ----------
-        error_tol : int
-            Upper bound for acceptable fitness of an individual
+    def get_best_fitness(self):
+        """Gets the fitness of most fit member
 
         Returns
         -------
-        bool :
-            Indicates whether a chromosome has converged.
+         :
+            Fitness of best individual in the archipelago
         """
-        best_indvs = self._island.best_individual()
-        self._best_inv = best_indvs
-        best_indvs = self.comm.gather(best_indvs, root=0)
-
-        list_of_best_indvs = []
-        converged = None
-        if self.comm.rank == 0:
-            for indv in best_indvs:
-                list_of_best_indvs.append(indv)
-            list_of_best_indvs.sort(key=lambda x: x.fitness)
-            best_indv = list_of_best_indvs[0]
-            converged = best_indv.fitness <= error_tol
-            self._best_indv = best_indv
-            self._converged = converged
-
-        converged = self.comm.bcast(converged, root=0)
-        self._converged = converged
-
-        return converged
-
+        best_on_proc = self._island.get_best_fitness()
+        best_fitness = self.comm.allreduce(best_on_proc, op=MPI.MIN,
+                                           tag=BEST_FITNESS)
+        return best_fitness
 
     def get_best_individual(self):
         """Returns the best individual if the islands converged to an
@@ -119,75 +68,136 @@ class ParallelArchipelago(Archipelago):
             The best individual whose fitness was within the error
             tolerance.
         """
-        if MPI.COMM_WORLD.Get_rank() == 0:
-            return self._best_indv
-        return None
+        best_on_proc = self._island.get_best_individual()
+        all_best_indvs = self.comm.allgather(best_on_proc,
+                                             tag=BEST_INDIVIDUAL)
+        best_indv = min(all_best_indvs, key=lambda x: x.fitness)
+        return best_indv
+
+    def _step_through_generations(self, num_steps):
+        """ Executes 'num_steps' number of generations for
+        each island in the archipelago's list of islands
+
+        Parameters
+        ----------
+        num_steps : int
+            The number of generations to execute per island
+        """
+        if self._non_blocking:
+            self._non_blocking_execution(num_steps)
+        else:
+            self._island.evolve(num_steps)
+
+    def _non_blocking_execution(self, num_steps):
+        if self.comm_rank == 0:
+            self._non_blocking_execution_master(num_steps)
+        else:
+            self._non_blocking_execution_slave()
+
+    def _non_blocking_execution_master(self, num_steps):
+        total_age = {}
+        average_age = self.generational_age
+        target_age = average_age + num_steps
+
+        while average_age < target_age:
+            self._island.evolve(self._sync_frequency)
+            self._gather_updated_ages(total_age)
+            average_age = (sum(total_age.values())) / self.comm.size
+
+        self._send_exit_notifications()
+        self.comm.Barrier()
+        self._gather_updated_ages(total_age)
+
+    def _gather_updated_ages(self, total_age):
+        total_age.update({0: self._island.generational_age})
+        status = MPI.Status()
+        while self.comm.iprobe(source=MPI.ANY_SOURCE,
+                               tag=AGE_UPDATE,
+                               status=status):
+            data = self.comm.recv(source=status.Get_source(),
+                                  tag=AGE_UPDATE)
+            total_age.update(data)
+
+    def _send_exit_notifications(self):
+        for destination in range(1, self.comm_size):
+            req = self.comm.isend(True, dest=destination,
+                                  tag=EXIT_NOTIFICATION)
+            req.Wait()
+
+    def _non_blocking_execution_slave(self):
+        while not self._has_exit_notification():
+            self._island.evolve(self._sync_frequency)
+            self._send_updated_age()
+        self.comm.Barrier()
+
+    def _has_exit_notification(self):
+        if self.comm.iprobe(source=0, tag=EXIT_NOTIFICATION):
+            _ = self.comm.recv(source=0, tag=EXIT_NOTIFICATION)
+            return True
+        return False
+
+    def _send_updated_age(self):
+        data = {self.comm_rank: self._island.generational_age}
+        req = self.comm.isend(data, dest=0, tag=AGE_UPDATE)
+        req.Wait()
+
+    def _coordinate_migration_between_islands(self):
+        """Shuffles island populations for migration and performs
+        migration by swapping pairs of individuals between islands
+        """
+        partner = self._get_migration_partner()
+        if partner is not None:
+            self._population_exchange_program(partner)
+
+    def _get_migration_partner(self):
+        if self.comm_rank == 0:
+            island_partners = self._shuffle_island_indices()
+        else:
+            island_partners = None
+        island_partners = self.comm.bcast(island_partners, root=0)
+        island_index = island_partners.index(self.comm_rank)
+        if island_index % 2 == 0:
+            partner_index = island_index + 1
+            if partner_index < self.comm_rank:
+                partner = island_partners[partner_index]
+            else:
+                partner = None
+        else:
+            partner_index = island_index - 1
+            partner = island_partners[partner_index]
+        return partner
 
     def _shuffle_island_indices(self):
         indices = list(range(self._num_islands))
-        random.shuffle(indices)
+        np.random.shuffle(indices)
         return indices
 
-    def _partner_exchange_program(self, island_index, island_partners):
-        primary_partner = (island_index % 2 == 0)
-        if primary_partner:
-            if island_index + 1 >= self.comm_size:
-                my_partner = None
-            else:
-                my_partner = island_partners[island_index + 1]
+    def _population_exchange_program(self, partner):
+        population_to_send = self._island.dump_fraction_of_population(0.5)
+        received_population = self.comm.sendrecv(population_to_send,
+                                                 dest=partner,
+                                                 sendtag=MIGRATION,
+                                                 source=partner,
+                                                 recvtag=MIGRATION)
+        self._island.load_population(received_population, replace=False)
 
-                partner_island = self.comm.recv(source=my_partner, tag=4)
+    def _get_potential_hof_members(self):
+        potential_members = [i for i in self._island.hall_of_fame]
+        all_potential_members = self.comm.gather(potential_members,
+                                                 root=0,
+                                                 tag=HOF_MEMBERS)
+        print(len(all_potential_members))
+        return all_potential_members
 
-                indexes_to_send, partners_indexs_to_send = \
-                    Archipelago.assign_send_receive(self._island, partner_island)
+    def get_fitness_evaluation_count(self):
+        """ Gets the total number of fitness evaluations performed
 
-                self.comm.send(partners_indexs_to_send, dest=my_partner, tag=4)
-
-        else:
-            my_partner = island_partners[island_index - 1]
-            self.comm.send(self._island, dest=my_partner, tag=4)
-
-            indexes_to_send = self.comm.recv(source=my_partner, tag=4)
-
-        if my_partner is not None:
-            indexes_to_partner = set(indexes_to_send)
-            indvs_to_send = [self._island.population[indv] \
-                            for indv in indexes_to_partner]
-            traded_individuals = self.comm.sendrecv(indvs_to_send,
-                                                    my_partner,
-                                                    sendtag=4,
-                                                    source=my_partner,
-                                                    recvtag=4)
-            new_population = [indv for i, indv, \
-                             in enumerate(self._island.population) \
-                             if i not in indexes_to_partner] \
-                             + traded_individuals
-            self._island.load_population(new_population)
-
-
-    def _non_blocking_execution(self, num_steps, when_to_update=10):
-        total_age = {}
-        average_age = self.archipelago_age
-        target_age = self.archipelago_age + num_steps
-
-        while average_age < target_age:
-            if self._island.generational_age % when_to_update == 0:
-                if self.comm_rank == 0:
-                    total_age.update({0: self._island.generational_age})
-                    status = MPI.Status()
-                    while self.comm.iprobe(source=MPI.ANY_SOURCE,
-                                           tag=2,
-                                           status=status):
-                        data = self.comm.recv(source=status.Get_source(),
-                                              tag=2)
-                        total_age.update(data)
-                    average_age = (sum(total_age.values())) / self.comm.size
-
-                else:
-                    data = {self.comm_rank : self._island.generational_age}
-                    req = self.comm.isend(data, dest=0, tag=2)
-                    req.Wait()
-            # update averageAge
-            average_age = self.comm.bcast(average_age, root=0)
-            sys.stdout.flush()
-            self._island.execute_generational_step()
+        Returns
+        -------
+        int :
+            number of fitness evaluations
+        """
+        my_eval_count = self._island.get_fitness_evaluation_count()
+        total_eval_count = self.comm.allreduce(my_eval_count, op=MPI.SUM,
+                                               tag=FITNESS_EVAL)
+        return total_eval_count

@@ -30,6 +30,7 @@ from .FitnessPredictor import FitnessPredictorFitnessFunction, \
 LOGGER = logging.getLogger(__name__)
 
 
+# TODO add inherrited attributes in doc
 class FitnessPredictorIsland(Island):
     """An island utilizing co-evolving fitness predictors
 

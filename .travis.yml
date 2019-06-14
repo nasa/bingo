@@ -17,7 +17,7 @@ before_script:
   
 script:
   - python -c "import bingo"
-  - pytest tests --cov=bingo
+  - tests/run_tests.sh
   - python tests/performance_benchmarks.py
   - python tests/island_benchmarks.py
 

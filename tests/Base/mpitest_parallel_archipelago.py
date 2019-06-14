@@ -6,7 +6,6 @@ import numpy as np
 import inspect
 from mpi4py import MPI
 from unittest.mock import Mock
-
 from bingo.Base.MultipleValues import SinglePointCrossover, \
                                       SinglePointMutation, \
                                       MultipleValueChromosomeGenerator
@@ -27,6 +26,7 @@ ERROR_TOL = 10e-6
 COMM = MPI.COMM_WORLD
 COMM_RANK = COMM.Get_rank()
 COMM_SIZE = COMM.Get_size()
+
 
 
 class MultipleValueFitnessFunction(FitnessFunction):

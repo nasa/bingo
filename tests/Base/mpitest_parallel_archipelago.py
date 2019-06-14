@@ -28,7 +28,6 @@ COMM_RANK = COMM.Get_rank()
 COMM_SIZE = COMM.Get_size()
 
 
-
 class MultipleValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         fitness = np.count_nonzero(individual.values)
@@ -149,20 +148,8 @@ def test_convergence():
     return mpi_assert_true(result.success)
 
 
-# def test_archipelago_runs(one_island, two_island, three_island):
-#     max_generations = 100
-#     min_generations = 20
-#     error_tol = 0
-#     generation_step_report = 10
-#     archipelago = SerialArchipelago(one_island, num_islands=4)
-#     archipelago._islands = [one_island, two_island, three_island, three_island]
-#     result = archipelago.evolve_until_convergence(max_generations,
-#                                                   error_tol,
-#                                                   generation_step_report,
-#                                                   min_generations)
-#     assert result.success
-
 # ============================================================================
+
 
 def mpi_assert_equal(actual, expected):
     equal = actual == expected

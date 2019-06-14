@@ -1,8 +1,6 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import random
-
 import pytest
 import numpy as np
 
@@ -28,7 +26,6 @@ class MultipleValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         fitness = np.count_nonzero(individual.values)
         self.eval_count += 1
-        print("f :", fitness, individual)
         return fitness
 
 
@@ -104,12 +101,28 @@ def island(evol_alg):
 
 
 def test_best_individual_returned(one_island):
-    generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(generate_zero,
+                                                 VALUE_LIST_SIZE)
     best_indv = generator()
     one_island.load_population([best_indv], replace=False)
     archipelago = ParallelArchipelago(one_island)
     assert archipelago.get_best_individual().fitness == 0
 
+
+def test_best_fitness_returned(one_island):
+    generator = MultipleValueChromosomeGenerator(generate_zero,
+                                                 VALUE_LIST_SIZE)
+    best_indv = generator()
+    one_island.load_population([best_indv], replace=False)
+    archipelago = ParallelArchipelago(one_island)
+    assert archipelago.get_best_fitness() == 0
+
+
+def test_potential_hof_members(mocker, one_island):
+    island_a = mocker.Mock(hall_of_fame=['a'])
+    archipelago = ParallelArchipelago(one_island)
+    archipelago._island = island_a
+    assert archipelago._get_potential_hof_members() == ['a']
 
 # def test_island_migration(one_island, island_list):
 #     archipelago = SerialArchipelago(one_island, num_islands=4)
@@ -128,15 +141,18 @@ def test_best_individual_returned(one_island):
 
 
 @pytest.mark.parametrize("sync_freq", [1, 10])
-def test_best_fitness_eval_count(one_island, sync_freq):
+@pytest.mark.parametrize("non_blocking", [True, False])
+def test_fitness_eval_count(one_island, sync_freq, non_blocking):
     num_islands = 1
-    archipelago = ParallelArchipelago(one_island, sync_frequency=sync_freq)
+    archipelago = ParallelArchipelago(one_island, sync_frequency=sync_freq,
+                                      non_blocking=non_blocking)
     assert archipelago.get_fitness_evaluation_count() == 0
-    print(len(archipelago._island.population))
     archipelago.evolve(1)
-    print(len(archipelago._island.population))
-    expected_evaluations = num_islands * (POP_SIZE +
-                                          sync_freq * OFFSPRING_SIZE)
+    if non_blocking:
+        expected_evaluations = num_islands * (POP_SIZE +
+                                              sync_freq * OFFSPRING_SIZE)
+    else:
+        expected_evaluations = num_islands * (POP_SIZE + OFFSPRING_SIZE)
     assert archipelago.get_fitness_evaluation_count() == expected_evaluations
 
 

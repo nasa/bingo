@@ -152,7 +152,7 @@ class ParallelArchipelago(Archipelago):
         island_index = island_partners.index(self.comm_rank)
         if island_index % 2 == 0:
             partner_index = island_index + 1
-            if partner_index < self.comm_rank:
+            if partner_index < self.comm_size:
                 partner = island_partners[partner_index]
             else:
                 partner = None
@@ -178,8 +178,9 @@ class ParallelArchipelago(Archipelago):
     # TODO manually trigger HOF updates
     def _get_potential_hof_members(self):
         potential_members = [i for i in self._island.hall_of_fame]
-        all_potential_members = self.comm.gather(potential_members, root=0)
-        print(len(all_potential_members))
+        all_potential_members = self.comm.allgather(potential_members)
+        all_potential_members = [i for hof in all_potential_members
+                                 for i in hof]
         return all_potential_members
 
     def get_fitness_evaluation_count(self):

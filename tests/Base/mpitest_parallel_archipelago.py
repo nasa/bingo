@@ -2,8 +2,10 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import sys
+import os
 import numpy as np
 import inspect
+import pickle
 from mpi4py import MPI
 from unittest.mock import Mock
 from bingo.Base.MultipleValues import SinglePointCrossover, \
@@ -14,7 +16,8 @@ from bingo.Base.MuPlusLambdaEA import MuPlusLambda
 from bingo.Base.TournamentSelection import Tournament
 from bingo.Base.Evaluation import Evaluation
 from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.ParallelArchipelago import ParallelArchipelago
+from bingo.Base.ParallelArchipelago import ParallelArchipelago, \
+    load_parallel_archipelago_from_file
 
 
 POP_SIZE = 5
@@ -146,6 +149,76 @@ def test_convergence():
                                                   fitness_threshold=0,
                                                   convergence_check_frequency=25)
     return mpi_assert_true(result.success)
+
+
+def test_dump_then_load_equal_procs():
+    island = num_island(COMM_RANK)
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
+                                      non_blocking=True)
+    file_name = "testing_pa_dump_and_load_eq.pkl"
+    archipelago.dump_to_file(file_name)
+    archipelago = \
+        load_parallel_archipelago_from_file(file_name)
+    if COMM_RANK == 0:
+        os.remove(file_name)
+
+    origin_proc = archipelago._island.population[0].values[0]
+    return mpi_assert_equal(origin_proc, COMM_RANK)
+
+
+def test_dump_then_load_more_procs():
+    island = num_island(COMM_RANK)
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
+                                      non_blocking=True)
+    file_name = "testing_pa_dump_and_load_gt.pkl"
+    archipelago.dump_to_file(file_name)
+    _remove_proc_from_pickle(file_name)
+    archipelago = \
+        load_parallel_archipelago_from_file(file_name)
+    if COMM_RANK == 0:
+        os.remove(file_name)
+
+    origin_proc = archipelago._island.population[0].values[0]
+    expected_origin = COMM_RANK + 1
+    if COMM_RANK == COMM_SIZE - 1:
+        expected_origin = 1
+    return mpi_assert_equal(origin_proc, expected_origin)
+
+
+def _remove_proc_from_pickle(file_name):
+    if COMM_RANK == 0:
+        with open(file_name, "rb") as pkl_file:
+            par_arch_list = pickle.load(pkl_file)
+        par_arch_list.pop(0)
+        with open(file_name, "wb") as pkl_file:
+            pickle.dump(par_arch_list, pkl_file, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def test_dump_then_load_less_procs():
+    island = num_island(COMM_RANK)
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
+                                      non_blocking=True)
+    file_name = "testing_pa_dump_and_load_lt.pkl"
+    archipelago.dump_to_file(file_name)
+    _add_proc_to_pickle(file_name)
+    archipelago = \
+        load_parallel_archipelago_from_file(file_name)
+    if COMM_RANK == 0:
+        os.remove(file_name)
+
+    origin_proc = archipelago._island.population[0].values[0]
+    expected_origin = (COMM_RANK + 1) % COMM_SIZE
+    return mpi_assert_equal(origin_proc, expected_origin)
+
+
+def _add_proc_to_pickle(file_name):
+    if COMM_RANK == 0:
+        with open(file_name, "rb") as pkl_file:
+            par_arch_list = pickle.load(pkl_file)
+        par_arch_list += par_arch_list[:2]
+        par_arch_list.pop(0)
+        with open(file_name, "wb") as pkl_file:
+            pickle.dump(par_arch_list, pkl_file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # ============================================================================

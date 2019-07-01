@@ -2,9 +2,11 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import pytest
+import os
 from collections import namedtuple
 
-from bingo.Base.EvolutionaryOptimizer import EvolutionaryOptimizer
+from bingo.Base.EvolutionaryOptimizer import EvolutionaryOptimizer, \
+    load_evolutionary_optimizer_from_file
 
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', ])
@@ -165,3 +167,50 @@ def test_hof_update(mocker):
         called_with_population = call[0]
         assert len(called_with_population) == 1
         assert called_with_population[0].fitness == 1.0
+
+
+def test_dump_then_load(converging_eo):
+    converging_eo.evolve(1)
+    converging_eo.dump_to_file("testing_dump_and_load.pkl")
+    converging_eo.evolve(1)
+    converging_eo = \
+        load_evolutionary_optimizer_from_file("testing_dump_and_load.pkl")
+
+    assert 1 == converging_eo.generational_age
+    converging_eo.evolve(1)
+    assert 2 == converging_eo.generational_age
+
+    os.remove("testing_dump_and_load.pkl")
+
+
+def test_dynamic_checkpointing(converging_eo):
+    _ = converging_eo.evolve_until_convergence(
+            max_generations=10,
+            convergence_check_frequency=1,
+            fitness_threshold=0.126,
+            stagnation_generations=5,
+            checkpoint_base_name="test_dynamic_checkpoint")
+    for i in range(4):
+        expected_file_name = "test_dynamic_checkpoint_{}.pkl".format(i)
+        assert os.path.isfile(expected_file_name)
+        os.remove(expected_file_name)
+
+
+def test_limited_checkpoint_num(converging_eo):
+    _ = converging_eo.evolve_until_convergence(
+            max_generations=10,
+            convergence_check_frequency=1,
+            fitness_threshold=0.126,
+            stagnation_generations=5,
+            checkpoint_base_name="test_limited_checkpoint_num",
+            num_checkpoints=2)
+
+    for i in range(4):
+        expected_file_name = "test_limited_checkpoint_num_{}.pkl".format(i)
+        if i < 2:
+            assert not os.path.isfile(expected_file_name)
+        else:
+            assert os.path.isfile(expected_file_name)
+            os.remove(expected_file_name)
+
+

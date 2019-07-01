@@ -3,6 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 import numpy as np
+import os
 
 from bingo.Base.MultipleValues import SinglePointCrossover, \
                                       SinglePointMutation, \
@@ -14,10 +15,10 @@ from bingo.Base.Evaluation import Evaluation
 from bingo.Base.FitnessFunction import FitnessFunction
 
 try:
-    from bingo.Base.ParallelArchipelago import ParallelArchipelago
+    from bingo.Base.ParallelArchipelago import ParallelArchipelago, \
+        load_parallel_archipelago_from_file
     PAR_ARCH_LOADED = True
 except ImportError:
-    CppBackend = None
     PAR_ARCH_LOADED = False
 
 
@@ -161,3 +162,22 @@ def test_fitness_eval_count(one_island, sync_freq, non_blocking):
     else:
         expected_evals = num_islands * (POP_SIZE + OFFSPRING_SIZE)
     assert archipelago.get_fitness_evaluation_count() == expected_evals
+
+
+@pytest.mark.skipif(not PAR_ARCH_LOADED,
+                    reason="ParallelArchipelago import failure. "
+                           "Likely due to an import error of mpi4py.")
+def test_dump_then_load(one_island):
+    archipelago = ParallelArchipelago(one_island)
+    archipelago.evolve(1)
+    file_name = "testing_pa_dump_and_load.pkl"
+    archipelago.dump_to_file(file_name)
+    archipelago.evolve(1)
+    archipelago = \
+        load_parallel_archipelago_from_file(file_name)
+
+    assert 1 == archipelago.generational_age
+    archipelago.evolve(1)
+    assert 2 == archipelago.generational_age
+
+    os.remove(file_name)

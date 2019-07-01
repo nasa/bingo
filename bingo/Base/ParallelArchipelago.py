@@ -4,8 +4,9 @@ This module defines the Archipelago data structure that runs in parallel on
 multiple processors.
 """
 
-from copy import deepcopy
+from copy import copy, deepcopy
 import numpy as np
+import pickle
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
@@ -194,3 +195,65 @@ class ParallelArchipelago(Archipelago):
         my_eval_count = self._island.get_fitness_evaluation_count()
         total_eval_count = self.comm.allreduce(my_eval_count, op=MPI.SUM)
         return total_eval_count
+
+    def dump_to_file(self, filename):
+        """ Dump the ParallelArchipelago object to a pickle file
+
+        The file will contain a pickle dump of a list of all the processors'
+        ParallelArchipelago objects.
+
+        Parameters
+        ----------
+        filename : str
+            the name of the pickle file to dump
+        """
+        pickleable_copy = self._copy_without_mpi()
+        all_par_archs = self.comm.gather(pickleable_copy, root=0)
+
+        if self.comm_rank == 0:
+            with open(filename, "wb") as dump_file:
+                pickle.dump(all_par_archs, dump_file,
+                            protocol=pickle.HIGHEST_PROTOCOL)
+
+    def _copy_without_mpi(self):
+        no_mpi_copy = copy(self)
+        no_mpi_copy.comm = None
+        no_mpi_copy.comm_size = None
+        no_mpi_copy.comm_rank = None
+        return no_mpi_copy
+
+
+def load_parallel_archipelago_from_file(filename):
+    """ Load an ParallelArchipelago objects from a pickle file
+
+    Parameters
+    ----------
+    filename : str
+        the name of the pickle file to load
+
+    Returns
+    -------
+    str :
+        an evolutionary optimizer
+    """
+    comm = MPI.COMM_WORLD
+    comm_rank = comm.Get_rank()
+    comm_size = comm.Get_size()
+
+    if comm_rank == 0:
+        with open(filename, "rb") as load_file:
+            all_par_archs = pickle.load(load_file)
+            loaded_size = len(all_par_archs)
+            if comm_size < loaded_size:
+                all_par_archs = all_par_archs[:comm_size]
+            elif comm_size > loaded_size:
+                all_par_archs = [all_par_archs[i % loaded_size]
+                                 for i in range(comm_size)]
+    else:
+        all_par_archs = None
+
+    par_arch = comm.scatter(all_par_archs, root=0)
+    par_arch.comm = comm
+    par_arch.comm_rank = comm_rank
+    par_arch.comm_size = comm_size
+    return par_arch

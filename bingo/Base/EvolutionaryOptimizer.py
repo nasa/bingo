@@ -5,6 +5,8 @@ function.
 """
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
+import pickle
+import os
 from ..Util.ArgumentValidation import argument_validation
 
 
@@ -30,6 +32,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         self._fitness_improvement_age = 0
         self._best_fitness = None
         self.hall_of_fame = hall_of_fame
+        self._previous_checkpoints = []
 
     @argument_validation(max_generations={">=": 1},
                          min_generations={">=": 0},
@@ -39,7 +42,9 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                                  convergence_check_frequency=1,
                                  min_generations=0,
                                  stagnation_generations=None,
-                                 max_fitness_evaluations=None):
+                                 max_fitness_evaluations=None,
+                                 checkpoint_base_name=None,
+                                 num_checkpoints=None):
         """Evolution occurs until one of four convergence criteria is met
 
         Convergence criteria:
@@ -67,6 +72,10 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         max_fitness_evaluations: int (optional)
             The maximum number of fitness function evaluations (approx) the
             optimizer will run.
+        checkpoint_base_name: str
+            base file name for checkpoint files
+        num_checkpoints: int (optional)
+            number of recent checkpoints to keep, previous ones are removed
 
         Returns
         --------
@@ -75,10 +84,13 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         """
         self._starting_age = self.generational_age
         self._update_best_fitness()
+        self._update_checkpoints(checkpoint_base_name, num_checkpoints,
+                                 reset=True)
 
         while self.generational_age - self._starting_age < min_generations:
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
+            self._update_checkpoints(checkpoint_base_name, num_checkpoints)
 
         if self._convergence(fitness_threshold):
             return self._make_optim_result(0, fitness_threshold)
@@ -90,6 +102,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         while self.generational_age - self._starting_age < max_generations:
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
+            self._update_checkpoints(checkpoint_base_name, num_checkpoints)
 
             if self._convergence(fitness_threshold):
                 return self._make_optim_result(0, fitness_threshold)
@@ -105,6 +118,20 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         self._best_fitness = self.get_best_fitness()
         if last_best_fitness is None or self._best_fitness < last_best_fitness:
             self._fitness_improvement_age = self.generational_age
+
+    def _update_checkpoints(self, checkpoint_base_name, num_checkpoints,
+                            reset=False):
+        if reset:
+            self._previous_checkpoints = []
+
+        if checkpoint_base_name is not None:
+            checkpoint_file_name = "{}_{}.pkl".format(checkpoint_base_name,
+                                                      self.generational_age)
+            self.dump_to_file(checkpoint_file_name)
+            if num_checkpoints is not None:
+                self._previous_checkpoints.append(checkpoint_file_name)
+                if len(self._previous_checkpoints) > num_checkpoints:
+                    os.remove(self._previous_checkpoints.pop(0))
 
     def _convergence(self, threshold):
         return self._best_fitness <= threshold
@@ -216,3 +243,31 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
+    def dump_to_file(self, filename):
+        """ Dump the EO object to a pickle file
+
+        Parameters
+        ----------
+        filename : str
+            the name of the pickle file to dump
+        """
+        with open(filename, "wb") as dump_file:
+            pickle.dump(self, dump_file, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def load_evolutionary_optimizer_from_file(filename):
+    """ Load an EO object from a pickle file
+
+    Parameters
+    ----------
+    filename : str
+        the name of the pickle file to load
+
+    Returns
+    -------
+    str :
+        an evolutionary optimizer
+    """
+    with open(filename, "rb") as load_file:
+        ev_opt = pickle.load(load_file)
+    return ev_opt

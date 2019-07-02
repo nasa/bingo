@@ -6,6 +6,7 @@ multiple processors.
 
 from copy import copy, deepcopy
 import numpy as np
+import dill # needed to pickle lambdas
 import pickle
 from mpi4py import MPI
 

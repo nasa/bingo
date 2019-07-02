@@ -5,6 +5,7 @@ function.
 """
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
+import dill # needed to pickle lambdas
 import pickle
 import os
 from ..Util.ArgumentValidation import argument_validation

@@ -6,11 +6,12 @@ multiple processors.
 
 from copy import copy, deepcopy
 import numpy as np
-import dill # needed to pickle lambdas
-import pickle
+import dill
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
+
+MPI.pickle.__init__(dill.dumps, dill.loads)
 
 AGE_UPDATE = 2
 EXIT_NOTIFICATION = 3
@@ -213,8 +214,8 @@ class ParallelArchipelago(Archipelago):
 
         if self.comm_rank == 0:
             with open(filename, "wb") as dump_file:
-                pickle.dump(all_par_archs, dump_file,
-                            protocol=pickle.HIGHEST_PROTOCOL)
+                dill.dump(all_par_archs, dump_file,
+                            protocol=dill.HIGHEST_PROTOCOL)
 
     def _copy_without_mpi(self):
         no_mpi_copy = copy(self)
@@ -243,7 +244,7 @@ def load_parallel_archipelago_from_file(filename):
 
     if comm_rank == 0:
         with open(filename, "rb") as load_file:
-            all_par_archs = pickle.load(load_file)
+            all_par_archs = dill.load(load_file)
             loaded_size = len(all_par_archs)
             if comm_size < loaded_size:
                 all_par_archs = all_par_archs[:comm_size]

@@ -5,8 +5,7 @@ function.
 """
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
-import dill # needed to pickle lambdas
-import pickle
+import dill
 import os
 from ..Util.ArgumentValidation import argument_validation
 
@@ -253,7 +252,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             the name of the pickle file to dump
         """
         with open(filename, "wb") as dump_file:
-            pickle.dump(self, dump_file, protocol=pickle.HIGHEST_PROTOCOL)
+            dill.dump(self, dump_file, protocol=dill.HIGHEST_PROTOCOL)
 
 
 def load_evolutionary_optimizer_from_file(filename):
@@ -270,5 +269,5 @@ def load_evolutionary_optimizer_from_file(filename):
         an evolutionary optimizer
     """
     with open(filename, "rb") as load_file:
-        ev_opt = pickle.load(load_file)
+        ev_opt = dill.load(load_file)
     return ev_opt

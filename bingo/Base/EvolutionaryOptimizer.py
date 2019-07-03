@@ -107,6 +107,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             return self._make_optim_result(3, max_fitness_evaluations)
 
         while self.generational_age - self._starting_age < max_generations:
+            print("Archipelago_age:", self.generational_age)
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
             self._update_checkpoints(checkpoint_base_name, num_checkpoints)
@@ -177,15 +178,23 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         return OptimizeResult(success, status, message, ngen,
                               self._best_fitness)
 
-    def evolve(self, num_generations):
+    def evolve(self, num_generations, hall_of_fame_update=True):
         """The function responsible for generational evolution.
 
         Parameters
         ----------
         num_generations : int
             The number of generations to evolve
+        hall_of_fame_update : bool (optional)
+            Used to manually turn on or off the hall of fame update. Default
+            True.
         """
         self._do_evolution(num_generations)
+        if hall_of_fame_update:
+            self.update_hall_of_fame()
+
+    def update_hall_of_fame(self):
+        """Manually update the hall of fame"""
         if self.hall_of_fame is not None:
             self.hall_of_fame.update(self._get_potential_hof_members())
 

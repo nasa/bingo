@@ -88,7 +88,8 @@ class ParallelArchipelago(Archipelago):
         if self._non_blocking:
             self._non_blocking_execution(num_steps)
         else:
-            self._island.evolve(num_steps)
+            self._island.evolve(num_steps,
+                                hall_of_fame_update=False)
 
     def _non_blocking_execution(self, num_steps):
         if self.comm_rank == 0:
@@ -102,7 +103,8 @@ class ParallelArchipelago(Archipelago):
         target_age = average_age + num_steps
 
         while average_age < target_age:
-            self._island.evolve(self._sync_frequency)
+            self._island.evolve(self._sync_frequency,
+                                hall_of_fame_update=False)
             self._gather_updated_ages(total_age)
             average_age = (sum(total_age.values())) / self.comm.size
 
@@ -128,7 +130,8 @@ class ParallelArchipelago(Archipelago):
 
     def _non_blocking_execution_slave(self):
         while not self._has_exit_notification():
-            self._island.evolve(self._sync_frequency)
+            self._island.evolve(self._sync_frequency,
+                                hall_of_fame_update=False)
             self._send_updated_age()
         self.comm.Barrier()
 
@@ -180,8 +183,8 @@ class ParallelArchipelago(Archipelago):
                                                  recvtag=MIGRATION)
         self._island.load_population(received_population, replace=False)
 
-    # TODO manually trigger HOF updates
     def _get_potential_hof_members(self):
+        self._island.update_hall_of_fame()
         potential_members = [i for i in self._island.hall_of_fame]
         all_potential_members = self.comm.allgather(potential_members)
         all_potential_members = [i for hof in all_potential_members

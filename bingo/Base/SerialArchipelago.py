@@ -40,8 +40,7 @@ class SerialArchipelago(Archipelago):
 
     def _step_through_generations(self, num_steps):
         for island in self._islands:
-            # TODO think about HOF triggering
-            island.evolve(num_steps)
+            island.evolve(num_steps, hall_of_fame_update=False)
 
     def _coordinate_migration_between_islands(self):
         island_partners = self._shuffle_island_indices()
@@ -108,5 +107,7 @@ class SerialArchipelago(Archipelago):
         island_2.load_population(indvs_to_2, replace=False)
 
     def _get_potential_hof_members(self):
+        for island in self._islands:
+            island.update_hall_of_fame()
         potential_members = [h for i in self._islands for h in i.hall_of_fame]
         return potential_members

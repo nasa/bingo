@@ -8,18 +8,28 @@ import numpy as np
 
 from .Archipelago import Archipelago
 
-# TODO update all documentation here
-# TODO add inherrited attributes in doc
+
 class SerialArchipelago(Archipelago):
-    """An archipelago that executes island generations serially.
+    """An collection of islands that evolve serially.
+
+    Evolution of the Archipelago involves independent evolution of Islands
+    combined with periodic migration of individuals between random pairs of
+    islands. The evolution occurs on one Island at a time.
 
     Parameters
     ----------
     island : Island
-        The island from which other islands will be copied
+        The island that acts as a template for all islands in the archipelago
     num_islands : int, default = 2
         The number of islands to create in the archipelago's
         list of islands
+
+    Attributes
+    ----------
+    generational_age: int
+        The number of generations the archipelago has been evolved
+    hall_of_fame: HallOfFame
+        An object containing the best individuals seen in the archipelago
     """
     def __init__(self, island, num_islands=2, hall_of_fame=None):
         super().__init__(island, num_islands, hall_of_fame)
@@ -30,6 +40,7 @@ class SerialArchipelago(Archipelago):
 
     def _step_through_generations(self, num_steps):
         for island in self._islands:
+            # TODO think about HOF triggering
             island.evolve(num_steps)
 
     def _coordinate_migration_between_islands(self):
@@ -49,14 +60,12 @@ class SerialArchipelago(Archipelago):
         return self.get_best_individual().fitness
 
     def get_best_individual(self):
-        """Returns the best individual if the islands converged to an
-        acceptable fitness.
+        """Returns the best individual
 
         Returns
         -------
         Chromosome :
-            The best individual whose fitness was within the error
-            tolerance.
+            The individual with lowest fitness
         """
         list_of_best_indvs = [i.get_best_individual() for i in self._islands]
         list_of_best_indvs.sort(key=lambda x: x.fitness)

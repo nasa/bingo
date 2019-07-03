@@ -13,35 +13,36 @@ from ..Util.ArgumentValidation import argument_validation
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO add inherrited attributes in doc
 class Island(EvolutionaryOptimizer):
     """
-    Island: code for island of genetic algorithm
+    Island: a basic unit of evolutionary optimization.  It performs the
+    generation and evolution of a single population using a generator and
+    evolutionary algorithm
+
+    Parameters
+    ----------
+    evolution_algorithm : EvolutionaryAlgorithm
+        The desired algorithm to use in assessing the population
+    generator : Generator
+        The generator class that returns an instance of a chromosome
+    population_size : int
+        The desired size of the population
+    hall_of_fame : HallOfFame (optional)
+        The hall of fame object to be used for storing best individuals
+
+    Attributes
+    ----------
+    generational_age : int
+        The number of generational steps that have been executed
+    population : list of Chromosomes
+        The population that is evolving
+    hall_of_fame: HallOfFame
+        An object containing the best individuals seen in the optimization
+
     """
     @argument_validation(population_size={">=": 0})
     def __init__(self, evolution_algorithm, generator, population_size,
                  hall_of_fame=None):
-        """Initialization of island
-
-        Parameters
-        ----------
-        evolution_algorithm : EvolutionaryAlgorithm
-            The desired algorithm to use in assessing the population
-        generator : Generator
-            The generator class that returns an instance of a chromosome
-        population_size : int
-            The desired size of the population
-        hall_of_fame : HallOfFame (optional)
-            The hall of fame object to be used for storing best individuals
-
-        Attributes
-        ----------
-        generational_age : int
-            The number of generational steps that have been executed
-
-        population : list of Chromosomes
-            The population that is evolving
-        """
         super().__init__(hall_of_fame)
         self.population = [generator() for _ in range(population_size)]
         self._ea = evolution_algorithm
@@ -126,7 +127,18 @@ class Island(EvolutionaryOptimizer):
         return self.population
 
     def dump_fraction_of_population(self, fraction):
-        # TODO doc
+        """Dumps a portion of the population to a list
+
+        Parameters
+        ----------
+        fraction : float [0.0 - 1.0]
+            The fraction of the population to dump
+
+        Returns
+        -------
+        list of Chromosome :
+            A portion of the population
+        """
         np.random.shuffle(self.population)
         index = int(round(fraction * len(self.population)))
         dumped_population = self.population[:index]

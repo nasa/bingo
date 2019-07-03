@@ -14,7 +14,6 @@ OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
                                                'ngen', 'fitness'])
 
 
-# TODO hof in attributes doc
 class EvolutionaryOptimizer(metaclass=ABCMeta):
     """ Fundamental bingo object that coordinates evolutionary optimization
 
@@ -22,10 +21,17 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     this class is to house the evolve_until_convergence function. Classes which
     extend this one will have access to this function's capability.
 
+    Parameters
+    ----------
+    hall_of_fame : HallOfFame (optional)
+        The hall of fame object to be used for storing best individuals
+
     Attributes
     ----------
     generational_age: int
         The number of generations the optimizer has been evolved
+    hall_of_fame: HallOfFame
+        An object containing the best individuals seen in the optimization
     """
     def __init__(self, hall_of_fame=None):
         self.generational_age = 0

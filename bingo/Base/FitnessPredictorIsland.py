@@ -30,7 +30,6 @@ from .FitnessPredictor import FitnessPredictorFitnessFunction, \
 LOGGER = logging.getLogger(__name__)
 
 
-# TODO add inherrited attributes in doc
 class FitnessPredictorIsland(Island):
     """An island utilizing co-evolving fitness predictors
 
@@ -69,11 +68,11 @@ class FitnessPredictorIsland(Island):
     Attributes
     ----------
     generational_age : int
-                      The number of generational steps that have been
-                      executed
-
+        The number of generational steps that have beenexecuted
     population : list of Chromosomes
-                 The population that is evolving
+        The population that is evolving
+    hall_of_fame: HallOfFame
+        An object containing the best individuals seen in the optimization
 
     """
     @argument_validation(population_size={">=": 0},

@@ -9,10 +9,12 @@ from abc import ABCMeta, abstractmethod
 from .EvolutionaryOptimizer import EvolutionaryOptimizer
 
 
-# TODO update all documentation here
-# TODO add inherrited attributes in doc
 class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
-    """Collection of islands
+    """A collection of islands
+
+    Evolution of the Archipelago involves independent evolution of Islands
+    combined with periodic migration of individuals between random pairs of
+    islands.
 
     Parameters
     ----------
@@ -21,6 +23,13 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
         EA
     num_islands : int
         The size of the archipelago; the number of islands it contains
+
+    Attributes
+    ----------
+    generational_age: int
+        The number of generations the archipelago has been evolved
+    hall_of_fame: HallOfFame
+        An object containing the best individuals seen in the archipelago
     """
     def __init__(self, island, num_islands, hall_of_fame=None):
         super().__init__(hall_of_fame)

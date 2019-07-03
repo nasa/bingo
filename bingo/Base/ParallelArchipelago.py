@@ -18,10 +18,18 @@ EXIT_NOTIFICATION = 3
 MIGRATION = 4
 
 
-# TODO update all documentation here
-# TODO add inherrited attributes in doc
 class ParallelArchipelago(Archipelago):
-    """An archipelago that executes island generations serially.
+    """A collection of islands that evolves in parallel
+
+    Evolution of the Archipelago involves independent evolution of Islands
+    combined with periodic migration of individuals between random pairs of
+    islands. Each mpi process is responsible for the evolution of a single
+    island which has two effects:
+     1) scaling to more islands requires use of more processes
+     2) scripts written for the Parallel Archipelago should be independent of
+        the number of processors: i.e., scripts dont need to be changed in
+        order to run with more processors. Simply run the same script with more
+        mpi processes.
 
     Parameters
     ----------
@@ -32,6 +40,13 @@ class ParallelArchipelago(Archipelago):
         Default is non-blocking.
     sync_frequency : int, default = 10
         How frequently to update the average age for each island
+
+    Attributes
+    ----------
+    generational_age: int
+        The number of generations the archipelago has been evolved
+    hall_of_fame: HallOfFame
+        An object containing the best individuals seen in the archipelago
     """
     def __init__(self, island, hall_of_fame=None, non_blocking=True,
                  sync_frequency=10):
@@ -57,14 +72,12 @@ class ParallelArchipelago(Archipelago):
         return best_fitness
 
     def get_best_individual(self):
-        """Returns the best individual if the islands converged to an
-        acceptable fitness.
+        """Returns the best individual
 
         Returns
         -------
         Chromosome :
-            The best individual whose fitness was within the error
-            tolerance.
+            The individual with lowest fitness
         """
         best_on_proc = self._island.get_best_individual()
         all_best_indvs = self.comm.allgather(best_on_proc)
@@ -72,14 +85,6 @@ class ParallelArchipelago(Archipelago):
         return best_indv
 
     def _step_through_generations(self, num_steps):
-        """ Executes 'num_steps' number of generations for
-        each island in the archipelago's list of islands
-
-        Parameters
-        ----------
-        num_steps : int
-            The number of generations to execute per island
-        """
         if self._non_blocking:
             self._non_blocking_execution(num_steps)
         else:
@@ -139,9 +144,6 @@ class ParallelArchipelago(Archipelago):
         req.Wait()
 
     def _coordinate_migration_between_islands(self):
-        """Shuffles island populations for migration and performs
-        migration by swapping pairs of individuals between islands
-        """
         partner = self._get_migration_partner()
         if partner is not None:
             self._population_exchange_program(partner)

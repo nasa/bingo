@@ -147,10 +147,10 @@ def test_convergence_of_archipelago_unconverged(one_island):
 
 
 def test_best_individual_returned(one_island):
+    archipelago = SerialArchipelago(one_island)
     generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
     best_indv = generator()
-    one_island.load_population([best_indv], replace=False)
-    archipelago = SerialArchipelago(one_island)
+    archipelago._islands[0].load_population([best_indv], replace=False)
     assert archipelago.get_best_individual().fitness == 0
 
 

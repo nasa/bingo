@@ -44,6 +44,7 @@ class Island(EvolutionaryOptimizer):
     def __init__(self, evolution_algorithm, generator, population_size,
                  hall_of_fame=None):
         super().__init__(hall_of_fame)
+        self._generator = generator
         self.population = [generator() for _ in range(population_size)]
         self._ea = evolution_algorithm
         self._population_size = population_size
@@ -144,3 +145,8 @@ class Island(EvolutionaryOptimizer):
         dumped_population = self.population[:index]
         self.population = self.population[index:]
         return dumped_population
+
+    def regenerate_population(self):
+        """Randomly regenerates the population"""
+        self.population = [self._generator()
+                           for _ in range(len(self.population))]

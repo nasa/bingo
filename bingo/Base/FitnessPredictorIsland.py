@@ -73,7 +73,6 @@ class FitnessPredictorIsland(Island):
         The population that is evolving
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the optimization
-
     """
     @argument_validation(population_size={">=": 0},
                          predictor_population_size={">=": 0},

@@ -82,11 +82,12 @@ class SerialArchipelago(Archipelago):
         return sum([island.get_fitness_evaluation_count()
                     for island in self._islands])
 
-    # TODO Below should regenerate populations for better random seeding
     @staticmethod
     def _generate_islands(island, num_islands):
         island_list = [copy.deepcopy(island)
                        for _ in range(num_islands)]
+        for island in island_list:
+            island.regenerate_population()
         return island_list
 
     def _shuffle_island_indices(self):

@@ -19,19 +19,20 @@ class MuPlusLambda(EvolutionaryAlgorithm):
     evaluation : Evaluation
         The evaluation algorithm that sets the fitness on the population.
     selection : Selection
-                Selection instance to perform selection on a population
+        Selection instance to perform selection on a population
     crossover : Crossover
-                The algorithm that performs crossover during variation.
+        The algorithm that performs crossover during variation.
     mutation : Mutation
-               The algorithm that performs mutation during variation.
+        The algorithm that performs mutation during variation.
     crossover_probability : float
-                            Probability that crossover will occur on an
-                            individual.
+        Probability that crossover will occur on an individual.
     mutation_probability : float
-                           Probability that mutation will occur on an
-                           individual.
+        Probability that mutation will occur on an individual.
     number_offspring : int
-                       The number of offspring produced from variation.
+        The number of offspring produced from variation.
+    target_population_size : int (optional)
+        The targeted population size. Default is to keep the population the
+        same size as the starting population
 
     Attributes
     ----------
@@ -44,13 +45,14 @@ class MuPlusLambda(EvolutionaryAlgorithm):
     """
     def __init__(self, evaluation, selection, crossover, mutation,
                  crossover_probability, mutation_probability,
-                 number_offspring):
+                 number_offspring, target_population_size=None):
         super().__init__(variation=VarOr(crossover, mutation,
                                          crossover_probability,
                                          mutation_probability),
                          evaluation=evaluation,
                          selection=selection)
         self._number_offspring = number_offspring
+        self._target_populations_size = target_population_size
 
     def generational_step(self, population):
         """Performs selection on individuals.
@@ -67,4 +69,8 @@ class MuPlusLambda(EvolutionaryAlgorithm):
         """
         offspring = self.variation(population, self._number_offspring)
         self.evaluation(population + offspring)
-        return self.selection(population + offspring, len(population))
+        if self._target_populations_size is None:
+            new_pop_size = len(population)
+        else:
+            new_pop_size = self._target_populations_size
+        return self.selection(population + offspring, new_pop_size)

@@ -223,7 +223,7 @@ def test_age_fitness_ea_step(pareto_front_population, onemax_evaluator,
     crossover = DumbyCrossover()
     generator = MultipleValueChromosomeGenerator(return_false, COMPLEX_INDV_SIZE)
     evo_alg = AgeFitnessEA(onemax_evaluator, generator, crossover, mutation,
-                           0, 0, len(pareto_front_population),
+                           0, 0, len(population),
                            selection_size=2*len(population))
     new_population = evo_alg.generational_step(population)
     assert len(new_population) == len(population)

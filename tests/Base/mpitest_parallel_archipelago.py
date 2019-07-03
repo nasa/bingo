@@ -5,7 +5,7 @@ import sys
 import os
 import numpy as np
 import inspect
-import pickle
+import dill
 from mpi4py import MPI
 from unittest.mock import Mock
 from bingo.Base.MultipleValues import SinglePointCrossover, \
@@ -188,10 +188,10 @@ def test_dump_then_load_more_procs():
 def _remove_proc_from_pickle(file_name):
     if COMM_RANK == 0:
         with open(file_name, "rb") as pkl_file:
-            par_arch_list = pickle.load(pkl_file)
+            par_arch_list = dill.load(pkl_file)
         par_arch_list.pop(0)
         with open(file_name, "wb") as pkl_file:
-            pickle.dump(par_arch_list, pkl_file, protocol=pickle.HIGHEST_PROTOCOL)
+            dill.dump(par_arch_list, pkl_file, protocol=dill.HIGHEST_PROTOCOL)
 
 
 def test_dump_then_load_less_procs():
@@ -214,11 +214,11 @@ def test_dump_then_load_less_procs():
 def _add_proc_to_pickle(file_name):
     if COMM_RANK == 0:
         with open(file_name, "rb") as pkl_file:
-            par_arch_list = pickle.load(pkl_file)
+            par_arch_list = dill.load(pkl_file)
         par_arch_list += par_arch_list[:2]
         par_arch_list.pop(0)
         with open(file_name, "wb") as pkl_file:
-            pickle.dump(par_arch_list, pkl_file, protocol=pickle.HIGHEST_PROTOCOL)
+            dill.dump(par_arch_list, pkl_file, protocol=dill.HIGHEST_PROTOCOL)
 
 
 # ============================================================================

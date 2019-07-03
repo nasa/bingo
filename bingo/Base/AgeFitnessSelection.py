@@ -6,7 +6,6 @@ This module expects to be used in conjunction with the
 ``RandomIndividualVariation`` module that wraps the ``VarOr`` module.
 """
 import numpy as np
-import random
 
 from .Selection import Selection
 from ..Util.ArgumentValidation import argument_validation
@@ -136,9 +135,13 @@ class AgeFitness(Selection):
         indv_1 = self._get_indvidual(population, indv_index_1)
         indv_2 = self._get_indvidual(population, indv_index_2)
 
-        if self._first_dominates(indv_1, indv_2):
+        if np.isnan(indv_1.fitness):
+            removal_set.add(indv_index_1)
+        elif np.isnan(indv_2.fitness):
             removal_set.add(indv_index_2)
-        elif self._first_dominates(indv_2, indv_1):
+        elif self._first_not_dominated(indv_1, indv_2):
+            removal_set.add(indv_index_2)
+        elif self._first_not_dominated(indv_2, indv_1):
             removal_set.add(indv_index_1)
 
     def _get_indvidual(self, population, index):
@@ -146,9 +149,9 @@ class AgeFitness(Selection):
         return population[population_list_index]
 
     @staticmethod
-    def _first_dominates(indv_a, indv_b):
-        return indv_a.genetic_age <= indv_b.genetic_age and \
-                indv_a.fitness <= indv_b.fitness
+    def _first_not_dominated(first_indv, second_indv):
+        return not (first_indv.genetic_age > second_indv.genetic_age or
+                    first_indv.fitness > second_indv.fitness)
 
     def _remove_indviduals(self, to_remove_list, num_removed):
         while to_remove_list:

@@ -30,8 +30,9 @@ class AgeFitnessEA(MuPlusLambda):
         Probability that crossover will occur on an individual.
     mutation_probability : float
         Probability that mutation will occur on an individual.
-    number_of_offspring : int
-        The number of offspring produced from variation.
+    population_size : int
+        The targeted poulation size and the number of offspring produced from
+        variation.
     selection_size : int
         The size of the group of individuals to be randomly
         compared. The size must be an integer greater than 1.
@@ -46,11 +47,12 @@ class AgeFitnessEA(MuPlusLambda):
                  Public access to the selection phase of the Base
     """
     def __init__(self, evaluation, generator, crossover, mutation,
-                 crossover_probability, mutation_probability, number_offspring,
+                 crossover_probability, mutation_probability, population_size,
                  selection_size=2):
-        selection = AgeFitness(selection_size=selection_size)
-        super().__init__(evaluation, selection, crossover, mutation,
+        self.selection = AgeFitness(selection_size=selection_size)
+        super().__init__(evaluation, self.selection, crossover, mutation,
                          crossover_probability, mutation_probability,
-                         number_offspring)
+                         number_offspring=population_size,
+                         target_population_size=population_size)
         self.variation = AddRandomIndividualVariation(self.variation,
                                                       generator)

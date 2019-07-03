@@ -58,4 +58,3 @@ class EvolutionaryAlgorithm():
         self.evaluation(offspring)
         next_generation = self.selection(offspring, population_size)
         return next_generation
-

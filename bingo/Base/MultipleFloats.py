@@ -21,8 +21,10 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
         `Chromosome` object that are subject local optimization.
         This list may be empty
     """
-    def __init__(self, values, needs_opt_list=[]):
+    def __init__(self, values, needs_opt_list=None):
         super().__init__(values)
+        if needs_opt_list is None:
+            needs_opt_list = []
         self._needs_opt_list = needs_opt_list
 
     def needs_local_optimization(self):
@@ -76,11 +78,13 @@ class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):
     """
     @argument_validation(values_per_chromosome={">=": 0})
     def __init__(self, random_value_function, values_per_chromosome,
-                 needs_opt_list=[]):
+                 needs_opt_list=None):
 
         self._check_function_produces_float(random_value_function)
         super().__init__(random_value_function, values_per_chromosome)
         self._check_list_contains_ints_in_valid_range(needs_opt_list)
+        if needs_opt_list is None:
+            needs_opt_list = []
         self._needs_opt_list = self._remove_duplicates(needs_opt_list)
 
     def __call__(self):
@@ -98,7 +102,8 @@ class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):
         random_list = self._generate_list(self._values_per_chromosome)
         return MultipleFloatChromosome(random_list, self._needs_opt_list)
 
-    def _check_function_produces_float(self, random_value_function):
+    @staticmethod
+    def _check_function_produces_float(random_value_function):
         val = random_value_function()
         if not isinstance(val, float):
             raise ValueError("Random value function must generate floats.")
@@ -114,6 +119,7 @@ class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):
             raise ValueError("The list of optimization indices must be within \
                               the length of the list of values.")
 
-    def _remove_duplicates(self, list_of_ints):
+    @staticmethod
+    def _remove_duplicates(list_of_ints):
         set_of_ints = set(list_of_ints)
         return sorted([val for val in set_of_ints])

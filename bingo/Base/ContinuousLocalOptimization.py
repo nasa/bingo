@@ -147,11 +147,13 @@ class ContinuousLocalOptimization(FitnessFunction):
             self._optimize_params(individual)
         return self._evaluate_fitness(individual)
 
-    def _check_algorithm_is_valid(self, algorithm):
+    @staticmethod
+    def _check_algorithm_is_valid(algorithm):
         if algorithm not in ROOT_SET and algorithm not in MINIMIZE_SET:
             raise KeyError("{} is not a listed algorithm".format(algorithm))
 
-    def _check_root_alg_returns_vector(self, fitness_function, algorithm):
+    @staticmethod
+    def _check_root_alg_returns_vector(fitness_function, algorithm):
         if algorithm in ROOT_SET and not isinstance(fitness_function,
                                                     VectorBasedFunction):
             raise TypeError("{} requires VectorBasedFunction\
@@ -167,7 +169,7 @@ class ContinuousLocalOptimization(FitnessFunction):
     def _sub_routine_for_fit_function(self, params, individual):
         individual.set_local_optimization_params(params)
         if self._algorithm in ROOT_SET:
-            return self._fitness_function._evaluate_fitness_vector(individual)
+            return self._fitness_function.evaluate_fitness_vector(individual)
         return self._fitness_function(individual)
 
     def _run_algorithm_for_optimization(self, sub_routine, individual, params):

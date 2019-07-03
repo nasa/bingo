@@ -5,13 +5,14 @@ function.
 """
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
-import dill
 import os
+import dill
 from ..Util.ArgumentValidation import argument_validation
 
 
 OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
                                                'ngen', 'fitness'])
+
 
 # TODO hof in attributes doc
 class EvolutionaryOptimizer(metaclass=ABCMeta):
@@ -164,7 +165,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         else:  # status == 3:
             message = "The maximum number of fitness evaluations " + \
                       "({}) was exceeded. Total fitness ".format(aux_info) + \
-                      "evaluations:".format(self.get_fitness_evaluation_count())
+                      "evals: {}".format(self.get_fitness_evaluation_count())
             success = False
 
         return OptimizeResult(success, status, message, ngen,

@@ -38,7 +38,7 @@ class PairwiseAtomicPotential(VectorBasedFunction):
                    attributes r, potential_energy and config_lims_r.
     """
 
-    def _evaluate_fitness_vector(self, individual):
+    def evaluate_fitness_vector(self, individual):
         self.eval_count += 1
         pair_energies = individual.evaluate_equation_at(
             self.training_data.r).flatten()

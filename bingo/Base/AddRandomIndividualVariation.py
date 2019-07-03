@@ -5,7 +5,6 @@ individual(s) to the offspring after the variation is carried out.
 """
 
 from .Variation import Variation
-from ..Util.ArgumentValidation import argument_validation
 
 
 class AddRandomIndividualVariation(Variation):
@@ -24,6 +23,7 @@ class AddRandomIndividualVariation(Variation):
 
     """
     def __init__(self, variation, chromosome_generator, num_rand_indvs=1):
+        super().__init__()
         self._variation = variation
         self._chromosome_generator = chromosome_generator
         self._num_rand_indvs = num_rand_indvs

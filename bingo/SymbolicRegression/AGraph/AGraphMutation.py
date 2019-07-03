@@ -131,7 +131,7 @@ class AGraphMutation(Mutation):
                         old_constant_num = parent.command_array[i, 1]
                         constant = \
                             self._component_generator.random_numerical_constant(
-                                    parent.constants[old_constant_num])
+                                parent.constants[old_constant_num])
                     else:
                         constant = \
                             self._component_generator.random_numerical_constant()
@@ -297,5 +297,3 @@ class AGraphMutation(Mutation):
 
         index = np.random.randint(len(operators))
         return operators[index]
-
-

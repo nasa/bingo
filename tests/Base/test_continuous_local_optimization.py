@@ -19,7 +19,7 @@ class MultipleFloatValueFitnessFunction(FitnessFunction):
 
 
 class FloatVectorFitnessFunction(VectorBasedFunction):
-    def _evaluate_fitness_vector(self, individual):
+    def evaluate_fitness_vector(self, individual):
         vals = individual.values
         return [x - 0 for x in vals]
 

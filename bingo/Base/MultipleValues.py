@@ -1,7 +1,7 @@
 """Multiple Values for genetic information
 
 This file contains several classes that are used for chromosomes
-that contains a list of genetic information. 
+that contains a list of genetic information.
 """
 import numpy as np
 

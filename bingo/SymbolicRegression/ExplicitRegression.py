@@ -29,7 +29,7 @@ class ExplicitRegression(VectorBasedFunction):
     training_data : ExplicitTrainingData
                     data that is used in fitness evaluation.
     """
-    def _evaluate_fitness_vector(self, individual):
+    def evaluate_fitness_vector(self, individual):
         self.eval_count += 1
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
         return (f_of_x - self.training_data.y).flatten()

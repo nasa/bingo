@@ -78,7 +78,7 @@ class HallOfFame:
 
     def _item_should_be_added(self, item):
         item_key = self._key_func(item)
-        if len(self) == 0:
+        if not self:
             return True
         if item_key <= self._keys[-1] or len(self) < self._max_size:
             return self._not_similar(item)

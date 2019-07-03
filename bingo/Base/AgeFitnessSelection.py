@@ -85,7 +85,7 @@ class AgeFitness(Selection):
         Parameters
         ----------
             population: list of Chromosomes
-                The population to which the pareto front individuals will be 
+                The population to which the pareto front individuals will be
                 selected from.
 
         Returns

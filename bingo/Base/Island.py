@@ -41,7 +41,6 @@ class Island(EvolutionaryOptimizer):
 
         population : list of Chromosomes
             The population that is evolving
-            
         """
         super().__init__(hall_of_fame)
         self.population = [generator() for _ in range(population_size)]
@@ -133,4 +132,3 @@ class Island(EvolutionaryOptimizer):
         dumped_population = self.population[:index]
         self.population = self.population[index:]
         return dumped_population
-

@@ -135,7 +135,7 @@ class FitnessPredictorIsland(Island):
                                                      self._predictor_size)
         predictor_island = Island(predictor_ea, generator,
                                   self._predictor_population_size)
-        predictor_island._execute_generational_step()
+        predictor_island.evolve(1)
         return predictor_island
 
     def _make_predictor_ea(self, index_generator):
@@ -193,7 +193,7 @@ class FitnessPredictorIsland(Island):
     def _calculate_predictor_variance_of(self, individual):
         predicted_fitness_list = \
             [self._predictor_fitness_function.predict_fitness_for_trainer(
-                    predictor, individual)
+                predictor, individual)
              for predictor in self._predictor_island.population]
         try:
             variance = np.var(predicted_fitness_list)
@@ -220,7 +220,7 @@ class FitnessPredictorIsland(Island):
             indv_w_true_fitness = deepcopy(indv_w_ped_fitness)
             indv_w_true_fitness.fitness = \
                 self._predictor_fitness_function.get_true_fitness_for_trainer(
-                        indv_w_true_fitness)
+                    indv_w_true_fitness)
             potential_members.append(indv_w_true_fitness)
         return potential_members
 
@@ -238,6 +238,5 @@ class FitnessPredictorIsland(Island):
         best_indv = super().get_best_individual().copy()
         best_indv.fitness = \
             self._predictor_fitness_function.get_true_fitness_for_trainer(
-                    best_indv)
+                best_indv)
         return best_indv
-

@@ -162,11 +162,13 @@ def _sqrt_reverse_eval(reverse_index, param1, _param2, forward_eval,
 
 
 def forward_eval_function(node, param1, param2, x, constants, forward_eval):
+    """Performs calculation of one line of stack"""
     return FORWARD_EVAL_MAP[node](param1, param2, x, constants, forward_eval)
 
 
 def reverse_eval_function(node, reverse_index, param1, param2, forward_eval,
                           reverse_eval):
+    """Performs calculation of one line of stack for derivative calculation"""
     REVERSE_EVAL_MAP[node](reverse_index, param1, param2, forward_eval,
                            reverse_eval)
 

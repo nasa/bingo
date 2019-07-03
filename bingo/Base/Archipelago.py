@@ -5,10 +5,8 @@ Archipelago implementations will control the generational steps for all
 the islands until convergence or until a maximal number of steps is reached.
 """
 from abc import ABCMeta, abstractmethod
-import random
 
 from .EvolutionaryOptimizer import EvolutionaryOptimizer
-from ..Util.ArgumentValidation import argument_validation
 
 
 # TODO update all documentation here

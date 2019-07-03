@@ -30,7 +30,7 @@ class SerialArchipelago(Archipelago):
 
     def _step_through_generations(self, num_steps):
         for island in self._islands:
-            island._do_evolution(num_steps)
+            island.evolve(num_steps)
 
     def _coordinate_migration_between_islands(self):
         island_partners = self._shuffle_island_indices()
@@ -90,7 +90,8 @@ class SerialArchipelago(Archipelago):
         partner_2 = self._islands[island_indexes[pair_number*2 + 1]]
         self._population_exchange_program(partner_1, partner_2)
 
-    def _population_exchange_program(self, island_1, island_2):
+    @staticmethod
+    def _population_exchange_program(island_1, island_2):
         indvs_to_2 = island_1.dump_fraction_of_population(0.5)
         indvs_to_1 = island_2.dump_fraction_of_population(0.5)
         island_1.load_population(indvs_to_1, replace=False)

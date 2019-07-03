@@ -496,7 +496,8 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         duplicate = AGraph(genetic_age=self.genetic_age,
                            fitness=self._fitness, fit_set=self.fit_set,
                            command_array=np.copy(self._command_array),
-                           short_command_array=np.copy(self._short_command_array),
+                           short_command_array=np.copy(
+                               self._short_command_array),
                            constants=list(self.constants),
                            needs_opt=self._needs_opt,
                            num_constants=self.num_constants,

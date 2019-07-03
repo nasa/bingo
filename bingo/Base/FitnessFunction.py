@@ -71,9 +71,9 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
          :
            fitness of the individual
         """
-        fitness_vector = self._evaluate_fitness_vector(individual)
+        fitness_vector = self.evaluate_fitness_vector(individual)
         return np.mean(np.abs(fitness_vector))
 
     @abstractmethod
-    def _evaluate_fitness_vector(self, individual):
+    def evaluate_fitness_vector(self, individual):
         raise NotImplementedError

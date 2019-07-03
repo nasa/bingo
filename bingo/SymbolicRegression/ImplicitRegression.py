@@ -45,7 +45,7 @@ class ImplicitRegression(VectorBasedFunction):
         self._required_params = required_params
         self._normalize_dot = normalize_dot
 
-    def _evaluate_fitness_vector(self, individual):
+    def evaluate_fitness_vector(self, individual):
         self.eval_count += 1
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)
@@ -96,7 +96,7 @@ class ImplicitRegressionSchmidt(VectorBasedFunction):
     This may not be a correct implementation of this algorithm.  Importantly,
     it couldn't reproduce the  results in the papers.
     """
-    def _evaluate_fitness_vector(self, individual):
+    def evaluate_fitness_vector(self, individual):
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)
 
@@ -111,7 +111,7 @@ class ImplicitRegressionSchmidt(VectorBasedFunction):
                     dxi_dxj_2 = (self.training_data.dx_dt[:, i] /
                                  self.training_data.dx_dt[:, j])
                     for k in range(num_parameters):
-                        if k != i and k != j:
+                        if k not in (i, j):
                             df_dxj += df_dx[:, k] * \
                                       self.training_data.dx_dt[:, k] / \
                                       self.training_data.dx_dt[:, j]

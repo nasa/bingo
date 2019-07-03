@@ -6,7 +6,7 @@ demanding functions required by the Agraph.
 
 import numpy as np
 
-from . import AGraph
+from .AGraph import IS_ARITY_2_MAP, IS_TERMINAL_MAP
 from . import BackendNodes as Nodes
 
 
@@ -161,7 +161,7 @@ def get_utilized_commands(stack):
         node, param1, param2 = stack[-i]
         if util[-i] and node > 1:
             util[param1] = True
-            if AGraph.IS_ARITY_2_MAP[node]:
+            if IS_ARITY_2_MAP[node]:
                 util[param2] = True
     return util
 
@@ -192,12 +192,12 @@ def simplify_stack(stack):
     for i, (node, param1, param2) in enumerate(stack):
         if used_commands[i]:
             new_stack[j, 0] = node
-            if AGraph.IS_TERMINAL_MAP[node]:
+            if IS_TERMINAL_MAP[node]:
                 new_stack[j, 1] = param1
                 new_stack[j, 2] = param2
             else:
                 new_stack[j, 1] = reduced_param_map[param1]
-                if AGraph.IS_ARITY_2_MAP[node]:
+                if IS_ARITY_2_MAP[node]:
                     new_stack[j, 2] = reduced_param_map[param2]
                 else:
                     new_stack[j, 2] = new_stack[j, 1]

@@ -10,11 +10,8 @@ DETAILED_INFO = 20
 
 try:
     import mpi4py
-    print(mpi4py.get_config())
-    print(dir(mpi4py))
-    print(mpi4py.__version__)
     MPIRANK = mpi4py.MPI.COMM_WORLD.Get_rank()
-except ImportError:
+except ImportError, AttributeError:
     mpi4py = None
 
 

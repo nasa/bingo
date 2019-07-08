@@ -54,10 +54,44 @@ class MpiFilter(logging.Filter):
     """
     This is a filter which filters out messages from auxiliary processes at the
     INFO level
+
+    Parameters
+    ----------
+    add_proc_number : bool (optional)
+        Add processor identifier to multi-processor log messages. default True.
     """
+    def __init__(self, add_proc_number=True):
+        super().__init__()
+        self._add_proc_number = add_proc_number
+
     def filter(self, record):
         if USING_MPI:
             if record.levelno == INFO:
                 return MPIRANK == 0
-            record.msg = "{}>\t".format(MPIRANK) + record.msg
+            if self._add_proc_number:
+                record.msg = "{}>\t".format(MPIRANK) + record.msg
         return True
+
+
+class StatsFilter(logging.Filter):
+    """This is a filter which filters based on the identifier "<stats>" at the
+    beginning of a log message
+
+    Parameters
+    ----------
+    filter_out : bool
+        Whether to filter-out or filter-in stats messages
+    """
+    def __init__(self, filter_out):
+        super().__init__()
+        self._identifier = "<stats>"
+        self._filter_out = filter_out
+
+    def filter(self, record):
+        if record.msg.startswith(self._identifier):
+            if self._filter_out:
+                return False
+            record.msg = record.msg[len(self._identifier):]
+            return True
+        else:
+            return self._filter_out

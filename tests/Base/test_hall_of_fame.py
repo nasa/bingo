@@ -54,9 +54,9 @@ def test_access_hof_like_list(partial_hof):
 
 
 def test_string_output(partial_hof):
-    expected_string = "[DummyIndv(fitness=0, gene=0), " + \
-                      "DummyIndv(fitness=1, gene=1), " + \
-                      "DummyIndv(fitness=2, gene=2)]"
+    expected_string = """0\tDummyIndv(fitness=0, gene=0)
+1\tDummyIndv(fitness=1, gene=1)
+2\tDummyIndv(fitness=2, gene=2)"""
     assert str(partial_hof) == expected_string
 
 

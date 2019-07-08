@@ -7,6 +7,7 @@ from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 import os
 import logging
+from datetime import datetime
 
 import dill
 
@@ -94,17 +95,18 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         OptimizeResult :
             Object containing information about the result of the run
         """
+        start_time = datetime.now()
+        LOGGER.log(INFO, "Starting at generation: %d", self.generational_age)
         self._starting_age = self.generational_age
         self._update_best_fitness()
         self._update_checkpoints(checkpoint_base_name, num_checkpoints,
                                  reset=True)
-        LOGGER.log(INFO, "Starting at generation: %d", self.generational_age)
 
         while self.generational_age - self._starting_age < min_generations:
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
             self._update_checkpoints(checkpoint_base_name, num_checkpoints)
-            LOGGER.log(INFO, "Generation: %d", self.generational_age)
+            self._log_optimization(start_time)
 
         _exit, result = self._check_exit_criteria(fitness_threshold,
                                                   stagnation_generations,
@@ -117,8 +119,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
             self._update_checkpoints(checkpoint_base_name, num_checkpoints)
-            LOGGER.log(DETAILED_INFO, "Generation: %d\tBest fitness: %le",
-                       self.generational_age, self._best_fitness)
+            self._log_optimization(start_time)
 
             _exit, result = self._check_exit_criteria(fitness_threshold,
                                                       stagnation_generations,
@@ -130,6 +131,12 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         result = self._make_optim_result(2, max_generations)
         self._log_exit(result)
         return result
+
+    def _log_optimization(self, start_time):
+        elapsed_time = datetime.now() - start_time
+        LOGGER.log(INFO, "Generation: %d \t Elapsed time: %s \t "
+                         "Best fitness: %le",
+                   self.generational_age, elapsed_time, self._best_fitness)
 
     def _update_best_fitness(self):
         last_best_fitness = self._best_fitness
@@ -213,7 +220,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if self.hall_of_fame is not None:
             LOGGER.log(INFO, "Hall of Fame:\n%s", self.hall_of_fame)
 
-    def evolve(self, num_generations, hall_of_fame_update=True):
+    def evolve(self, num_generations, hall_of_fame_update=True,
+               suppress_logging=False):
         """The function responsible for generational evolution.
 
         Parameters
@@ -223,10 +231,20 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         hall_of_fame_update : bool (optional)
             Used to manually turn on or off the hall of fame update. Default
             True.
+        suppress_logging : bool (optional)
+            Used to manually suppress the logging output of this function
         """
+        start_time = datetime.now()
         self._do_evolution(num_generations)
         if hall_of_fame_update:
             self.update_hall_of_fame()
+        if not suppress_logging:
+            self._log_evolution(start_time)
+
+    def _log_evolution(self, start_time):
+        elapsed_time = datetime.now() - start_time
+        LOGGER.log(DETAILED_INFO, "Evolution time %s\t fitness %.3le",
+                   elapsed_time, self.get_best_fitness())
 
     def update_hall_of_fame(self):
         """Manually update the hall of fame"""

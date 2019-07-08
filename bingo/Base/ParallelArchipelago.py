@@ -6,11 +6,17 @@ multiple processors.
 
 from copy import copy, deepcopy
 import os
+from datetime import datetime
+import logging
+
 import numpy as np
 import dill
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
+from ..Util.Log import DETAILED_INFO
+
+LOGGER = logging.getLogger(__name__)
 
 MPI.pickle.__init__(dill.dumps, dill.loads)
 
@@ -90,7 +96,8 @@ class ParallelArchipelago(Archipelago):
             self._non_blocking_execution(num_steps)
         else:
             self._island.evolve(num_steps,
-                                hall_of_fame_update=False)
+                                hall_of_fame_update=False,
+                                suppress_logging=True)
 
     def _non_blocking_execution(self, num_steps):
         if self.comm_rank == 0:
@@ -105,7 +112,8 @@ class ParallelArchipelago(Archipelago):
 
         while average_age < target_age:
             self._island.evolve(self._sync_frequency,
-                                hall_of_fame_update=False)
+                                hall_of_fame_update=False,
+                                suppress_logging=True)
             self._gather_updated_ages(total_age)
             average_age = (sum(total_age.values())) / self.comm.size
 
@@ -132,7 +140,8 @@ class ParallelArchipelago(Archipelago):
     def _non_blocking_execution_slave(self):
         while not self._has_exit_notification():
             self._island.evolve(self._sync_frequency,
-                                hall_of_fame_update=False)
+                                hall_of_fame_update=False,
+                                suppress_logging=True)
             self._send_updated_age()
         self.comm.Barrier()
 
@@ -148,6 +157,8 @@ class ParallelArchipelago(Archipelago):
         req.Wait()
 
     def _coordinate_migration_between_islands(self):
+        if self.comm_rank == 0:
+            LOGGER.log(DETAILED_INFO, "Performing migration between Islands")
         partner = self._get_migration_partner()
         if partner is not None:
             self._population_exchange_program(partner)
@@ -165,6 +176,7 @@ class ParallelArchipelago(Archipelago):
                 partner = island_partners[partner_index]
             else:
                 partner = None
+            LOGGER.debug("    %d <-> %s", self.comm_rank, str(partner))
         else:
             partner_index = island_index - 1
             partner = island_partners[partner_index]
@@ -183,6 +195,11 @@ class ParallelArchipelago(Archipelago):
                                                  source=partner,
                                                  recvtag=MIGRATION)
         self._island.load_population(received_population, replace=False)
+
+    def _log_evolution(self, start_time):
+        elapsed_time = datetime.now() - start_time
+        LOGGER.log(DETAILED_INFO, "Evolution time %s\t fitness %.3le",
+                   elapsed_time, self._island.get_best_fitness())
 
     def _get_potential_hof_members(self):
         self._island.update_hall_of_fame()

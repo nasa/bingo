@@ -33,8 +33,6 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
     """
     def __init__(self, island, num_islands, hall_of_fame=None):
         super().__init__(hall_of_fame)
-        self.sim_time = 0
-        self.start_time = 0
         self._island = island
         self._num_islands = num_islands
 

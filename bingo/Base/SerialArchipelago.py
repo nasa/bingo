@@ -6,9 +6,10 @@ one processor.
 import copy
 import numpy as np
 import logging
+from datetime import datetime
 
 from .Archipelago import Archipelago
-from ..Util.Log import INFO, DETAILED_INFO
+from ..Util.Log import DETAILED_INFO
 
 LOGGER = logging.getLogger(__name__)
 
@@ -113,6 +114,9 @@ class SerialArchipelago(Archipelago):
         indvs_to_1 = island_2.dump_fraction_of_population(0.5)
         island_1.load_population(indvs_to_1, replace=False)
         island_2.load_population(indvs_to_2, replace=False)
+
+    def _log_evolution(self, start_time):
+        pass
 
     def _get_potential_hof_members(self):
         for island in self._islands:

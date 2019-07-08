@@ -18,7 +18,7 @@ except (ImportError, AttributeError):
     USING_MPI = False
 
 
-def configure_logging(verbosity="normal", module=False, timestamp=False):
+def configure_logging(verbosity="standard", module=False, timestamp=False):
     level = _get_log_level_from_verbosity(verbosity)
     format_string = _get_format_string(module, timestamp)
     logging.basicConfig(level=level, format=format_string)

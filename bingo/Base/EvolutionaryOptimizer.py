@@ -152,17 +152,15 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if checkpoint_base_name is not None:
             checkpoint_file_name = "{}_{}.pkl".format(checkpoint_base_name,
                                                       self.generational_age)
-            LOGGER.log(INFO, "Saving checkpoint: %s", checkpoint_file_name)
             self.dump_to_file(checkpoint_file_name)
-            LOGGER.log(DETAILED_INFO, "Saved successfully")
             if num_checkpoints is not None:
                 self._previous_checkpoints.append(checkpoint_file_name)
                 if len(self._previous_checkpoints) > num_checkpoints:
-                    LOGGER.debug("Removing stale checkpoint file: %s",
-                                 self._previous_checkpoints[0])
                     self._remove_stale_checkpoint()
 
     def _remove_stale_checkpoint(self):
+        LOGGER.debug("Removing stale checkpoint file: %s",
+                     self._previous_checkpoints[0])
         os.remove(self._previous_checkpoints.pop(0))
 
     def _check_exit_criteria(self, fitness_threshold, stagnation_generations,
@@ -321,8 +319,10 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         filename : str
             the name of the pickle file to dump
         """
+        LOGGER.log(INFO, "Saving checkpoint: %s", filename)
         with open(filename, "wb") as dump_file:
             dill.dump(self, dump_file, protocol=dill.HIGHEST_PROTOCOL)
+        LOGGER.log(DETAILED_INFO, "Saved successfully")
 
 
 def load_evolutionary_optimizer_from_file(filename):

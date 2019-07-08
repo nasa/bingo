@@ -111,27 +111,27 @@ def test_predictor_compute_ratios(fitness_predictor_island):
                                   point_evals_main, point_evals_predictor)
 
     # main step
-    fitness_predictor_island.evolve(1)
+    fitness_predictor_island.evolve(1, suppress_logging=True)
     point_evals_main += 2 * point_evals_per_main_step()
     assert_expected_compute_ratio(fitness_predictor_island,
                                   point_evals_main, point_evals_predictor)
 
     # main + predictor
-    fitness_predictor_island.evolve(1)
+    fitness_predictor_island.evolve(1, suppress_logging=True)
     point_evals_main += point_evals_per_main_step()
     point_evals_predictor += point_evals_per_predictor_step()
     assert_expected_compute_ratio(fitness_predictor_island,
                                   point_evals_main, point_evals_predictor)
 
     # main + 2 predictor
-    fitness_predictor_island.evolve(1)
+    fitness_predictor_island.evolve(1, suppress_logging=True)
     point_evals_main += point_evals_per_main_step()
     point_evals_predictor += 2 * point_evals_per_predictor_step()
     assert_expected_compute_ratio(fitness_predictor_island,
                                   point_evals_main, point_evals_predictor)
 
     # main + predictor + trainer update
-    fitness_predictor_island.evolve(1)
+    fitness_predictor_island.evolve(1, suppress_logging=True)
     point_evals_main += point_evals_per_main_step()
     point_evals_predictor += point_evals_per_predictor_step()
     point_evals_predictor += point_evals_per_trainer_update()
@@ -139,7 +139,7 @@ def test_predictor_compute_ratios(fitness_predictor_island):
                                   point_evals_main, point_evals_predictor)
 
     # main + predictor update
-    fitness_predictor_island.evolve(1)
+    fitness_predictor_island.evolve(1, suppress_logging=True)
     point_evals_main += point_evals_per_main_step()
     point_evals_main += point_evals_per_predictor_update()
     assert_expected_compute_ratio(fitness_predictor_island,

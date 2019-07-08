@@ -6,7 +6,6 @@ one processor.
 import copy
 import numpy as np
 import logging
-from datetime import datetime
 
 from .Archipelago import Archipelago
 from ..Util.Log import DETAILED_INFO

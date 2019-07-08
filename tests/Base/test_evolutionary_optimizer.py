@@ -7,6 +7,7 @@ from collections import namedtuple
 
 from bingo.Base.EvolutionaryOptimizer import EvolutionaryOptimizer, \
     load_evolutionary_optimizer_from_file
+from bingo.Base.HallOfFame import HallOfFame
 
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', ])
@@ -32,7 +33,7 @@ class DummyEO(EvolutionaryOptimizer):
         return self.generational_age * 2
 
     def _get_potential_hof_members(self):
-        return DummyIndv(self.best_fitness)
+        return [DummyIndv(self.best_fitness)]
 
 
 @pytest.fixture
@@ -164,7 +165,7 @@ def test_hof_update(mocker):
     eo.evolve(1)
     assert hof.update.call_count == 3
     for call in hof.update.call_args_list:
-        called_with_population = call[0]
+        called_with_population = call[0][0]
         assert len(called_with_population) == 1
         assert called_with_population[0].fitness == 1.0
 
@@ -214,3 +215,11 @@ def test_limited_checkpoint_num(converging_eo):
             os.remove(expected_file_name)
 
 
+def test_hof_integration(converging_eo):
+    hof = HallOfFame(1)
+    eo_w_hof = DummyEO(0.5, hof)
+    _ = eo_w_hof.evolve_until_convergence(max_generations=10,
+                                          convergence_check_frequency=1,
+                                          fitness_threshold=0.126,
+                                          stagnation_generations=10)
+    assert hof[0].fitness == 0.125

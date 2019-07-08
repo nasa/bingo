@@ -14,7 +14,7 @@ import dill
 from mpi4py import MPI
 
 from .Archipelago import Archipelago
-from ..Util.Log import DETAILED_INFO
+from ..Util.Log import INFO, DETAILED_INFO
 
 LOGGER = logging.getLogger(__name__)
 
@@ -232,6 +232,9 @@ class ParallelArchipelago(Archipelago):
         filename : str
             the name of the pickle file to dump
         """
+        if self.comm_rank == 0:
+            LOGGER.log(INFO, "Saving checkpoint: %s", filename)
+
         pickleable_copy = self._copy_without_mpi()
         all_par_archs = self.comm.gather(pickleable_copy, root=0)
 
@@ -239,6 +242,7 @@ class ParallelArchipelago(Archipelago):
             with open(filename, "wb") as dump_file:
                 dill.dump(all_par_archs, dump_file,
                           protocol=dill.HIGHEST_PROTOCOL)
+            LOGGER.log(DETAILED_INFO, "Saved successfully")
 
     def _copy_without_mpi(self):
         no_mpi_copy = copy(self)
@@ -249,6 +253,8 @@ class ParallelArchipelago(Archipelago):
 
     def _remove_stale_checkpoint(self):
         if self.comm_rank == 0:
+            LOGGER.debug("Removing stale checkpoint file: %s",
+                         self._previous_checkpoints[0])
             os.remove(self._previous_checkpoints.pop(0))
 
 
@@ -270,6 +276,7 @@ def load_parallel_archipelago_from_file(filename):
     comm_size = comm.Get_size()
 
     if comm_rank == 0:
+        LOGGER.log(INFO, "Loading checkpoint file: %s", filename)
         with open(filename, "rb") as load_file:
             all_par_archs = dill.load(load_file)
             loaded_size = len(all_par_archs)
@@ -285,4 +292,7 @@ def load_parallel_archipelago_from_file(filename):
     par_arch.comm = comm
     par_arch.comm_rank = comm_rank
     par_arch.comm_size = comm_size
+
+    if comm_rank == 0:
+        LOGGER.log(DETAILED_INFO, "Loaded successfully")
     return par_arch

@@ -19,7 +19,6 @@ from bingo.Base.FitnessFunction import FitnessFunction
 from bingo.Base.ParallelArchipelago import ParallelArchipelago, \
     load_parallel_archipelago_from_file
 
-
 POP_SIZE = 5
 SELECTION_SIZE = 10
 VALUE_LIST_SIZE = 10
@@ -221,6 +220,18 @@ def _add_proc_to_pickle(file_name):
             dill.dump(par_arch_list, pkl_file, protocol=dill.HIGHEST_PROTOCOL)
 
 
+def test_stale_checkpoint_removal():
+    island = num_island(COMM_RANK)
+    archipelago = ParallelArchipelago(island, non_blocking=False)
+    archipelago.evolve_until_convergence(3, -1.0, num_checkpoints=1,
+                                         checkpoint_base_name="stale_check")
+    COMM.barrier()
+    correct_files = [not os.path.isfile("stale_check_0.pkl"),
+                     not os.path.isfile("stale_check_1.pkl"),
+                     not os.path.isfile("stale_check_2.pkl"),
+                     os.path.isfile("stale_check_3.pkl")]
+    return mpi_assert_true(all(correct_files))
+
 # ============================================================================
 
 
@@ -276,7 +287,9 @@ def mpi_assert_mean_near(value, expected_mean, rel=1e-6, abs=None):
 def run_t(test_name, test_func):
     if COMM_RANK == 0:
         print(test_name, end=" ")
+    COMM.barrier()
     success, message = test_func()
+    COMM.barrier()
     if success:
         if COMM_RANK == 0:
             print(".")

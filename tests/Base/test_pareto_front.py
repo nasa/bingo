@@ -46,4 +46,12 @@ def test_update_adds_indvs_properly(full_pf, pop, new_len):
     assert len(full_pf) == new_len
 
 
+def test_string_formatting(full_pf):
+    expected_string = """0\t4\tDummyIndv(fitness=0, gene=0, att1=4, att2=4)
+1\t3\tDummyIndv(fitness=1, gene=1, att1=3, att2=3)
+2\t2\tDummyIndv(fitness=2, gene=2, att1=2, att2=2)
+3\t1\tDummyIndv(fitness=3, gene=3, att1=1, att2=1)
+4\t0\tDummyIndv(fitness=4, gene=4, att1=0, att2=0)"""
+    assert str(full_pf) == expected_string
+
 

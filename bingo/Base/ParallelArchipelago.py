@@ -5,6 +5,7 @@ multiple processors.
 """
 
 from copy import copy, deepcopy
+import os
 import numpy as np
 import dill
 from mpi4py import MPI
@@ -228,6 +229,10 @@ class ParallelArchipelago(Archipelago):
         no_mpi_copy.comm_size = None
         no_mpi_copy.comm_rank = None
         return no_mpi_copy
+
+    def _remove_stale_checkpoint(self):
+        if self.comm_rank == 0:
+            os.remove(self._previous_checkpoints.pop(0))
 
 
 def load_parallel_archipelago_from_file(filename):

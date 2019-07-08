@@ -79,3 +79,7 @@ class ParetoFront(HallOfFame):
             if self._first_dominates(individual, hof_member):
                 dominated_members.append(i)
         return dominated_members
+
+    def __str__(self):
+        return '\n'.join(["{}\t{}\t{}".format(key, self._key_func_2(i), i)
+                          for key, i in zip(self._keys, self._items)])

@@ -5,8 +5,12 @@ one processor.
 """
 import copy
 import numpy as np
+import logging
 
 from .Archipelago import Archipelago
+from ..Util.Log import INFO, DETAILED_INFO
+
+LOGGER = logging.getLogger(__name__)
 
 
 class SerialArchipelago(Archipelago):
@@ -43,6 +47,7 @@ class SerialArchipelago(Archipelago):
             island.evolve(num_steps, hall_of_fame_update=False)
 
     def _coordinate_migration_between_islands(self):
+        LOGGER.log(DETAILED_INFO, "Performing migration between Islands")
         island_partners = self._shuffle_island_indices()
 
         for i in range(self._num_islands//2):
@@ -95,8 +100,11 @@ class SerialArchipelago(Archipelago):
         return indices
 
     def _shuffle_island_and_swap_pairs(self, island_indexes, pair_number):
-        partner_1 = self._islands[island_indexes[pair_number*2]]
-        partner_2 = self._islands[island_indexes[pair_number*2 + 1]]
+        partner_1_index = island_indexes[pair_number * 2]
+        partner_2_index = island_indexes[pair_number * 2 + 1]
+        LOGGER.debug("    %d <-> %d", partner_1_index, partner_2_index)
+        partner_1 = self._islands[partner_1_index]
+        partner_2 = self._islands[partner_2_index]
         self._population_exchange_program(partner_1, partner_2)
 
     @staticmethod

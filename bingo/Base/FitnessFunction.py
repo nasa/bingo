@@ -105,8 +105,8 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @staticmethod
     def _root_mean_squared_error(vector):
-        return np.sqrt(np.mean(vector**2))
+        return np.sqrt(np.mean(np.square(vector)))
 
     @staticmethod
     def _mean_squared_error(vector):
-        return np.mean(vector**2)
+        return np.mean(np.square(vector))

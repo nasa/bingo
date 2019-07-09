@@ -28,6 +28,10 @@ class ExplicitRegression(VectorBasedFunction):
     ----------
     training_data : ExplicitTrainingData
                     data that is used in fitness evaluation.
+    metric : str
+        String defining the measure of error to use. Available options are:
+        'mean absolute error', 'mean squared error', and
+        'root mean squared error'
     """
     def evaluate_fitness_vector(self, individual):
         self.eval_count += 1

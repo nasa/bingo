@@ -18,12 +18,17 @@ except (ImportError, AttributeError):
     USING_MPI = False
 
 
-def configure_logging(verbosity="standard", module=False, timestamp=False):
-    level = _get_log_level_from_verbosity(verbosity)
-    format_string = _get_format_string(module, timestamp)
-    logging.basicConfig(level=level, format=format_string)
+def configure_logging(verbosity="standard", module=False, timestamp=False,
+                      stats_file=None):
     root_logger = logging.getLogger()
-    root_logger.handlers[0].addFilter(MpiFilter())
+
+    level = _get_log_level_from_verbosity(verbosity)
+    console_handler = _make_console_handler(level, module, timestamp)
+    root_logger.addHandler(console_handler)
+
+    if stats_file is not None:
+        stats_file_handler = _make_stats_file_handler()
+        root_logger.addHandler(stats_file_handler)
 
 
 def _get_log_level_from_verbosity(verbosity):
@@ -41,13 +46,38 @@ def _get_log_level_from_verbosity(verbosity):
         return INFO
 
 
-def _get_format_string(module, timestamp):
+def _make_console_handler(level, module, timestamp):
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+
+    format_string = _get_console_format_string(module, timestamp)
+    formatter = logging.Formatter(format_string)
+    console_handler.setFormatter(formatter)
+
+    console_handler.addFilter(StatsFilter(filter_out=True))
+    console_handler.addFilter(MpiFilter())
+    return console_handler
+
+
+def _get_console_format_string(module, timestamp):
     format_string = "%(message)s"
     if module:
         format_string = "%(module)s\t" + format_string
     if timestamp:
         format_string = "%(asctime)s\t" + format_string
     return format_string
+
+
+def _make_stats_file_handler():
+    file_handler = logging.FileHandler('spam.log')
+    file_handler.setLevel(INFO)
+
+    formatter = logging.Formatter("%(message)s")
+    file_handler.setFormatter(formatter)
+
+    file_handler.addFilter(StatsFilter(filter_out=False))
+    file_handler.addFilter(MpiFilter())
+    return file_handler
 
 
 class MpiFilter(logging.Filter):
@@ -84,14 +114,9 @@ class StatsFilter(logging.Filter):
     """
     def __init__(self, filter_out):
         super().__init__()
-        self._identifier = "<stats>"
         self._filter_out = filter_out
 
     def filter(self, record):
-        if record.msg.startswith(self._identifier):
-            if self._filter_out:
-                return False
-            record.msg = record.msg[len(self._identifier):]
-            return True
-        else:
-            return self._filter_out
+        if "stats" in record.__dict__:
+            return not (self._filter_out == record.stats)
+        return self._filter_out

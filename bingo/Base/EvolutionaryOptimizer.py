@@ -15,6 +15,7 @@ from ..Util.ArgumentValidation import argument_validation
 from ..Util.Log import INFO, DETAILED_INFO
 
 LOGGER = logging.getLogger(__name__)
+STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
 
 OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
                                                'ngen', 'fitness'])
@@ -96,11 +97,11 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             Object containing information about the result of the run
         """
         start_time = datetime.now()
-        LOGGER.log(INFO, "Starting at generation: %d", self.generational_age)
         self._starting_age = self.generational_age
         self._update_best_fitness()
         self._update_checkpoints(checkpoint_base_name, num_checkpoints,
                                  reset=True)
+        self._log_optimization(start_time)
 
         while self.generational_age - self._starting_age < min_generations:
             self.evolve(convergence_check_frequency)
@@ -137,6 +138,9 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         LOGGER.log(INFO, "Generation: %d \t Elapsed time: %s \t "
                          "Best fitness: %le",
                    self.generational_age, elapsed_time, self._best_fitness)
+        STATS_LOGGER.log(INFO, "%d, %le, %le",
+                         self.generational_age, elapsed_time.total_seconds(),
+                         self._best_fitness)
 
     def _update_best_fitness(self):
         last_best_fitness = self._best_fitness

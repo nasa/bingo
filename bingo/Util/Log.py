@@ -20,15 +20,30 @@ except (ImportError, AttributeError):
 
 def configure_logging(verbosity="standard", module=False, timestamp=False,
                       stats_file=None):
-    root_logger = logging.getLogger()
-
     level = _get_log_level_from_verbosity(verbosity)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
     console_handler = _make_console_handler(level, module, timestamp)
     root_logger.addHandler(console_handler)
 
     if stats_file is not None:
-        stats_file_handler = _make_stats_file_handler()
+        stats_file_handler = _make_stats_file_handler(stats_file)
         root_logger.addHandler(stats_file_handler)
+
+
+def _make_console_handler(level, module, timestamp):
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+
+    format_string = _get_console_format_string(module, timestamp)
+    formatter = logging.Formatter(format_string)
+    console_handler.setFormatter(formatter)
+
+    console_handler.addFilter(StatsFilter(filter_out=True))
+    console_handler.addFilter(MpiFilter())
+    return console_handler
 
 
 def _get_log_level_from_verbosity(verbosity):
@@ -46,19 +61,6 @@ def _get_log_level_from_verbosity(verbosity):
         return INFO
 
 
-def _make_console_handler(level, module, timestamp):
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-
-    format_string = _get_console_format_string(module, timestamp)
-    formatter = logging.Formatter(format_string)
-    console_handler.setFormatter(formatter)
-
-    console_handler.addFilter(StatsFilter(filter_out=True))
-    console_handler.addFilter(MpiFilter())
-    return console_handler
-
-
 def _get_console_format_string(module, timestamp):
     format_string = "%(message)s"
     if module:
@@ -68,8 +70,8 @@ def _get_console_format_string(module, timestamp):
     return format_string
 
 
-def _make_stats_file_handler():
-    file_handler = logging.FileHandler('spam.log')
+def _make_stats_file_handler(stats_file):
+    file_handler = logging.FileHandler(stats_file)
     file_handler.setLevel(INFO)
 
     formatter = logging.Formatter("%(message)s")

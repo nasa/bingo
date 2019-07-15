@@ -138,7 +138,11 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         LOGGER.log(INFO, "Generation: %d \t Elapsed time: %s \t "
                          "Best fitness: %le",
                    self.generational_age, elapsed_time, self._best_fitness)
-        STATS_LOGGER.log(INFO, "%d, %le, %le",
+        hof_string = ""
+        if self.hall_of_fame is not None:
+            for i in self.hall_of_fame:
+                hof_string += ", %le" % i.fitness
+        STATS_LOGGER.log(INFO, "%d, %le, %le" + hof_string,
                          self.generational_age, elapsed_time.total_seconds(),
                          self._best_fitness)
 

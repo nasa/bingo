@@ -87,7 +87,11 @@ class FitnessPredictorIsland(Island):
                  trainer_population_size=16, trainer_update_frequency=50,
                  hall_of_fame=None):
         super().__init__(evolution_algorithm, generator, population_size,
-                         hall_of_fame)
+                         None)
+
+        self._hof_w_true_fitness = hall_of_fame
+        self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
+        self._potential_hof_members = {}
 
         self._fitness_function = self._ea.evaluation.fitness_function
         self._full_training_data = copy(self._fitness_function.training_data)
@@ -107,8 +111,14 @@ class FitnessPredictorIsland(Island):
         self._predictor_island = self._make_predictor_island()
         self._update_to_use_best_fitness_predictor()
 
+    @property
+    def hall_of_fame(self):
+        return self._hof_w_true_fitness
+
+    @hall_of_fame.setter
+    def hall_of_fame(self, hall_of_fame):
+        self._hof_w_true_fitness = hall_of_fame
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
-        self._potential_hof_members = {}
 
     def _execute_generational_step(self):
         LOGGER.debug("I> " + str(self.generational_age + 1))
@@ -133,7 +143,7 @@ class FitnessPredictorIsland(Island):
                                                      self._predictor_size)
         predictor_island = Island(predictor_ea, generator,
                                   self._predictor_population_size)
-        predictor_island.evolve(1)
+        predictor_island.evolve(1, suppress_logging=True)
         return predictor_island
 
     def _make_predictor_ea(self, index_generator):
@@ -150,7 +160,7 @@ class FitnessPredictorIsland(Island):
                < self._target_predictor_computation_ratio):
             LOGGER.debug("P> " +
                          str(self._predictor_island.generational_age + 1))
-            self._predictor_island.evolve(1)
+            self._predictor_island.evolve(1, suppress_logging=True)
 
     def _update_predictor_if_needed(self):
         if self.generational_age % self._predictor_update_frequency == 0:

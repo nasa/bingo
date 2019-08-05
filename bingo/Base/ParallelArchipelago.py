@@ -138,6 +138,7 @@ class ParallelArchipelago(Archipelago):
             req.Wait()
 
     def _non_blocking_execution_slave(self):
+        self._send_updated_age()
         while not self._has_exit_notification():
             self._island.evolve(self._sync_frequency,
                                 hall_of_fame_update=False,
@@ -198,8 +199,9 @@ class ParallelArchipelago(Archipelago):
 
     def _log_evolution(self, start_time):
         elapsed_time = datetime.now() - start_time
-        LOGGER.log(DETAILED_INFO, "Evolution time %s\t fitness %.3le",
-                   elapsed_time, self._island.get_best_fitness())
+        LOGGER.log(DETAILED_INFO, "Evolution time %s\t age %d\t fitness %.3le",
+                   elapsed_time, self._island.generational_age,
+                   self.get_best_fitness())
 
     def _get_potential_hof_members(self):
         self._island.update_hall_of_fame()

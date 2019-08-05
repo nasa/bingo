@@ -145,7 +145,6 @@ def test_all_but_one_removed_large_selection_size(strong_population,
 
     assert len(new_population) == target_pop_size
     assert new_population[0].values == [True]
-    assert age_fitness_selection._selection_attempts == 2
 
 
 def test_all_removed_in_one_iteration(weak_individual,
@@ -161,7 +160,6 @@ def test_all_removed_in_one_iteration(weak_individual,
 
     assert len(new_population) == target_pop_size
     assert new_population[0].values == [True]
-    assert age_fitness_selection._selection_attempts == 1
 
 
 def test_selection_size_larger_than_population(weak_population, fit_individual,
@@ -175,7 +173,6 @@ def test_selection_size_larger_than_population(weak_population, fit_individual,
     new_population = age_fitness_selection(population, target_pop_size)
 
     assert len(new_population) == target_pop_size
-    assert age_fitness_selection._selection_attempts == 1
     count = 1
     for indv in new_population:
         if not any(indv.values):
@@ -227,14 +224,3 @@ def test_age_fitness_ea_step(pareto_front_population, onemax_evaluator,
                            selection_size=2*len(population))
     new_population = evo_alg.generational_step(population)
     assert len(new_population) == len(population)
-
-
-def test_get_pareto_front(pareto_front_population,
-                          selected_indiviudals,
-                          onemax_evaluator):
-    selection = AgeFitness()
-    population = pareto_front_population + selected_indiviudals
-    onemax_evaluator(population)
-    new_population = selection.select_pareto_front(population)
-    assert collections.Counter(new_population) == \
-    collections.Counter(pareto_front_population)

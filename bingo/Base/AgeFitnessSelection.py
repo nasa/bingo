@@ -61,79 +61,72 @@ class AgeFitness(Selection):
 
         num_removed = 0
         start_pop_size = len(population)
-        self._population_index_array = np.random.permutation(len(population))
+        target_removal = start_pop_size - target_population_size
 
-        self._selection_attempts = 0
-        while (start_pop_size - num_removed) > target_population_size and \
-              self._selection_attempts < \
-              start_pop_size * self.WORST_CASE_FACTOR:
+        selection_attempts = 0
+        while num_removed < target_removal and \
+                selection_attempts < start_pop_size * self.WORST_CASE_FACTOR:
 
-            self._get_unique_random_individuals(population,
-                                                self._selection_size,
-                                                num_removed)
-            removed_indv_indexs = self._get_individuals_for_removal(
-                population, target_population_size, num_removed)
-            num_removed = self._remove_indviduals(removed_indv_indexs,
-                                                  num_removed)
-            self._selection_attempts += 1
+            inds = self._get_unique_rand_indices(start_pop_size - num_removed)
+            to_remove = self._find_inds_for_removal(inds, population,
+                                                    target_removal - num_removed)
+            self._swap_removals_to_end(population, to_remove, num_removed)
 
-        return self._update_population(population, num_removed)
+            num_removed += len(to_remove)
+            selection_attempts += 1
 
-    def select_pareto_front(self, population):
-        """Selects the pareto front for the `population`
+        new_pop_size = start_pop_size - num_removed
+        return population[:new_pop_size]
 
-        Parameters
-        ----------
-            population: list of Chromosomes
-                The population to which the pareto front individuals will be
-                selected from.
+    def _get_unique_rand_indices(self, max_int):
+        if self._selection_size >= max_int:
+            return list(range(max_int))
+        elif self._selection_size < 5:
+            return self._dumb_selection(max_int)
+        else:
+            return np.random.choice(max_int, self._selection_size,
+                                    replace=False)
 
-        Returns
-        -------
-            list of Chromosomes:
-                The Chromosomes in the pareto front.
-        """
-        num_removed = 0
-        self._population_index_array = np.random.permutation(len(population))
+    def _dumb_selection(self, max_int):
+        inds = set(np.random.randint(max_int, size=self._selection_size))
+        while len(inds) < self._selection_size:
+            inds.add(np.random.randint(max_int))
+        return list(inds)
 
-        self._get_unique_random_individuals(population,
-                                            len(population),
-                                            num_removed)
-        removed_indv_indexs = self._get_individuals_for_removal(
-            population, 1, num_removed)
-        num_removed = self._remove_indviduals(removed_indv_indexs, num_removed)
+    def _find_inds_for_removal(self, inds, population, num_removals_needed):
+        if self._selection_size == 2:
+            return self._streamlined_pair_removal(inds[0], inds[1], population)
 
-        return self._update_population(population, num_removed)
-
-    def _get_unique_random_individuals(self,
-                                       population,
-                                       selection_size,
-                                       num_removed):
-        selection_size = min(selection_size, len(population) - num_removed)
-        for i in range(num_removed, num_removed + selection_size):
-            random_index = np.random.randint(i, len(population))
-            if i != random_index:
-                self._swap(self._population_index_array, i, random_index)
-        self._selected_indices = range(num_removed,
-                                       num_removed + selection_size)
-
-    # TODO look into optimizing. Possibly greedy approach
-    def _get_individuals_for_removal(self, population,
-                                     target_population_size, num_removed):
         to_be_removed = set()
-        num_remaining = len(population) - num_removed
-        for i, indv_index_1 in enumerate(self._selected_indices[:-1]):
-            for indv_index_2 in self._selected_indices[i+1:]:
-                self._update_removal_set(population, indv_index_1,
-                                         indv_index_2, to_be_removed)
-                if num_remaining - len(to_be_removed) == target_population_size:
-                    return to_be_removed
-        return to_be_removed
+        for i, ind_a in enumerate(inds[:-1]):
+            if ind_a not in to_be_removed:
+                for ind_b in inds[i+1:]:
+                    if ind_b not in to_be_removed:
+                        self._update_removal_set(population, ind_a, ind_b,
+                                                 to_be_removed)
+                        if len(to_be_removed) >= num_removals_needed:
+                            return list(to_be_removed)
+        return list(to_be_removed)
+
+    def _streamlined_pair_removal(self, indv_index_1, indv_index_2,
+                                  population):
+        indv_1 = population[indv_index_1]
+        indv_2 = population[indv_index_2]
+
+        if np.isnan(indv_1.fitness):
+            return [indv_index_1]
+        elif np.isnan(indv_2.fitness):
+            return [indv_index_2]
+        elif self._first_not_dominated(indv_1, indv_2):
+            return [indv_index_2]
+        elif self._first_not_dominated(indv_2, indv_1):
+            return [indv_index_1]
+        return []
 
     def _update_removal_set(self, population, indv_index_1,
                             indv_index_2, removal_set):
-        indv_1 = self._get_indvidual(population, indv_index_1)
-        indv_2 = self._get_indvidual(population, indv_index_2)
+        indv_1 = population[indv_index_1]
+        indv_2 = population[indv_index_2]
 
         if np.isnan(indv_1.fitness):
             removal_set.add(indv_index_1)
@@ -144,32 +137,15 @@ class AgeFitness(Selection):
         elif self._first_not_dominated(indv_2, indv_1):
             removal_set.add(indv_index_1)
 
-    def _get_indvidual(self, population, index):
-        population_list_index = self._population_index_array[index]
-        return population[population_list_index]
-
     @staticmethod
     def _first_not_dominated(first_indv, second_indv):
         return not (first_indv.genetic_age > second_indv.genetic_age or
                     first_indv.fitness > second_indv.fitness)
 
-    def _remove_indviduals(self, to_remove_list, num_removed):
-        while to_remove_list:
-            selection_index = to_remove_list.pop()
-            if num_removed in to_remove_list:
-                to_remove_list.remove(num_removed)
-                to_remove_list.add(selection_index)
-            self._swap(self._population_index_array,
-                       num_removed, selection_index)
-            num_removed += 1
-        return num_removed
+    def _swap_removals_to_end(self, population, inds_to_remove, num_removed):
+        for i, ind in enumerate(sorted(inds_to_remove, reverse=True)):
+            self._swap(population, ind, -(i+num_removed+1))
 
     @staticmethod
     def _swap(array, index_1, index_2):
         array[index_1], array[index_2] = array[index_2], array[index_1]
-
-    def _update_population(self, population, num_removed):
-        new_population = [self._get_indvidual(population, kept_index)
-                          for kept_index
-                          in range(num_removed, len(population))]
-        return new_population

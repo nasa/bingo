@@ -5,6 +5,7 @@ selection algorithm in bingo analyses. The next generation
 is selected by pairing parents with their offspring and
 advancing the most fit of the two.
 """
+import numpy as np
 from .Selection import Selection
 
 
@@ -58,4 +59,8 @@ class DeterministicCrowdingSelection(Selection):
 
     @staticmethod
     def _return_most_fit(child, parent):
+        if np.isnan(parent.fitness):
+            return child
+        if np.isnan(child.fitness):
+            return parent
         return child if child.fitness < parent.fitness else parent

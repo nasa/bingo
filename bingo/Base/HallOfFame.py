@@ -11,6 +11,7 @@ slicing, iterating and retrieving its length.
 
 from bisect import bisect_right
 from copy import deepcopy
+import numpy as np
 
 
 class HallOfFame:
@@ -78,6 +79,8 @@ class HallOfFame:
 
     def _item_should_be_added(self, item):
         item_key = self._key_func(item)
+        if np.isnan(item_key):
+            return False
         if not self:
             return True
         if item_key <= self._keys[-1] or len(self) < self._max_size:

@@ -4,6 +4,7 @@ non-dominated individuals.  An individual dominates another if all of it's keys
 are not worse and at least one is better (smaller) than the other's keys.
 """
 from bingo.Base.HallOfFame import HallOfFame
+import numpy as np
 
 
 class ParetoFront(HallOfFame):
@@ -51,6 +52,9 @@ class ParetoFront(HallOfFame):
                 self.insert(indv)
 
     def _not_dominated(self, individual):
+        if np.isnan(self._key_func(individual)) or \
+                np.isnan(self._key_func_2(individual)):
+            return False
         for hof_member in self:
             if self._first_dominates(hof_member, individual):
                 return False

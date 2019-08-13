@@ -18,7 +18,7 @@ LOGGER = logging.getLogger(__name__)
 STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
 
 OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
-                                               'ngen', 'fitness'])
+                                               'ngen', 'fitness', 'time'])
 
 
 class EvolutionaryOptimizer(metaclass=ABCMeta):
@@ -111,7 +111,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
         _exit, result = self._check_exit_criteria(fitness_threshold,
                                                   stagnation_generations,
-                                                  max_fitness_evaluations)
+                                                  max_fitness_evaluations,
+                                                  start_time)
         if _exit:
             self._log_exit(result)
             return result
@@ -124,12 +125,13 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
             _exit, result = self._check_exit_criteria(fitness_threshold,
                                                       stagnation_generations,
-                                                      max_fitness_evaluations)
+                                                      max_fitness_evaluations,
+                                                      start_time)
             if _exit:
                 self._log_exit(result)
                 return result
 
-        result = self._make_optim_result(2, max_generations)
+        result = self._make_optim_result(2, start_time, max_generations)
         self._log_exit(result)
         return result
 
@@ -172,13 +174,16 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         os.remove(self._previous_checkpoints.pop(0))
 
     def _check_exit_criteria(self, fitness_threshold, stagnation_generations,
-                             max_fitness_evaluations):
+                             max_fitness_evaluations, start_time):
         if self._convergence(fitness_threshold):
-            return True, self._make_optim_result(0, fitness_threshold)
+            return True, self._make_optim_result(0, start_time,
+                                                 fitness_threshold)
         if self._stagnation(stagnation_generations):
-            return True, self._make_optim_result(1, stagnation_generations)
+            return True, self._make_optim_result(1, start_time,
+                                                 stagnation_generations)
         if self._hit_max_evals(max_fitness_evaluations):
-            return True, self._make_optim_result(3, max_fitness_evaluations)
+            return True, self._make_optim_result(3, start_time,
+                                                 max_fitness_evaluations)
         return False, None
 
     def _convergence(self, threshold):
@@ -195,8 +200,9 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             return False
         return self.get_fitness_evaluation_count() >= threshold
 
-    def _make_optim_result(self, status, aux_info):
+    def _make_optim_result(self, status, start_time, aux_info):
         ngen = self.generational_age - self._starting_age
+        run_time = (start_time - datetime.now()).total_seconds()
         if status == 0:
             message = "Absolte convergence occurred with best fitness < " + \
                       "{}".format(aux_info)
@@ -215,7 +221,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                       "evals: {}".format(self.get_fitness_evaluation_count())
             success = False
         return OptimizeResult(success, status, message, ngen,
-                              self._best_fitness)
+                              self._best_fitness, run_time)
 
     def _log_exit(self, result):
         if result.success:

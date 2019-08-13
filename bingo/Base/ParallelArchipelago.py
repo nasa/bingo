@@ -261,7 +261,7 @@ class ParallelArchipelago(Archipelago):
 
 
 def load_parallel_archipelago_from_file(filename):
-    """ Load an ParallelArchipelago objects from a pickle file
+    """ Load a ParallelArchipelago objects from a pickle file
 
     Parameters
     ----------

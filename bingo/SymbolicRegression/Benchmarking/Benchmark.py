@@ -6,64 +6,115 @@ import numpy as np
 
 from ..ExplicitRegression import ExplicitTrainingData
 
+
 class Benchmark:
     """ The class containing the information required to run a benchmark
 
     Parameters
     ----------
-    name : string
-        The name of the benchmark
-    objective_function : string
-        The target function of the benchmark
-    train_set : list of ints 
-        [start, stop, number_of_points] of the desired training set
-    has_test_set : bool
-        True if benchmark has a test set, false otherwise
+    name : str
+        Name of the benchmark
+    description : str
+        Description of the benchmark problem
+    source : str
+        Source of the benchmark problem
+    training_x : numpy array
+        independent variable(s) used in training. Features
+    training_y : numpy array
+        dependent variable used in training. Labels
+    test_x : numpy array
+        independent variable(s) used in testing.  Features
+    test_y : numpy array
+        dependent variable used in testing. Labels
+    extra_info : dict (optional)
+        extra information used to categorize the benchmark.  This should be a
+        dictionary with string keys describing the context of the extra info.
     """
-    def __init__(self, name, objective_function, train_set, has_test_set=False):
+    def __init__(self, name, description, source, training_x, training_y,
+                 test_x, test_y, extra_info=None):
         self.name = name
-        self.objective_function = objective_function
-        self._has_test_set = has_test_set
-        self.train_set = train_set
-        self.test_set = []
-        self.make_training_data()
+        self.description = description
+        self.source = source
+        self.training_data = self._make_data(training_x, training_y)
+        self.test_data = self._make_data(test_x, test_y)
+        self.x_dim = self.training_data.x.shape[1]
+        self.extra_info = {} if extra_info is None else extra_info
 
-    def equation_eval(self, x):
-        """Evaluates the target function of a benchmark at some number x
+    @staticmethod
+    def _make_data(x, y):
+        return ExplicitTrainingData(x, y)
 
-        Parameters
-        ----------
-        x : float
-            The input variable at which to evaluate the target function
-        """
-        return eval(self.objective_function)
 
-    def make_training_data(self):
-        """Makes an ExplicitTrainingData object for training data
-        """
-        np.random.seed(42)
-        start = self.train_set[0]
-        stop = self.train_set[1]
-        num_points = self.train_set[2]
-        x = self._init_x_vals(start, stop, num_points)
-        y = self.equation_eval(x)
-        noise = np.random.normal(0, 0.1, num_points)
-        noise = noise.reshape((-1, 1))
-        y = np.add(y, noise)
-        data = ExplicitTrainingData(x, y)
-        if self._has_test_set:
-            self._make_test_set(data, 0.2)
+class AnalyticBenchmark(Benchmark):
+    """ The class containing the info required to run an analytic benchmark
+
+    Parameters
+    ----------
+    name : str
+        Name of the benchmark
+    description : str
+        Description of the benchmark problem
+    source : str
+        Source of the benchmark problem
+    x_dimension : int
+        The dimension of the independent variable x
+    evaluation_function : callable function
+        A function f that returns y = f(x)
+    training_x_distribution : tuple or list(tuple)
+        A tuple or list of tuples describing the distribution from which the
+        training x data is drawn.  The tuples should be in the format
+        ("E", a, b, c) or ("U", d, e, f). Where the first example describes
+        evenly distributed data points on the interval [a, b] with increment c
+        between them.  The second example describes f data points drawn from a
+        random uniform distribution on the interval [d, e].
+    test_x_distribution:tuple or list(tuple)
+        A tuple or list of tuples describing the distribution from which the
+        test x data is drawn.
+    extra_info : dict (optional)
+        extra information used to categorize the benchmark.  This should be a
+        dictionary with string keys describing the context of the extra info.
+    """
+
+    def __init__(self, name, description, source, x_dimension,
+                 evaluation_function, training_x_distribution,
+                 test_x_distribution, extra_info=None):
+        self._x_dim = x_dimension
+        training_x = self._get_x_from_distribution(training_x_distribution)
+        training_y = evaluation_function(training_x)
+        test_x = self._get_x_from_distribution(test_x_distribution)
+        test_y = evaluation_function(test_x)
+
+        super().__init__(name, description, source, training_x, training_y,
+                         test_x, test_y, extra_info)
+
+    def _get_x_from_distribution(self, distribution):
+        np.random.seed(0)
+        if isinstance(distribution, list):
+            if len(distribution) != self._x_dim:
+                raise RuntimeError("List style benchmark distributions must "
+                                   "match x dimension")
+            data = [self._parse_distribution(dist) for dist in distribution]
         else:
-            self.train_set = data
-            self.test_set = []
+            data = [self._parse_distribution(distribution)
+                    for _ in range(self._x_dim)]
+        np.random.seed()
+        return np.hstack(data)
 
-    def _make_test_set(self, data, test_ratio):
-        shuffled_indices = np.random.permutation(len(data))
-        test_set_size = int(len(data) * test_ratio)
-        test_indices = shuffled_indices[:test_set_size]
-        train_indices = shuffled_indices[test_set_size:]
-        self.train_set = data.__getitem__(train_indices)
-        self.test_set = data.__getitem__(test_indices)
+    @staticmethod
+    def _parse_distribution(dist):
+        if dist[0] == "E":
+            return AnalyticBenchmark._evenly_spaced_data(dist[1], dist[2],
+                                                         dist[3])
+        if dist[0] == "U":
+            return AnalyticBenchmark._uniform_data(dist[1], dist[2], dist[3])
 
-    def _init_x_vals(self, start, stop, num_points):
-        return np.linspace(start, stop, num_points).reshape([-1, 1])
+        raise KeyError("benchmark distribution type {} not defined".format(
+                dist[0]))
+
+    @staticmethod
+    def _evenly_spaced_data(low, high, increment):
+        return np.arange(low, high+increment, increment).reshape((-1, 1))
+
+    @staticmethod
+    def _uniform_data(low, high, num_data_points):
+        return np.random.uniform(low, high, num_data_points).reshape((-1, 1))

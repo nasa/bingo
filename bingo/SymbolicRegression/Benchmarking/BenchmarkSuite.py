@@ -2,32 +2,18 @@
 This Benchmark Suite module contains symbolic regression benchmarks
 drawn from 'Genetic Programming Needs Better Benchmarks', (McDermott et al.).
 """
-from .Benchmark import Benchmark
+from . import BenchmarkDefinitions
 
-"""
-========  ============  ======================================
-Number    Name          Objective Function
-========  ============  ======================================
-0         koza_1        x**4 + x**3 + x**2 + x
-1         koza_2        x**5 - 2*x**3 + x
-2         koza_3        x**6 - 2*x**4 + x**2
-3         nguyen_1      x**3 + x**2 + x
-4         nguyen_3      x**5 + x**4 + x**3 + x**2 + x
-5         nguyen_4      x**6 + x**5 + x**4 + x**3 + x**2 + x
-6         nguyen_5      np.sin(x**2)*np.cos(x) - 1
-7         nguyen_6      np.sin(x) + np.sin(x + x**2)
-8         nguyen_8      np.sqrt(x)
-========  ============  ======================================
-"""
+
 class BenchmarkSuite:
     """Contains 9 Benchmarks (listed above) to measure
     performance of Bingo
 
     Parameters
     ----------
-    include : list of ints
+    include : list of str
         The indices of which Benchmarks to include
-    exclude : list of ints
+    exclude : list of str
         The indices of which Benchmarks to exclude. Default is none
 
     Attributes
@@ -40,44 +26,50 @@ class BenchmarkSuite:
         `include` and/or `exclude`
 
     """
-    def __init__(self, include=[0, 1, 2, 3, 4, 5, 6, 7, 8], exclude=[]):
-        self.include = include
-        self.exclude = exclude
-        self.benchmarks_dict = \
-            {0: {'name':'koza_1', \
-            'function':'x**4 + x**3 + x**2 + x', \
-            'train_set': [-10, 10, 100], 'test_set':False}, \
-            1: {'name':'koza_2', \
-            'function':'x**5 - 2*x**3 + x', \
-            'train_set': [-10, 10, 100], 'test_set':False}, \
-            2: {'name':'koza_3', \
-            'function':'x**6 - 2*x**4 + x**2', \
-            'train_set': [-10, 10, 100],'test_set':False}, \
-            3: {'name':'nguyen_1', \
-            'function':'x**3 + x**2 + x', \
-            'train_set': [-10, 10, 100],'test_set':False}, \
-            4: {'name':'nguyen_3', \
-            'function':'x**5 + x**4 + x**3 + x**2 + x', \
-            'train_set': [-10, 10, 100],'test_set':False}, \
-            5: {'name':'nguyen_4', \
-            'function':'x**6 + x**5 + x**4 + x**3 + x**2 + x', \
-            'train_set': [-10, 10, 100], 'test_set':False}, \
-            6: {'name':'nguyen_5', \
-            'function':'np.sin(x**2)*np.cos(x) - 1', \
-            'train_set': [-10, 10, 100], 'test_set':False}, \
-            7: {'name':'nguyen_6', \
-            'function':'np.sin(x) + np.sin(x + x**2)', \
-            'train_set': [-10, 10, 100], 'test_set':False}, \
-            8: {'name':'nguyen_8', \
-            'function':'np.sqrt(x)', \
-            'train_set': [0, 10, 100], 'test_set':True}}
-        self.benchmarks = self._init_benchmarks()
+    def __init__(self, inclusive_terms=None, exclusive_terms=None):
+        self._benchmarks = self._find_all_benchmarks()
+        if inclusive_terms is not None:
+            self._filter_inclusive(inclusive_terms)
+        if exclusive_terms is not None:
+            self._filter_exclusive(exclusive_terms)
 
-    def _init_benchmarks(self):
-        if len(self.exclude) > 0:
-            self.include = [i for i in self.include if i not in self.exclude]
-        return [Benchmark(self.benchmarks_dict[i]['name'], \
-                self.benchmarks_dict[i]['function'], \
-                self.benchmarks_dict[i]['train_set'], \
-                has_test_set=self.benchmarks_dict[i]['test_set']) \
-                    for i in self.include]
+    @staticmethod
+    def _find_all_benchmarks():
+        all_benchmarks = \
+            [f() for name, f in BenchmarkDefinitions.__dict__.items()
+             if callable(f) and name.startswith("bench")]
+        return all_benchmarks
+
+    def _filter_inclusive(self, terms):
+        new_benchmark_list = [bench for bench in self._benchmarks
+                              if BenchmarkSuite._has_terms(bench.name, terms)]
+        self._benchmarks = new_benchmark_list
+
+    @staticmethod
+    def _has_terms(name, terms):
+        for term in terms:
+            if term not in name:
+                return False
+        return True
+
+    def _filter_exclusive(self, terms):
+        new_benchmark_list = [bench for bench in self._benchmarks
+                              if BenchmarkSuite._hasnt_terms(bench.name,
+                                                               terms)]
+        self._benchmarks = new_benchmark_list
+
+    @staticmethod
+    def _hasnt_terms(name, terms):
+        for term in terms:
+            if term in name:
+                return False
+        return True
+
+    def __len__(self):
+        return len(self._benchmarks)
+
+    def __getitem__(self, i):
+        return self._benchmarks[i]
+
+    def __iter__(self):
+        return iter(self._benchmarks)

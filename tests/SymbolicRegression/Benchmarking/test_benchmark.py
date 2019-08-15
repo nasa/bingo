@@ -68,3 +68,15 @@ def test_analytic_benchmark_propper_eval():
                           test_x_distribution=dist)
     np.testing.assert_array_almost_equal(a.training_data.y,
                                          np.array([[3], [5], [7]]))
+
+
+def test_analytic_benchmark_doesnt_set_consistent_random_seed():
+    dist = ("U", 1, 3, 3)
+    _ = AnalyticBenchmark("name", "description", "source", 2, sample_eval_func,
+                          dist, dist)
+    first_rand = np.random.random((2, 2))
+    _ = AnalyticBenchmark("name", "description", "source", 2, sample_eval_func,
+                          dist, dist)
+    second_rand = np.random.random((2, 2))
+
+    assert np.linalg.norm(first_rand - second_rand) > 1e-6

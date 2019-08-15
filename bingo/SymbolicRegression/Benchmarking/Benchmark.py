@@ -79,9 +79,13 @@ class AnalyticBenchmark(Benchmark):
                  evaluation_function, training_x_distribution,
                  test_x_distribution, extra_info=None):
         self._x_dim = x_dimension
+
+        np.random.seed(0)
         training_x = self._get_x_from_distribution(training_x_distribution)
-        training_y = evaluation_function(training_x)
         test_x = self._get_x_from_distribution(test_x_distribution)
+        np.random.seed()
+        
+        training_y = evaluation_function(training_x)
         test_y = evaluation_function(test_x)
 
         super().__init__(name, description, source, training_x, training_y,
@@ -97,7 +101,6 @@ class AnalyticBenchmark(Benchmark):
         else:
             data = [self._parse_distribution(distribution)
                     for _ in range(self._x_dim)]
-        np.random.seed()
         return np.hstack(data)
 
     @staticmethod

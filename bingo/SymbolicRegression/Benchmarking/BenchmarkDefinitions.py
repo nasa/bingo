@@ -1,3 +1,14 @@
+"""
+Definitions of Benchmarks that can be used a `BenchmarkingSuite`
+
+Benchmarks are created in this module by defining a function with a name
+starting with 'bench_` that takes no input parameters and returns a `Benchmark`
+
+Each benchmark includes its source from the literature, but most of this
+collection was taken from the ones suggested by McDermott et al. (2012)
+"""
+# pylint: disable=missing-docstring
+
 from .Benchmark import AnalyticBenchmark
 
 

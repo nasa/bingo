@@ -1,29 +1,30 @@
 """
-This Benchmark Suite module contains symbolic regression benchmarks
-drawn from 'Genetic Programming Needs Better Benchmarks', (McDermott et al.).
+This Benchmark Suite module contains a wrapper around the symbolic regression
+benchmarks which are defined in the BenchmarkDefinitions Module.  The wrapper
+allows for easier filtering and automatic running of benchmarks.
 """
 from . import BenchmarkDefinitions
 
 
 class BenchmarkSuite:
-    """Contains 9 Benchmarks (listed above) to measure
-    performance of Bingo
+    """Contains benchmarks used to measure performance of Bingo
+
+    The `BenchmarkSuite` can be treated in many ways like a list in which each
+    item is a `Benchmark`.  The suite can also be used to automatically run
+    benchmarks using a `BenchmarkTest`
+
+    Upon initialization the Benchmarks from the `BenchmarkDefinitions` module
+    will be pulled into the the suite, including and excluding Benchmarks as
+    appropriate.
 
     Parameters
     ----------
-    include : list of str
-        The indices of which Benchmarks to include
-    exclude : list of str
-        The indices of which Benchmarks to exclude. Default is none
-
-    Attributes
-    ----------
-    benchmarks_dict : dictionary
-        Contains the names, objective functions, and training/testing sets
-        of each benchmark.
-    benchmarks : list of Benchmarks
-        Contains whichever Benchmarks are specified in
-        `include` and/or `exclude`
+    inclusive_terms : list of str (optional)
+        include all benchmarks in the suite that have all of these terms in
+        their name
+    exclusive_terms : list of str (optional)
+        exclude all benchmarks in the suite that have any of these terms in
+        their name
 
     """
     def __init__(self, inclusive_terms=None, exclusive_terms=None):
@@ -75,6 +76,20 @@ class BenchmarkSuite:
         return iter(self._benchmarks)
 
     def run_benchmark_test(self, benchmark_test, repeats=1):
+        """Train and score a `BenchmarkTest` on all benchmarks in the suite
+
+        Parameters
+        ----------
+        benchmark_test : BenchmarkTest
+            A benchmark test that will be trained and scored
+        repeats : int
+            The number of repetitions to perform for each benchmark
+
+        Returns
+        -------
+        training_results, testing_results : lists of list of tuple
+            The training and test scores for all repeats of all benchmarks
+        """
         training_results = []
         testing_results = []
         for bench in self:

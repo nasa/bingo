@@ -14,7 +14,7 @@ from .Benchmark import AnalyticBenchmark
 
 def bench_koza_1():
     name = "Koza-1"
-    description = "A polynomial"
+    description = "The polynomial x^4 + x^3 + x^2 + x"
     source = "J.R. Koza. Genetic Programming: On the Programming of " + \
              "Computers by Means of Natural Selection. MIT Press 1992"
     x_dim = 1
@@ -31,7 +31,7 @@ def bench_koza_1():
 
 def bench_koza_2():
     name = "Koza-2"
-    description = "A polynomial"
+    description = "The polynomial x^5 - 2x^3 + x"
     source = "J.R. Koza. Genetic Programming: On the Programming of " + \
              "Computers by Means of Natural Selection. MIT Press 1992"
     x_dim = 1
@@ -48,7 +48,7 @@ def bench_koza_2():
 
 def bench_koza_3():
     name = "Koza-3"
-    description = "A polynomial"
+    description = "The polynomial x^6 - 2x^4 + x^2"
     source = "J.R. Koza. Genetic Programming: On the Programming of " + \
              "Computers by Means of Natural Selection. MIT Press 1992"
     x_dim = 1

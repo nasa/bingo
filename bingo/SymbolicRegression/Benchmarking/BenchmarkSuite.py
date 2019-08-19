@@ -102,6 +102,6 @@ class BenchmarkSuite:
                 bench_testing_results.append(
                         benchmark_test.score(bench.test_data))
             training_results.append(bench_training_results)
-            testing_results.append(bench_training_results)
+            testing_results.append(bench_testing_results)
         return training_results, testing_results
 

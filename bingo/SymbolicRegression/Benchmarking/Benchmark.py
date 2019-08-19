@@ -92,7 +92,6 @@ class AnalyticBenchmark(Benchmark):
                          test_x, test_y, extra_info)
 
     def _get_x_from_distribution(self, distribution):
-        np.random.seed(0)
         if isinstance(distribution, list):
             if len(distribution) != self._x_dim:
                 raise RuntimeError("List style benchmark distributions must "

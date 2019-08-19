@@ -31,7 +31,7 @@ def training_function(training_data, ea_choice):
     local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
     evaluator = Evaluation(local_opt_fitness)
 
-    POPULATION_SIZE = 32
+    POPULATION_SIZE = 64
     MUTATION_PROBABILITY = 0.1
     CROSSOVER_PROBABILITY = 0.7
 
@@ -68,19 +68,16 @@ def parse_results(train_results, test_results):
 
 def print_results(title, af_res, dc_res, bench_names):
     print("\n----------::", title, "::-------------")
-    print("              {:^10}{:^10}{:^10}".format(bench_names[0],
-                                                    bench_names[1],
-                                                    bench_names[2]))
-    print("age-fitness   {:^10.2e}{:^10.2e}{:^10.2e}".format(af_res[0],
-                                                             af_res[1],
-                                                             af_res[2]))
-    print("det. crowding {:^10.2e}{:^10.2e}{:^10.2e}".format(dc_res[0],
-                                                             dc_res[1],
-                                                             dc_res[2]))
+    titles = "".join(["{:^10}".format(name) for name in bench_names])
+    print("              " + titles)
+    af_scores = "".join(["{:^10.2e}".format(score) for score in af_res])
+    print("age-fitness   " + af_scores)
+    dc_scores = "".join(["{:^10.2e}".format(score) for score in dc_res])
+    print("det. crowding " + dc_scores)
 
 
 def run_benchmark_comparison():
-    suite = BenchmarkSuite(inclusive_terms=["Koza"])
+    suite = BenchmarkSuite(inclusive_terms=["Nguyen"])
     age_fitness_strategy = \
         BenchmarkTest(lambda x: training_function(x, "age_fitness"),
                       scoring_function)
@@ -107,6 +104,6 @@ def run_benchmark_comparison():
 
 
 if __name__ == "__main__":
-    MAX_GENERATIONS = 1000
-    NUM_REPEATS = 10
+    MAX_GENERATIONS = 200
+    NUM_REPEATS = 2
     run_benchmark_comparison()

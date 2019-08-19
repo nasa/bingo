@@ -73,3 +73,20 @@ class BenchmarkSuite:
 
     def __iter__(self):
         return iter(self._benchmarks)
+
+    def run_benchmark_test(self, benchmark_test, repeats=1):
+        training_results = []
+        testing_results = []
+        for bench in self:
+            bench_training_results = []
+            bench_testing_results = []
+            for _ in range(repeats):
+                benchmark_test.train(bench.training_data)
+                bench_training_results.append(
+                        benchmark_test.score(bench.training_data))
+                bench_testing_results.append(
+                        benchmark_test.score(bench.test_data))
+            training_results.append(bench_training_results)
+            testing_results.append(bench_training_results)
+        return training_results, testing_results
+

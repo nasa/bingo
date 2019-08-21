@@ -85,8 +85,8 @@ class AnalyticBenchmark(Benchmark):
         test_x = self._get_x_from_distribution(test_x_distribution)
         np.random.seed()
         
-        training_y = evaluation_function(training_x)
-        test_y = evaluation_function(test_x)
+        training_y = evaluation_function(training_x).reshape((-1, 1))
+        test_y = evaluation_function(test_x).reshape((-1, 1))
 
         super().__init__(name, description, source, training_x, training_y,
                          test_x, test_y, extra_info)

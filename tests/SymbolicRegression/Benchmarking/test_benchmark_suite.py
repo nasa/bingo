@@ -9,7 +9,7 @@ from bingo.SymbolicRegression.Benchmarking.BenchmarkSuite import BenchmarkSuite
 
 def test_benchmark_suite_finds_all_benchmark_definitions():
     suite = BenchmarkSuite()
-    assert len(suite) == 3
+    assert len(suite) == 51
 
 
 @pytest.mark.parametrize("inclusive_terms, expected_names",

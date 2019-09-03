@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 import bingo.SymbolicRegression.AGraph.AGraph as AcyclicGraph
+import bingo.SymbolicRegression.AGraph.AGraphMaps
 from bingo.SymbolicRegression.AGraph.AGraph import AGraph
 from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
 from bingo.SymbolicRegression.AGraph.ComponentGenerator \
@@ -197,7 +198,7 @@ def test_mutation_creates_valid_parameters(sample_agraph_1):
     for _ in range(20):
         child = mutation(sample_agraph_1)
         for row, operation in enumerate(child.command_array):
-            if not AcyclicGraph.IS_TERMINAL_MAP[operation[NODE_TYPE]]:
+            if not bingo.SymbolicRegression.AGraph.AGraphMaps.IS_TERMINAL_MAP[operation[NODE_TYPE]]:
                 assert operation[PARAM_1] < row
                 assert operation[PARAM_2] < row
 

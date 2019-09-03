@@ -6,7 +6,7 @@ mutation, node mutation, parameter mutation and pruning.
 """
 import numpy as np
 
-from .AGraph import IS_ARITY_2_MAP, IS_TERMINAL_MAP
+from .AGraphMaps import IS_ARITY_2_MAP, IS_TERMINAL_MAP
 from ...Base.Mutation import Mutation
 from ...Util.ArgumentValidation import argument_validation
 from ...Util.ProbabilityMassFunction import ProbabilityMassFunction

@@ -6,7 +6,7 @@ demanding functions required by the Agraph.
 
 import numpy as np
 
-from .AGraph import IS_ARITY_2_MAP, IS_TERMINAL_MAP
+from .AGraphMaps import IS_ARITY_2_MAP, IS_TERMINAL_MAP
 from . import BackendNodes as Nodes
 
 

@@ -7,7 +7,7 @@ operators, terminals, and their associated parameters.
 import logging
 import numpy as np
 
-from .AGraph import OPERATOR_NAMES
+from .AGraphMaps import OPERATOR_NAMES
 from ...Util.ProbabilityMassFunction import ProbabilityMassFunction
 from ...Util.ArgumentValidation import argument_validation
 

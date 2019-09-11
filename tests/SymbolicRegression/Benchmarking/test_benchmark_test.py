@@ -9,7 +9,9 @@ from bingo.SymbolicRegression.AGraph.AGraph import AGraph
 
 
 def dummy_train_function(training_data):
-    return AGraph(fitness=1.5), None
+    dummy_train_graph = AGraph()
+    dummy_train_graph.fitness = 1.5
+    return dummy_train_graph, None
 
 
 def dummy_metric_function(equation, data, aux_info):

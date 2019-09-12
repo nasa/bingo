@@ -2,8 +2,7 @@
 
 
 This module contains most of the code necessary for the representation of an
-acyclic graph (linear stack) in symbolic regression.
-
+acyclic graph (linear stack) in symbolic regression. 
 Stack
 -----
 
@@ -58,7 +57,7 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
-
+# TODO get rid of short_command_array constructor argument
 class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     """Acyclic graph representation of an equation.
 
@@ -70,22 +69,32 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     constants
     num_constants
     """
-    def __init__(self, genetic_age=0, fitness=None, fit_set=False,
-                 command_array=np.empty([0, 3], dtype=int),
-                 short_command_array=np.empty([0, 3], dtype=int),
-                 constants=None,
-                 needs_opt=False,
-                 num_constants=0,
-                 manual_constants=False):
-        super().__init__(genetic_age, fitness, fit_set)
-        self._command_array = command_array
-        self._short_command_array = short_command_array
-        if constants is None:
-            constants = []
-        self.constants = constants
-        self._needs_opt = needs_opt
-        self.num_constants = num_constants
-        self._manual_constants = manual_constants
+    def __init__(self, manual_constants=False):
+        self._create_new_instance(manual_constants)
+
+    def _create_new_instance(self, manual_constants):
+        super().__init__()
+        self._command_array = np.empty([0, 3], dtype=int)
+        self._short_command_array = np.empty([0, 3], dtype=int)
+        self._constants = []
+        self._needs_opt = False
+        self._num_constants = 0
+        self._manual_constants = manual_constants 
+    
+    def is_cpp(self):
+        return False
+
+    @property
+    def num_constants(self):
+        return self._num_constants
+
+    @property
+    def constants(self):
+        return self._constants
+
+    @constants.setter
+    def constants(self, constants):
+        self._constants = constants
 
     @property
     def command_array(self):
@@ -101,13 +110,13 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
     def command_array(self, command_array):
         self._command_array = command_array
         self._fitness = None
-        self.fit_set = False
+        self._fit_set = False
         self._process_modified_command_array()
 
     def notify_command_array_modification(self):
         """Notify individual of inplace modification of its command array"""
         self._fitness = None
-        self.fit_set = False
+        self._fit_set = False
         self._process_modified_command_array()
 
     def force_renumber_constants(self):
@@ -130,7 +139,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             if util[i]:
                 if self._command_array[i][0] == 1:
                     if self._command_array[i][1] == -1 or \
-                            self._command_array[i][1] >= len(self.constants):
+                            self._command_array[i][1] >= len(self._constants):
                         return True
         return False
 
@@ -143,7 +152,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
                     const_num += 1
                 else:
                     self._command_array[i] = (1, -1, -1)
-        self.num_constants = const_num
+        self._num_constants = const_num
 
     def needs_local_optimization(self):
         """The Agraph needs local optimization.
@@ -180,7 +189,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         int
             Number of constants that need to be optimized
         """
-        return self.num_constants
+        return self._num_constants
 
     def set_local_optimization_params(self, params):
         """Set the local optimization parameters.
@@ -192,7 +201,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         params : list of numeric
                  Values to set constants
         """
-        self.constants = params
+        self._constants = params
         self._needs_opt = False
 
     def evaluate_equation_at(self, x):
@@ -213,7 +222,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         """
         try:
             f_of_x = Backend.evaluate(self._short_command_array,
-                                      x, self.constants)
+                                      x, self._constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -238,7 +247,7 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         """
         try:
             f_of_x, df_dx = Backend.evaluate_with_derivative(
-                self._short_command_array, x, self.constants, True)
+                self._short_command_array, x, self._constants, True)
             return f_of_x, df_dx
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -265,12 +274,12 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         """
         try:
             f_of_x, df_dc = Backend.evaluate_with_derivative(
-                self._short_command_array, x, self.constants, False)
+                self._short_command_array, x, self._constants, False)
             return f_of_x, df_dc
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
             LOGGER.warning("%s in stack evaluation/const-deriv", err)
-            nan_array = np.full((x.shape[0], len(self.constants)), np.nan)
+            nan_array = np.full((x.shape[0], len(self._constants)), np.nan)
             return nan_array, np.array(nan_array)
 
     def __str__(self):
@@ -344,11 +353,11 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         if node == 0:
             tmp_str += "X_%d" % param1
         elif node == 1:
-            if param1 == -1 or param1 >= len(self.constants):
+            if param1 == -1 or param1 >= len(self._constants):
                 tmp_str += "C"
             else:
                 tmp_str += "C_{} = {}".format(param1,
-                                              self.constants[param1])
+                                              self._constants[param1])
         else:
             tmp_str += STACK_PRINT_MAP[node].format(param1,
                                                     param2)
@@ -370,10 +379,10 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
         if node == 0:
             tmp_str = "X_%d" % param1
         elif node == 1:
-            if param1 == -1 or param1 >= len(self.constants):
+            if param1 == -1 or param1 >= len(self._constants):
                 tmp_str = "?"
             else:
-                tmp_str = str(self.constants[param1])
+                tmp_str = str(self._constants[param1])
         else:
             tmp_str = format_dict[node].format(str_list[param1],
                                                str_list[param2])
@@ -395,17 +404,20 @@ class AGraph(Equation, ContinuousLocalOptimization.ChromosomeInterface):
             distance from self to individual
         """
         dist = np.sum(self.command_array != chromosome.command_array)
-
         return dist
 
     def __deepcopy__(self, memodict=None):
-        duplicate = AGraph(genetic_age=self.genetic_age,
-                           fitness=self._fitness, fit_set=self.fit_set,
-                           command_array=np.copy(self._command_array),
-                           short_command_array=np.copy(
-                               self._short_command_array),
-                           constants=list(self.constants),
-                           needs_opt=self._needs_opt,
-                           num_constants=self.num_constants,
-                           manual_constants=self._manual_constants)
+        duplicate = AGraph()
+        self._copy_agraph_values_to_new_graph(duplicate)
         return duplicate
+
+    def _copy_agraph_values_to_new_graph(self, agraph_duplicate):
+        agraph_duplicate._genetic_age = self._genetic_age
+        agraph_duplicate._fitness = self._fitness
+        agraph_duplicate._fit_set = self._fit_set
+        agraph_duplicate._command_array = np.copy(self.command_array)
+        agraph_duplicate._short_command_array = np.copy(self._short_command_array)
+        agraph_duplicate._constants = list(self._constants)
+        agraph_duplicate._needs_opt = self._needs_opt
+        agraph_duplicate._num_constants = self._num_constants
+        agraph_duplicate._manual_constants = self._manual_constants

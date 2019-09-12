@@ -25,9 +25,9 @@ class Chromosome(metaclass=ABCMeta):
               Whether the fitness has been calculated for the individual
     """
     def __init__(self, genetic_age=0, fitness=None, fit_set=False):
-        self.genetic_age = genetic_age
+        self._genetic_age = genetic_age
         self._fitness = fitness
-        self.fit_set = fit_set
+        self._fit_set = fit_set
 
     @property
     def fitness(self):
@@ -37,7 +37,23 @@ class Chromosome(metaclass=ABCMeta):
     @fitness.setter
     def fitness(self, fitness):
         self._fitness = fitness
-        self.fit_set = True
+        self._fit_set = True
+
+    @property
+    def genetic_age(self):
+        return self._genetic_age
+
+    @genetic_age.setter
+    def genetic_age(self, genetic_age):
+        self._genetic_age = genetic_age
+
+    @property
+    def fit_set(self):
+        return self._fit_set
+
+    @fit_set.setter
+    def fit_set(self, fit_set):
+        self._fit_set = fit_set
 
     def copy(self):
         """copy

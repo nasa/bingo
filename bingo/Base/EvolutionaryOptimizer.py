@@ -37,16 +37,29 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     ----------
     generational_age: int
         The number of generations the optimizer has been evolved
-    hall_of_fame: HallOfFame
+    hall_of_fame: HallOfFame (optional)
         An object containing the best individuals seen in the optimization
+    test_function: FitnessFunction (optional)
+        A function which can judges the fitness of an individual, independent
+        of the FitnessFunction used in evolution
     """
-    def __init__(self, hall_of_fame=None):
+    def __init__(self, hall_of_fame=None, test_function=None):
         self.generational_age = 0
         self._starting_age = 0
         self._fitness_improvement_age = 0
         self._best_fitness = None
         self.hall_of_fame = hall_of_fame
         self._previous_checkpoints = []
+        self._test_function = test_function
+        self._log_stats_header()
+
+    def _log_stats_header(self):
+        header = "#generational_age, elapsed_time, " + \
+                 "fitness_evaluation_count, current_training_fitness, "
+        if self._test_function is not None:
+            header += "current_test_fitness, "
+        header += "hall_of_fame_fitnesses"
+        STATS_LOGGER.log(INFO, header)
 
     @argument_validation(max_generations={">=": 1},
                          min_generations={">=": 0},
@@ -141,17 +154,27 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         return result
 
     def _log_optimization(self, start_time):
+        test_fitness = None
+        if self._test_function is not None:
+            test_fitness = self._test_function(self.get_best_individual())
+        log_string = "Generation: %d \t " % self.generational_age
         elapsed_time = datetime.now() - start_time
-        LOGGER.log(INFO, "Generation: %d \t Elapsed time: %s \t "
-                         "Best fitness: %le",
-                   self.generational_age, elapsed_time, self._best_fitness)
-        hof_string = ""
+        log_string += "Elapsed time: %s \t " % elapsed_time
+        log_string += "Best training fitness: %le \t " % self._best_fitness
+        if test_fitness is not None:
+            log_string += "Test fitness: %le \t " % test_fitness
+        LOGGER.log(INFO, log_string)
+
+        stats_string = "%d, %le, %d, %le" % \
+                       (self.generational_age, elapsed_time.total_seconds(),
+                        self.get_fitness_evaluation_count(),
+                        self._best_fitness)
+        if test_fitness is not None:
+            stats_string += ", %le" % test_fitness
         if self.hall_of_fame is not None:
             for i in self.hall_of_fame:
-                hof_string += ", %le" % i.fitness
-        STATS_LOGGER.log(INFO, "%d, %le, %le" + hof_string,
-                         self.generational_age, elapsed_time.total_seconds(),
-                         self._best_fitness)
+                stats_string += ", %le" % i.fitness
+        STATS_LOGGER.log(INFO, stats_string)
 
     def _update_best_fitness(self):
         last_best_fitness = self._best_fitness

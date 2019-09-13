@@ -58,6 +58,18 @@ def test_run_until_absolute_convergence(converging_eo):
     assert pytest.approx(optimization_result.fitness, 0.125)
 
 
+def test_run_until_time_limit(converging_eo):
+    optimization_result = \
+        converging_eo.evolve_until_convergence(max_generations=10,
+                                               convergence_check_frequency=1,
+                                               fitness_threshold=0.126,
+                                               stagnation_generations=10,
+                                               max_time=0.0)
+    assert not optimization_result.success
+    assert optimization_result.status == 4
+    assert optimization_result.ngen == 0
+
+
 def test_run_min_generations_converge(converging_eo):
     optimization_result = \
         converging_eo.evolve_until_convergence(max_generations=10,

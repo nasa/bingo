@@ -57,6 +57,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                                  min_generations=0,
                                  stagnation_generations=None,
                                  max_fitness_evaluations=None,
+                                 max_time=None,
                                  checkpoint_base_name=None,
                                  num_checkpoints=None):
         """Evolution occurs until one of four convergence criteria is met
@@ -86,6 +87,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         max_fitness_evaluations: int (optional)
             The maximum number of fitness function evaluations (approx) the
             optimizer will run.
+        max_time : float (optional)
+            The time limit for the evolution, in seconds.
         checkpoint_base_name: str
             base file name for checkpoint files
         num_checkpoints: int (optional)
@@ -112,6 +115,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         _exit, result = self._check_exit_criteria(fitness_threshold,
                                                   stagnation_generations,
                                                   max_fitness_evaluations,
+                                                  max_time,
                                                   start_time)
         if _exit:
             self._log_exit(result)
@@ -126,6 +130,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             _exit, result = self._check_exit_criteria(fitness_threshold,
                                                       stagnation_generations,
                                                       max_fitness_evaluations,
+                                                      max_time,
                                                       start_time)
             if _exit:
                 self._log_exit(result)
@@ -174,7 +179,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         os.remove(self._previous_checkpoints.pop(0))
 
     def _check_exit_criteria(self, fitness_threshold, stagnation_generations,
-                             max_fitness_evaluations, start_time):
+                             max_fitness_evaluations, max_time, start_time):
         if self._convergence(fitness_threshold):
             return True, self._make_optim_result(0, start_time,
                                                  fitness_threshold)
@@ -184,6 +189,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if self._hit_max_evals(max_fitness_evaluations):
             return True, self._make_optim_result(3, start_time,
                                                  max_fitness_evaluations)
+        if self._hit_time_limit(max_time, start_time):
+            return True, self._make_optim_result(4, start_time, max_time)
         return False, None
 
     def _convergence(self, threshold):
@@ -200,9 +207,17 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             return False
         return self.get_fitness_evaluation_count() >= threshold
 
+    @staticmethod
+    def _hit_time_limit(threshold, start_time):
+        if threshold is None:
+            return False
+        run_time = (datetime.now() - start_time).total_seconds()
+        print(run_time, threshold)
+        return run_time >= threshold
+
     def _make_optim_result(self, status, start_time, aux_info):
         ngen = self.generational_age - self._starting_age
-        run_time = (start_time - datetime.now()).total_seconds()
+        run_time = (datetime.now() - start_time).total_seconds()
         if status == 0:
             message = "Absolte convergence occurred with best fitness < " + \
                       "{}".format(aux_info)
@@ -215,10 +230,13 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             message = "The maximum number of generational steps " + \
                       "({}) occurred".format(aux_info)
             success = False
-        else:  # status == 3:
+        elif status == 3:
             message = "The maximum number of fitness evaluations " + \
                       "({}) was exceeded. Total fitness ".format(aux_info) + \
                       "evals: {}".format(self.get_fitness_evaluation_count())
+            success = False
+        else:  # status == 4:
+            message = "The maximum time ({}) was exceeded.".format(aux_info)
             success = False
         return OptimizeResult(success, status, message, ngen,
                               self._best_fitness, run_time)

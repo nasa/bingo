@@ -7,7 +7,7 @@ import numpy as np
 from bingo.SymbolicRegression.Equation import Equation
 
 
-class SumEqualtion(Equation):
+class SumEquation(Equation):
     def evaluate_equation_at(self, x):
         return np.sum(x, axis=1).reshape((-1, 1))
 
@@ -36,4 +36,4 @@ class SumEqualtion(Equation):
 
 @pytest.fixture()
 def dummy_sum_equation():
-    return SumEqualtion()
+    return SumEquation()

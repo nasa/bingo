@@ -20,13 +20,15 @@ LOGGER = logging.getLogger(__name__)
 class ExplicitRegression(VectorBasedFunction):
     """Constructor for ExplicitRegression
 
-    Parameters
-    ----------
     training_data : ExplicitTrainingData
                     data that is used in fitness evaluation.
+    metric : str
+        String defining the measure of error to use. Available options are:
+        'mean absolute error', 'mean squared error', and
+        'root mean squared error'
     """
-    def __init__(self, training_data):
-        super().__init__(training_data)
+    def __init__(self, training_data, metric="mae"):
+        super().__init__(training_data, metric)
 
     """ Traditional fitness evaluation for symbolic regression
 

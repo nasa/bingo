@@ -18,6 +18,18 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ExplicitRegression(VectorBasedFunction):
+    """Constructor for ExplicitRegression
+
+    training_data : ExplicitTrainingData
+                    data that is used in fitness evaluation.
+    metric : str
+        String defining the measure of error to use. Available options are:
+        'mean absolute error', 'mean squared error', and
+        'root mean squared error'
+    """
+    def __init__(self, training_data, metric="mae"):
+        super().__init__(training_data, metric)
+
     """ Traditional fitness evaluation for symbolic regression
 
     fitness = y - f(x) where x and y are in the training_data (i.e.
@@ -26,12 +38,8 @@ class ExplicitRegression(VectorBasedFunction):
 
     Parameters
     ----------
-    training_data : ExplicitTrainingData
-                    data that is used in fitness evaluation.
-    metric : str
-        String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', and
-        'root mean squared error'
+    training_data : AGraph
+                    individual whose fitness is evaluate on `training_data`
     """
     def evaluate_fitness_vector(self, individual):
         self.eval_count += 1

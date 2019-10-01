@@ -8,16 +8,16 @@ import inspect
 import dill
 from mpi4py import MPI
 from unittest.mock import Mock
-from bingo.chromosomes import SinglePointCrossover, \
-                                      SinglePointMutation, \
-                                      MultipleValueChromosomeGenerator
+from bingo.chromosomes.multiple_values import SinglePointCrossover, \
+                                              SinglePointMutation, \
+                                              MultipleValueChromosomeGenerator
 from bingo.evolutionary_optimizers.island import Island
 from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
 from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evaluation.fitness_function import FitnessFunction
-from bingo.evolutionary_optimizers import parallel_archipelago, \
-    load_parallel_archipelago_from_file
+from bingo.evolutionary_optimizers.parallel_archipelago \
+    import ParallelArchipelago, load_parallel_archipelago_from_file
 
 POP_SIZE = 5
 SELECTION_SIZE = 10
@@ -71,7 +71,7 @@ def test_best_individual_returned():
     island = num_island(COMM_RANK + 1)
     if COMM_RANK == 0:
         island.load_population([perfect_individual()], replace=False)
-    archipelago = parallel_archipelago(island)
+    archipelago = ParallelArchipelago(island)
     return mpi_assert_equal(archipelago.get_best_individual().fitness, 0)
 
 
@@ -79,13 +79,13 @@ def test_best_fitness_returned():
     island = num_island(COMM_RANK + 1)
     if COMM_RANK == 0:
         island.load_population([perfect_individual()], replace=False)
-    archipelago = parallel_archipelago(island)
+    archipelago = ParallelArchipelago(island)
     return mpi_assert_equal(archipelago.get_best_fitness(), 0)
 
 
 def test_potential_hof_members():
     island_a = Mock(hall_of_fame=[COMM_RANK, COMM_RANK])
-    archipelago = parallel_archipelago(num_island(1))
+    archipelago = ParallelArchipelago(num_island(1))
     archipelago._island = island_a
     actual_members = archipelago._get_potential_hof_members()
     expected_memebers = [i for i in range(COMM_SIZE) for _ in range(2)]
@@ -94,7 +94,7 @@ def test_potential_hof_members():
 
 def test_island_migration_doesnt_chane_pop_size():
     island = num_island(COMM_RANK, pop_size=COMM_RANK + 2)
-    archipelago = parallel_archipelago(island)
+    archipelago = ParallelArchipelago(island)
     archipelago._coordinate_migration_between_islands()
     expected_pop = (COMM_SIZE * (COMM_SIZE - 1)) // 2 + (2 * COMM_SIZE)
     total_pop_after = COMM.allreduce(len(archipelago._island.population),
@@ -104,7 +104,7 @@ def test_island_migration_doesnt_chane_pop_size():
 
 def test_island_migration():
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island)
+    archipelago = ParallelArchipelago(island)
     archipelago._coordinate_migration_between_islands()
 
     native_individual_values = [COMM_RANK]*VALUE_LIST_SIZE
@@ -122,7 +122,7 @@ def test_island_migration():
 def test_blocking_fitness_eval_count():
     steps = 1
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, non_blocking=False)
+    archipelago = ParallelArchipelago(island, non_blocking=False)
     archipelago.evolve(steps)
     expected_evaluations = COMM_SIZE * (POP_SIZE + steps * OFFSPRING_SIZE)
     actual_evaluations = archipelago.get_fitness_evaluation_count()
@@ -132,7 +132,7 @@ def test_blocking_fitness_eval_count():
 def test_non_blocking_evolution():
     steps = 200
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, sync_frequency=10,
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
                                        non_blocking=True)
     archipelago.evolve(steps)
     island_age = archipelago._island.generational_age
@@ -142,7 +142,7 @@ def test_non_blocking_evolution():
 
 def test_convergence():
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, sync_frequency=10,
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
                                        non_blocking=True)
     result = archipelago.evolve_until_convergence(max_generations=100,
                                                   fitness_threshold=0,
@@ -152,7 +152,7 @@ def test_convergence():
 
 def test_dump_then_load_equal_procs():
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, sync_frequency=10,
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
                                        non_blocking=True)
     file_name = "testing_pa_dump_and_load_eq.pkl"
     archipelago.dump_to_file(file_name)
@@ -167,7 +167,7 @@ def test_dump_then_load_equal_procs():
 
 def test_dump_then_load_more_procs():
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, sync_frequency=10,
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
                                        non_blocking=True)
     file_name = "testing_pa_dump_and_load_gt.pkl"
     archipelago.dump_to_file(file_name)
@@ -195,7 +195,7 @@ def _remove_proc_from_pickle(file_name):
 
 def test_dump_then_load_less_procs():
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, sync_frequency=10,
+    archipelago = ParallelArchipelago(island, sync_frequency=10,
                                        non_blocking=True)
     file_name = "testing_pa_dump_and_load_lt.pkl"
     archipelago.dump_to_file(file_name)
@@ -222,7 +222,7 @@ def _add_proc_to_pickle(file_name):
 
 def test_stale_checkpoint_removal():
     island = num_island(COMM_RANK)
-    archipelago = parallel_archipelago(island, non_blocking=False)
+    archipelago = ParallelArchipelago(island, non_blocking=False)
     archipelago.evolve_until_convergence(3, -1.0, num_checkpoints=1,
                                          checkpoint_base_name="stale_check")
     COMM.barrier()

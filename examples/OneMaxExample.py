@@ -6,11 +6,12 @@ from bingo.variation.var_or import VarOr
 from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evaluation.evaluation import Evaluation
 from bingo.selection.tournament import Tournament
-from bingo.evolutionary_algorithms import evolutionary_algorithm
+from bingo.evolutionary_algorithms.evolutionary_algorithm \
+    import EvolutionaryAlgorithm
 from bingo.evolutionary_optimizers.island import Island
-from bingo.chromosomes import MultipleValueChromosomeGenerator, \
-                                 SinglePointCrossover, \
-                                 SinglePointMutation
+from bingo.chromosomes.multiple_values \
+    import MultipleValueChromosomeGenerator, SinglePointCrossover, \
+    SinglePointMutation
 
 np.random.seed(0)  # used for reproducibility
 
@@ -48,7 +49,7 @@ def create_evolutionary_algorithm():
 
     selection_phase = Tournament(tournament_size=2)
 
-    return evolutionary_algorithm(variation_phase, evaluation_phase,
+    return EvolutionaryAlgorithm(variation_phase, evaluation_phase,
                                   selection_phase)
 
 

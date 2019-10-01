@@ -8,9 +8,11 @@ from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
 from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers import ContinuousLocalOptimization
-from bingo.chromosomes import SinglePointCrossover, SinglePointMutation
-from bingo.chromosomes import MultipleFloatChromosomeGenerator
+from bingo.local_optimizers.continuous_local_opt \
+    import ContinuousLocalOptimization
+from bingo.chromosomes.multiple_values \
+    import SinglePointCrossover, SinglePointMutation
+from bingo.chromosomes.multiple_floats import MultipleFloatChromosomeGenerator
 
 
 class ZeroMinFitnessFunction(FitnessFunction):
@@ -33,6 +35,7 @@ def main():
     generator = MultipleFloatChromosomeGenerator(get_random_float, 8)
     island = Island(ea, generator, 25)
 
+    island.evolve(1)
     report_max_min_mean_fitness(island)
     island.evolve(500)
     report_max_min_mean_fitness(island)

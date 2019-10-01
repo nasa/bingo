@@ -11,10 +11,11 @@ from bingo.symbolic_regression.agraph.component_generator \
 from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
                                                         ExplicitTrainingData
 
-from bingo.evolutionary_algorithms import AgeFitnessEA
+from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
-from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
+from bingo.local_optimizers.continuous_local_opt \
+    import ContinuousLocalOptimization
 
 POP_SIZE = 128
 STACK_SIZE = 10

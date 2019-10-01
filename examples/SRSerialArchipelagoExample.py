@@ -7,23 +7,29 @@ import numpy as np
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
-from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
-from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData
+from bingo.symbolic_regression.agraph.component_generator \
+    import ComponentGenerator
+from bingo.symbolic_regression.explicit_regression \
+    import ExplicitRegression, ExplicitTrainingData
 
-from bingo.evolutionary_algorithms import AgeFitnessEA
+from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers import ContinuousLocalOptimization
+from bingo.local_optimizers.continuous_local_opt\
+    import ContinuousLocalOptimization
 
 POP_SIZE = 100
 STACK_SIZE = 10
 
+
 def init_x_vals(start, stop, num_points):
     return np.linspace(start, stop, num_points).reshape([-1, 1])
 
+
 def equation_eval(x):
     return x**2 + 3.5*x**3
+
 
 def execute_generational_steps():
     x = init_x_vals(-10, 10, 100)
@@ -35,7 +41,7 @@ def execute_generational_steps():
     component_generator.add_operator(3)
     component_generator.add_operator(4)
 
-    crossover = AGraphCrossover()
+    crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
@@ -50,13 +56,17 @@ def execute_generational_steps():
     island = Island(ea, agraph_generator, POP_SIZE)
     archipelago = SerialArchipelago(island)
 
-    if archipelago.run_islands(500, 100, 10):
+    opt_result = archipelago.evolve_until_convergence(max_generations=500,
+                                                      fitness_threshold=1.0e-4)
+    if opt_result.success:
         print(archipelago.get_best_individual().get_latex_string())
     else:
         print("Failed.")
 
+
 def main():
     execute_generational_steps()
+
 
 if __name__ == '__main__':
     main()

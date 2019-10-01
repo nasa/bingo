@@ -4,9 +4,8 @@
 import pytest
 import numpy as np
 
-from bingo.Base.MultipleValues import MultipleValueChromosome, \
-                                 MultipleValueChromosomeGenerator, SinglePointCrossover,\
-                                 SinglePointMutation
+from bingo.chromosomes.multiple_values import MultipleValueChromosome, \
+    MultipleValueChromosomeGenerator, SinglePointCrossover, SinglePointMutation
 
 
 def mutation_onemax_specific():

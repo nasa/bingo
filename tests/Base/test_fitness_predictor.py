@@ -3,10 +3,10 @@
 # pylint: disable=missing-docstring
 import pytest
 import numpy as np
-from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.FitnessPredictor import FitnessPredictorFitnessFunction, \
-                                   FitnessPredictorIndexGenerator
-from bingo.Base.MultipleValues import MultipleValueChromosome
+from bingo.evaluation.fitness_function import FitnessFunction
+from bingo.evolutionary_optimizers.fitness_predictor\
+    import FitnessPredictorFitnessFunction, FitnessPredictorIndexGenerator
+from bingo.chromosomes.multiple_values import MultipleValueChromosome
 
 
 class MinPlusMean(FitnessFunction):

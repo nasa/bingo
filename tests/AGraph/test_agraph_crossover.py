@@ -4,9 +4,9 @@
 import numpy as np
 import pytest
 
-from bingo.SymbolicRegression.AGraph.AGraph import AGraph
-from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
-from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
+from bingo.symbolic_regression.agraph.agraph import AGraph
+from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
+from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 
 
 @pytest.fixture

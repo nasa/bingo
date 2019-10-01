@@ -4,9 +4,10 @@
 import pytest
 import numpy as np
 
-from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator, SinglePointCrossover, \
-                                 SinglePointMutation
-from bingo.Base.VarOr import VarOr
+from bingo.chromosomes.multiple_values \
+    import MultipleValueChromosomeGenerator, SinglePointCrossover, \
+    SinglePointMutation
+from bingo.variation.var_or import VarOr
 
 
 @pytest.fixture

@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.Base.FitnessFunction import VectorBasedFunction
+from bingo.evaluation.fitness_function import VectorBasedFunction
 
 
 class DummyVectorFunction(VectorBasedFunction):

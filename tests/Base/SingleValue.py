@@ -3,10 +3,10 @@ A set of classes for simple Base tests
 """
 import numpy as np
 
-from bingo.Base.Chromosome import Chromosome
-from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.Mutation import Mutation
-from bingo.Base.Crossover import Crossover
+from bingo.chromosomes.chromosome import Chromosome
+from bingo.evaluation.fitness_function import FitnessFunction
+from bingo.chromosomes.mutation import Mutation
+from bingo.chromosomes.crossover import Crossover
 
 
 class SingleValueChromosome(Chromosome):

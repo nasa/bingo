@@ -5,10 +5,10 @@ import pytest
 import numpy as np
 
 from SingleValue import SingleValueChromosome
-from bingo.Base.Variation import Variation
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.Selection import Selection
-from bingo.Base.FitnessFunction import FitnessFunction
+from bingo.variation.variation import Variation
+from bingo.evaluation.evaluation import Evaluation
+from bingo.selection.selection import Selection
+from bingo.evaluation.fitness_function import FitnessFunction
 
 
 @pytest.fixture

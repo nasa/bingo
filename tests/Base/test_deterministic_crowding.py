@@ -4,9 +4,10 @@
 import pytest
 import numpy as np
 
-from bingo.Base.DeterministicCrowdingEA import DeterministicCrowdingEA
-from bingo.Base.MultipleValues import SinglePointCrossover, SinglePointMutation, \
-                                 MultipleValueChromosomeGenerator
+from bingo.evolutionary_algorithms.deterministic_crowding \
+    import DeterministicCrowdingEA
+from bingo.chromosomes.multiple_values import SinglePointCrossover, \
+    SinglePointMutation, MultipleValueChromosomeGenerator
 
 
 @pytest.fixture

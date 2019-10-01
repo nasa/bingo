@@ -3,14 +3,14 @@
 # pylint: disable=missing-docstring
 import numpy as np
 
-from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.MuPlusLambdaEA import MuPlusLambda
-from bingo.Base.TournamentSelection import Tournament
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.Island import Island
-from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-from bingo.Base.MultipleValues import SinglePointCrossover, SinglePointMutation
-from bingo.Base.MultipleFloats import MultipleFloatChromosomeGenerator
+from bingo.evaluation.fitness_function import FitnessFunction
+from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
+from bingo.selection.tournament import Tournament
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evolutionary_optimizers.island import Island
+from bingo.local_optimizers import ContinuousLocalOptimization
+from bingo.chromosomes import SinglePointCrossover, SinglePointMutation
+from bingo.chromosomes import MultipleFloatChromosomeGenerator
 
 
 class ZeroMinFitnessFunction(FitnessFunction):

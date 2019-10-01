@@ -4,9 +4,9 @@
 import pytest
 import numpy as np
 
-from bingo.Base.VarAnd import VarAnd
-from SingleValue import SingleValueMutation, SingleValueNegativeMutation
-from SingleValue import SingleValueCrossover, SingleValueNegativeCrossover
+from bingo.variation.var_and import VarAnd
+from SingleValue import SingleValueMutation, SingleValueNegativeMutation, \
+    SingleValueCrossover, SingleValueNegativeCrossover
 
 
 @pytest.fixture

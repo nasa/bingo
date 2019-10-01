@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.SymbolicRegression.Benchmarking.Benchmark \
+from bingo.symbolic_regression.benchmarking.benchmark \
     import Benchmark, AnalyticBenchmark
 
 

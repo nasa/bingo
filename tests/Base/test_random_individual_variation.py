@@ -3,9 +3,9 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator
-from bingo.Base.Variation import Variation
-from bingo.Base.AddRandomIndividualVariation import AddRandomIndividualVariation
+from bingo.chromosomes.multiple_values import MultipleValueChromosomeGenerator
+from bingo.variation.variation import Variation
+from bingo.variation.add_random_individual import AddRandomIndividual
 
 POP_SIZE = 25
 SIMPLE_INDV_SIZE = 1
@@ -58,9 +58,9 @@ def test_random_individual_added_to_pop(init_replication_variation,
                                         true_chromosome_generator,
                                         weak_population):
     indvs_added = 1
-    rand_indv_var_or = AddRandomIndividualVariation(init_replication_variation,
-                                                    true_chromosome_generator,
-                                                    num_rand_indvs=indvs_added)
+    rand_indv_var_or = AddRandomIndividual(init_replication_variation,
+                                           true_chromosome_generator,
+                                           num_rand_indvs=indvs_added)
     offspring = rand_indv_var_or(weak_population, POP_SIZE)
     count = 0
     for indv in offspring:
@@ -74,9 +74,9 @@ def test_multiple_indviduals_added_to_pop(init_replication_variation,
     indvs_added = 2
     generator = MultipleValueChromosomeGenerator(true_multiple_variation_function,
                                                  COMPLEX_INDV_SIZE)
-    rand_indv_var_or = AddRandomIndividualVariation(init_replication_variation,
-                                                    generator,
-                                                    num_rand_indvs=indvs_added)
+    rand_indv_var_or = AddRandomIndividual(init_replication_variation,
+                                           generator,
+                                           num_rand_indvs=indvs_added)
     offspring = rand_indv_var_or(weaker_population, POP_SIZE)
     count = 0
     for indv in offspring:

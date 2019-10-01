@@ -4,7 +4,7 @@
 import pytest
 from collections import namedtuple
 
-from bingo.Base.HallOfFame import HallOfFame
+from bingo.stats.hall_of_fame import HallOfFame
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', 'gene'])
 

@@ -3,7 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Util.ProbabilityMassFunction import ProbabilityMassFunction
+from bingo.util.probability_mass_function import ProbabilityMassFunction
 
 
 @pytest.fixture(params=[True, False])

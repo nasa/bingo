@@ -4,8 +4,8 @@
 
 import pytest
 
-from bingo.SymbolicRegression.Benchmarking.BenchmarkTest import BenchmarkTest
-from bingo.SymbolicRegression.AGraph.AGraph import AGraph
+from bingo.symbolic_regression.benchmarking.benchmark_test import BenchmarkTest
+from bingo.symbolic_regression.agraph.agraph import AGraph
 
 
 def dummy_train_function(training_data):

@@ -3,7 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Base.Evaluation import Evaluation
+from bingo.evaluation.evaluation import Evaluation
 from SingleValue import SingleValueFitnessFunction
 
 

@@ -5,18 +5,17 @@ import pytest
 import numpy as np
 import os
 
-from bingo.Base.MultipleValues import SinglePointCrossover, \
-                                      SinglePointMutation, \
-                                      MultipleValueChromosomeGenerator
-from bingo.Base.Island import Island
-from bingo.Base.MuPlusLambdaEA import MuPlusLambda
-from bingo.Base.TournamentSelection import Tournament
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.FitnessFunction import FitnessFunction
+from bingo.chromosomes.multiple_values import SinglePointCrossover, \
+    SinglePointMutation, MultipleValueChromosomeGenerator
+from bingo.evolutionary_optimizers.island import Island
+from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
+from bingo.selection.tournament import Tournament
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evaluation.fitness_function import FitnessFunction
 
 try:
-    from bingo.Base.ParallelArchipelago import ParallelArchipelago, \
-        load_parallel_archipelago_from_file
+    from bingo.evolutionary_optimizers.parallel_archipelago \
+        import ParallelArchipelago, load_parallel_archipelago_from_file
     PAR_ARCH_LOADED = True
 except ImportError:
     PAR_ARCH_LOADED = False
@@ -108,7 +107,7 @@ def island(evol_alg):
 
 
 def test_mpi4py_could_be_imported():
-    import mpi4py
+    pass
 
 
 @pytest.mark.skipif(not PAR_ARCH_LOADED,
@@ -153,7 +152,7 @@ def test_potential_hof_members(mocker, one_island):
 def test_fitness_eval_count(one_island, sync_freq, non_blocking):
     num_islands = 1
     archipelago = ParallelArchipelago(one_island, sync_frequency=sync_freq,
-                                      non_blocking=non_blocking)
+                                       non_blocking=non_blocking)
     assert archipelago.get_fitness_evaluation_count() == 0
     archipelago.evolve(1)
     if non_blocking:

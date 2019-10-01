@@ -4,14 +4,13 @@
 import pytest
 import numpy as np
 
-from bingo.Base.DeterministicCrowdingSelection import \
-    DeterministicCrowdingSelection
-from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator
+from bingo.selection.deterministic_crowding import DeterministicCrowding
+from bingo.chromosomes.multiple_values import MultipleValueChromosomeGenerator
 
 
 @pytest.fixture
 def selection():
-    return DeterministicCrowdingSelection()
+    return DeterministicCrowding()
 
 
 @pytest.fixture

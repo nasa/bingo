@@ -1,21 +1,20 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import time
 import numpy as np
 from mpi4py import MPI
 
-from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
-from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
-from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
-from bingo.SymbolicRegression.ExplicitRegression import ExplicitRegression, ExplicitTrainingData
+from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
+from bingo.symbolic_regression.agraph.mutation import AGraphMutation
+from bingo.symbolic_regression.agraph.generator import AGraphGenerator
+from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData
 
-from bingo.Base.AgeFitnessEA import AgeFitnessEA
-from bingo.Base.ParallelArchipelago import ParallelArchipelago
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.Island import Island
-from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
+from bingo.evolutionary_algorithms import AgeFitnessEA
+from bingo.evolutionary_optimizers import parallel_archipelago
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evolutionary_optimizers import island
+from bingo.local_optimizers import ContinuousLocalOptimization
 
 POP_SIZE = 100
 STACK_SIZE = 10
@@ -60,9 +59,9 @@ def execute_generational_steps():
                       mutation, 0.4, 0.4, POP_SIZE)
 
 
-    island = Island(ea, agraph_generator, POP_SIZE)
+    island = island(ea, agraph_generator, POP_SIZE)
 
-    archipelago = ParallelArchipelago(island)
+    archipelago = parallel_archipelago(island)
 
     if archipelago.run_islands(2000, 1000, 1000):
         if rank == 0:

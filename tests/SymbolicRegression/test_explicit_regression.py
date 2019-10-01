@@ -5,7 +5,7 @@ import warnings
 import pytest
 import numpy as np
 
-from bingo.SymbolicRegression.ExplicitRegression import ExplicitRegression, ExplicitTrainingData
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData
 
 
 class SampleTrainingData:

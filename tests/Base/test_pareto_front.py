@@ -4,7 +4,7 @@
 import pytest
 from collections import namedtuple
 
-from bingo.Base.ParetoFront import ParetoFront
+from bingo.stats.pareto_front import ParetoFront
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', 'gene', 'att1', 'att2'])
 

@@ -1,17 +1,17 @@
 import numpy as np
 
-from bingo.SymbolicRegression.Benchmarking.BenchmarkSuite import BenchmarkSuite
-from bingo.SymbolicRegression.Benchmarking.BenchmarkTest import BenchmarkTest
-from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
-from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
-from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
-from bingo.SymbolicRegression.ExplicitRegression import ExplicitRegression
-from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.AgeFitnessEA import AgeFitnessEA
-from bingo.Base.DeterministicCrowdingEA import DeterministicCrowdingEA
-from bingo.Base.Island import Island
+from bingo.symbolic_regression.benchmarking.benchmark_suite import BenchmarkSuite
+from bingo.symbolic_regression.benchmarking.benchmark_test import BenchmarkTest
+from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
+from bingo.symbolic_regression.agraph.generator import AGraphGenerator
+from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
+from bingo.symbolic_regression.agraph.mutation import AGraphMutation
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression
+from bingo.local_optimizers import ContinuousLocalOptimization
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evolutionary_algorithms import AgeFitnessEA
+from bingo.evolutionary_algorithms import DeterministicCrowdingEA
+from bingo.evolutionary_optimizers.island import Island
 
 
 def training_function(training_data, ea_choice):

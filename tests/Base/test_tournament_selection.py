@@ -3,7 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Base.TournamentSelection import Tournament
+from bingo.selection.tournament import Tournament
 
 
 @pytest.fixture()

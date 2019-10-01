@@ -4,9 +4,10 @@
 import pytest
 import numpy as np
 
-from bingo.Base.MultipleValues import SinglePointMutation, SinglePointCrossover
-from bingo.Base.MuPlusLambdaEA import MuPlusLambda
-from bingo.Base.MuCommaLambdaEA import MuCommaLambda
+from bingo.chromosomes.multiple_values import SinglePointMutation, \
+    SinglePointCrossover
+from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
+from bingo.evolutionary_algorithms.mu_comma_lambda import MuCommaLambda
 
 from SingleValue import SingleValueChromosome
 

@@ -4,9 +4,11 @@
 import pytest
 import numpy as np
 
-from bingo.Base.FitnessFunction import FitnessFunction, VectorBasedFunction
-from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-from bingo.Base.MultipleFloats import MultipleFloatChromosome
+from bingo.evaluation.fitness_function \
+    import FitnessFunction, VectorBasedFunction
+from bingo.local_optimizers.continuous_local_opt \
+    import ContinuousLocalOptimization
+from bingo.chromosomes.multiple_floats import MultipleFloatChromosome
 
 NUM_VALS = 10
 NUM_OPT = 3

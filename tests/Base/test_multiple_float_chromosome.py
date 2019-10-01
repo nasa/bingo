@@ -4,8 +4,8 @@
 import pytest
 import numpy as np
 
-from bingo.Base.MultipleFloats import MultipleFloatChromosome,\
-                                 MultipleFloatChromosomeGenerator
+from bingo.chromosomes.multiple_floats import MultipleFloatChromosome,\
+                                              MultipleFloatChromosomeGenerator
 
 LIST_SIZE = 10
 OPT_INDEX_START = 1

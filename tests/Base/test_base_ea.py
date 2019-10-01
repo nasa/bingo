@@ -3,7 +3,8 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
+from bingo.evolutionary_algorithms.evolutionary_algorithm \
+    import EvolutionaryAlgorithm
 
 from SingleValue import SingleValueChromosome
 
@@ -11,7 +12,7 @@ from SingleValue import SingleValueChromosome
 @pytest.fixture
 def sample_ea(add_e_evaluation, add_v_variation, add_s_selection):
     return EvolutionaryAlgorithm(add_v_variation, add_e_evaluation,
-                                 add_s_selection)
+                                  add_s_selection)
 
 
 @pytest.fixture

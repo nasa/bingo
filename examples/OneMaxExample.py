@@ -2,13 +2,13 @@
 An example of bingo genetic optimization used to solve the one max problem.
 """
 import numpy as np
-from bingo.Base.VarOr import VarOr
-from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.TournamentSelection import Tournament
-from bingo.Base.EvolutionaryAlgorithm import EvolutionaryAlgorithm
-from bingo.Base.Island import Island
-from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator, \
+from bingo.variation.var_or import VarOr
+from bingo.evaluation.fitness_function import FitnessFunction
+from bingo.evaluation.evaluation import Evaluation
+from bingo.selection.tournament import Tournament
+from bingo.evolutionary_algorithms import evolutionary_algorithm
+from bingo.evolutionary_optimizers.island import Island
+from bingo.chromosomes import MultipleValueChromosomeGenerator, \
                                  SinglePointCrossover, \
                                  SinglePointMutation
 
@@ -48,8 +48,8 @@ def create_evolutionary_algorithm():
 
     selection_phase = Tournament(tournament_size=2)
 
-    return EvolutionaryAlgorithm(variation_phase, evaluation_phase,
-                                 selection_phase)
+    return evolutionary_algorithm(variation_phase, evaluation_phase,
+                                  selection_phase)
 
 
 class OneMaxFitnessFunction(FitnessFunction):

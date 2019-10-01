@@ -1,16 +1,15 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import collections
 
 import pytest
 
-from bingo.Base.MultipleValues import MultipleValueChromosomeGenerator, \
-                                 MultipleValueChromosome
-from bingo.Base.Mutation import Mutation
-from bingo.Base.Crossover import Crossover
-from bingo.Base.AgeFitnessSelection import AgeFitness
-from bingo.Base.AgeFitnessEA import AgeFitnessEA
+from bingo.chromosomes.multiple_values \
+    import MultipleValueChromosomeGenerator, MultipleValueChromosome
+from bingo.chromosomes.mutation import Mutation
+from bingo.chromosomes.crossover import Crossover
+from bingo.selection.age_fitness import AgeFitness
+from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 
 INITIAL_POP_SIZE = 10
 TARGET_POP_SIZE = 5

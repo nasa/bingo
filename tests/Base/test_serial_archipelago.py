@@ -1,20 +1,18 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import random
 
 import pytest
 import numpy as np
 
-from bingo.Base.MultipleValues import SinglePointCrossover, \
-                                      SinglePointMutation, \
-                                      MultipleValueChromosomeGenerator
-from bingo.Base.Island import Island
-from bingo.Base.MuPlusLambdaEA import MuPlusLambda
-from bingo.Base.TournamentSelection import Tournament
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.SerialArchipelago import SerialArchipelago
+from bingo.chromosomes.multiple_values import SinglePointCrossover, \
+    SinglePointMutation, MultipleValueChromosomeGenerator
+from bingo.evolutionary_optimizers.island import Island
+from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
+from bingo.selection.tournament import Tournament
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evaluation.fitness_function import FitnessFunction
+from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 
 
 POP_SIZE = 5

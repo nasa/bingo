@@ -5,9 +5,9 @@ import pytest
 import os
 from collections import namedtuple
 
-from bingo.Base.EvolutionaryOptimizer import EvolutionaryOptimizer, \
+from bingo.evolutionary_optimizers.evolutionary_optimizer import EvolutionaryOptimizer, \
     load_evolutionary_optimizer_from_file
-from bingo.Base.HallOfFame import HallOfFame
+from bingo.stats.hall_of_fame import HallOfFame
 
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', ])

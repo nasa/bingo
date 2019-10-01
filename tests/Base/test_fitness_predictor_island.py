@@ -4,15 +4,17 @@
 import pytest
 import numpy as np
 
-from bingo.Base.MultipleValues import SinglePointCrossover, SinglePointMutation, \
-                                 MultipleValueChromosomeGenerator
-from bingo.Base.FitnessPredictorIsland import FitnessPredictorIsland as FPI
-from bingo.Base import FitnessPredictorIsland
-from bingo.Base.MuPlusLambdaEA import MuPlusLambda
-from bingo.Base.TournamentSelection import Tournament
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.FitnessFunction import FitnessFunction
-from bingo.Base.HallOfFame import HallOfFame
+from bingo.chromosomes.multiple_values import SinglePointCrossover, \
+    SinglePointMutation, MultipleValueChromosomeGenerator
+from bingo.evolutionary_optimizers.fitness_predictor_island \
+    import FitnessPredictorIsland as FPI
+from bingo.evolutionary_optimizers \
+    import fitness_predictor_island as fpi_module
+from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
+from bingo.selection.tournament import Tournament
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evaluation.fitness_function import FitnessFunction
+from bingo.stats.hall_of_fame import HallOfFame
 
 
 MAIN_POPULATION_SIZE = 40
@@ -183,8 +185,9 @@ def test_fitness_predictor_island_ages(fitness_predictor_island):
 
 def test_nan_on_predicted_variance_of_trainer(mocker,
                                               fitness_predictor_island):
-    mocker.patch('bingo.Base.FitnessPredictorIsland.np.var')
-    FitnessPredictorIsland.np.var.side_effect = OverflowError
+    mocker.patch('bingo.evolutionary_optimizers.'
+                 'fitness_predictor_island.np.var')
+    fpi_module.np.var.side_effect = OverflowError
 
     island = fitness_predictor_island
     trainer = island.population[0]

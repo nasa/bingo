@@ -4,7 +4,7 @@
 import pytest
 import numpy as np
 
-from bingo.SymbolicRegression.Benchmarking.BenchmarkSuite import BenchmarkSuite
+from bingo.symbolic_regression.benchmarking.benchmark_suite import BenchmarkSuite
 
 
 def test_benchmark_suite_finds_all_benchmark_definitions():

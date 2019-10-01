@@ -5,7 +5,7 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.SymbolicRegression.AGraph import AGraph, Backend as py_backend
+from bingo.symbolic_regression.agraph import agraph, backend as py_backend
 try:
     from bingocpp.build import bingocpp as bingocpp
     CPP_LOADED = True
@@ -14,15 +14,15 @@ except ImportError:
     CPP_LOADED = False
 
 
-AGraph.Backend = py_backend
-EVALUATE = "bingo.SymbolicRegression.AGraph.AGraph.Backend.evaluate"
-EVALUATE_WTIH_DERIV = ("bingo.SymbolicRegression.AGraph.AGraph.Backend."
+agraph.Backend = py_backend
+EVALUATE = "bingo.symbolic_regression.agraph.agraph.Backend.evaluate"
+EVALUATE_WTIH_DERIV = ("bingo.symbolic_regression.agraph.agraph.Backend."
                        "evaluate_with_derivative")
 
 
 @pytest.fixture
 def invalid_agraph(sample_agraph_1):
-    test_graph = AGraph.AGraph()
+    test_graph = agraph.AGraph()
     test_graph.command_array = sample_agraph_1.command_array
     return test_graph
 
@@ -60,7 +60,7 @@ def sample_agraph_1_values():
 
 @pytest.fixture
 def all_funcs_agraph():
-    test_graph = AGraph.AGraph()
+    test_graph = agraph.AGraph()
     return _set_all_funcs_agraph_data(test_graph) 
 
 
@@ -300,7 +300,7 @@ def test_raises_error_c_gradient_invalid_agraph(invalid_agraph,
             sample_agraph_1_values.x)
 
 # NOTE: Indexing errors are segmentation faults in c++. This tests is
-# ommitted from the bingocpp.AGraph implementation.
+# ommitted from the bingocpp.agraph implementation.
 
 def test_invalid_agraph_needs_optimization(invalid_agraph_list):
     assert invalid_agraph_list.needs_local_optimization()
@@ -322,7 +322,7 @@ def test_set_optimization_params(invalid_agraph_list, sample_agraph_1_list,
 
 
 def test_setting_fitness_updates_fit_set():
-    sample_agraph = AGraph.AGraph()
+    sample_agraph = agraph.AGraph()
     assert not sample_agraph.fit_set
     sample_agraph.fitness = 0
     assert sample_agraph.fit_set
@@ -331,8 +331,8 @@ def test_setting_fitness_updates_fit_set():
 @pytest.mark.parametrize(
     'agraph',
     (
-        AGraph.AGraph(),
-        pytest.param(bingocpp.AGraph(), marks=pytest.mark.skipif(
+            agraph.AGraph(),
+            pytest.param(bingocpp.AGraph(), marks=pytest.mark.skipif(
                                         not bingocpp,
                                         reason='BingoCpp import failure'))
     )
@@ -362,7 +362,7 @@ def test_evaluate_overflow_exception(mocker,
                                      sample_agraph_1,
                                      sample_agraph_1_values):
     mocker.patch(EVALUATE)
-    AGraph.Backend.evaluate.side_effect = OverflowError
+    agraph.Backend.evaluate.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
@@ -372,7 +372,7 @@ def test_evaluate_gradient_overflow_exception(mocker,
                                               sample_agraph_1,
                                               sample_agraph_1_values):
     mocker.patch(EVALUATE_WTIH_DERIV)
-    AGraph.Backend.evaluate_with_derivative.side_effect = OverflowError
+    agraph.Backend.evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_x_gradient_at(
         sample_agraph_1_values.x)
@@ -383,7 +383,7 @@ def test_evaluate_local_opt_gradient_overflow_exception(mocker,
                                                         sample_agraph_1,
                                                         sample_agraph_1_values):
     mocker.patch(EVALUATE_WTIH_DERIV)
-    AGraph.Backend.evaluate_with_derivative.side_effect = OverflowError
+    agraph.Backend.evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
         sample_agraph_1_values.x)

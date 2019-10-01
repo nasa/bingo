@@ -3,7 +3,7 @@
 # pylint: disable=missing-docstring
 import pytest
 
-from bingo.Util.ArgumentValidation import argument_validation
+from bingo.util.argument_validation import argument_validation
 
 
 @pytest.mark.parametrize("func_arg,check", [

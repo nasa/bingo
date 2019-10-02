@@ -42,6 +42,7 @@ MINIMIZE_SET = {
     # 'trust-krylov'
 }
 
+
 class ContinuousLocalOptimization(FitnessFunction):
     """Fitness evaluation metric for individuals.
 
@@ -51,9 +52,9 @@ class ContinuousLocalOptimization(FitnessFunction):
     Parameters
     ----------
     fitness_function : `FitnessFunction`
-        A FitnessFunction that evaluates the fitness of a `chromosomes` in bingo.
-        For certain algorithms, `VectorBasedFunction` is required. Please see
-        algorithm listing for details.
+        A FitnessFunction that evaluates the fitness of a `chromosomes` in
+        bingo. For certain algorithms, `VectorBasedFunction` is required.
+        Please see algorithm listing for details.
     algorithm : string
         An algorithm that is used in the local optimization of a
         `chromosomes`. The default algorithm is *Nelder-Mead*. The

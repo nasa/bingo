@@ -81,11 +81,9 @@ class AgeFitness(Selection):
     def _get_unique_rand_indices(self, max_int):
         if self._selection_size >= max_int:
             return list(range(max_int))
-        elif self._selection_size < 5:
+        if self._selection_size < 5:
             return self._dumb_selection(max_int)
-        else:
-            return np.random.choice(max_int, self._selection_size,
-                                    replace=False)
+        return np.random.choice(max_int, self._selection_size, replace=False)
 
     def _dumb_selection(self, max_int):
         inds = set(np.random.randint(max_int, size=self._selection_size))

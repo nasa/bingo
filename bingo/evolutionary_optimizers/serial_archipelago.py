@@ -4,8 +4,8 @@ This module defines the Archipelago data structure that runs serially on
 one processor.
 """
 import copy
-import numpy as np
 import logging
+import numpy as np
 
 from .archipelago import Archipelago
 from ..util.log import DETAILED_INFO
@@ -87,11 +87,11 @@ class SerialArchipelago(Archipelago):
                     for island in self._islands])
 
     @staticmethod
-    def _generate_islands(island, num_islands):
-        island_list = [copy.deepcopy(island)
+    def _generate_islands(isl, num_islands):
+        island_list = [copy.deepcopy(isl)
                        for _ in range(num_islands)]
-        for island in island_list:
-            island.regenerate_population()
+        for isl in island_list:
+            isl.regenerate_population()
         return island_list
 
     def _shuffle_island_indices(self):

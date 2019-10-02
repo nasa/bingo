@@ -53,12 +53,11 @@ def _get_log_level_from_verbosity(verbosity):
                      "debug": logging.DEBUG}
     if isinstance(verbosity, str):
         return verbosity_map[verbosity]
-    elif isinstance(verbosity, int):
+    if isinstance(verbosity, int):
         return verbosity
-    else:
-        warnings.warn("Unrecognized verbosity level provided. "
-                      "Using standard verbosity.")
-        return INFO
+    warnings.warn("Unrecognized verbosity level provided. "
+                  "Using standard verbosity.")
+    return INFO
 
 
 def _get_console_format_string(module, timestamp):
@@ -120,5 +119,5 @@ class StatsFilter(logging.Filter):
 
     def filter(self, record):
         if "stats" in record.__dict__:
-            return not (self._filter_out == record.stats)
+            return not self._filter_out == record.stats
         return self._filter_out

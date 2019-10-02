@@ -3,8 +3,9 @@ The Pareto Front is an extension of hall of fame to construct a list of all the
 non-dominated individuals.  An individual dominates another if all of it's keys
 are not worse and at least one is better (smaller) than the other's keys.
 """
-from .hall_of_fame import HallOfFame
 import numpy as np
+
+from .hall_of_fame import HallOfFame
 
 
 class ParetoFront(HallOfFame):

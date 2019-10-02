@@ -31,7 +31,7 @@ jobs:
         - export PYTHONPATH=$PYTHONPATH:$PWD
       script:
         - python tests/performance_benchmarks.py
-        - python tests/island_benchmarks.p
+        - python tests/island_benchmarks.py
 
     - name: "examples"
       before_install:

@@ -41,6 +41,7 @@ jobs:
         - pip install jupyter
         - pip install nbconvert
         - pip install matplotlib
+        - ./.build_bingocpp.sh
       before_script:
         - export PYTHONPATH=$PYTHONPATH:$PWD
       script:

@@ -21,8 +21,7 @@ jobs:
       after_script:
         - coveralls
 
-  - name: "performance benchmarks"
-    install:
+  - install:
       - pip install -r requirements.txt
       - ./.build_bingocpp.sh
     before_script:
@@ -30,12 +29,14 @@ jobs:
     script:
       - python tests/performance_benchmarks.py
       - python tests/island_benchmarks.p
+    name: "performance benchmarks"
 
-  - name: "examples"
-    install:
+
+  - install:
       - pip install -r requirements.txt
       - pip install nbconvert
     before_script:
       - export PYTHONPATH=$PYTHONPATH:$PWD
     script:
       - examples/.test_examples.sh
+    name: "examples"

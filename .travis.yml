@@ -4,8 +4,8 @@ python: "3.6"
 
 jobs:
   include:
-    - stage: test
-      name: unit tests
+    - stage: "test"
+      name: "unit tests"
       before_install:
         - sudo apt-get install -y -q mpich libmpich-dev
       install:
@@ -20,24 +20,22 @@ jobs:
         - tests/run_tests.sh
       after_script:
         - coveralls
-#
-#  - stage: test
-#    name: performance benchmarks
-#    install:
-#      - pip install -r requirements.txt
-#      - ./.build_bingocpp.sh
-#    before_script:
-#      - export PYTHONPATH=$PYTHONPATH:$PWD
-#    script:
-#      - python tests/performance_benchmarks.py
-#      - python tests/island_benchmarks.p
-#
-#  - stage: test
-#    name: examples
-#    install:
-#      - pip install -r requirements.txt
-#      - pip install nbconvert
-#    before_script:
-#      - export PYTHONPATH=$PYTHONPATH:$PWD
-#    script:
-#      - examples/.test_examples.sh
+
+  - name: "performance benchmarks"
+    install:
+      - pip install -r requirements.txt
+      - ./.build_bingocpp.sh
+    before_script:
+      - export PYTHONPATH=$PYTHONPATH:$PWD
+    script:
+      - python tests/performance_benchmarks.py
+      - python tests/island_benchmarks.p
+
+  - name: "examples"
+    install:
+      - pip install -r requirements.txt
+      - pip install nbconvert
+    before_script:
+      - export PYTHONPATH=$PYTHONPATH:$PWD
+    script:
+      - examples/.test_examples.sh

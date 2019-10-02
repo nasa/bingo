@@ -20,6 +20,7 @@ script:
   - tests/run_tests.sh
   - python tests/performance_benchmarks.py
   - python tests/island_benchmarks.py
+  - examples/.test_examples.sh
 
 after_script:
   - coveralls

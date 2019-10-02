@@ -322,6 +322,9 @@ def driver():
             print(num_failures, "failed,", end=" ")
         print(num_success, "passed ==========")
 
+    if num_failures > 0:
+        exit(-1)
+
 
 if __name__ == "__main__":
     driver()

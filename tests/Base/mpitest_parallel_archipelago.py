@@ -230,6 +230,7 @@ def test_stale_checkpoint_removal():
                      not os.path.isfile("stale_check_1.pkl"),
                      not os.path.isfile("stale_check_2.pkl"),
                      os.path.isfile("stale_check_3.pkl")]
+    COMM.barrier()
     if COMM_RANK == 0:
         os.remove("stale_check_3.pkl")
     return mpi_assert_true(all(correct_files))

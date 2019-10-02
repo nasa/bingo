@@ -5,9 +5,11 @@ import csv
 import timeit
 import numpy as np
 
-from bingo.SymbolicRegression.AGraph import AGraph, Backend as pyBackend
-from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.SymbolicRegression.AGraph.ComponentGenerator import ComponentGenerator
+from bingo.symbolic_regression.agraph \
+    import agraph as agraph_module, backend as pyBackend
+from bingo.symbolic_regression.agraph.generator import AGraphGenerator
+from bingo.symbolic_regression.agraph.component_generator \
+    import ComponentGenerator
 from bingocpp.build import bingocpp as cppBackend
 
 
@@ -130,7 +132,7 @@ class StatsPrinter:
 def do_benchmarking():
     printer = StatsPrinter()
     for backend, name in [[pyBackend, "py"], [cppBackend, "c++"]]:
-        AGraph.Backend = backend
+        agraph_module.Backend = backend
         printer.add_stats(name + ": evaluate",
                           timeit.repeat(benchmark_evaluate,
                                         number=100, repeat=10))

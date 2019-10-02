@@ -9,10 +9,11 @@ from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
                                                         ExplicitTrainingData
-from bingo.evolutionary_algorithms import AgeFitnessEA
+from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers import ContinuousLocalOptimization
+from bingo.local_optimizers.continuous_local_opt \
+    import ContinuousLocalOptimization
 from performance_benchmarks import StatsPrinter
 
 POP_SIZE = 128
@@ -25,11 +26,14 @@ STOP = 10
 ERROR_TOLERANCE = 10e-9
 SEED = 20
 
+
 def init_x_vals(start, stop, num_points):
     return np.linspace(start, stop, num_points).reshape([-1, 1])
 
+
 def equation_eval(x):
     return x**2 + 3.5*x**3
+
 
 def init_island():
     np.random.seed(15)
@@ -58,7 +62,9 @@ def init_island():
     island = Island(ea_algorithm, agraph_generator, POP_SIZE)
     return island
 
+
 TEST_ISLAND = init_island()
+
 
 class IslandStatsPrinter(StatsPrinter):
     def __init__(self):
@@ -68,10 +74,12 @@ class IslandStatsPrinter(StatsPrinter):
                                                           "STD", "MIN", "MAX"),
                         "-"*78]
 
+
 def explicit_regression_benchmark():
     island = init_island()
     while island.get_best_individual().fitness > ERROR_TOLERANCE:
         island._execute_generational_step()
+
 
 def do_benchmarking():
     printer = IslandStatsPrinter()
@@ -80,6 +88,7 @@ def do_benchmarking():
                                     number=4,
                                     repeat=4))
     printer.print()
+
 
 if __name__ == "__main__":
     do_benchmarking()

@@ -166,7 +166,7 @@ def test_selection_size_larger_than_population(weak_population, fit_individual,
     population = weak_population + [fit_individual]
     onemax_evaluator(population)
 
-    age_fitness_selection = AgeFitness(selection_size=(len(population)+100))
+    age_fitness_selection = AgeFitness(selection_size=(len(population) + 100))
 
     target_pop_size = 2
     new_population = age_fitness_selection(population, target_pop_size)

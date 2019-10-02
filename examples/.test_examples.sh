@@ -1,3 +1,5 @@
+set -e
+
 for i in examples/*.ipynb
 do
   echo "Running Notebook: $i"

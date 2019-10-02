@@ -22,6 +22,8 @@ jobs:
         - coveralls
 
     - name: "performance benchmarks"
+      before_install:
+        - sudo apt-get install -y -q mpich libmpich-dev
       install:
         - pip install -r requirements.txt
         - ./.build_bingocpp.sh
@@ -32,6 +34,8 @@ jobs:
         - python tests/island_benchmarks.p
 
     - name: "examples"
+      before_install:
+        - sudo apt-get install -y -q mpich libmpich-dev
       install:
         - pip install -r requirements.txt
         - pip install nbconvert

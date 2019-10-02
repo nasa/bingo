@@ -38,7 +38,7 @@ jobs:
         - sudo apt-get install -y -q mpich libmpich-dev
       install:
         - pip install -r requirements.txt
-        - pip install jupyter_client
+        - pip install jupyter
         - pip install nbconvert
       before_script:
         - export PYTHONPATH=$PYTHONPATH:$PWD

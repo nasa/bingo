@@ -6,6 +6,10 @@ import pytest
 import numpy as np
 
 from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData
+try:
+    from bingocpp.build import bingocpp as bingocpp
+except ImportError:
+    bingocpp = None
 
 
 class SampleTrainingData:
@@ -14,22 +18,60 @@ class SampleTrainingData:
         self.y = y
 
 
-@pytest.fixture()
-def dummy_training_data():
+def init_x_and_y():
     x = np.linspace(0, 1, 50, endpoint=False).reshape((-1, 5))
     y = np.linspace(0.2, 4.7, 10).reshape((-1, 1))
+    return (x, y)
+
+
+@pytest.fixture()
+def dummy_training_data():
+    x, y = init_x_and_y()
     return SampleTrainingData(x, y)
 
 
-def test_explicit_regression(dummy_sum_equation, dummy_training_data):
+@pytest.fixture()
+def dummy_training_data_cpp():
+    x, y = init_x_and_y()
+    return bingocpp.ExplicitTrainingData(x, y)
+
+
+@pytest.fixture(params=[
+    "python",
+    pytest.param("cpp", marks=pytest.mark.skipif( not bingocpp,
+                        reason='BingoCpp import failure'))
+])
+def explicit_data(request, dummy_training_data, dummy_training_data_cpp,
+                           dummy_sum_equation, dummy_sum_equation_cpp):
+    if request.param == "python":
+        return (dummy_training_data, dummy_sum_equation)
+    return (dummy_training_data_cpp, dummy_sum_equation_cpp)
+
+
+@pytest.fixture(params=[
+    "python",
+    pytest.param("cpp", marks=pytest.mark.skipif( not bingocpp,
+                        reason='BingoCpp import failure'))
+])
+def explicit_data_nan(request, dummy_sum_equation, dummy_sum_equation_cpp):
+    x, y = init_x_and_y()
+    x[0, 0] = np.nan
+    if request.param == "python":
+        return (SampleTrainingData(x, y), dummy_sum_equation)
+    return (bingocpp.ExplicitTrainingData(x, y), dummy_sum_equation_cpp)
+
+
+def test_explicit_regression(explicit_data):
+    dummy_training_data = explicit_data[0]
+    dummy_sum_equation = explicit_data[1]
     regressor = ExplicitRegression(dummy_training_data)
     fitness = regressor(dummy_sum_equation)
     np.testing.assert_almost_equal(fitness, 0)
 
 
-def test_explicit_regression_with_nan(dummy_sum_equation,
-                                      dummy_training_data):
-    dummy_training_data.x[0, 0] = np.nan
+def test_explicit_regression_with_nan(explicit_data_nan):
+    dummy_training_data = explicit_data_nan[0]
+    dummy_sum_equation = explicit_data_nan[1]
     regressor = ExplicitRegression(dummy_training_data)
     fitness = regressor(dummy_sum_equation)
     assert np.isnan(fitness)
@@ -60,9 +102,14 @@ def test_poorly_shaped_input_y_of_training_data():
             _ = ExplicitTrainingData(x, y)
 
 
-def test_getting_subset_of_training_data():
+@pytest.mark.parametrize("python", 
+    [True, pytest.param(False, marks = pytest.mark.skipif(not bingocpp,
+                               reason = 'BingoCpp import failure'))])
+def test_getting_subset_of_training_data(python):
     data_input = np.arange(5).reshape((-1, 1))
-    training_data = ExplicitTrainingData(data_input, data_input)
+    training_data = ExplicitTrainingData(data_input, data_input) \
+                    if python \
+                    else bingocpp.ExplicitTrainingData(data_input, data_input)
     subset_training_data = training_data[[0, 2, 3]]
 
     expected_subset = np.array([[0], [2], [3]])
@@ -72,8 +119,11 @@ def test_getting_subset_of_training_data():
                                   expected_subset)
 
 
+@pytest.mark.parametrize("python", 
+    [True, pytest.param(False, marks = pytest.mark.skipif(not bingocpp,
+                               reason = 'BingoCpp import failure'))])
 @pytest.mark.parametrize("input_size", [2, 5, 50])
-def test_correct_training_data_length(input_size):
+def test_correct_training_data_length(python, input_size):
     data_input = np.arange(input_size).reshape((-1, 1))
     training_data = ExplicitTrainingData(data_input, data_input)
     assert len(training_data) == input_size

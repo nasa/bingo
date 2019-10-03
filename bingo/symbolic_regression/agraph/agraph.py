@@ -52,7 +52,8 @@ from ...local_optimizers import continuous_local_opt
 
 try:
     from bingocpp.build import bingocpp as Backend
-except ImportError:
+except ImportError as e:
+    print(e)
     from . import backend as Backend
 
 LOGGER = logging.getLogger(__name__)

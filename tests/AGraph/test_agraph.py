@@ -8,10 +8,12 @@ import numpy as np
 from bingo.symbolic_regression.agraph import agraph, backend as py_backend
 try:
     from bingocpp.build import bingocpp as bingocpp
+    cpp_agraph = bingocpp.AGraph()
     CPP_LOADED = True
 except ImportError:
     bingocpp = None
     CPP_LOADED = False
+    cpp_agraph = None
 
 
 agraph.Backend = py_backend
@@ -138,8 +140,8 @@ def expected_agraph_behavior_cpp(request):
     return prop
 
 
-def test_cpp_AGraph_could_be_imported():
-    assert CPP_LOADED and not bingocpp.AGraph() == None
+def test_cpp_agraph_could_be_imported():
+    assert CPP_LOADED and bingocpp.AGraph() is not None
 
 
 def test_agraph_for_proper_super_init(sample_agraph_1):
@@ -174,16 +176,19 @@ def test_agraph_complexity(expected_agraph_behavior):
            expected_agraph_behavior["agraph"].get_complexity()
 
 
+@pytest.mark.skipif(not bingocpp, reason='BingoCpp import failure')
 def test_agraph_latex_print_Cpp(expected_agraph_behavior_cpp):
     assert expected_agraph_behavior_cpp["latex string"] == \
            expected_agraph_behavior_cpp["agraph"].get_latex_string()
 
 
+@pytest.mark.skipif(not bingocpp, reason='BingoCpp import failure')
 def test_agraph_console_print_cpp(expected_agraph_behavior_cpp):
     assert expected_agraph_behavior_cpp["console string"] == \
            expected_agraph_behavior_cpp["agraph"].__str__()
 
 
+@pytest.mark.skipif(not bingocpp, reason='BingoCpp import failure')
 def test_agraph_complexity_cpp(expected_agraph_behavior_cpp):
     assert expected_agraph_behavior_cpp["complexity"] == \
            expected_agraph_behavior_cpp["agraph"].get_complexity()
@@ -206,6 +211,7 @@ def test_agraph_stack_print(sample_agraph_1):
     assert sample_agraph_1.get_stack_string() == expected_str
 
 
+@pytest.mark.skipif(not bingocpp, reason='BingoCpp import failure')
 def test_agraph_stack_print_cpp(sample_agraph_1_cpp):
     expected_str = "---full stack---\n" +\
                 "(0) <= X_0\n" +\
@@ -241,6 +247,7 @@ def test_invalid_agraph_stack_print(invalid_agraph):
     assert invalid_agraph.get_stack_string() == expected_str
 
 
+@pytest.mark.skipif(not bingocpp, reason='BingoCpp import failure')
 def test_invalid_agraph_stack_print_cpp(invalid_agraph_cpp):
     expected_str = "---full stack---\n" +\
                    "(0) <= X_0\n" +\
@@ -328,11 +335,13 @@ def test_setting_fitness_updates_fit_set():
     assert sample_agraph.fit_set
 
 
+
+
 @pytest.mark.parametrize(
     'agraph',
     (
             agraph.AGraph(),
-            pytest.param(bingocpp.AGraph(), marks=pytest.mark.skipif(
+            pytest.param(cpp_agraph, marks=pytest.mark.skipif(
                                         not bingocpp,
                                         reason='BingoCpp import failure'))
     )

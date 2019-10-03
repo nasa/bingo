@@ -7,8 +7,10 @@ import numpy as np
 from bingo.symbolic_regression.equation import Equation
 try:
     from bingocpp.build import bingocpp as bingocpp
+    CppEquation = bingocpp.Equation
 except ImportError:
     bingocpp = None
+    CppEquation = object
 
 class SumEquation(Equation):
     def evaluate_equation_at(self, x):
@@ -36,7 +38,7 @@ class SumEquation(Equation):
     def distance(self, _chromosome):
         return 0
 
-class SumEquationCpp(bingocpp.Equation):
+class SumEquationCpp(CppEquation):
     def evaluate_equation_at(self, x):
         return np.sum(x, axis=1).reshape((-1, 1))
 

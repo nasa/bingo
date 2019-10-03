@@ -32,13 +32,15 @@ def dummy_training_data():
 
 @pytest.fixture()
 def dummy_training_data_cpp():
+    if bingocpp is None:
+        return None
     x, y = init_x_and_y()
     return bingocpp.ExplicitTrainingData(x, y)
 
 
 @pytest.fixture(params=[
     "python",
-    pytest.param("cpp", marks=pytest.mark.skipif( not bingocpp,
+    pytest.param("cpp", marks=pytest.mark.skipif(not bingocpp,
                         reason='BingoCpp import failure'))
 ])
 def explicit_data(request, dummy_training_data, dummy_training_data_cpp,
@@ -50,7 +52,7 @@ def explicit_data(request, dummy_training_data, dummy_training_data_cpp,
 
 @pytest.fixture(params=[
     "python",
-    pytest.param("cpp", marks=pytest.mark.skipif( not bingocpp,
+    pytest.param("cpp", marks=pytest.mark.skipif(not bingocpp,
                         reason='BingoCpp import failure'))
 ])
 def explicit_data_nan(request, dummy_sum_equation, dummy_sum_equation_cpp):

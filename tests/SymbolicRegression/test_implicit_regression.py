@@ -36,6 +36,8 @@ def dummy_training_data():
 
 @pytest.fixture()
 def dummy_training_data_cpp():
+    if bingocpp is None:
+        return None
     x, dx_dt = init_x_and_dx_dt()
     return bingocpp.ImplicitTrainingData(x, dx_dt)
 

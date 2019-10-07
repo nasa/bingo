@@ -60,6 +60,15 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
         for param, index in zip(params, self._needs_opt_list):
             self.values[index] = param
 
+    def get_local_optimization_params(self):
+        """Gets local optimization_params
+
+        Returns
+        -------
+        list
+        """
+        return [self._values[i] for i in self._needs_opt_list]
+
 
 class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):
     """Generation of a population of Multi-Value chromosomes

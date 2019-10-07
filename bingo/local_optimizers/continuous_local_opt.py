@@ -228,3 +228,13 @@ class ChromosomeInterface(metaclass=ABCMeta):
                  Values to set the parameters
         """
         raise NotImplementedError
+
+    @abstractmethod
+    def get_local_optimization_params(self):
+        """get local optimization parameters
+
+        Returns
+        -------
+        list
+        """
+        raise NotImplementedError

@@ -205,6 +205,17 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._constants = params
         self._needs_opt = False
 
+    def get_local_optimization_params(self):
+        """get parameters for local optimization
+
+        Count constants and set up for optimization
+
+        Returns
+        -------
+        list
+        """
+        return list(self._num_constants)
+
     def evaluate_equation_at(self, x):
         """Evaluate the agraph equation.
 

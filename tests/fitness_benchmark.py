@@ -24,64 +24,71 @@ def benchmark_explicit_regression_cpp():
         _ = TEST_EXPLICIT_REGRESSION_CPP.__call__(indv)
 
 
-def benchmark_implicit_regression_2():
+def benchmark_implicit_regression():
     for indv in TEST_AGRAPHS:
-        _ = TEST_IMPLICIT_REGRESSION_2.__call__(indv)
+        _ = TEST_IMPLICIT_REGRESSION.__call__(indv)
 
 
-def benchmark_implicit_regression_2_cpp():
+def benchmark_implicit_regression_cpp():
     for indv in TEST_AGRAPHS_CPP:
-        _ = TEST_IMPLICIT_REGRESSION_2_CPP.__call__(indv)
+        _ = TEST_IMPLICIT_REGRESSION_CPP.__call__(indv)
 
-
-def benchmark_implicit_regression_1():
-    for indv in TEST_AGRAPHS:
-        _ = TEST_IMPLICIT_REGRESSION_1.__call__(indv)
-
-
-def benchmark_implicit_regression_1_cpp():
-    for indv in TEST_AGRAPHS_CPP:
-        _ = TEST_IMPLICIT_REGRESSION_1_CPP.__call__(indv)
 
 def _initialize_implicit_data():
     x, dx_dt, _ = calculate_partials(TEST_X)
     return x, dx_dt
 
+
 TEST_X_PARTIALS, TEST_DX_DT = _initialize_implicit_data()
 TEST_Y_ZEROS = np.zeros(TEST_X_PARTIALS.shape)
 
-TEST_EXPLICIT_TRAINING_DATA =  ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
-TEST_EXPLICIT_REGRESSION = ExplicitRegression(TEST_EXPLICIT_TRAINING_DATA)
-TEST_EXPLICIT_TRAINING_DATA_CPP \
-    = cppBackend.ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
-TEST_EXPLICIT_REGRESSION_CPP \
-    = cppBackend.ExplicitRegression(TEST_EXPLICIT_TRAINING_DATA_CPP)
 
-TEST_IMPLICIT_TRAINING_DATA_2 = ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
-TEST_IMPLICIT_REGRESSION_2 = ImplicitRegression(TEST_IMPLICIT_TRAINING_DATA_2)
-TEST_IMPLICIT_TRAINING_DATA_2_CPP \
-    = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
-TEST_IMPLICIT_REGRESSION_2_CPP \
-    = cppBackend.ImplicitRegression(TEST_IMPLICIT_TRAINING_DATA_2_CPP)
+def explicit_regression():
+    TEST_EXPLICIT_TRAINING_DATA \
+        = ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
+    return ExplicitRegression(TEST_EXPLICIT_TRAINING_DATA)
 
-TEST_IMPLICIT_TRAINING_DATA_1 = ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
-TEST_IMPLICIT_REGRESSION_1 = ImplicitRegression(TEST_IMPLICIT_TRAINING_DATA_1)
-TEST_IMPLICIT_TRAINING_DATA_1_CPP \
+
+def explicit_regression_cpp():
+    training_data = cppBackend.ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
+    return cppBackend.ExplicitRegression(training_data)
+
+
+def implicit_regression():
+    training_data = ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
+    return ImplicitRegression(training_data)
+
+
+def implicit_regression_cpp():
+    training_data = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
+    return cppBackend.ImplicitRegression(training_data)
+
+
+TEST_EXPLICIT_REGRESSION = explicit_regression()
+TEST_EXPLICIT_REGRESSION_CPP = explicit_regression_cpp()
+
+TEST_IMPLICIT_REGRESSION = implicit_regression()
+TEST_IMPLICIT_TRAINING_DATA_CPP \
     = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
-TEST_IMPLICIT_REGRESSION_1_CPP \
-    = cppBackend.ImplicitRegression(TEST_IMPLICIT_TRAINING_DATA_1_CPP)
+TEST_IMPLICIT_REGRESSION_CPP \
+    = cppBackend.ImplicitRegression(TEST_IMPLICIT_TRAINING_DATA_CPP)
+
 
 def do_benchmarking():
-    printer = benchmark_data.StatsPrinter()
-    benchmarks = [[benchmark_explicit_regression, 
-                   benchmark_explicit_regression_cpp], 
-                  [benchmark_implicit_regression_2,
-                   benchmark_implicit_regression_2_cpp],
-                  [benchmark_implicit_regression_1,
-                   benchmark_implicit_regression_1_cpp]]
-    for regression, regression_cpp in benchmarks:
+    benchmarks = [
+        [benchmark_explicit_regression, benchmark_explicit_regression_cpp,
+         "EXPLICIT REGRESSION BENCHMARKS"], 
+        [benchmark_implicit_regression, benchmark_implicit_regression_cpp,
+         "IMPLICIT REGRESSION BENCHMARKS"]]
+
+    stats_printer_list = []
+    for regression, regression_cpp, reg_name in benchmarks:
+        printer = benchmark_data.StatsPrinter(reg_name)
         _run_benchmarks(printer, regression, regression_cpp)
-    printer.print()
+        stats_printer_list.append(printer)
+
+    _print_stats(stats_printer_list)
+
 
 def _run_benchmarks(printer, regression, regression_cpp):
     for backend, name in [[pyBackend, " py"], [cppBackend, "c++"]]:
@@ -92,6 +99,12 @@ def _run_benchmarks(printer, regression, regression_cpp):
     printer.add_stats("c++: fitness c++: evaluate ",
                           timeit.repeat(regression_cpp,
                                         number=100, repeat=10))
+
+
+def _print_stats(printer_list):
+    for printer in printer_list:
+        printer.print()
+
 
 if __name__ == '__main__':
     do_benchmarking()

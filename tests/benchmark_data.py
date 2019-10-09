@@ -11,17 +11,20 @@ from bingo.symbolic_regression.agraph.component_generator \
 
 from bingocpp.build import bingocpp
 
+LOG_WIDTH = 78
 
 class StatsPrinter:
-    def __init__(self):
+    def __init__(self, title="PERFORMANCE BENCHMARKS"):
         self._header_format_string = \
             "{:<26}   {:>10} +- {:<10}   {:^10}   {:^10}"
         self._format_string = \
             "{:<26}   {:>10.4f} +- {:<10.4f}   {:^10.4f}   {:^10.4f}"
-        self._output = ["-"*23+":::: PERFORMANCE BENCHMARKS ::::" + "-"*23,
-                        self._header_format_string.format("NAME", "MEAN",
-                                                          "STD", "MIN", "MAX"),
-                        "-"*78]
+        diff = LOG_WIDTH - len(title) - 10
+        self._output = [
+            "-"*int(diff/2)+":::: {} ::::".format(title) + "-"*int((diff + 1)/2),
+            self._header_format_string.format("NAME", "MEAN",
+                                              "STD", "MIN", "MAX"),
+            "-"*LOG_WIDTH]
 
     def add_stats(self, name, times):
         std_time = np.std(times)
@@ -36,6 +39,7 @@ class StatsPrinter:
     def print(self):
         for line in self._output:
             print(line)
+        print()
 
 
 def generate_random_individuals(num_individuals, stack_size):

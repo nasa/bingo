@@ -68,10 +68,7 @@ TEST_EXPLICIT_REGRESSION = explicit_regression()
 TEST_EXPLICIT_REGRESSION_CPP = explicit_regression_cpp()
 
 TEST_IMPLICIT_REGRESSION = implicit_regression()
-TEST_IMPLICIT_TRAINING_DATA_CPP \
-    = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
-TEST_IMPLICIT_REGRESSION_CPP \
-    = cppBackend.ImplicitRegression(TEST_IMPLICIT_TRAINING_DATA_CPP)
+TEST_IMPLICIT_REGRESSION_CPP = implicit_regression_cpp()
 
 
 def do_benchmarking():

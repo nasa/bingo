@@ -9,6 +9,10 @@ from .agraph import AGraph
 from ...chromosomes.generator import Generator
 from ...util.argument_validation import argument_validation
 
+try:
+    from bingocpp.build import bingocpp as bingocpp
+except ImportError:
+    bingocpp = None
 
 class AGraphGenerator(Generator):
     """Generates acyclic graph individuals
@@ -21,11 +25,12 @@ class AGraphGenerator(Generator):
                           Generator of stack components of agraphs
     """
     @argument_validation(agraph_size={">=": 1})
-    def __init__(self, agraph_size, component_generator):
+    def __init__(self, agraph_size, component_generator, cpp=False):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
         self._manual_constants = \
             not component_generator.automatic_constant_optimization
+        self._generate_cpp = cpp
 
     def __call__(self):
         """Generates random agraph individual.
@@ -37,7 +42,9 @@ class AGraphGenerator(Generator):
         Agraph
             new random acyclic graph individual
         """
-        individual = AGraph(manual_constants=self._manual_constants)
+        individual = bingocpp.AGraph(manual_constants=self._manual_constants) \
+                     if self._generate_cpp and bingocpp \
+                     else AGraph(manual_constants=self._manual_constants)
         individual.command_array = self._create_command_array()
         if self._manual_constants:
             individual.constants = self._generate_manual_constants(individual)

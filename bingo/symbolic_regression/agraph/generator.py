@@ -4,6 +4,7 @@ This module contains the implementation of the generation of random acyclic
 graph individuals.
 """
 import numpy as np
+import warnings
 
 from .agraph import AGraph
 from ...chromosomes.generator import Generator
@@ -30,7 +31,13 @@ class AGraphGenerator(Generator):
         self.component_generator = component_generator
         self._manual_constants = \
             not component_generator.automatic_constant_optimization
-        self._generate_cpp = cpp
+        if cpp and not bingocpp:
+            warnings.WarningMessage('Import error: bingocpp not loaded. \
+                                     Program will default to python backend.')
+            self._backend_generator_function = self._python_generator_function
+        else:
+            self._backend_generator_function = self._cpp_generator_function \
+                if cpp else self._python_generator_function
 
     def __call__(self):
         """Generates random agraph individual.
@@ -42,13 +49,17 @@ class AGraphGenerator(Generator):
         Agraph
             new random acyclic graph individual
         """
-        individual = bingocpp.AGraph(manual_constants=self._manual_constants) \
-                     if self._generate_cpp and bingocpp \
-                     else AGraph(manual_constants=self._manual_constants)
+        individual = self._backend_generator_function()
         individual.command_array = self._create_command_array()
         if self._manual_constants:
             individual.constants = self._generate_manual_constants(individual)
         return individual
+
+    def _python_generator_function(self):
+        return AGraph(self._manual_constants)
+
+    def _cpp_generator_function(self):
+        return bingocpp.AGraph(self._manual_constants)
 
     def _generate_manual_constants(self, individual):
         individual.force_renumber_constants()

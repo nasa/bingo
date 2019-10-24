@@ -3,8 +3,9 @@
 This module contains the implementation of the generation of random acyclic
 graph individuals.
 """
-import numpy as np
 import warnings
+
+import numpy as np
 
 from .agraph import AGraph
 from ...chromosomes.generator import Generator

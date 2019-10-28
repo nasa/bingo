@@ -31,6 +31,7 @@ jobs:
         - export PYTHONPATH=$PYTHONPATH:$PWD
       script:
         - python tests/performance_benchmarks.py
+        - python tests/fitness_benchmark.py
         - python tests/island_benchmarks.py
 
     - name: "examples"

@@ -18,6 +18,12 @@ def test_raises_error_invalid_agraph_size_gen(agraph_size,
     with pytest.raises(expected_error):
         _ = AGraphGenerator(agraph_size, sample_component_generator)
 
+@pytest.mark.parametrize("cpp_backend", [False, True])
+def test_return_correct_agraph_backend(cpp_backend, sample_component_generator):
+    generate_agraph = AGraphGenerator(6, sample_component_generator, cpp_backend)
+    agraph = generate_agraph()
+    assert agraph.is_cpp() ==  cpp_backend
+
 
 def test_generate(sample_component_generator):
     np.random.seed(0)

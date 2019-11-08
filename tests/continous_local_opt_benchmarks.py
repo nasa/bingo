@@ -82,7 +82,7 @@ def _reset_test_data_helper(agraph_list, benchmarking_array):
 
 def _create_fresh_benchmarking_array(agraph_list, benchmarking_array):
     benchmarking_array.clear()
-    for num_runs in range(0, benchmark_data.BENCHMARK_EVALUATION_COUNT):
+    for num_runs in range(0, 10):
         run_list = []
         for agraph in agraph_list:
             run_list.append(agraph.copy())
@@ -154,4 +154,4 @@ def _print_stats(printer_list):
 
 
 if __name__ == '__main__':
-    do_benchmarking()
+    do_benchmarking(True)

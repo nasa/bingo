@@ -4,14 +4,24 @@
 import csv
 import numpy as np
 
-from bingo.symbolic_regression.agraph import agraph as agraph_module
+from bingo.symbolic_regression.agraph \
+    import agraph as agraph_module, backend as pyBackend
+from bingocpp.build import bingocpp as cppBackend
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
-
+from bingo.symbolic_regression.implicit_regression \
+    import ImplicitRegression, ImplicitTrainingData, calculate_partials
+from bingo.symbolic_regression.explicit_regression \
+    import ExplicitRegression, ExplicitTrainingData
 from bingocpp.build import bingocpp
 
 LOG_WIDTH = 78
+NUM_AGRAPHS_INDVS = 100
+COMMAND_ARRAY_SIZE = 128
+NUM_X_VALUES = 128
+BENCHMARK_EVALUATION_COUNT = 100
+BENCHMARK_DATA_POINTS = 10
 
 class StatsPrinter:
     def __init__(self, title="PERFORMANCE BENCHMARKS"):
@@ -42,12 +52,14 @@ class StatsPrinter:
         print()
 
 
-def generate_random_individuals(num_individuals, stack_size):
+def generate_random_individuals(num_individuals, stack_size, optimize_constants=False):
     np.random.seed(0)
     generate_agraph = set_up_agraph_generator(stack_size)
 
-    individuals = [generate_agraph() for _ in range(num_individuals)]
-    set_constants(individuals)
+    individuals = generate_indv_list_that_needs_local_optimiziation(
+        generate_agraph, num_individuals)
+    if not optimize_constants:
+        set_constants(individuals)
 
     return individuals
 
@@ -60,6 +72,18 @@ def set_up_agraph_generator(stack_size):
         generator.add_operator(i)
     generate_agraph = AGraphGenerator(stack_size, generator)
     return generate_agraph
+
+
+def generate_indv_list_that_needs_local_optimiziation(generate_agraph,
+                                                      num_individuals):
+    count = 0
+    indv_list = []
+    while count < num_individuals:
+        indv = generate_agraph()
+        if (indv.needs_local_optimization()):
+            indv_list.append(indv)
+            count += 1
+    return indv_list
 
 
 def set_constants(individuals):
@@ -81,6 +105,7 @@ def copy_to_cpp(indvs_python):
         agraph_cpp.command_array = indv.command_array
         indvs_cpp.append(agraph_cpp)
     return indvs_cpp
+
 
 def generate_random_x(size):
     np.random.seed(0)
@@ -109,7 +134,6 @@ def write_constants(test_agraph_list):
             num_consts = len(consts)
             consts = np.insert(consts, 0, num_consts, axis=0)
             const_file_writer.writerow(consts)
-
     const_file.close()
 
 
@@ -121,6 +145,41 @@ def write_x_vals(test_x_vals):
             x_file_writer.writerow(row)
     x_file.close()
 
-TEST_AGRAPHS = generate_random_individuals(100, 128)
-TEST_X = generate_random_x(128)
+
+def initialize_implicit_data(initial_x):
+    x, dx_dt, _ = calculate_partials(initial_x)
+    return x, dx_dt
+
+
+def explicit_regression():
+    training_data = ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
+    return ExplicitRegression(training_data)
+
+
+def explicit_regression_cpp():
+    training_data = cppBackend.ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
+    return cppBackend.ExplicitRegression(training_data)
+
+
+def implicit_regression():
+    training_data = ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
+    return ImplicitRegression(training_data)
+
+
+def implicit_regression_cpp():
+    training_data = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
+    return cppBackend.ImplicitRegression(training_data)
+
+
+TEST_X = generate_random_x(NUM_X_VALUES)
+TEST_X_PARTIALS, TEST_DX_DT = initialize_implicit_data(TEST_X)
+TEST_Y_ZEROS = np.zeros(TEST_X_PARTIALS.shape[0]).reshape((-1, 1))
+
+TEST_AGRAPHS = generate_random_individuals(NUM_AGRAPHS_INDVS,
+                                           COMMAND_ARRAY_SIZE)
 TEST_AGRAPHS_CPP = copy_to_cpp(TEST_AGRAPHS)
+
+TEST_EXPLICIT_REGRESSION = explicit_regression()
+TEST_EXPLICIT_REGRESSION_CPP = explicit_regression_cpp()
+TEST_IMPLICIT_REGRESSION = implicit_regression()
+TEST_IMPLICIT_REGRESSION_CPP = implicit_regression_cpp()

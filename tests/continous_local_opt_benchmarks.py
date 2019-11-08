@@ -108,7 +108,7 @@ def do_benchmarking(debug = False):
         _run_benchmarks(printer, regression, regression_cpp)
         stats_printer_list.append(printer)
 
-    _print_stats(stats_printer_list)
+    return stats_printer_list
 
 
 def _run_benchmarks(printer, regression, regression_cpp):

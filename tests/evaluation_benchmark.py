@@ -37,4 +37,4 @@ def do_benchmarking():
         printer.add_stats(name + ": c derivative",
                           timeit.repeat(benchmark_evaluate_w_c_derivative,
                                         number=100, repeat=10))
-    printer.print()
+    return printer

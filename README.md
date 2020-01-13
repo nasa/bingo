@@ -19,6 +19,13 @@ much more stable API but still lacks some of the features of older releases.
 
 ## Getting Started
 
+### Cloning with git
+The Bingo repository uses git submodules so make sure to clone all the
+submodules when cloning.  Git has an easy way to do this with:
+```shell
+git clone --recurse-submodules ...
+```
+
 ### Dependencies
 Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
 few dependencies which are relatively common for data science work in python:

@@ -101,8 +101,10 @@ setup(
               "bingo.util",
               "bingo.variation",
               "bingocpp"],
-    install_requires=['numpy', 
-                      'scipy'],
+    install_requires=['mpi4py',
+                      'numpy',
+                      'scipy',
+                      'dill'],
     python_requires='~=3.4',
     classifiers=[
         "Programming Language :: Python :: 3.4",

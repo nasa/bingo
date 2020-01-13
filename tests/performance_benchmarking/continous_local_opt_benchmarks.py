@@ -4,20 +4,20 @@ import numpy as np
 
 from bingo.symbolic_regression.agraph \
     import agraph as agraph_module, backend as pyBackend
-from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
 from bingocpp.build import bingocpp as cppBackend
 
-from tests.benchmark_data import StatsPrinter, \
+from tests.performance_benchmarking.benchmark_data import StatsPrinter, \
     generate_random_individuals, \
     copy_to_cpp, \
     TEST_EXPLICIT_REGRESSION, \
     TEST_EXPLICIT_REGRESSION_CPP, \
     TEST_IMPLICIT_REGRESSION, \
-    TEST_IMPLICIT_REGRESSION_CPP
+    TEST_IMPLICIT_REGRESSION_CPP, \
+    CLO_TIMING_NUMBER, CLO_TIMING_REPEATS, NUM_AGRAPHS_INDVS
 
-import tests.benchmark_data as benchmark_data
+import tests.performance_benchmarking.benchmark_data as benchmark_data
 
 
 TEST_EXPLICIT_REGRESSION_OPTIMIZATION \
@@ -41,24 +41,28 @@ BENCHMARK_LISTS_CPP = []
 
 
 def benchmark_explicit_regression_with_optimization():
+    np.random.seed(0)
     for i, test_run in enumerate(BENCHMARK_LISTS):
         for indv in test_run:
             _ = TEST_EXPLICIT_REGRESSION_OPTIMIZATION.__call__(indv)
 
 
 def benchmark_explicit_regression_cpp_with_optimization():
+    np.random.seed(0)
     for i, test_run in enumerate(BENCHMARK_LISTS_CPP):
         for indv in test_run:
             _ = TEST_EXPLICIT_REGRESSION_OPTIMIZATION_CPP.__call__(indv)
 
 
 def benchmark_implicit_regression_with_optimization():
+    np.random.seed(0)
     for i, test_run in enumerate(BENCHMARK_LISTS):
         for indv in test_run:
             _ = TEST_IMPLICIT_REGRESSION_OPTIMIZATION.__call__(indv)
 
 
 def benchmark_implicit_regression_cpp_with_optimization():
+    np.random.seed(0)
     for i, test_run in enumerate(BENCHMARK_LISTS_CPP):
         for indv in test_run:
             _ = TEST_IMPLICIT_REGRESSION_OPTIMIZATION_CPP.__call__(indv)
@@ -82,7 +86,7 @@ def _reset_test_data_helper(agraph_list, benchmarking_array):
 
 def _create_fresh_benchmarking_array(agraph_list, benchmarking_array):
     benchmarking_array.clear()
-    for num_runs in range(0, 10):
+    for num_runs in range(0, CLO_TIMING_NUMBER):
         run_list = []
         for agraph in agraph_list:
             run_list.append(agraph.copy())
@@ -97,10 +101,10 @@ def do_benchmarking(debug = False):
     benchmarks = [
         [benchmark_explicit_regression_with_optimization,
          benchmark_explicit_regression_cpp_with_optimization,
-         "LOCAL OPTIMIZATION: EXPLICIT REGRESSION BENCHMARKS"], 
+         "LOCAL OPTIMIZATION (EXPLICIT REGRESSION) BENCHMARKS"],
         [benchmark_implicit_regression_with_optimization, 
          benchmark_implicit_regression_cpp_with_optimization,
-         "LOCAL OPTIMIZATION: IMPLICIT REGRESSION BENCHMARKS"]]
+         "LOCAL OPTIMIZATION (IMPLICIT REGRESSION) BENCHMARKS"]]
 
     stats_printer_list = []
     for regression, regression_cpp, reg_name in benchmarks:
@@ -127,6 +131,7 @@ def _run_benchmarks(printer, regression, regression_cpp):
         reset_test_data_cpp
     )
 
+
 def _add_stats_and_log_intermediate_steps(stats_printer,
                                           regression, 
                                           run_name,
@@ -136,7 +141,9 @@ def _add_stats_and_log_intermediate_steps(stats_printer,
     stats_printer.add_stats(
         run_name,
         timeit.repeat(regression, setup=setup_function, number=1,
-                      repeat=benchmark_data.BENCHMARK_DATA_POINTS)
+                      repeat=CLO_TIMING_REPEATS),
+        number=CLO_TIMING_NUMBER * NUM_AGRAPHS_INDVS,
+        unit_mult=1000
     )
     if DEBUG:
         print(regression.__name__, "finished\n")
@@ -154,4 +161,4 @@ def _print_stats(printer_list):
 
 
 if __name__ == '__main__':
-    do_benchmarking(True)
+    do_benchmarking(False)

@@ -1,22 +1,18 @@
 import timeit
 
-import numpy as np
-
 from bingo.symbolic_regression.agraph \
     import agraph as agraph_module, backend as pyBackend
 from bingocpp.build import bingocpp as cppBackend
 
-import tests.benchmark_data as benchmark_data
-from tests.benchmark_data import \
+import tests.performance_benchmarking.benchmark_data as benchmark_data
+from tests.performance_benchmarking.benchmark_data import \
     TEST_AGRAPHS, \
     TEST_AGRAPHS_CPP, \
-    TEST_X_PARTIALS, \
-    TEST_Y_ZEROS, \
-    TEST_DX_DT, \
     TEST_EXPLICIT_REGRESSION, \
     TEST_EXPLICIT_REGRESSION_CPP, \
     TEST_IMPLICIT_REGRESSION, \
-    TEST_IMPLICIT_REGRESSION_CPP
+    TEST_IMPLICIT_REGRESSION_CPP, \
+    FITNESS_TIMING_NUMBER, FITNESS_TIMING_REPEATS, NUM_AGRAPHS_INDVS
 
 
 def benchmark_explicit_regression():
@@ -42,9 +38,9 @@ def benchmark_implicit_regression_cpp():
 def do_benchmarking():
     benchmarks = [
         [benchmark_explicit_regression, benchmark_explicit_regression_cpp,
-         "EXPLICIT REGRESSION BENCHMARKS"], 
+         "FITNESS (EXPLICIT REGRESSION) BENCHMARKS"],
         [benchmark_implicit_regression, benchmark_implicit_regression_cpp,
-         "IMPLICIT REGRESSION BENCHMARKS"]]
+         "FITNESS (IMPLICIT REGRESSION) BENCHMARKS"]]
 
     stats_printer_list = []
     for regression, regression_cpp, reg_name in benchmarks:
@@ -59,15 +55,19 @@ def _run_benchmarks(printer, regression, regression_cpp):
     for backend, name in [[pyBackend, " py"], [cppBackend, "c++"]]:
         agraph_module.Backend = backend
         printer.add_stats(
-            "py:  fitness " +name + ": evaluate ",
-             timeit.repeat(regression,
-                           number=benchmark_data.BENCHMARK_EVALUATION_COUNT,
-                           repeat=benchmark_data.BENCHMARK_DATA_POINTS))
+            "py:  fitness " + name + ": evaluate ",
+            timeit.repeat(regression,
+                          number=FITNESS_TIMING_NUMBER,
+                          repeat=FITNESS_TIMING_REPEATS),
+            number=FITNESS_TIMING_NUMBER * NUM_AGRAPHS_INDVS,
+            unit_mult=1000)
     printer.add_stats(
         "c++: fitness c++: evaluate ",
         timeit.repeat(regression_cpp,
-                      number=benchmark_data.BENCHMARK_EVALUATION_COUNT,
-                      repeat=benchmark_data.BENCHMARK_DATA_POINTS))
+                      number=FITNESS_TIMING_NUMBER,
+                      repeat=FITNESS_TIMING_REPEATS),
+        number=FITNESS_TIMING_NUMBER * NUM_AGRAPHS_INDVS,
+        unit_mult=1000)
 
 
 def _print_stats(printer_list):

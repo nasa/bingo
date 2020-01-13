@@ -1,5 +1,5 @@
 """
-A set of classes for simple Base tests
+A set of classes for simple base tests
 """
 import numpy as np
 

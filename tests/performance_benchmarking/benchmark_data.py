@@ -20,8 +20,16 @@ LOG_WIDTH = 78
 NUM_AGRAPHS_INDVS = 100
 COMMAND_ARRAY_SIZE = 128
 NUM_X_VALUES = 128
-BENCHMARK_EVALUATION_COUNT = 100
-BENCHMARK_DATA_POINTS = 10
+
+EVAL_TIMING_NUMBER = 50
+EVAL_TIMING_REPEATS = 10
+
+FITNESS_TIMING_NUMBER = 50
+FITNESS_TIMING_REPEATS = 10
+
+CLO_TIMING_NUMBER = 4
+CLO_TIMING_REPEATS = 4
+
 
 class StatsPrinter:
     def __init__(self, title="PERFORMANCE BENCHMARKS"):
@@ -36,11 +44,11 @@ class StatsPrinter:
                                               "STD", "MIN", "MAX"),
             "-"*LOG_WIDTH]
 
-    def add_stats(self, name, times):
-        std_time = np.std(times)
-        mean_time = np.mean(times)
-        max_time = np.max(times)
-        min_time = np.min(times)
+    def add_stats(self, name, times, number=1, unit_mult=1):
+        std_time = np.std(times) / number * unit_mult
+        mean_time = np.mean(times) / number * unit_mult
+        max_time = np.max(times) / number * unit_mult
+        min_time = np.min(times) / number * unit_mult
 
         self._output.append(self._format_string.format(name, mean_time,
                                                        std_time, min_time,

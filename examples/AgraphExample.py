@@ -3,19 +3,19 @@
 # pylint: disable=missing-docstring
 import numpy as np
 
-from bingo.SymbolicRegression.AGraph.AGraphCrossover import AGraphCrossover
-from bingo.SymbolicRegression.AGraph.AGraphMutation import AGraphMutation
-from bingo.SymbolicRegression.AGraph.AGraphGenerator import AGraphGenerator
-from bingo.SymbolicRegression.AGraph.ComponentGenerator \
+from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
+from bingo.symbolic_regression.agraph.mutation import AGraphMutation
+from bingo.symbolic_regression.agraph.generator import AGraphGenerator
+from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
-from bingo.SymbolicRegression.ExplicitRegression import ExplicitRegression, \
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
                                                         ExplicitTrainingData
 
-from bingo.Base.AgeFitnessEA import AgeFitnessEA
-from bingo.Base.Evaluation import Evaluation
-from bingo.Base.Island import Island
-from bingo.Base.ContinuousLocalOptimization import ContinuousLocalOptimization
-import bingo.animation
+from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
+from bingo.evaluation.evaluation import Evaluation
+from bingo.evolutionary_optimizers.island import Island
+from bingo.local_optimizers.continuous_local_opt \
+    import ContinuousLocalOptimization
 
 POP_SIZE = 128
 STACK_SIZE = 10
@@ -26,24 +26,27 @@ START = -10
 STOP = 10
 ERROR_TOLERANCE = 1e-6
 
+
 def init_x_vals(start, stop, num_points):
     return np.linspace(start, stop, num_points).reshape([-1, 1])
+
 
 def equation_eval(x):
     return x**2 + 3.5*x**3
 
+
 def init_island():
-    np.random.seed(10)
+    np.random.seed(4)
     x = init_x_vals(START, STOP, NUM_POINTS)
     y = equation_eval(x)
     training_data = ExplicitTrainingData(x, y)
 
     component_generator = ComponentGenerator(x.shape[1])
-    component_generator.add_operator(2)
-    component_generator.add_operator(3)
-    component_generator.add_operator(4)
+    component_generator.add_operator("+")
+    component_generator.add_operator("-")
+    component_generator.add_operator("*")
 
-    crossover = AGraphCrossover()
+    crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
@@ -59,27 +62,21 @@ def init_island():
     island = Island(ea, agraph_generator, POP_SIZE)
     return island
 
-TEST_ISLAND = init_island()
 
 def main():
-    test_island = TEST_ISLAND
-    i = 0
-    best_indv_values = []
-    best_indv_values.append(test_island.best_individual().values)
-    while test_island.best_individual().fitness > ERROR_TOLERANCE:
-        test_island.execute_generational_step()
-        best_indv_values.append(test_island.best_individual().values)
-        i+=1
+    test_island = init_island()
+    report_island_status(test_island)
+    test_island.evolve_until_convergence(max_generations=1000,
+                                         fitness_threshold=ERROR_TOLERANCE)
+    report_island_status(test_island)
 
-    bingo.animation.animate_data(best_indv_values)
-    print("Generation: ", i)
-    print("Success!", test_island.best_individual().get_latex_string())
 
-def report_max_min_mean_fitness(population):
-    fitness = [indv.fitness for indv in population]
-    print("Max fitness: \t", np.max(fitness))
-    print("Min fitness: \t", np.min(fitness))
-    print("Mean fitness: \t", np.mean(fitness))
+def report_island_status(test_island):
+    print("-----  Generation %d  -----" % test_island.generational_age)
+    print("Best individual:     ", test_island.get_best_individual())
+    print("Best fitness:        ", test_island.get_best_fitness())
+    print("Fitness evaluations: ", test_island.get_fitness_evaluation_count())
+
 
 if __name__ == '__main__':
     main()

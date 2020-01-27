@@ -59,7 +59,7 @@ performance.
 If bingocpp has been properly installed, the following command should run 
 without error.
 ```shell
-python -c "import bingocpp"
+python -c "from bingocpp"
 ```
 
 A common error in the installation of bingocpp is that it must be built with 
@@ -78,7 +78,7 @@ An extensive unit test suite is included with bingo to help ensure proper
 installation. The tests can be run using pytest on the tests directory, e.g., 
 by running:
 ```shell
-pytest tests 
+python -m pytest tests 
 ```
 from the root directory of the repository.
 
@@ -105,9 +105,9 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
 
 ## Authors
   * Geoffrey Bomarito
-  * Kathryn Esham
-  * Ethan Adams
   * Tyler Townsend
+  * Ethan Adams
+  * Kathryn Esham
   * Diana Vera
   
 ## License 

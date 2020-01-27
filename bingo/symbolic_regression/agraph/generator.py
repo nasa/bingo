@@ -16,6 +16,7 @@ try:
 except ImportError:
     bingocpp = None
 
+
 class AGraphGenerator(Generator):
     """Generates acyclic graph individuals
 
@@ -33,8 +34,8 @@ class AGraphGenerator(Generator):
         self._manual_constants = \
             not component_generator.automatic_constant_optimization
         if cpp and not bingocpp:
-            warnings.WarningMessage('Import error: bingocpp not loaded. \
-                                     Program will default to python backend.')
+            warnings.warn('error importing bingocpp for agraph generation.'
+                          ' Using default python backend.')
             self._backend_generator_function = self._python_generator_function
         else:
             self._backend_generator_function = self._cpp_generator_function \

@@ -4,9 +4,9 @@ from bingo.symbolic_regression.agraph \
     import agraph as agraph_module, backend as pyBackend
 from bingocpp.build import bingocpp as cppBackend
 
-import tests.performance_benchmarking.benchmark_data as benchmark_data
-from tests.performance_benchmarking.benchmark_data \
-    import TEST_AGRAPHS, TEST_X, EVAL_TIMING_NUMBER, EVAL_TIMING_REPEATS, NUM_AGRAPHS_INDVS
+import benchmark_data as benchmark_data
+from benchmark_data import TEST_AGRAPHS, TEST_X, EVAL_TIMING_NUMBER, \
+                           EVAL_TIMING_REPEATS, NUM_AGRAPHS_INDVS
 
 def benchmark_evaluate():
     for indv in TEST_AGRAPHS:

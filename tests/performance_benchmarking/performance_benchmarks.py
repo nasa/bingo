@@ -1,9 +1,9 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import tests.performance_benchmarking.evaluation_benchmark as evaluation_benchmark
-import tests.performance_benchmarking.fitness_benchmark as fitness_benchmark
-import tests.performance_benchmarking.continous_local_opt_benchmarks as clo_benchmark
+import evaluation_benchmark as evaluation_benchmark
+import fitness_benchmark as fitness_benchmark
+import continous_local_opt_benchmarks as clo_benchmark
 
 PROBLEM_SET_VERSION = 2
 

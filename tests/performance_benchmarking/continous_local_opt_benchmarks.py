@@ -8,16 +8,18 @@ from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
 from bingocpp.build import bingocpp as cppBackend
 
-from tests.performance_benchmarking.benchmark_data import StatsPrinter, \
-    generate_random_individuals, \
-    copy_to_cpp, \
-    TEST_EXPLICIT_REGRESSION, \
-    TEST_EXPLICIT_REGRESSION_CPP, \
-    TEST_IMPLICIT_REGRESSION, \
-    TEST_IMPLICIT_REGRESSION_CPP, \
-    CLO_TIMING_NUMBER, CLO_TIMING_REPEATS, NUM_AGRAPHS_INDVS
+from benchmark_data import StatsPrinter, \
+                           generate_random_individuals, \
+                           copy_to_cpp, \
+                           TEST_EXPLICIT_REGRESSION, \
+                           TEST_EXPLICIT_REGRESSION_CPP, \
+                           TEST_IMPLICIT_REGRESSION, \
+                           TEST_IMPLICIT_REGRESSION_CPP, \
+                           CLO_TIMING_NUMBER, \
+                           CLO_TIMING_REPEATS, \
+                           NUM_AGRAPHS_INDVS
 
-import tests.performance_benchmarking.benchmark_data as benchmark_data
+import benchmark_data as benchmark_data
 
 
 TEST_EXPLICIT_REGRESSION_OPTIMIZATION \

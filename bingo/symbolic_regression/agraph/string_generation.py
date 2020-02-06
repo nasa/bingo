@@ -67,7 +67,6 @@ def get_formatted_string(eq_format, command_array, constants):
         format_dict = LATEX_PRINT_MAP
     else:  # "console"
         format_dict = CONSOLE_PRINT_MAP
-
     str_list = []
     for stack_element in command_array:
         tmp_str = _get_formatted_element_string(stack_element, str_list,

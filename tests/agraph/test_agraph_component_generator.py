@@ -4,7 +4,8 @@
 import pytest
 import numpy as np
 
-from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
+from bingo.symbolic_regression.agraph.component_generator \
+    import ComponentGenerator
 
 
 @pytest.mark.parametrize("x_dim,expected_error", [

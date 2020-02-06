@@ -209,8 +209,7 @@ def test_param_mutation_constant_graph(constant_only_agraph):
         ComponentGenerator(input_x_dimension=2,
                            num_initial_load_statements=2,
                            terminal_probability=1.0,
-                           constant_probability=1.0,
-                           automatic_constant_optimization=True)
+                           constant_probability=1.0)
     mutation = AGraphMutation(comp_generator,
                               command_probability=0.0,
                               node_probability=0.0,

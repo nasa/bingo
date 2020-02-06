@@ -120,6 +120,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     def _update(self):
         self._simplified_command_array = \
             Backend.simplify_stack(self._command_array)
+        # TODO hard coded info about node map
         num_const = np.count_nonzero(self._simplified_command_array[:, 0] == 1)
         self._simplified_constants = (1.0,) * num_const
         if num_const > 0:

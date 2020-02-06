@@ -9,35 +9,6 @@ from bingo.symbolic_regression.agraph.component_generator import ComponentGenera
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 
 
-@pytest.fixture
-def manual_constants_crossover():
-    generator = ComponentGenerator(input_x_dimension=2,
-                                   num_initial_load_statements=2,
-                                   terminal_probability=0.4,
-                                   constant_probability=0.5,
-                                   automatic_constant_optimization=False)
-    generator.add_operator(2)
-    generator.add_operator(6)
-    return AGraphCrossover(component_generator=generator)
-
-
-@pytest.fixture
-def manual_constants_parents():
-    parent_1 = AGraph()
-    parent_1.command_array = np.array([[1, 0, 0],  # sin(5.0)
-                                       [1, -1, -1],
-                                       [1, -1, -1],
-                                       [6, 0, 0]])
-    parent_1.set_local_optimization_params([5.0, ])
-    parent_2 = AGraph()
-    parent_2.command_array = np.array([[0, 0, 0],  # cos(x_0 + 3.0)
-                                       [1, 0, 0],
-                                       [2, 0, 1],
-                                       [7, 2, 2]])
-    parent_2.set_local_optimization_params([3.0, ])
-    return parent_1, parent_2
-
-
 @pytest.fixture(params=[('sample_agraph_1', 'sample_agraph_2'),
                         ('sample_agraph_2', 'sample_agraph_1')])
 def crossover_parents(request):
@@ -92,21 +63,3 @@ def test_crossover_resets_fitness(sample_component_generator,
     assert child_1.fitness is None
     assert child_2.fitness is None
 
-
-def test_crossover_keeps_correct_manual_constants(manual_constants_crossover,
-                                                  manual_constants_parents):
-    np.random.seed(0)
-    parent_1, parent_2 = manual_constants_parents
-    child_1, child_2 = manual_constants_crossover(parent_1, parent_2)
-    np.testing.assert_array_almost_equal(child_1.constants, [5.0, 3.0])
-    assert not child_2.constants
-
-
-def test_crossover_makes_new_manual_constants(manual_constants_crossover,
-                                              manual_constants_parents):
-    np.random.seed(1)
-    parent_1, parent_2 = manual_constants_parents
-    child_1, child_2 = manual_constants_crossover(parent_1, parent_2)
-    np.testing.assert_array_almost_equal(child_1.constants, [5.0,
-                                                             99.4369621877737])
-    assert not child_2.constants

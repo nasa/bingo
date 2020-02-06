@@ -70,32 +70,19 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     constants
     num_constants
     """
-    def __init__(self, manual_constants=False):
-        self._create_new_instance(manual_constants)
-
-    def _create_new_instance(self, manual_constants):
+    def __init__(self):
         super().__init__()
         self._command_array = np.empty([0, 3], dtype=int)
-        self._short_command_array = np.empty([0, 3], dtype=int)
-        self._constants = []
+
+        self._simplified_command_array = np.empty([0, 3], dtype=int)
+        self._simplified_constants = []
+
         self._needs_opt = False
-        self._num_constants = 0
-        self._manual_constants = manual_constants 
-    
-    def is_cpp(self):
+        self._modified = False
+
+    @staticmethod
+    def is_cpp():
         return False
-
-    @property
-    def num_constants(self):
-        return self._num_constants
-
-    @property
-    def constants(self):
-        return self._constants
-
-    @constants.setter
-    def constants(self, constants):
-        self._constants = constants
 
     @property
     def command_array(self):
@@ -105,55 +92,39 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         -----
         Setting the command stack automatically resets fitness
         """
+        self._command_array.flags.writeable = False
         return self._command_array
 
     @command_array.setter
     def command_array(self, command_array):
         self._command_array = command_array
+        self._notify_modification()
+
+    @property
+    def mutable_command_array(self):
+        """Nx3 array of int: acyclic graph stack.
+
+        Notes
+        -----
+        Setting the command stack automatically resets fitness
+        """
+        self._command_array.flags.writeable = True
+        self._notify_modification()
+        return self._command_array
+
+    def _notify_modification(self):
+        self._modified = True
         self._fitness = None
         self._fit_set = False
-        self._process_modified_command_array()
 
-    def notify_command_array_modification(self):
-        """Notify individual of inplace modification of its command array"""
-        self._fitness = None
-        self._fit_set = False
-        self._process_modified_command_array()
-
-    def force_renumber_constants(self):
-        """force the renumbering of constants"""
-        util = self.get_utilized_commands()
-        self._renumber_constants(util)
-
-    def _process_modified_command_array(self):
-        if not self._manual_constants:
-            util = self.get_utilized_commands()
-
-            self._needs_opt = self._check_optimization_requirement(util)
-            if self._needs_opt:
-                self._renumber_constants(util)
-
-        self._short_command_array = Backend.simplify_stack(self._command_array)
-
-    def _check_optimization_requirement(self, util):
-        for i in range(self._command_array.shape[0]):
-            if util[i]:
-                if self._command_array[i][0] == 1:
-                    if self._command_array[i][1] == -1 or \
-                            self._command_array[i][1] >= len(self._constants):
-                        return True
-        return False
-
-    def _renumber_constants(self, util):
-        const_num = 0
-        for i in range(self._command_array.shape[0]):
-            if self._command_array[i][0] == 1:
-                if util[i]:
-                    self._command_array[i] = (1, const_num, const_num)
-                    const_num += 1
-                else:
-                    self._command_array[i] = (1, -1, -1)
-        self._num_constants = const_num
+    def _update(self):
+        self._simplified_command_array = \
+            Backend.simplify_stack(self._command_array)
+        num_const = np.count_nonzero(self._simplified_command_array[:, 0] == 1)
+        self._simplified_constants = (1.0,) * num_const
+        if num_const > 0:
+            self._needs_opt = True
+        self._modified = False
 
     def needs_local_optimization(self):
         """The Agraph needs local optimization.
@@ -165,7 +136,36 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         bool
             Constants need optimization
         """
+        if self._modified:
+            self._update()
         return self._needs_opt
+
+    def get_number_local_optimization_params(self):
+        """number of parameters for local optimization
+
+        Count constants and set up for optimization
+
+        Returns
+        -------
+        int
+            Number of constants that need to be optimized
+        """
+        if self._modified:
+            self._update()
+        return len(self._simplified_constants)
+
+    def set_local_optimization_params(self, params):
+        """Set the local optimization parameters.
+
+        Manually set optimized constants.
+
+        Parameters
+        ----------
+        params : list of numeric
+                 Values to set constants
+        """
+        self._simplified_constants = tuple(params)
+        self._needs_opt = False
 
     def get_utilized_commands(self):
         """"Find which commands are utilized.
@@ -179,31 +179,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             Boolean values for whether each command is utilized.
         """
         return Backend.get_utilized_commands(self._command_array)
-
-    def get_number_local_optimization_params(self):
-        """number of parameters for local optimization
-
-        Count constants and set up for optimization
-
-        Returns
-        -------
-        int
-            Number of constants that need to be optimized
-        """
-        return self._num_constants
-
-    def set_local_optimization_params(self, params):
-        """Set the local optimization parameters.
-
-        Manually set optimized constants.
-
-        Parameters
-        ----------
-        params : list of numeric
-                 Values to set constants
-        """
-        self._constants = params
-        self._needs_opt = False
 
     def evaluate_equation_at(self, x):
         """Evaluate the agraph equation.
@@ -221,9 +196,11 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         Mx1 array of numeric
             :math:`f(x)`
         """
+        if self._modified:
+            self._update()
         try:
-            f_of_x = Backend.evaluate(self._short_command_array,
-                                      x, self._constants)
+            f_of_x = Backend.evaluate(self._simplified_command_array,
+                                      x, self._simplified_constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -246,9 +223,12 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         tuple(Mx1 array of numeric, MxD array of numeric)
             :math:`f(x)` and :math:`df(x)/dx_i`
         """
+        if self._modified:
+            self._update()
         try:
             f_of_x, df_dx = Backend.evaluate_with_derivative(
-                self._short_command_array, x, self._constants, True)
+                self._simplified_command_array, x,
+                self._simplified_constants, True)
             return f_of_x, df_dx
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -273,14 +253,18 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         tuple(Mx1 array of numeric, MxL array of numeric)
             :math:`f(x)` and :math:`df(x)/dc_i`
         """
+        if self._modified:
+            self._update()
         try:
             f_of_x, df_dc = Backend.evaluate_with_derivative(
-                self._short_command_array, x, self._constants, False)
+                self._simplified_command_array, x,
+                self._simplified_constants, False)
             return f_of_x, df_dc
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
             LOGGER.warning("%s in stack evaluation/const-deriv", err)
-            nan_array = np.full((x.shape[0], len(self._constants)), np.nan)
+            nan_array = np.full((x.shape[0], len(self._simplified_constants)),
+                                np.nan)
             return nan_array, np.array(nan_array)
 
     def __str__(self):
@@ -301,8 +285,10 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         str
             Equation in latex form
         """
-        return get_formatted_string("latex", self._short_command_array,
-                                    self._constants)
+        if self._modified:
+            self._update()
+        return get_formatted_string("latex", self._simplified_command_array,
+                                    self._simplified_constants)
 
     def get_console_string(self):
         """Console version of Agraph equation.
@@ -312,8 +298,10 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         str
             Equation in simple form
         """
-        return get_formatted_string("console", self._short_command_array,
-                                    self._constants)
+        if self._modified:
+            self._update()
+        return get_formatted_string("console", self._simplified_command_array,
+                                    self._simplified_constants)
 
     def get_stack_string(self):
         """Stack output of Agraph equation.
@@ -323,12 +311,15 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         str
             equation in stack form and simplified stack form
         """
+        if self._modified:
+            self._update()
         print_str = "---full stack---\n"
         print_str += get_formatted_string("stack", self._command_array,
-                                          self._constants)
+                                          tuple())
         print_str += "---small stack---\n"
-        print_str += get_formatted_string("stack", self._short_command_array,
-                                          self._constants)
+        print_str += get_formatted_string("stack",
+                                          self._simplified_command_array,
+                                          self._simplified_constants)
         return print_str
 
     def get_complexity(self):
@@ -339,7 +330,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         int
             number of utilized commands in stack
         """
-        return self._short_command_array.shape[0]
+        if self._modified:
+            self._update()
+        return self._simplified_command_array.shape[0]
 
     def distance(self, chromosome):
         """Computes the distance to another Agraph
@@ -369,8 +362,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         agraph_duplicate._fitness = self._fitness
         agraph_duplicate._fit_set = self._fit_set
         agraph_duplicate._command_array = np.copy(self.command_array)
-        agraph_duplicate._short_command_array = np.copy(self._short_command_array)
-        agraph_duplicate._constants = list(self._constants)
+        agraph_duplicate._simplified_command_array = \
+            np.copy(self._simplified_command_array)
+        agraph_duplicate._simplified_constants = \
+            tuple(self._simplified_constants)
         agraph_duplicate._needs_opt = self._needs_opt
-        agraph_duplicate._num_constants = self._num_constants
-        agraph_duplicate._manual_constants = self._manual_constants
+        agraph_duplicate._modified = self._modified

@@ -31,8 +31,6 @@ class AGraphGenerator(Generator):
     def __init__(self, agraph_size, component_generator, cpp=False):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
-        self._manual_constants = \
-            not component_generator.automatic_constant_optimization
         if cpp and not bingocpp:
             warnings.warn('error importing bingocpp for agraph generation.'
                           ' Using default python backend.')
@@ -53,22 +51,15 @@ class AGraphGenerator(Generator):
         """
         individual = self._backend_generator_function()
         individual.command_array = self._create_command_array()
-        if self._manual_constants:
-            individual.constants = self._generate_manual_constants(individual)
         return individual
 
-    def _python_generator_function(self):
-        return AGraph(self._manual_constants)
+    @staticmethod
+    def _python_generator_function():
+        return AGraph()
 
-    def _cpp_generator_function(self):
-        return bingocpp.AGraph(self._manual_constants)
-
-    def _generate_manual_constants(self, individual):
-        individual.force_renumber_constants()
-        individual.notify_command_array_modification()
-        num_consts = individual.get_number_local_optimization_params()
-        return [self.component_generator.random_numerical_constant()
-                for _ in range(num_consts)]
+    @staticmethod
+    def _cpp_generator_function():
+        return bingocpp.AGraph()
 
     def _create_command_array(self):
         command_array = np.empty((self.agraph_size, 3), dtype=int)

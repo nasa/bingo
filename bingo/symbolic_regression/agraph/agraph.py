@@ -46,7 +46,7 @@ Node      Name                                     Math
 import logging
 import numpy as np
 
-from .maps import STACK_PRINT_MAP, LATEX_PRINT_MAP, CONSOLE_PRINT_MAP
+from .string_generation import get_formatted_string
 from ..equation import Equation
 from ...local_optimizers import continuous_local_opt
 
@@ -58,7 +58,7 @@ except ImportError as e:
 
 LOGGER = logging.getLogger(__name__)
 
-# TODO get rid of short_command_array constructor argument
+
 class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     """Acyclic graph representation of an equation.
 
@@ -301,7 +301,8 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         str
             Equation in latex form
         """
-        return self._get_formatted_string_using(LATEX_PRINT_MAP)
+        return get_formatted_string("latex", self._short_command_array,
+                                    self._constants)
 
     def get_console_string(self):
         """Console version of Agraph equation.
@@ -311,7 +312,8 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         str
             Equation in simple form
         """
-        return self._get_formatted_string_using(CONSOLE_PRINT_MAP)
+        return get_formatted_string("console", self._short_command_array,
+                                    self._constants)
 
     def get_stack_string(self):
         """Stack output of Agraph equation.
@@ -322,9 +324,11 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             equation in stack form and simplified stack form
         """
         print_str = "---full stack---\n"
-        print_str += self._get_stack_string(short=False)
+        print_str += get_formatted_string("stack", self._command_array,
+                                          self._constants)
         print_str += "---small stack---\n"
-        print_str += self._get_stack_string(short=True)
+        print_str += get_formatted_string("stack", self._short_command_array,
+                                          self._constants)
         return print_str
 
     def get_complexity(self):
@@ -336,58 +340,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             number of utilized commands in stack
         """
         return self._short_command_array.shape[0]
-
-    def _get_stack_string(self, short=False):
-        if short:
-            stack = self._short_command_array
-        else:
-            stack = self._command_array
-        tmp_str = ""
-        for i, stack_element in enumerate(stack):
-            tmp_str += self._get_stack_element_string(i, stack_element)
-
-        return tmp_str
-
-    def _get_stack_element_string(self, command_index, stack_element):
-        node, param1, param2 = stack_element
-        tmp_str = "(%d) <= " % command_index
-        if node == 0:
-            tmp_str += "X_%d" % param1
-        elif node == 1:
-            if param1 == -1 or param1 >= len(self._constants):
-                tmp_str += "C"
-            else:
-                tmp_str += "C_{} = {}".format(param1,
-                                              self._constants[param1])
-        else:
-            tmp_str += STACK_PRINT_MAP[node].format(param1,
-                                                    param2)
-        tmp_str += "\n"
-        return tmp_str
-
-    def _get_formatted_string_using(self, format_dict):
-        str_list = []
-        for stack_element in self._short_command_array:
-            tmp_str = self._get_formatted_element_string(stack_element,
-                                                         str_list,
-                                                         format_dict)
-            str_list.append(tmp_str)
-        return str_list[-1]
-
-    def _get_formatted_element_string(self, stack_element, str_list,
-                                      format_dict):
-        node, param1, param2 = stack_element
-        if node == 0:
-            tmp_str = "X_%d" % param1
-        elif node == 1:
-            if param1 == -1 or param1 >= len(self._constants):
-                tmp_str = "?"
-            else:
-                tmp_str = str(self._constants[param1])
-        else:
-            tmp_str = format_dict[node].format(str_list[param1],
-                                               str_list[param2])
-        return tmp_str
 
     def distance(self, chromosome):
         """Computes the distance to another Agraph

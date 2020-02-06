@@ -7,46 +7,9 @@ IS_ARITY_2_MAP : dict {int: bool}
 IS_TERMINAL_MAP : dict {int: bool}
                  A map of node number to boolean that states whether the
                  node is a terminal
-STACK_PRINT_MAP : dict {int: str}
-                  A map of node number to a format string for stack output
-LATEX_PRINT_MAP : dict {int: str}
-                  A map of node number to a format string for latex output
-CONSOLE_PRINT_MAP : dict {int: str}
-                  A map of node number to a format string for console output
+OPERATOR_NAMES : dict{int: list(string)}
+                 A map of node number to common names for the node
 """
-STACK_PRINT_MAP = {2: "({}) + ({})",
-                   3: "({}) - ({})",
-                   4: "({}) * ({})",
-                   5: "({}) / ({}) ",
-                   6: "sin ({})",
-                   7: "cos ({})",
-                   8: "exp ({})",
-                   9: "log ({})",
-                   10: "({}) ^ ({})",
-                   11: "abs ({})",
-                   12: "sqrt ({})"}
-LATEX_PRINT_MAP = {2: "{} + {}",
-                   3: "{} - ({})",
-                   4: "({})({})",
-                   5: "\\frac{{ {} }}{{ {} }}",
-                   6: "sin{{ {} }}",
-                   7: "cos{{ {} }}",
-                   8: "exp{{ {} }}",
-                   9: "log{{ {} }}",
-                   10: "({})^{{ ({}) }}",
-                   11: "|{}|",
-                   12: "\\sqrt{{ {} }}"}
-CONSOLE_PRINT_MAP = {2: "{} + {}",
-                     3: "{} - ({})",
-                     4: "({})({})",
-                     5: "({})/({}) ",
-                     6: "sin({})",
-                     7: "cos({})",
-                     8: "exp({})",
-                     9: "log({})",
-                     10: "({})^({})",
-                     11: "|{}|",
-                     12: "sqrt({})"}
 IS_ARITY_2_MAP = {0: False,
                   1: False,
                   2: True,

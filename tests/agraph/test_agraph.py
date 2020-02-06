@@ -23,40 +23,14 @@ EVALUATE_WTIH_DERIV = ("bingo.symbolic_regression.agraph.agraph.Backend."
 
 
 @pytest.fixture
-def invalid_agraph(sample_agraph_1):
-    test_graph = agraph.AGraph()
-    test_graph.command_array = sample_agraph_1.command_array
-    return test_graph
-
-
-@pytest.fixture
-def invalid_agraph_cpp(sample_agraph_1_cpp):
-    if bingocpp == None:
-        return None 
-    test_graph = bingocpp.AGraph()
-    test_graph.command_array = sample_agraph_1_cpp.command_array
-    return test_graph
-
-
-@pytest.fixture(params=["python",
-                        pytest.param("cpp",
-                                marks=pytest.mark.skipif(
-                                    not bingocpp,
-                                    reason='BingoCpp import failure'))])
-def invalid_agraph_list(request, invalid_agraph, invalid_agraph_cpp):
-    if request.param == "python":
-        return invalid_agraph 
-    return invalid_agraph_cpp
-
-@pytest.fixture
 def sample_agraph_1_values():
     values = namedtuple('Data', ['x', 'f_of_x', 'grad_x', 'grad_c'])
     x = np.vstack((np.linspace(-1.0, 0.0, 11),
                    np.linspace(0.0, 1.0, 11))).transpose()
-    f_of_x = (np.sin(x[:, 0] + 1.0) + 1.0).reshape((-1, 1))
+    f_of_x = (np.sin(x[:, 0] + 2.0) + 2.0).reshape((-1, 1))
     grad_x = np.zeros(x.shape)
-    grad_x[:, 0] = np.cos(x[:, 0] + 1.0)
-    grad_c = (np.cos(x[:, 0] + 1.0) + 1.0).reshape((-1, 1))
+    grad_x[:, 0] = np.cos(x[:, 0] + 2.0)
+    grad_c = (np.cos(x[:, 0] + 2.0) + 1.0).reshape((-1, 1))
     return values(x, f_of_x, grad_x, grad_c)
 
 
@@ -89,35 +63,29 @@ def _set_all_funcs_agraph_data(test_graph):
                                          [10, 9, 0],
                                          [11, 10, 0],
                                          [12, 11, 0]])
-    test_graph.set_local_optimization_params([1.0, ])
+    _ = test_graph.needs_local_optimization()
+    test_graph.set_local_optimization_params([2.0, ])
     return test_graph
 
 
-@pytest.fixture(params=['all_funcs_agraph', 'sample_agraph_1',
-                        'invalid_agraph'])
+@pytest.fixture(params=['all_funcs_agraph', 'sample_agraph_1'])
 def expected_agraph_behavior(request):
     prop = {'agraph': request.getfixturevalue(request.param)}
     if request.param == "all_funcs_agraph":
-        prop["latex string"] = "\\sqrt{ |(log{ exp{ cos{ sin{ \\frac{ (1.0" + \
+        prop["latex string"] = "\\sqrt{ |(log{ exp{ cos{ sin{ \\frac{ (2.0" + \
                                " + X_0 - (X_0))(X_0) }{ X_0 } } } } })^{ (" + \
                                "X_0) }| }"
-        prop["console string"] = "sqrt(|(log(exp(cos(sin(((1.0 + X_0 - (X_" + \
+        prop["console string"] = "sqrt(|(log(exp(cos(sin(((2.0 + X_0 - (X_" + \
                                  "0))(X_0))/(X_0) )))))^(X_0)|)"
         prop["complexity"] = 13
     elif request.param == "sample_agraph_1":
-        prop["latex string"] = "sin{ X_0 + 1.0 } + 1.0"
-        prop["console string"] = "sin(X_0 + 1.0) + 1.0"
+        prop["latex string"] = "sin{ X_0 + 2.0 } + 2.0"
+        prop["console string"] = "sin(X_0 + 2.0) + 2.0"
         prop["complexity"] = 5
-
-    elif request.param == "invalid_agraph":
-        prop["latex string"] = "sin{ X_0 + ? } + ?"
-        prop["console string"] = "sin(X_0 + ?) + ?"
-        prop["complexity"] = 5
-
     return prop
 
-@pytest.fixture(params=['all_funcs_agraph_cpp', 'sample_agraph_1_cpp',
-                        'invalid_agraph_cpp'])
+
+@pytest.fixture(params=['all_funcs_agraph_cpp', 'sample_agraph_1_cpp'])
 def expected_agraph_behavior_cpp(request):
     prop = {'agraph': request.getfixturevalue(request.param)}
     if request.param == "all_funcs_agraph_cpp":
@@ -131,12 +99,6 @@ def expected_agraph_behavior_cpp(request):
         prop["latex string"] = "sin{ X_0 + 1.000000 } + 1.000000"
         prop["console string"] = "sin(X_0 + 1.000000) + 1.000000"
         prop["complexity"] = 5
-
-    elif request.param == "invalid_agraph_cpp":
-        prop["latex string"] = "sin{ X_0 + ? } + ?"
-        prop["console string"] = "sin(X_0 + ?) + ?"
-        prop["complexity"] = 5
-    
     return prop
 
 
@@ -153,12 +115,10 @@ def test_agraph_for_proper_super_init(sample_agraph_1):
 
 def test_deep_copy_agraph(sample_agraph_1_list):
     agraph_copy = sample_agraph_1_list.copy()
-    sample_agraph_1_list.command_array[1, 1] = 100
-    sample_agraph_1_list.set_local_optimization_params([100.0, ])
+    sample_agraph_1_list.mutable_command_array[1, 1] = 100
 
     assert agraph_copy.genetic_age == 10
     assert agraph_copy.command_array[1, 1] == 0
-    assert pytest.approx(agraph_copy.constants[0]) == 1.0
 
 
 def test_agraph_latex_print(expected_agraph_behavior):
@@ -197,14 +157,14 @@ def test_agraph_complexity_cpp(expected_agraph_behavior_cpp):
 def test_agraph_stack_print(sample_agraph_1):
     expected_str = "---full stack---\n" +\
                     "(0) <= X_0\n" +\
-                    "(1) <= C_0 = 1.0\n" +\
+                    "(1) <= C\n" +\
                     "(2) <= (0) + (1)\n" +\
                     "(3) <= sin (2)\n" +\
                     "(4) <= (0) + (1)\n" +\
                     "(5) <= (3) + (1)\n" +\
                     "---small stack---\n" +\
                     "(0) <= X_0\n" +\
-                    "(1) <= C_0 = 1.0\n" +\
+                    "(1) <= C_0 = 2.0\n" +\
                     "(2) <= (0) + (1)\n" +\
                     "(3) <= sin (2)\n" +\
                     "(4) <= (3) + (1)\n"
@@ -215,54 +175,19 @@ def test_agraph_stack_print(sample_agraph_1):
 def test_agraph_stack_print_cpp(sample_agraph_1_cpp):
     expected_str = "---full stack---\n" +\
                 "(0) <= X_0\n" +\
-                "(1) <= C_0 = 1.000000\n" +\
+                "(1) <= C\n" +\
                 "(2) <= (0) + (1)\n" +\
                 "(3) <= sin (2)\n" +\
                 "(4) <= (0) + (1)\n" +\
                 "(5) <= (3) + (1)\n" +\
                 "---small stack---\n" +\
                 "(0) <= X_0\n" +\
-                "(1) <= C_0 = 1.000000\n" +\
+                "(1) <= C_0 = 2.000000\n" +\
                 "(2) <= (0) + (1)\n" +\
                 "(3) <= sin (2)\n" +\
                 "(4) <= (3) + (1)\n"
 
     assert sample_agraph_1_cpp.get_stack_string() == expected_str
-
-
-def test_invalid_agraph_stack_print(invalid_agraph):
-    expected_str = "---full stack---\n" +\
-                   "(0) <= X_0\n" +\
-                   "(1) <= C\n" +\
-                   "(2) <= (0) + (1)\n" +\
-                   "(3) <= sin (2)\n" +\
-                   "(4) <= (0) + (1)\n" +\
-                   "(5) <= (3) + (1)\n" +\
-                   "---small stack---\n" +\
-                   "(0) <= X_0\n" +\
-                   "(1) <= C\n" +\
-                   "(2) <= (0) + (1)\n" +\
-                   "(3) <= sin (2)\n" +\
-                   "(4) <= (3) + (1)\n"
-    assert invalid_agraph.get_stack_string() == expected_str
-
-
-@pytest.mark.skipif(not bingocpp, reason='BingoCpp import failure')
-def test_invalid_agraph_stack_print_cpp(invalid_agraph_cpp):
-    expected_str = "---full stack---\n" +\
-                   "(0) <= X_0\n" +\
-                   "(1) <= C\n" +\
-                   "(2) <= (0) + (1)\n" +\
-                   "(3) <= sin (2)\n" +\
-                   "(4) <= (0) + (1)\n" +\
-                   "(5) <= (3) + (1)\n" +\
-                   "---small stack---\n" +\
-                   "(0) <= X_0\n" +\
-                   "(1) <= C\n" +\
-                   "(2) <= (0) + (1)\n" +\
-                   "(3) <= sin (2)\n" +\
-                   "(4) <= (3) + (1)\n"
-    assert invalid_agraph_cpp.get_stack_string() == expected_str
 
 
 def test_evaluate_agraph(sample_agraph_1_list, sample_agraph_1_values):
@@ -271,7 +196,8 @@ def test_evaluate_agraph(sample_agraph_1_list, sample_agraph_1_values):
         sample_agraph_1_values.f_of_x)
 
 
-def test_evaluate_agraph_x_gradient(sample_agraph_1_list, sample_agraph_1_values):
+def test_evaluate_agraph_x_gradient(sample_agraph_1_list,
+                                    sample_agraph_1_values):
     f_of_x, df_dx = \
         sample_agraph_1_list.evaluate_equation_with_x_gradient_at(
             sample_agraph_1_values.x)
@@ -279,53 +205,13 @@ def test_evaluate_agraph_x_gradient(sample_agraph_1_list, sample_agraph_1_values
     np.testing.assert_allclose(df_dx, sample_agraph_1_values.grad_x)
 
 
-def test_evaluate_agraph_c_gradient(sample_agraph_1_list, sample_agraph_1_values):
+def test_evaluate_agraph_c_gradient(sample_agraph_1_list,
+                                    sample_agraph_1_values):
     f_of_x, df_dc = \
         sample_agraph_1_list.evaluate_equation_with_local_opt_gradient_at(
             sample_agraph_1_values.x)
     np.testing.assert_allclose(f_of_x, sample_agraph_1_values.f_of_x)
     np.testing.assert_allclose(df_dc, sample_agraph_1_values.grad_c)
-
-
-def test_raises_error_evaluate_invalid_agraph(invalid_agraph,
-                                              sample_agraph_1_values):
-    with pytest.raises(IndexError):
-        _ = invalid_agraph.evaluate_equation_at(sample_agraph_1_values.x)
-
-
-def test_raises_error_x_gradient_invalid_agraph(invalid_agraph,
-                                                sample_agraph_1_values):
-    with pytest.raises(IndexError):
-        _ = invalid_agraph.evaluate_equation_with_x_gradient_at(
-            sample_agraph_1_values.x)
-
-
-def test_raises_error_c_gradient_invalid_agraph(invalid_agraph,
-                                                sample_agraph_1_values):
-    with pytest.raises(IndexError):
-        _ = invalid_agraph.evaluate_equation_with_local_opt_gradient_at(
-            sample_agraph_1_values.x)
-
-# NOTE: Indexing errors are segmentation faults in c++. This tests is
-# ommitted from the bingocpp.agraph implementation.
-
-def test_invalid_agraph_needs_optimization(invalid_agraph_list):
-    assert invalid_agraph_list.needs_local_optimization()
-
-
-def test_get_number_optimization_params(invalid_agraph_list):
-    assert invalid_agraph_list.get_number_local_optimization_params() == 1
-
-
-
-def test_set_optimization_params(invalid_agraph_list, sample_agraph_1_list,
-                                 sample_agraph_1_values):
-    invalid_agraph_list.set_local_optimization_params([1.0])
-
-    assert not invalid_agraph_list.needs_local_optimization()
-    np.testing.assert_allclose(
-        invalid_agraph_list.evaluate_equation_at(sample_agraph_1_values.x),
-        sample_agraph_1_list.evaluate_equation_at(sample_agraph_1_values.x))
 
 
 def test_setting_fitness_updates_fit_set():
@@ -353,10 +239,9 @@ def test_setting_fitness_updates_fit_set_cpp(agraph):
     assert sample_agraph.fit_set
 
 
-
-def test_notify_command_array_modification(sample_agraph_1_list):
+def test_mutable_access_to_command_array_unsets_fitness(sample_agraph_1_list):
     assert sample_agraph_1_list.fit_set
-    sample_agraph_1_list.notify_command_array_modification()
+    _ = sample_agraph_1_list.mutable_command_array
     assert not sample_agraph_1_list.fit_set
 
 
@@ -402,5 +287,5 @@ def test_evaluate_local_opt_gradient_overflow_exception(mocker,
 def test_distance_between_graphs(sample_agraph_1_list):
     assert sample_agraph_1_list.distance(sample_agraph_1_list) == 0
     other_agraph = sample_agraph_1_list.copy()
-    other_agraph.command_array[2] = np.array([6, 1, 0])
+    other_agraph.mutable_command_array[2] = np.array([6, 1, 0])
     assert sample_agraph_1_list.distance(other_agraph) == 3

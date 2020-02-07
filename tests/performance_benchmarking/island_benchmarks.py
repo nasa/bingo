@@ -1,4 +1,5 @@
 import timeit
+import unittest.mock as mock
 
 import numpy as np
 

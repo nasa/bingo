@@ -126,9 +126,18 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._simplified_command_array[const_commands, 1] = np.arange(num_const)
         self._simplified_command_array[const_commands, 2] = np.arange(num_const)
 
-        self._simplified_constants = (1.0,) * num_const
-        if num_const > 0:
-            self._needs_opt = True
+        optimization_aggression = 0
+        if optimization_aggression == 0 \
+                and num_const <= len(self._simplified_constants):
+            self._simplified_constants = self._simplified_constants[:num_const]
+        elif optimization_aggression == 1 \
+                and num_const == len(self._simplified_constants):
+            self._simplified_constants = self._simplified_constants[:num_const]
+        else:
+            self._simplified_constants = (1.0,) * num_const
+            if num_const > 0:
+                self._needs_opt = True
+
         self._modified = False
 
     def needs_local_optimization(self):

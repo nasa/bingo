@@ -121,7 +121,11 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._simplified_command_array = \
             Backend.simplify_stack(self._command_array)
         # TODO hard coded info about node map
-        num_const = np.count_nonzero(self._simplified_command_array[:, 0] == 1)
+        const_commands = self._simplified_command_array[:, 0] == 1
+        num_const = np.count_nonzero(const_commands)
+        self._simplified_command_array[const_commands, 1] = np.arange(num_const)
+        self._simplified_command_array[const_commands, 2] = np.arange(num_const)
+
         self._simplified_constants = (1.0,) * num_const
         if num_const > 0:
             self._needs_opt = True

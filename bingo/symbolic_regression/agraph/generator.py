@@ -11,8 +11,10 @@ from .agraph import AGraph
 from ...chromosomes.generator import Generator
 from ...util.argument_validation import argument_validation
 
+# TODO: Remove after cpp agraph generator created. Import in
+# symbolic regression init file
 try:
-    from bingocpp.build import bingocpp as bingocpp
+    from bingocpp.build import symbolic_regression as bingocpp
 except ImportError:
     bingocpp = None
 

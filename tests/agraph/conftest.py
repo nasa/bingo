@@ -8,7 +8,7 @@ from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 
 try:
-    from bingocpp.build import bingocpp as bingocpp
+    from bingocpp.build import symbolic_regression as bingocpp
 except ImportError:
     bingocpp = None
 

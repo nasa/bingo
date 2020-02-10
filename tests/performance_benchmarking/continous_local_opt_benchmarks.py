@@ -6,7 +6,7 @@ from bingo.symbolic_regression.agraph \
     import agraph as agraph_module, backend as pyBackend
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
-from bingocpp.build import bingocpp as cppBackend
+from bingocpp.build import symbolic_regression as cppBackend
 
 from benchmark_data import StatsPrinter, \
                            generate_random_individuals, \

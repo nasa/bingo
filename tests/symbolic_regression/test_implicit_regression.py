@@ -9,7 +9,7 @@ from bingo.symbolic_regression.implicit_regression import ImplicitRegression, \
                                      ImplicitRegressionSchmidt, \
                                      ImplicitTrainingData
 try:
-    from bingocpp.build import bingocpp as bingocpp
+    from bingocpp.build import symbolic_regression as bingocpp
 except ImportError:
     bingocpp = None
 

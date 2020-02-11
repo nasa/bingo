@@ -112,7 +112,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._command_array.flags.writeable = True
         self._notify_modification()
         return self._command_array
-a
+
     def _notify_modification(self):
         self._modified = True
         self._fitness = None

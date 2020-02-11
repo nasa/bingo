@@ -159,7 +159,7 @@ def get_utilized_commands(stack):
     util[-1] = True
     for i in range(1, stack.shape[0]):
         node, param1, param2 = stack[-i]
-        if util[-i] and node > 1:
+        if util[-i] and not IS_TERMINAL_MAP[node]:
             util[param1] = True
             if IS_ARITY_2_MAP[node]:
                 util[param2] = True

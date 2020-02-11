@@ -79,6 +79,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
         self._needs_opt = False
         self._modified = False
+        self._used_constant_commands = []
 
     @staticmethod
     def is_cpp():
@@ -111,7 +112,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._command_array.flags.writeable = True
         self._notify_modification()
         return self._command_array
-
+a
     def _notify_modification(self):
         self._modified = True
         self._fitness = None
@@ -137,7 +138,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._simplified_constants = (1.0,) * num_const
             if num_const > 0:
                 self._needs_opt = True
-
         self._modified = False
 
     def needs_local_optimization(self):

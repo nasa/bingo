@@ -89,15 +89,15 @@ def expected_agraph_behavior(request):
 def expected_agraph_behavior_cpp(request):
     prop = {'agraph': request.getfixturevalue(request.param)}
     if request.param == "all_funcs_agraph_cpp":
-        prop["latex string"] = "\\sqrt{ |(log{ exp{ cos{ sin{ \\frac{ (1.000000" + \
+        prop["latex string"] = "\\sqrt{ |(log{ exp{ cos{ sin{ \\frac{ (2.000000" + \
                                " + X_0 - (X_0))(X_0) }{ X_0 } } } } })^{ (" + \
                                "X_0) }| }"
-        prop["console string"] = "sqrt(|(log(exp(cos(sin(((1.000000 + X_0 - (X_" + \
+        prop["console string"] = "sqrt(|(log(exp(cos(sin(((2.000000 + X_0 - (X_" + \
                                  "0))(X_0))/(X_0))))))^(X_0)|)"
         prop["complexity"] = 13
     elif request.param == "sample_agraph_1_cpp":
-        prop["latex string"] = "sin{ X_0 + 1.000000 } + 1.000000"
-        prop["console string"] = "sin(X_0 + 1.000000) + 1.000000"
+        prop["latex string"] = "sin{ X_0 + 2.000000 } + 2.000000"
+        prop["console string"] = "sin(X_0 + 2.000000) + 2.000000"
         prop["complexity"] = 5
     return prop
 

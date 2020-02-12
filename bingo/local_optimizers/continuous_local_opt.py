@@ -155,8 +155,8 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @staticmethod
     def _check_root_alg_returns_vector(fitness_function, algorithm):
-        if algorithm in ROOT_SET and not isinstance(fitness_function,
-                                                    VectorBasedFunction):
+        if algorithm in ROOT_SET and not hasattr(fitness_function,
+                                                 'evaluate_fitness_vector'):
             raise TypeError("{} requires VectorBasedFunction\
                             as a fitness function".format(algorithm))
 

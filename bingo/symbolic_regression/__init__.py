@@ -16,9 +16,11 @@ from .atomic_potential_regression import *
 # that have C++ bindings
 try:
     from bingocpp.build.symbolic_regression import *
-except Exception as e:
+    ISCPP = True
+except ImportError as e:
     from .agraph.agraph import *
     from .equation import *
     from .explicit_regression import *
     from .implicit_regression import *
+    ISCPP = False
     print("Could not load C++ modules")

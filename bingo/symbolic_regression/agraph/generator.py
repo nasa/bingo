@@ -3,20 +3,17 @@
 This module contains the implementation of the generation of random acyclic
 graph individuals.
 """
-import warnings
-
 import numpy as np
 
-from .agraph import AGraph
+try:
+    from bingocpp.build.symbolic_regression import AGraph
+    BINGOCPP = True
+except ImportError as e:
+    from .agraph import AGraph
+    BINGOCPP = False
+from .agraph import AGraph as pyAGraph
 from ...chromosomes.generator import Generator
 from ...util.argument_validation import argument_validation
-
-# TODO: Remove after cpp agraph generator created. Import in
-# symbolic regression init file
-try:
-    from bingocpp.build import symbolic_regression as bingocpp
-except ImportError:
-    bingocpp = None
 
 
 class AGraphGenerator(Generator):
@@ -30,16 +27,13 @@ class AGraphGenerator(Generator):
                           Generator of stack components of agraphs
     """
     @argument_validation(agraph_size={">=": 1})
-    def __init__(self, agraph_size, component_generator, cpp=False):
+    def __init__(self, agraph_size, component_generator, use_python=False):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
-        if cpp and not bingocpp:
-            warnings.warn('error importing bingocpp for agraph generation.'
-                          ' Using default python backend.')
+        if use_python:
             self._backend_generator_function = self._python_generator_function
         else:
-            self._backend_generator_function = self._cpp_generator_function \
-                if cpp else self._python_generator_function
+            self._backend_generator_function = self._generator_function
 
     def __call__(self):
         """Generates random agraph individual.
@@ -57,11 +51,11 @@ class AGraphGenerator(Generator):
 
     @staticmethod
     def _python_generator_function():
-        return AGraph()
+        return pyAGraph()
 
     @staticmethod
-    def _cpp_generator_function():
-        return bingocpp.AGraph()
+    def _generator_function():
+        return AGraph()
 
     def _create_command_array(self):
         command_array = np.empty((self.agraph_size, 3), dtype=int)

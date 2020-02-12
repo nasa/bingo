@@ -49,7 +49,10 @@ import numpy as np
 from .string_generation import get_formatted_string
 from ..equation import Equation
 from ...local_optimizers import continuous_local_opt
-from . import backend as Backend
+try:
+    from bingocpp.build import symbolic_regression as Backend
+except ImportError:
+    from . import backend as Backend
 
 LOGGER = logging.getLogger(__name__)
 

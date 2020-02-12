@@ -4,7 +4,7 @@ on common symbolic regression example problems.
 """
 import numpy as np
 
-from ..explicit_regression import ExplicitTrainingData
+from .. import ExplicitTrainingData
 
 
 class Benchmark:

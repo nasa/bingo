@@ -4,6 +4,8 @@
 import numpy as np
 from mpi4py import MPI
 
+# currently must force the use of python Agraphs because bingocpp agraphs cant
+# be pickled and exchanged between processors
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
@@ -56,7 +58,8 @@ def execute_generational_steps():
     crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
 
-    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
+    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator,
+                                       use_python=True)
 
     fitness = ExplicitRegression(training_data=training_data)
     local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')

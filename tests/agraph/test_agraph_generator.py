@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 
 from bingo.symbolic_regression.agraph.generator \
-    import AGraphGenerator, bingocpp
+    import AGraphGenerator, BINGOCPP
 
 
 @pytest.mark.parametrize("agraph_size,expected_error", [
@@ -19,17 +19,17 @@ def test_raises_error_invalid_agraph_size_gen(agraph_size,
         _ = AGraphGenerator(agraph_size, sample_component_generator)
 
 
-@pytest.mark.parametrize("cpp_backend", [
-    False,
-    pytest.param(True,
-                 marks=pytest.mark.skipif(bingocpp is None,
+@pytest.mark.parametrize("python_backend", [
+    True,
+    pytest.param(False,
+                 marks=pytest.mark.skipif(BINGOCPP is None,
                                           reason="failed bingocpp import"))])
-def test_return_correct_agraph_backend(cpp_backend,
+def test_return_correct_agraph_backend(python_backend,
                                        sample_component_generator):
     generate_agraph = AGraphGenerator(6, sample_component_generator,
-                                      cpp_backend)
+                                      python_backend)
     agraph = generate_agraph()
-    assert agraph.is_cpp() == cpp_backend
+    assert agraph.is_cpp() != python_backend
 
 
 def test_generate(sample_component_generator):

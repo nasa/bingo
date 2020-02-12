@@ -4,8 +4,6 @@
 import csv
 import numpy as np
 
-from bingo.symbolic_regression.agraph \
-    import agraph as agraph_module, backend as pyBackend
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
@@ -78,7 +76,7 @@ def set_up_agraph_generator(stack_size):
                                    terminal_probability=0.1)
     for i in range(2, 13):
         generator.add_operator(i)
-    generate_agraph = AGraphGenerator(stack_size, generator)
+    generate_agraph = AGraphGenerator(stack_size, generator, use_python=True)
     return generate_agraph
 
 
@@ -165,9 +163,9 @@ def explicit_regression():
 
 
 def explicit_regression_cpp():
-    training_data = cppBackend.ExplicitTrainingData(TEST_X_PARTIALS,
-                                                    TEST_Y_ZEROS)
-    return cppBackend.ExplicitRegression(training_data)
+    training_data = bingocpp.ExplicitTrainingData(TEST_X_PARTIALS,
+                                                  TEST_Y_ZEROS)
+    return bingocpp.ExplicitRegression(training_data)
 
 
 def implicit_regression():
@@ -176,9 +174,9 @@ def implicit_regression():
 
 
 def implicit_regression_cpp():
-    training_data = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS,
-                                                    TEST_DX_DT)
-    return cppBackend.ImplicitRegression(training_data)
+    training_data = bingocpp.ImplicitTrainingData(TEST_X_PARTIALS,
+                                                  TEST_DX_DT)
+    return bingocpp.ImplicitRegression(training_data)
 
 
 TEST_X = generate_random_x(NUM_X_VALUES)

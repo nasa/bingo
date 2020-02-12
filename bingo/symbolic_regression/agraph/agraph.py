@@ -49,12 +49,7 @@ import numpy as np
 from .string_generation import get_formatted_string
 from ..equation import Equation
 from ...local_optimizers import continuous_local_opt
-
-try:
-    from bingocpp.build import bingocpp as Backend
-except ImportError as e:
-    print(e)
-    from . import backend as Backend
+from . import backend as Backend
 
 LOGGER = logging.getLogger(__name__)
 

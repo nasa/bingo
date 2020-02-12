@@ -7,7 +7,7 @@ import numpy as np
 
 from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData
 try:
-    from bingocpp.build import bingocpp as bingocpp
+    from bingocpp.build import symbolic_regression as bingocpp
 except ImportError:
     bingocpp = None
 

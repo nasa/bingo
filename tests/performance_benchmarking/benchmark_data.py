@@ -6,7 +6,6 @@ import numpy as np
 
 from bingo.symbolic_regression.agraph \
     import agraph as agraph_module, backend as pyBackend
-from bingocpp.build import bingocpp as cppBackend
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
@@ -14,7 +13,7 @@ from bingo.symbolic_regression.implicit_regression \
     import ImplicitRegression, ImplicitTrainingData, calculate_partials
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitRegression, ExplicitTrainingData
-from bingocpp.build import bingocpp
+from bingocpp.build import symbolic_regression as bingocpp
 
 LOG_WIDTH = 78
 NUM_AGRAPHS_INDVS = 100

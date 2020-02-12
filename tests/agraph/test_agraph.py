@@ -7,7 +7,7 @@ import numpy as np
 
 from bingo.symbolic_regression.agraph import agraph, backend as py_backend
 try:
-    from bingocpp.build import bingocpp as bingocpp
+    from bingocpp.build import symbolic_regression as bingocpp
     cpp_agraph = bingocpp.AGraph()
     CPP_LOADED = True
 except ImportError:

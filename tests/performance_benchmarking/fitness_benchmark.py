@@ -2,7 +2,7 @@ import timeit
 
 from bingo.symbolic_regression.agraph \
     import agraph as agraph_module, backend as pyBackend
-from bingocpp.build import bingocpp as cppBackend
+from bingocpp.build import symbolic_regression as cppBackend
 
 import benchmark_data as benchmark_data
 from benchmark_data import TEST_AGRAPHS, \

@@ -6,7 +6,7 @@ import numpy as np
 
 from bingo.symbolic_regression.equation import Equation
 try:
-    from bingocpp.build import bingocpp as bingocpp
+    from bingocpp.build import symbolic_regression as bingocpp
     CppEquation = bingocpp.Equation
 except ImportError:
     bingocpp = None

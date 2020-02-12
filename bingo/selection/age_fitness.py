@@ -137,6 +137,13 @@ class AgeFitness(Selection):
 
     @staticmethod
     def _first_not_dominated(first_indv, second_indv):
+        # This code block can be used to force equivalency of bingocpp and
+        # bingo that may otherwise diverge because of truncation or small math
+        # differences.
+        # rel_fitness_diff = (first_indv.fitness - second_indv.fitness) \
+        #                   / (first_indv.fitness + second_indv.fitness)
+        # return not (first_indv.genetic_age > second_indv.genetic_age or
+        #             rel_fitness_diff > 1e-15)
         return not (first_indv.genetic_age > second_indv.genetic_age or
                     first_indv.fitness > second_indv.fitness)
 

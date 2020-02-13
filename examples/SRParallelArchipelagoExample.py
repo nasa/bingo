@@ -4,16 +4,6 @@
 import numpy as np
 from mpi4py import MPI
 
-# currently must force the use of python Agraphs because bingocpp agraphs cant
-# be pickled and exchanged between processors
-from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
-from bingo.symbolic_regression.agraph.mutation import AGraphMutation
-from bingo.symbolic_regression.agraph.generator import AGraphGenerator
-from bingo.symbolic_regression.agraph.component_generator \
-    import ComponentGenerator
-from bingo.symbolic_regression.explicit_regression \
-    import ExplicitRegression, ExplicitTrainingData
-
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_optimizers.parallel_archipelago \
     import ParallelArchipelago
@@ -21,6 +11,12 @@ from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
+from bingo.symbolic_regression import ComponentGenerator, \
+                                      AGraphGenerator, \
+                                      AGraphCrossover, \
+                                      AGraphMutation, \
+                                      ExplicitRegression, \
+                                      ExplicitTrainingData
 
 POP_SIZE = 100
 STACK_SIZE = 10
@@ -58,8 +54,7 @@ def execute_generational_steps():
     crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
 
-    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator,
-                                       use_python=True)
+    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)
     local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')

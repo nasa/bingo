@@ -28,9 +28,13 @@ class ExplicitRegression(VectorBasedFunction):
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error', and
         'root mean squared error'
+    relative : bool
+        Whether to use relative, pointwise normalization of errors. Default:
+        False.
     """
-    def __init__(self, training_data, metric="mae"):
+    def __init__(self, training_data, metric="mae", relative=False):
         super().__init__(training_data, metric)
+        self._relative = relative
 
     def evaluate_fitness_vector(self, individual):
         """ Traditional fitness evaluation for symbolic regression
@@ -46,7 +50,10 @@ class ExplicitRegression(VectorBasedFunction):
         """
         self.eval_count += 1
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
-        return (f_of_x - self.training_data.y).flatten()
+        error = f_of_x - self.training_data.y
+        if not self._relative:
+            return error.flatten()
+        return (error / self.training_data.y).flatten()
 
 
 class ExplicitTrainingData(TrainingData):

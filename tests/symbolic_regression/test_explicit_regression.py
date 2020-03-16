@@ -63,12 +63,54 @@ def explicit_data_nan(request, dummy_sum_equation, dummy_sum_equation_cpp):
     return (bingocpp.ExplicitTrainingData(x, y), dummy_sum_equation_cpp)
 
 
-def test_explicit_regression(explicit_data):
+def init_x_and_y_for_relative():
+    x = np.zeros((10, 5))
+    y = np.linspace(0.2, 4.7, 10).reshape((-1, 1))
+    return (x, y)
+
+
+@pytest.fixture()
+def dummy_training_data_relative():
+    x, y = init_x_and_y_for_relative()
+    return SampleTrainingData(x, y)
+
+
+@pytest.fixture()
+def dummy_training_data_relative_cpp():
+    if bingocpp is None:
+        return None
+    x, y = init_x_and_y_for_relative()
+    return bingocpp.ExplicitTrainingData(x, y)
+
+
+@pytest.fixture(params=[
+    "python",
+    pytest.param("cpp", marks=pytest.mark.skipif(not bingocpp,
+                        reason='BingoCpp import failure'))
+])
+def explicit_data_relative(request, dummy_training_data_relative,
+                           dummy_training_data_relative_cpp,
+                           dummy_sum_equation, dummy_sum_equation_cpp):
+    if request.param == "python":
+        return (dummy_training_data_relative, dummy_sum_equation)
+    return (dummy_training_data_relative_cpp, dummy_sum_equation_cpp)
+
+
+@pytest.mark.parametrize("do_relative", [True, False])
+def test_explicit_regression(explicit_data, do_relative):
     dummy_training_data = explicit_data[0]
     dummy_sum_equation = explicit_data[1]
-    regressor = ExplicitRegression(dummy_training_data)
+    regressor = ExplicitRegression(dummy_training_data, relative=do_relative)
     fitness = regressor(dummy_sum_equation)
     np.testing.assert_almost_equal(fitness, 0)
+
+
+def test_explicit_regression_relative(explicit_data_relative):
+    dummy_training_data = explicit_data_relative[0]
+    dummy_sum_equation = explicit_data_relative[1]
+    regressor = ExplicitRegression(dummy_training_data, relative=True)
+    fitness = regressor(dummy_sum_equation)
+    np.testing.assert_almost_equal(fitness, 1)
 
 
 def test_explicit_regression_with_nan(explicit_data_nan):

@@ -10,7 +10,8 @@ IS_TERMINAL_MAP : dict {int: bool}
 OPERATOR_NAMES : dict{int: list(string)}
                  A map of node number to common names for the node
 """
-IS_ARITY_2_MAP = {0: False,
+IS_ARITY_2_MAP = {-1: False,
+                  0: False,
                   1: False,
                   2: True,
                   3: True,
@@ -23,7 +24,8 @@ IS_ARITY_2_MAP = {0: False,
                   10: True,
                   11: False,
                   12: False}
-IS_TERMINAL_MAP = {0: True,
+IS_TERMINAL_MAP = {-1: True,
+                   0: True,
                    1: True,
                    2: False,
                    3: False,
@@ -36,7 +38,8 @@ IS_TERMINAL_MAP = {0: True,
                    10: False,
                    11: False,
                    12: False}
-OPERATOR_NAMES = {0: ["load", "x"],
+OPERATOR_NAMES = {-1: ["integer"],
+                  0: ["load", "x"],
                   1: ["constant", "c"],
                   2: ["add", "addition", "+"],
                   3: ["subtract", "subtraction", "-"],

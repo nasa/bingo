@@ -8,6 +8,7 @@ class Expression:
         self._operands = operands
         self._variable_constants = variable_constants
         self._is_constant_valued = self._is_derived_from_constants()
+        self._hash = None
 
     @property
     def operator(self):
@@ -91,6 +92,8 @@ class Expression:
     def __eq__(self, other):
         if other is None:
             return False
+        if hash(self) != hash(other):
+            return False
         if self.operator != other.operator:
             return False
         return self.operands == other.operands
@@ -170,3 +173,9 @@ class Expression:
             string += f"{operand}, "
         string += ")"
         return string
+
+    def __hash__(self):
+        if self._hash is None:
+            self._hash = hash((self.operator,) +
+                              tuple([hash(i) for i in self.operands]))
+        return self._hash

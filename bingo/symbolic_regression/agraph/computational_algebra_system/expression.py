@@ -3,7 +3,7 @@ from .operator_definitions import *
 
 class Expression:
 
-    def __init__(self, operator, operands, variable_constants=False):
+    def __init__(self, operator, operands, variable_constants=True):
         self._operator = operator
         self._operands = operands
         self._variable_constants = variable_constants
@@ -24,8 +24,9 @@ class Expression:
 
     @variable_constants.setter
     def variable_constants(self, value):
-        for operand in self._operands:
-            operand.variable_constants = value
+        if self._operator not in [CONSTANT, CONSTSYMBOL, VARIABLE, INTEGER]:
+            for operand in self._operands:
+                operand.variable_constants = value
         self._variable_constants = value
         self._is_constant_valued = self._is_derived_from_constants()
 

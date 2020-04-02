@@ -256,7 +256,4 @@ def simplify_difference(expression):
     negative_second = Expression(MULTIPLICATION, [NEGATIVE_ONE, second])
     negative_second = simplify_product(negative_second)
     difference_as_sum = Expression(ADDITION, [first, negative_second])
-    print("start", expression)
-    print("intermed", difference_as_sum)
-    print("end", simplify_sum(difference_as_sum))
     return simplify_sum(difference_as_sum)

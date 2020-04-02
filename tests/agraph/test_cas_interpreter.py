@@ -4,6 +4,7 @@ from bingo.symbolic_regression.agraph.computational_algebra_system.operator_defi
 from bingo.symbolic_regression.agraph.computational_algebra_system.expression import Expression
 from bingo.symbolic_regression.agraph.computational_algebra_system.interpreter import build_cas_expression, build_agraph_stack
 
+
 def test_interpreter_round_trip():
     stack = np.array([[CONSTANT, -1, -1],
                       [CONSTANT, -1, -1],
@@ -30,9 +31,6 @@ def test_interpreter_round_trip():
 
     interpreted_stack = build_agraph_stack(cas_expression)
     np.testing.assert_array_equal(interpreted_stack, stack)
-
-    # simplified_expression = automatic_simplify(cas_expression)
-    # print(simplified_expression)
 
 
 def test_building_stack_from_large_associative_operators():

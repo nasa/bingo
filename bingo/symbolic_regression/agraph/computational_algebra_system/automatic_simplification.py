@@ -121,6 +121,16 @@ def _simplify_product_rec(operands):
 
             return operands
 
+        if op_1.is_constant_valued or op_2.is_constant_valued:
+            if op_1 == ONE:
+                return [op_2]
+            if op_2 == ONE:
+                return [op_1]
+            if op_2 < op_1:
+                return [op_2, op_1]
+
+            return operands
+
         if op_1.operator == MULTIPLICATION:
             to_merge_1 = op_1.operands
         else:
@@ -208,6 +218,15 @@ def _simplify_sum_rec(operands):
             if op_2 < op_1:
                 return [op_2, op_1]
 
+            return operands
+
+        if op_1.is_constant_valued or op_2.is_constant_valued:
+            if op_1 == ZERO:
+                return [op_2]
+            if op_2 == ZERO:
+                return [op_1]
+            if op_2 < op_1:
+                return [op_2, op_1]
             return operands
 
         if op_1.operator == ADDITION:

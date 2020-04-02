@@ -3,10 +3,9 @@ from .operator_definitions import *
 
 class Expression:
 
-    def __init__(self, operator, operands, variable_constants=True):
+    def __init__(self, operator, operands):
         self._operator = operator
         self._operands = operands
-        self._variable_constants = variable_constants
         self._is_constant_valued = self._is_derived_from_constants()
         self._hash = None
 
@@ -19,18 +18,6 @@ class Expression:
         return self._operands
 
     @property
-    def variable_constants(self):
-        return self._variable_constants
-
-    @variable_constants.setter
-    def variable_constants(self, value):
-        if self._operator not in [CONSTANT, CONSTSYMBOL, VARIABLE, INTEGER]:
-            for operand in self._operands:
-                operand.variable_constants = value
-        self._variable_constants = value
-        self._is_constant_valued = self._is_derived_from_constants()
-
-    @property
     def is_constant_valued(self):
         return self._is_constant_valued
 
@@ -38,15 +25,16 @@ class Expression:
     def base(self):
         if self._operator == POWER:
             return self._operands[0]
-        if self.is_constant_valued:
+        if self._operator == INTEGER:
             return None
         return self
 
     @property
     def exponent(self):
+        print("exp", self)
         if self._operator == POWER:
             return self._operands[1]
-        if self.is_constant_valued:
+        if self._operator == INTEGER:
             return None
         return Expression(INTEGER, [1, ])
 
@@ -71,11 +59,8 @@ class Expression:
         return Expression(INTEGER, [1, ])
 
     def _is_derived_from_constants(self):
-        if self._operator in [INTEGER, CONSTSYMBOL]:
+        if self._operator in [INTEGER, CONSTANT, CONSTSYMBOL]:
             return True
-
-        if self._operator == CONSTANT:
-            return not self._variable_constants
 
         if self._operator == VARIABLE:
             return False
@@ -87,8 +72,9 @@ class Expression:
         return True
 
     def map(self, mapped_function):
-        return Expression(self._operator,
-                          [mapped_function(i) for i in self._operands])
+        mapped_operands = [mapped_function(i) for i in self._operands]
+        print(mapped_operands)
+        return Expression(self._operator, mapped_operands)
 
     def __eq__(self, other):
         if other is None:

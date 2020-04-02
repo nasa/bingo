@@ -6,13 +6,16 @@ from .expression import Expression
 
 
 def fold_constants(expression):
+    expression = _group_constants(expression)
+    print("grouping constants: ", expression)
+
     check_for_folding = True
     while check_for_folding:
-        # print("iter", expression)
+        print("iter", expression)
         check_for_folding = False
         constants = _get_constants(expression)
         for const_subset in _subsets(list(constants)):
-            # print(const_subset)
+            print(const_subset)
             insertion_points = _find_insertion_points(expression, const_subset)
             # print(insertion_points)
             replacements = _generate_replacement_instructions(const_subset,
@@ -26,6 +29,26 @@ def fold_constants(expression):
                 break
 
     return expression
+
+
+def _group_constants(expression):
+    if expression.operator in [CONSTANT, CONSTSYMBOL, INTEGER, VARIABLE]:
+        return expression
+
+    new_operands = [_group_constants(operand)
+                    for operand in expression.operands]
+
+    if expression.operator in [MULTIPLICATION, ADDITION]:
+        const_operands = [operand for operand in new_operands
+                          if operand.is_constant_valued]
+        non_const_operands = [operand for operand in new_operands
+                              if not operand.is_constant_valued]
+        if len(const_operands) > 1 and len(non_const_operands) > 0:
+            const_expr = Expression(expression.operator, const_operands)
+            return Expression(expression.operator,
+                              [const_expr] + non_const_operands)
+
+    return Expression(expression.operator, new_operands)
 
 
 def _generate_replacement_instructions(const_subset, constants,
@@ -146,4 +169,3 @@ def _get_new_operands_with_replacements(expression, replacements):
             new_operands.append(_perform_constant_folding(operand,
                                                           replacements))
     return new_operands
-

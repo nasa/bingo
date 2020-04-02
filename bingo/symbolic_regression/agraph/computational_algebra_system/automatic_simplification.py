@@ -1,21 +1,25 @@
 from .operator_definitions import *
 from .expression import Expression
 
-NEGATIVE_ONE = Expression(INTEGER, [-1])
+
 ZERO = Expression(INTEGER, [0])
 ONE = Expression(INTEGER, [1])
 
 
 def automatic_simplify(expression):
+    print("!", expression)
     if expression.operator in [CONSTANT, INTEGER, CONSTSYMBOL, VARIABLE]:
+        print("<", expression)
         return expression
 
     expr_w_simp_operands = expression.map(automatic_simplify)
+    print("!s", expr_w_simp_operands)
 
     if expr_w_simp_operands.operator == POWER:
         return simplify_power(expr_w_simp_operands)
 
     if expr_w_simp_operands.operator == MULTIPLICATION:
+        print("<", simplify_product(expr_w_simp_operands))
         return simplify_product(expr_w_simp_operands)
 
     if expr_w_simp_operands.operator == ADDITION:
@@ -33,11 +37,13 @@ def automatic_simplify(expression):
 def simplify_power(expression):
     base, exponent = expression.operands
     if base == ONE:
-        return ONE.copy()
+        one = Expression(INTEGER, [1])
+        return one
     if base == ZERO and exponent.operator == INTEGER \
             and exponent.operands[0] > 0:
-        return ZERO.copy()
-    if exponent.is_constant_valued:
+        zero = Expression(INTEGER, [0])
+        return zero
+    if exponent.operator in [INTEGER, CONSTANT, CONSTSYMBOL]:
         return _simplify_constant_power(base, exponent)
     return expression
 
@@ -46,7 +52,8 @@ def _simplify_constant_power(base, exponent):
     if exponent == ONE:
         return base
     if exponent == ZERO:
-        return ONE.copy()
+        one = Expression(INTEGER, [1])
+        return one
 
     if base.operator == INTEGER and exponent.operator == INTEGER \
             and exponent.operands[0] > 0:
@@ -57,7 +64,7 @@ def _simplify_constant_power(base, exponent):
         base_exponent = base.operands[1]
         mult_exp = Expression(MULTIPLICATION, [base_exponent, exponent])
         new_exponent = simplify_product(mult_exp)
-        if base_exponent.is_constant_valued:
+        if base_exponent in [INTEGER, CONSTANT, CONSTSYMBOL]:
             return _simplify_constant_power(base_base, new_exponent)
         return Expression(POWER, [base_base, new_exponent])
 
@@ -73,13 +80,15 @@ def _simplify_constant_power(base, exponent):
 def simplify_product(expression):
     operands = expression.operands
     if ZERO in operands:
-        return ZERO.copy()
+        zero = Expression(INTEGER, [0])
+        return zero
     if len(operands) == 1:
         return operands[0]
 
     recursively_simplified_operands = _simplify_product_rec(operands)
     if len(recursively_simplified_operands) == 0:
-        return ONE.copy()
+        one = Expression(INTEGER, [1])
+        return one
     if len(recursively_simplified_operands) == 1:
         return recursively_simplified_operands[0]
     return Expression(MULTIPLICATION, recursively_simplified_operands)
@@ -88,13 +97,9 @@ def simplify_product(expression):
 def _simplify_product_rec(operands):
     if len(operands) == 2:
         op_1, op_2 = operands
-        if op_1.is_constant_valued and op_2.is_constant_valued:
-            if op_1.operator == INTEGER and op_2.operator == INTEGER:
-                new_integer = op_1.operands[0] * op_2.operands[0]
-                simpl_const_prod = Expression(INTEGER, [new_integer])
-            else:
-                simpl_const_prod = Expression(MULTIPLICATION, operands)
-
+        if op_1.operator == INTEGER and op_2.operator == INTEGER:
+            new_integer = op_1.operands[0] * op_2.operands[0]
+            simpl_const_prod = Expression(INTEGER, [new_integer])
             if simpl_const_prod == ONE:
                 return []
             return [simpl_const_prod]
@@ -116,16 +121,6 @@ def _simplify_product_rec(operands):
                     return []
                 return [combined_op]
 
-            if op_2 < op_1:
-                return [op_2, op_1]
-
-            return operands
-
-        if op_1.is_constant_valued or op_2.is_constant_valued:
-            if op_1 == ONE:
-                return [op_2]
-            if op_2 == ONE:
-                return [op_1]
             if op_2 < op_1:
                 return [op_2, op_1]
 
@@ -172,7 +167,8 @@ def simplify_sum(expression):
 
     recursively_simplified_operands = _simplify_sum_rec(operands)
     if len(recursively_simplified_operands) == 0:
-        return ZERO.copy()
+        zero = Expression(INTEGER, [0])
+        return zero
     if len(recursively_simplified_operands) == 1:
         return recursively_simplified_operands[0]
     return Expression(ADDITION, recursively_simplified_operands)
@@ -181,17 +177,9 @@ def simplify_sum(expression):
 def _simplify_sum_rec(operands):
     if len(operands) == 2:
         op_1, op_2 = operands
-        if op_1.is_constant_valued and op_2.is_constant_valued:
-            if op_1.operator == INTEGER and op_2.operator == INTEGER:
-                new_integer = op_1.operands[0] + op_2.operands[0]
-                simpl_const_sum = Expression(INTEGER, [new_integer])
-            elif op_1 == ZERO:
-                return [op_2]
-            elif op_2 == ZERO:
-                return [op_1]
-            else:
-                simpl_const_sum = Expression(ADDITION, operands)
-
+        if op_1.operator == INTEGER and op_2.operator == INTEGER:
+            new_integer = op_1.operands[0] + op_2.operands[0]
+            simpl_const_sum = Expression(INTEGER, [new_integer])
             if simpl_const_sum == ZERO:
                 return []
             return [simpl_const_sum]
@@ -218,15 +206,6 @@ def _simplify_sum_rec(operands):
             if op_2 < op_1:
                 return [op_2, op_1]
 
-            return operands
-
-        if op_1.is_constant_valued or op_2.is_constant_valued:
-            if op_1 == ZERO:
-                return [op_2]
-            if op_2 == ZERO:
-                return [op_1]
-            if op_2 < op_1:
-                return [op_2, op_1]
             return operands
 
         if op_1.operator == ADDITION:
@@ -263,7 +242,8 @@ def _merge_sums(operands_1, operands_2):
 
 def simplify_quotient(expression):
     numerator, denominator = expression.operands
-    denominator_inv = Expression(POWER, [denominator, NEGATIVE_ONE])
+    negative_one = Expression(INTEGER, [-1])
+    denominator_inv = Expression(POWER, [denominator, negative_one])
     denominator_inv = simplify_power(denominator_inv)
     quotient_as_product = Expression(MULTIPLICATION,
                                      [numerator, denominator_inv])
@@ -272,7 +252,8 @@ def simplify_quotient(expression):
 
 def simplify_difference(expression):
     first, second = expression.operands
-    negative_second = Expression(MULTIPLICATION, [NEGATIVE_ONE, second])
+    negative_one = Expression(INTEGER, [-1])
+    negative_second = Expression(MULTIPLICATION, [negative_one, second])
     negative_second = simplify_product(negative_second)
     difference_as_sum = Expression(ADDITION, [first, negative_second])
     return simplify_sum(difference_as_sum)

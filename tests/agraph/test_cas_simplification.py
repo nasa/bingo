@@ -161,8 +161,7 @@ def test_quotient_simplification(zero, one, two, x_var, x_squared, x_inv,
                                  negative_one):
     one_half = Expression(DIVISION, [one, two])
     two_inv = Expression(POWER, [two, negative_one])
-    one_two_inv = Expression(MULTIPLICATION, [one, two_inv])
-    assert automatic_simplify(one_half) == one_two_inv
+    assert automatic_simplify(one_half) == two_inv
 
     x_over_0 = Expression(DIVISION, [x_var, zero])
     zero_inv = Expression(POWER, [zero, negative_one])

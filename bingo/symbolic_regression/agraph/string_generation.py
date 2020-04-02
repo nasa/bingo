@@ -93,6 +93,8 @@ def _get_stack_element_string(command_index, stack_element, constants):
             tmp_str += "C"
         else:
             tmp_str += "C_{} = {}".format(param1, constants[param1])
+    elif node == -1:
+        tmp_str += "{} (integer)".format(param1)
     else:
         tmp_str += STACK_PRINT_MAP[node].format(param1, param2)
     tmp_str += "\n"
@@ -109,6 +111,8 @@ def _get_formatted_element_string(stack_element, str_list,
             tmp_str = "?"
         else:
             tmp_str = str(constants[param1])
+    elif node == -1:
+        tmp_str = str(int(param1))
     else:
         tmp_str = format_dict[node].format(str_list[param1], str_list[param2])
     return tmp_str

@@ -17,7 +17,7 @@ def fold_constants(expression):
         for const_subset in _subsets(list(constants)):
             print(const_subset)
             insertion_points = _find_insertion_points(expression, const_subset)
-            # print(insertion_points)
+            print("   ", len(insertion_points), insertion_points)
             replacements = _generate_replacement_instructions(const_subset,
                                                               constants,
                                                               insertion_points)
@@ -97,46 +97,47 @@ def _subsets(constants):
 
 
 def _find_insertion_points(expression, constants):
+    if not expression.depends_on.isdisjoint(constants) and \
+            len(expression.depends_on - constants - {"i", "s"}) == 0:
+        return {expression: [(None, frozenset([expression]))]}
+
     insertion_points = defaultdict(set)
-    entire_expr_is_const = \
-        _recursive_insertion_point_search(expression, constants,
-                                          insertion_points, parent=None)
-    if entire_expr_is_const:
-        insertion_points[None].add((None, frozenset([expression])))
+    _recursive_insertion_point_search(expression, constants, insertion_points,
+                                      parent=None)
     return insertion_points
 
 
 def _recursive_insertion_point_search(expression, constants, insertion_points,
                                       parent):
-    if expression.operator == CONSTANT:
-        return expression.operands[0] in constants
+    if expression.operator in [CONSTANT, CONSTSYMBOL, INTEGER, VARIABLE]:
+        return
 
-    if expression.operator in [CONSTSYMBOL, INTEGER, VARIABLE]:
-        return False
-
-    operands_are_constant_based = []
     for operand in expression.operands:
-        is_constant_based = \
-            _recursive_insertion_point_search(operand, constants,
-                                              insertion_points, expression)
-        operands_are_constant_based.append(is_constant_based)
+        _recursive_insertion_point_search(operand, constants, insertion_points,
+                                          expression)
 
-    if all(operands_are_constant_based):
-        return True
-
-    if not any(operands_are_constant_based):
-        return False
+    if not _is_insertion_point_for_constants(expression, constants):
+        return
 
     if expression.is_constant_valued:
         insertion_points[expression].add((parent, frozenset([expression])))
     else:
         constant_operands = \
-            frozenset([operand for operand, is_const
-                       in zip(expression.operands, operands_are_constant_based)
-                       if is_const])
+            frozenset([operand for operand in expression.operands
+                       if len(operand.depends_on - constants - {"i", "s"}) == 0])
         insertion_points[expression].add((expression, constant_operands))
 
     return False
+
+
+def _is_insertion_point_for_constants(expression, constants):
+    solely_const_based = []
+    has_others = []
+    for operand in expression.operands:
+        has_consts = not operand.depends_on.isdisjoint(constants)
+        has_others.append(len(operand.depends_on - constants - {"i", "s"}) > 0)
+        solely_const_based.append(has_consts and not has_others[-1])
+    return any(solely_const_based) and any(has_others)
 
 
 def _perform_constant_folding(expression, replacements):

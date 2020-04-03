@@ -6,7 +6,8 @@ class Expression:
     def __init__(self, operator, operands):
         self._operator = operator
         self._operands = operands
-        self._is_constant_valued = self._is_derived_from_constants()
+        self._is_constant_valued = None
+        self._depends_on = None
         self._hash = None
 
     @property
@@ -19,7 +20,15 @@ class Expression:
 
     @property
     def is_constant_valued(self):
+        if self._is_constant_valued is None:
+            self._is_constant_valued = self._is_derived_from_constants()
         return self._is_constant_valued
+
+    @property
+    def depends_on(self):
+        if self._depends_on is None:
+            self._depends_on = self._find_what_expression_depends_on()
+        return self._depends_on
 
     @property
     def base(self):
@@ -70,6 +79,18 @@ class Expression:
                 return False
 
         return True
+
+    def _find_what_expression_depends_on(self):
+        if self._operator == INTEGER:
+            return {"i"}
+        if self._operator == VARIABLE:
+            return {"x"}
+        if self._operator == CONSTSYMBOL:
+            return {"s"}
+        if self._operator == CONSTANT:
+            return {self.operands[0]}
+
+        return set.union(*[o.depends_on for o in self._operands])
 
     def map(self, mapped_function):
         mapped_operands = [mapped_function(i) for i in self._operands]

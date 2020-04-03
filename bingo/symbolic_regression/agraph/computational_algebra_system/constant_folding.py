@@ -7,21 +7,16 @@ from .expression import Expression
 
 def fold_constants(expression):
     expression = _group_constants(expression)
-    print("grouping constants: ", expression)
 
     check_for_folding = True
     while check_for_folding:
-        print("iter", expression)
         check_for_folding = False
         constants = _get_constants(expression)
         for const_subset in _subsets(list(constants)):
-            print(const_subset)
             insertion_points = _find_insertion_points(expression, const_subset)
-            print("   ", len(insertion_points), insertion_points)
             replacements = _generate_replacement_instructions(const_subset,
                                                               constants,
                                                               insertion_points)
-            # print(replacements)
             if len(replacements) > 0:
                 expression = _perform_constant_folding(expression,
                                                        replacements)

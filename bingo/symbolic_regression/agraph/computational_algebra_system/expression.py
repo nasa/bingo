@@ -40,7 +40,6 @@ class Expression:
 
     @property
     def exponent(self):
-        print("exp", self)
         if self._operator == POWER:
             return self._operands[1]
         if self._operator == INTEGER:
@@ -94,7 +93,6 @@ class Expression:
 
     def map(self, mapped_function):
         mapped_operands = [mapped_function(i) for i in self._operands]
-        print(mapped_operands)
         return Expression(self._operator, mapped_operands)
 
     def __eq__(self, other):

@@ -8,19 +8,15 @@ ONE = Expression(INTEGER, [1])
 
 
 def automatic_simplify(expression):
-    print("!", expression)
     if expression.operator in [CONSTANT, INTEGER, CONSTSYMBOL, VARIABLE]:
-        print("<", expression)
         return expression
 
     expr_w_simp_operands = expression.map(automatic_simplify)
-    print("!s", expr_w_simp_operands)
 
     if expr_w_simp_operands.operator == POWER:
         return simplify_power(expr_w_simp_operands)
 
     if expr_w_simp_operands.operator == MULTIPLICATION:
-        print("<", simplify_product(expr_w_simp_operands))
         return simplify_product(expr_w_simp_operands)
 
     if expr_w_simp_operands.operator == ADDITION:

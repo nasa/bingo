@@ -14,6 +14,16 @@ import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 
 
+# Integer value
+def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):
+    return param1
+
+
+def _integer_reverse_eval(_reverseindex, _param1, _param2, _forwardeval,
+                         _reverseeval):
+    pass
+
+
 # Load x column
 def _loadx_forward_eval(param1, _param2, x, _constants, _forwardeval):
     return x[:, param1]
@@ -174,7 +184,8 @@ def reverse_eval_function(node, reverse_index, param1, param2, forward_eval,
 
 
 # Node maps
-FORWARD_EVAL_MAP = {0: _loadx_forward_eval,
+FORWARD_EVAL_MAP = {-1: _integer_forward_eval,
+                    0: _loadx_forward_eval,
                     1: _loadc_forward_eval,
                     2: _add_forward_eval,
                     3: _subtract_forward_eval,
@@ -188,7 +199,8 @@ FORWARD_EVAL_MAP = {0: _loadx_forward_eval,
                     11: _abs_forward_eval,
                     12: _sqrt_forward_eval}
 
-REVERSE_EVAL_MAP = {0: _loadx_reverse_eval,
+REVERSE_EVAL_MAP = {-1: _integer_reverse_eval,
+                    0: _loadx_reverse_eval,
                     1: _loadc_reverse_eval,
                     2: _add_reverse_eval,
                     3: _subtract_reverse_eval,

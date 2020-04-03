@@ -8,6 +8,7 @@ import numpy as np
 
 from .maps import IS_ARITY_2_MAP, IS_TERMINAL_MAP
 from . import backend_nodes as Nodes
+from .computational_algebra_system.simplify import simplify as cas_simplify
 
 
 def is_cpp():
@@ -167,6 +168,11 @@ def get_utilized_commands(stack):
 
 
 def simplify_stack(stack):
+    # return simplify_stack_legacy(stack)
+    return cas_simplify(stack)
+
+
+def simplify_stack_legacy(stack):
     """Simplifies a stack.
 
     An acyclic graph is given in stack form.  The stack is first simplified to
@@ -187,7 +193,6 @@ def simplify_stack(stack):
     reduced_param_map = {}
     num_commands = np.sum(used_commands)
     new_stack = np.empty((num_commands, 3), int)
-
     j = 0
     for i, (node, param1, param2) in enumerate(stack):
         if used_commands[i]:

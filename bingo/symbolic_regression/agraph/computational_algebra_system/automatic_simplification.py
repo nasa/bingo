@@ -246,7 +246,15 @@ def simplify_quotient(expression):
 
 def simplify_difference(expression):
     first, second = expression.operands
-    negative_second = Expression(MULTIPLICATION, [NEGATIVE_ONE.copy(), second])
-    negative_second = simplify_product(negative_second)
-    difference_as_sum = Expression(ADDITION, [first, negative_second])
+    new_operands = [first]
+    if second.operator == ADDITION:
+        for operand in second.operands:
+            negative_operand = Expression(MULTIPLICATION,
+                                          [NEGATIVE_ONE.copy(), operand])
+            new_operands.append(simplify_product(negative_operand))
+    else:
+        negative_second = Expression(MULTIPLICATION,
+                                     [NEGATIVE_ONE.copy(), second])
+        new_operands.append(simplify_product(negative_second))
+    difference_as_sum = Expression(ADDITION, new_operands)
     return simplify_sum(difference_as_sum)

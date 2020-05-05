@@ -67,7 +67,7 @@ class Expression:
         return Expression(INTEGER, [1, ])
 
     def _is_derived_from_constants(self):
-        if self._operator in [INTEGER, CONSTANT, CONSTSYMBOL]:
+        if self._operator in [INTEGER, CONSTANT]:
             return True
 
         if self._operator == VARIABLE:
@@ -84,8 +84,6 @@ class Expression:
             return {"i"}
         if self._operator == VARIABLE:
             return {"x"}
-        if self._operator == CONSTSYMBOL:
-            return {"s"}
         if self._operator == CONSTANT:
             return {self.operands[0]}
 

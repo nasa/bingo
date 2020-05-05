@@ -193,3 +193,25 @@ def test_difference_simplification(zero, one, two, x_var, x_squared, x_inv,
     x_minus_two_x = Expression(SUBTRACTION, [x_var, two_x])
     negative_x = Expression(MULTIPLICATION, [negative_one, x_var])
     assert automatic_simplify(x_minus_two_x) == negative_x
+
+
+def test_trig_simplification(zero, one):
+    sin_zero = Expression(SIN, [zero, ])
+    assert automatic_simplify(sin_zero) == zero
+
+    cos_zero = Expression(COS, [zero, ])
+    assert automatic_simplify(cos_zero) == one
+
+
+def test_log_simplification(zero, one, two):
+    log_one = Expression(LOGARITHM, [one, ])
+    assert automatic_simplify(log_one) == zero
+
+    exp_2 = Expression(EXPONENTIAL, [two, ])
+    log_exp_2 = Expression(LOGARITHM, [exp_2, ])
+    assert automatic_simplify(log_exp_2) == two
+
+
+def test_exp_simplification(zero, one):
+    exp_zero = Expression(EXPONENTIAL, [zero, ])
+    assert automatic_simplify(exp_zero) == one

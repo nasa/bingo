@@ -38,7 +38,7 @@ def build_agraph_stack(expression):
 
 
 def _build_stack_recursive(expression, stack_dict):
-    if expression.operator in [INTEGER, CONSTANT, CONSTSYMBOL, VARIABLE]:
+    if expression.operator in [INTEGER, CONSTANT, VARIABLE]:
         command = (expression.operator, expression.operands[0],
                    expression.operands[0])
         return _add_command_to_stack_dict(command, stack_dict)

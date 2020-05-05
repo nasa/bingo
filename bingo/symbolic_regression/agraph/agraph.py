@@ -68,7 +68,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     constants
     num_constants
     """
-    def __init__(self):
+    def __init__(self, use_simplification=False):
         super().__init__()
         self._command_array = np.empty([0, 3], dtype=int)
 
@@ -78,6 +78,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._needs_opt = False
         self._modified = False
         self._used_constant_commands = []
+        self._use_simplification = use_simplification
 
     @staticmethod
     def is_cpp():
@@ -121,8 +122,13 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._fit_set = False
 
     def _update(self):
-        self._simplified_command_array = \
-            Backend.simplify_stack(self._command_array)
+        if self._use_simplification:
+            self._simplified_command_array = \
+                Backend.simplify_stack(self._command_array)
+        else:
+            self._simplified_command_array = \
+                Backend.reduce_stack(self._command_array)
+
         # TODO hard coded info about node map
         const_commands = self._simplified_command_array[:, 0] == 1
         num_const = np.count_nonzero(const_commands)
@@ -384,3 +390,4 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             tuple(self._simplified_constants)
         agraph_duplicate._needs_opt = self._needs_opt
         agraph_duplicate._modified = self._modified
+        agraph_duplicate._use_simplification = self._use_simplification

@@ -2,7 +2,6 @@ import pytest
 import numpy as np
 
 from bingo.symbolic_regression.agraph import backend as PythonBackend
-from bingo.symbolic_regression.agraph.computational_algebra_system.simplify import simplify
 from bingo.symbolic_regression.agraph.agraph import AGraph
 
 try:

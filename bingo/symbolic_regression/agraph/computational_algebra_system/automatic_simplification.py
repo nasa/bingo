@@ -8,7 +8,7 @@ ONE = Expression(INTEGER, [1])
 
 
 def automatic_simplify(expression):
-    if expression.operator in [CONSTANT, INTEGER, CONSTSYMBOL, VARIABLE]:
+    if expression.operator in [CONSTANT, INTEGER, VARIABLE]:
         return expression
 
     expr_w_simp_operands = expression.map(automatic_simplify)
@@ -28,7 +28,21 @@ def automatic_simplify(expression):
     if expr_w_simp_operands.operator == SUBTRACTION:
         return simplify_difference(expr_w_simp_operands)
 
-    raise NotImplementedError
+    if expr_w_simp_operands.operator == SIN:
+        return simplify_sin(expr_w_simp_operands)
+
+    if expr_w_simp_operands.operator == COS:
+        return simplify_cos(expr_w_simp_operands)
+
+    if expr_w_simp_operands.operator == LOGARITHM:
+        return simplify_logarithm(expr_w_simp_operands)
+
+    if expr_w_simp_operands.operator == EXPONENTIAL:
+        return simplify_exponential(expr_w_simp_operands)
+
+    # abs, sqrt not implemented
+
+    return expr_w_simp_operands
 
 
 def simplify_power(expression):
@@ -38,7 +52,7 @@ def simplify_power(expression):
     if base == ZERO and exponent.operator == INTEGER \
             and exponent.operands[0] > 0:
         return ZERO.copy()
-    if exponent.operator in [INTEGER, CONSTANT, CONSTSYMBOL]:
+    if exponent.operator in [INTEGER, CONSTANT]:
         return _simplify_constant_power(base, exponent)
     return expression
 
@@ -58,7 +72,7 @@ def _simplify_constant_power(base, exponent):
         base_exponent = base.operands[1]
         mult_exp = Expression(MULTIPLICATION, [base_exponent, exponent])
         new_exponent = simplify_product(mult_exp)
-        if base_exponent in [INTEGER, CONSTANT, CONSTSYMBOL]:
+        if base_exponent in [INTEGER, CONSTANT]:
             return _simplify_constant_power(base_base, new_exponent)
         return Expression(POWER, [base_base, new_exponent])
 
@@ -254,3 +268,30 @@ def simplify_difference(expression):
         new_operands.append(simplify_product(negative_second))
     difference_as_sum = Expression(ADDITION, new_operands)
     return simplify_sum(difference_as_sum)
+
+
+def simplify_sin(expression):
+    if expression.operands[0] == ZERO:
+        return ZERO.copy()
+    return expression
+
+
+def simplify_cos(expression):
+    if expression.operands[0] == ZERO:
+        return ONE.copy()
+    return expression
+
+
+def simplify_logarithm(expression):
+    operand = expression.operands[0]
+    if operand == ONE:
+        return ZERO.copy()
+    if operand.operator == EXPONENTIAL:
+        return operand.operands[0]
+    return expression
+
+
+def simplify_exponential(expression):
+    if expression.operands[0] == ZERO:
+        return ONE.copy()
+    return expression

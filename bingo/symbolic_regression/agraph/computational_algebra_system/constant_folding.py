@@ -27,7 +27,7 @@ def fold_constants(expression):
 
 
 def _group_constants(expression):
-    if expression.operator in [CONSTANT, CONSTSYMBOL, INTEGER, VARIABLE]:
+    if expression.operator in [CONSTANT, INTEGER, VARIABLE]:
         return expression
 
     new_operands = [_group_constants(operand)
@@ -76,7 +76,7 @@ def _get_constants(expression):
     if expression.operator == CONSTANT:
         return {expression.operands[0]: expression}
 
-    if expression.operator in [CONSTSYMBOL, INTEGER, VARIABLE]:
+    if expression.operator in [INTEGER, VARIABLE]:
         return {}
 
     constants = {}
@@ -104,7 +104,7 @@ def _find_insertion_points(expression, constants):
 
 def _recursive_insertion_point_search(expression, constants, insertion_points,
                                       parent):
-    if expression.operator in [CONSTANT, CONSTSYMBOL, INTEGER, VARIABLE]:
+    if expression.operator in [CONSTANT, INTEGER, VARIABLE]:
         return
 
     for operand in expression.operands:
@@ -144,7 +144,7 @@ def _perform_constant_folding(expression, replacements):
 
 def _recursive_expreson_replacement(expression, replacements):
     if expression not in replacements:
-        if expression.operator in [CONSTANT, CONSTSYMBOL, INTEGER, VARIABLE]:
+        if expression.operator in [CONSTANT, INTEGER, VARIABLE]:
             return expression
         return expression.map(lambda x:
                               _perform_constant_folding(x, replacements))

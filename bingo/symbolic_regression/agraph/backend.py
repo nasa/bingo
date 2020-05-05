@@ -172,7 +172,7 @@ def simplify_stack(stack):
     return cas_simplify(stack)
 
 
-def simplify_stack_legacy(stack):
+def reduce_stack(stack):
     """Simplifies a stack.
 
     An acyclic graph is given in stack form.  The stack is first simplified to

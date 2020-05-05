@@ -76,3 +76,4 @@ def test_building_stack_from_large_associative_operators_w_consts():
 
     np.testing.assert_array_equal(interpreted_stack, expected_stack)
 
+

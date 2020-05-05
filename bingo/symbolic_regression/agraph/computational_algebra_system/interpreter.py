@@ -89,4 +89,3 @@ def _add_associative_operators_to_stack(operator, operand_locs, stack_dict):
     command = (operator, loc_1, loc_2)
     return _add_command_to_stack_dict(command, stack_dict)
 
-

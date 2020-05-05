@@ -1,4 +1,4 @@
-from .operator_definitions import *
+from ..operator_definitions import *
 
 
 class Expression:

@@ -1,6 +1,6 @@
 import pytest
 
-from bingo.symbolic_regression.agraph.computational_algebra_system.operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.computational_algebra_system.expression import Expression
 from bingo.symbolic_regression.agraph.computational_algebra_system.automatic_simplification import automatic_simplify
 

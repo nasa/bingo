@@ -1,7 +1,6 @@
 import numpy as np
 
-from ..maps import IS_ARITY_2_MAP, IS_TERMINAL_MAP
-from .operator_definitions import *
+from ..operator_definitions import *
 from .expression import Expression
 
 

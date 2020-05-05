@@ -1,6 +1,6 @@
 import numpy as np
 
-from bingo.symbolic_regression.agraph.computational_algebra_system.operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.computational_algebra_system.expression import Expression
 from bingo.symbolic_regression.agraph.computational_algebra_system.interpreter import build_cas_expression, build_agraph_stack
 

@@ -6,7 +6,8 @@ mutation, node mutation, parameter mutation and pruning.
 """
 import numpy as np
 
-from .maps import IS_ARITY_2_MAP, IS_TERMINAL_MAP
+from .operator_definitions import IS_ARITY_2_MAP, IS_TERMINAL_MAP, \
+                                  CONSTANT, VARIABLE, INTEGER
 from ...chromosomes.mutation import Mutation
 from ...util.argument_validation import argument_validation
 from ...util.probability_mass_function import ProbabilityMassFunction
@@ -174,7 +175,7 @@ class AGraphMutation(Mutation):
         for i, (util, node) in enumerate(zip(utilized_commands,
                                              individual.command_array[:, 0])):
             if util:
-                if node != 1:  # TODO hard coded info about node map
+                if node != CONSTANT:
                     acceptable_indices.append(i)
 
         if not acceptable_indices:
@@ -196,10 +197,9 @@ class AGraphMutation(Mutation):
                                                old_command)
 
     def _is_new_param_possible(self, node, mutation_location):
-        # TODO hard coded info about node map
-        if node == 0:
+        if node == VARIABLE:
             return self._component_generator.input_x_dimension > 1
-        if node == 1:
+        if node in [CONSTANT, INTEGER]:
             return False
         return mutation_location > 1
 

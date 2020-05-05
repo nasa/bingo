@@ -6,8 +6,8 @@ demanding functions required by the Agraph.
 
 import numpy as np
 
-from .maps import IS_ARITY_2_MAP, IS_TERMINAL_MAP
-from . import backend_nodes as Nodes
+from .operator_definitions import IS_ARITY_2_MAP, IS_TERMINAL_MAP
+from .backend_operator_eval import forward_eval_function, reverse_eval_function
 from .computational_algebra_system.simplify import simplify as cas_simplify
 
 
@@ -168,7 +168,6 @@ def get_utilized_commands(stack):
 
 
 def simplify_stack(stack):
-    # return simplify_stack_legacy(stack)
     return cas_simplify(stack)
 
 
@@ -214,12 +213,8 @@ def reduce_stack(stack):
 def _forward_eval(stack, x, constants):
     forward_eval = np.empty((stack.shape[0], x.shape[0]))
     for i, (node, param1, param2) in enumerate(stack):
-        forward_eval[i] = Nodes.forward_eval_function(node,
-                                                      param1,
-                                                      param2,
-                                                      x,
-                                                      constants,
-                                                      forward_eval)
+        forward_eval[i] = forward_eval_function(node, param1, param2, x,
+                                                constants, forward_eval)
     return forward_eval
 
 
@@ -228,12 +223,8 @@ def _forward_eval_with_mask(stack, x, constants, used_commands_mask):
     for i, command_is_used in enumerate(used_commands_mask):
         if command_is_used:
             node, param1, param2 = stack[i]
-            forward_eval[i] = Nodes.forward_eval_function(node,
-                                                          param1,
-                                                          param2,
-                                                          x,
-                                                          constants,
-                                                          forward_eval)
+            forward_eval[i] = forward_eval_function(node, param1, param2, x,
+                                                    constants, forward_eval)
     return forward_eval
 
 
@@ -283,8 +274,8 @@ def _reverse_eval(deriv_shape, deriv_wrt_node, forward_eval, stack):
         if node == deriv_wrt_node:
             derivative[:, param1] += reverse_eval[i]
         else:
-            Nodes.reverse_eval_function(node, i, param1, param2,
-                                        forward_eval, reverse_eval)
+            reverse_eval_function(node, i, param1, param2, forward_eval,
+                                  reverse_eval)
     return derivative
 
 
@@ -299,6 +290,6 @@ def _reverse_eval_with_mask(deriv_shape, deriv_wrt_node, forward_eval,
             if node == deriv_wrt_node:
                 derivative[:, param1] += reverse_eval[i]
             else:
-                Nodes.reverse_eval_function(node, i, param1, param2,
-                                            forward_eval, reverse_eval)
+                reverse_eval_function(node, i, param1, param2, forward_eval,
+                                      reverse_eval)
     return derivative

@@ -4,8 +4,8 @@
 import numpy as np
 import pytest
 
-import bingo.symbolic_regression.agraph.agraph as AcyclicGraph
-import bingo.symbolic_regression.agraph.maps
+from bingo.symbolic_regression.agraph.operator_definitions \
+    import IS_TERMINAL_MAP
 from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression.agraph.component_generator \
@@ -198,7 +198,7 @@ def test_mutation_creates_valid_parameters(sample_agraph_1):
     for _ in range(20):
         child = mutation(sample_agraph_1)
         for row, operation in enumerate(child.command_array):
-            if not bingo.symbolic_regression.agraph.maps.IS_TERMINAL_MAP[operation[NODE_TYPE]]:
+            if not IS_TERMINAL_MAP[operation[NODE_TYPE]]:
                 assert operation[PARAM_1] < row
                 assert operation[PARAM_2] < row
 

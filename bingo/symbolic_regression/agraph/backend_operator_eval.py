@@ -13,6 +13,8 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 
+from .operator_definitions import *
+
 
 # Integer value
 def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):
@@ -184,32 +186,32 @@ def reverse_eval_function(node, reverse_index, param1, param2, forward_eval,
 
 
 # Node maps
-FORWARD_EVAL_MAP = {-1: _integer_forward_eval,
-                    0: _loadx_forward_eval,
-                    1: _loadc_forward_eval,
-                    2: _add_forward_eval,
-                    3: _subtract_forward_eval,
-                    4: _multiply_forward_eval,
-                    5: _divide_forward_eval,
-                    6: _sin_forward_eval,
-                    7: _cos_forward_eval,
-                    8: _exp_forward_eval,
-                    9: _log_forward_eval,
-                    10: _pow_forward_eval,
-                    11: _abs_forward_eval,
-                    12: _sqrt_forward_eval}
+FORWARD_EVAL_MAP = {INTEGER: _integer_forward_eval,
+                    VARIABLE: _loadx_forward_eval,
+                    CONSTANT: _loadc_forward_eval,
+                    ADDITION: _add_forward_eval,
+                    SUBTRACTION: _subtract_forward_eval,
+                    MULTIPLICATION: _multiply_forward_eval,
+                    DIVISION: _divide_forward_eval,
+                    SIN: _sin_forward_eval,
+                    COS: _cos_forward_eval,
+                    EXPONENTIAL: _exp_forward_eval,
+                    LOGARITHM: _log_forward_eval,
+                    POWER: _pow_forward_eval,
+                    ABS: _abs_forward_eval,
+                    SQRT: _sqrt_forward_eval}
 
-REVERSE_EVAL_MAP = {-1: _integer_reverse_eval,
-                    0: _loadx_reverse_eval,
-                    1: _loadc_reverse_eval,
-                    2: _add_reverse_eval,
-                    3: _subtract_reverse_eval,
-                    4: _multiply_reverse_eval,
-                    5: _divide_reverse_eval,
-                    6: _sin_reverse_eval,
-                    7: _cos_reverse_eval,
-                    8: _exp_reverse_eval,
-                    9: _log_reverse_eval,
-                    10: _pow_reverse_eval,
-                    11: _abs_reverse_eval,
-                    12: _sqrt_reverse_eval}
+REVERSE_EVAL_MAP = {INTEGER: _integer_reverse_eval,
+                    VARIABLE: _loadx_reverse_eval,
+                    CONSTANT: _loadc_reverse_eval,
+                    ADDITION: _add_reverse_eval,
+                    SUBTRACTION: _subtract_reverse_eval,
+                    MULTIPLICATION: _multiply_reverse_eval,
+                    DIVISION: _divide_reverse_eval,
+                    SIN: _sin_reverse_eval,
+                    COS: _cos_reverse_eval,
+                    EXPONENTIAL: _exp_reverse_eval,
+                    LOGARITHM: _log_reverse_eval,
+                    POWER: _pow_reverse_eval,
+                    ABS: _abs_reverse_eval,
+                    SQRT: _sqrt_reverse_eval}

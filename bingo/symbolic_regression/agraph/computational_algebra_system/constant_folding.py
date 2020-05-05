@@ -1,7 +1,7 @@
 from collections import defaultdict
 from itertools import combinations
 
-from .operator_definitions import *
+from ..operator_definitions import *
 from .expression import Expression
 
 
@@ -93,7 +93,7 @@ def _subsets(constants):
 
 def _find_insertion_points(expression, constants):
     if not expression.depends_on.isdisjoint(constants) and \
-            len(expression.depends_on - constants - {"i", "s"}) == 0:
+            len(expression.depends_on - constants - {"i"}) == 0:
         return {expression: [(None, frozenset([expression]))]}
 
     insertion_points = defaultdict(set)
@@ -119,7 +119,7 @@ def _recursive_insertion_point_search(expression, constants, insertion_points,
     else:
         constant_operands = \
             frozenset([operand for operand in expression.operands
-                       if len(operand.depends_on - constants - {"i", "s"}) == 0])
+                       if len(operand.depends_on - constants - {"i"}) == 0])
         insertion_points[expression].add((expression, constant_operands))
 
     return False
@@ -130,7 +130,7 @@ def _is_insertion_point_for_constants(expression, constants):
     has_others = []
     for operand in expression.operands:
         has_consts = not operand.depends_on.isdisjoint(constants)
-        has_others.append(len(operand.depends_on - constants - {"i", "s"}) > 0)
+        has_others.append(len(operand.depends_on - constants - {"i"}) > 0)
         solely_const_based.append(has_consts and not has_others[-1])
     return any(solely_const_based) and any(has_others)
 

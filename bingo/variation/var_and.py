@@ -64,6 +64,7 @@ class VarAnd(Variation):
         """
         self.crossover_offspring = np.zeros(number_offspring, bool)
         self.mutation_offspring = np.zeros(number_offspring, bool)
+        self.offspring_parents = [[]] * number_offspring
         offspring = self._crossover_population(number_offspring, population)
         self._mutate_population(offspring)
         return offspring
@@ -78,12 +79,18 @@ class VarAnd(Variation):
                 offspring.append(child_1)
                 offspring.append(child_2)
                 self.crossover_offspring[i:i + 2] = True
+                self.offspring_parents[i] = [parent_index, parent_index + 1]
+                self.offspring_parents[i + 1] = \
+                    [parent_index, parent_index + 1]
             else:
                 offspring.append(population[parent_index].copy())
                 offspring.append(population[parent_index + 1].copy())
+                self.offspring_parents[i] = [parent_index]
+                self.offspring_parents[i + 1] = [parent_index + 1]
         if len(offspring) < number_offspring:
             parent_index = (len(offspring) + 1) % len(population)
             offspring.append(population[parent_index].copy())
+            self.offspring_parents[-1] = [parent_index]
         return offspring
 
     def _mutate_population(self, offspring):

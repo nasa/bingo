@@ -18,7 +18,8 @@ LOGGER = logging.getLogger(__name__)
 STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
 
 OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
-                                               'ngen', 'fitness', 'time'])
+                                               'ngen', 'fitness', 'time',
+                                               'ea_diagnostics'])
 
 
 class EvolutionaryOptimizer(metaclass=ABCMeta):
@@ -241,6 +242,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     def _make_optim_result(self, status, start_time, aux_info):
         ngen = self.generational_age - self._starting_age
         run_time = (datetime.now() - start_time).total_seconds()
+        ea_diagnostics = self.get_ea_diagnostic_info().summary
         if status == 0:
             message = "Absolte convergence occurred with best fitness < " + \
                       "{}".format(aux_info)
@@ -262,7 +264,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             message = "The maximum time ({}) was exceeded.".format(aux_info)
             success = False
         return OptimizeResult(success, status, message, ngen,
-                              self._best_fitness, run_time)
+                              self._best_fitness, run_time, ea_diagnostics)
 
     def _log_exit(self, result):
         if result.success:
@@ -363,6 +365,17 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         -------
         int :
             number of fitness evaluations
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
+
+        Returns
+        -------
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
         """
         raise NotImplementedError
 

@@ -66,4 +66,5 @@ class MuCommaLambda(EvolutionaryAlgorithm):
         """
         offspring = self.variation(population, self._number_offspring)
         self.evaluation(offspring)
+        self.update_diagnostics(population, offspring)
         return self.selection(offspring, len(population))

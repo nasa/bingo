@@ -86,6 +86,18 @@ class SerialArchipelago(Archipelago):
         return sum([island.get_fitness_evaluation_count()
                     for island in self._islands])
 
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
+
+        Returns
+        -------
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
+        """
+        all_diagnostics = [i.get_ea_diagnostic_info() for i in self._islands]
+        print(all_diagnostics)
+        return sum(all_diagnostics)
+
     @staticmethod
     def _generate_islands(isl, num_islands):
         island_list = [copy.deepcopy(isl)

@@ -60,4 +60,5 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
         """
         offspring = self.variation(population, len(population))
         self.evaluation(population + offspring)
+        self.update_diagnostics(population, offspring)
         return self.selection(population + offspring, len(population))

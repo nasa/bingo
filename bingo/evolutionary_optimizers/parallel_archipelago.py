@@ -223,6 +223,18 @@ class ParallelArchipelago(Archipelago):
         total_eval_count = self.comm.allreduce(my_eval_count, op=MPI.SUM)
         return total_eval_count
 
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
+
+        Returns
+        -------
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
+        """
+        my_diagnostics = self._island.get_ea_diagnostic_info()
+        all_diagnostics = self.comm.allgather(my_diagnostics)
+        return sum(all_diagnostics)
+
     def dump_to_file(self, filename):
         """ Dump the ParallelArchipelago object to a pickle file
 

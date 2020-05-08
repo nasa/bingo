@@ -98,6 +98,16 @@ class Island(EvolutionaryOptimizer):
         """
         return self._ea.evaluation.eval_count
 
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
+
+        Returns
+        -------
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
+        """
+        return self._ea.diagnostics
+
     def load_population(self, population, replace=True):
         """Loads population from a pickleable object
 

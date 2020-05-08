@@ -73,4 +73,5 @@ class MuPlusLambda(EvolutionaryAlgorithm):
             new_pop_size = len(population)
         else:
             new_pop_size = self._target_populations_size
+        self.update_diagnostics(population, offspring)
         return self.selection(population + offspring, new_pop_size)

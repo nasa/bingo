@@ -3,6 +3,7 @@
 This module wraps a variation in order to supply random
 individual(s) to the offspring after the variation is carried out.
 """
+import numpy as np
 
 from .variation import Variation
 
@@ -46,10 +47,18 @@ class AddRandomIndividual(Variation):
             new random individuals
         """
         children = self._variation(population, number_offspring)
+        self.mutation_offspring = self._variation.mutation_offspring
+        self.crossover_offspring = self._variation.crossover_offspring
+        self.offspring_parents = self._variation.offspring_parents
         return self._generate_new_pop(children)
 
     def _generate_new_pop(self, population):
         for _ in range(self._num_rand_indvs):
             random_indv = self._chromosome_generator()
             population.append(random_indv)
+        self.offspring_parents.extend([[]] * self._num_rand_indvs)
+        self.crossover_offspring = np.hstack((self.crossover_offspring,
+                                              [False] * self._num_rand_indvs))
+        self.mutation_offspring = np.hstack((self.mutation_offspring,
+                                             [False] * self._num_rand_indvs))
         return population

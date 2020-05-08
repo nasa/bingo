@@ -27,9 +27,11 @@ class AGraphGenerator(Generator):
                           Generator of stack components of agraphs
     """
     @argument_validation(agraph_size={">=": 1})
-    def __init__(self, agraph_size, component_generator, use_python=False):
+    def __init__(self, agraph_size, component_generator, use_python=False,
+                 use_simplification=False):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
+        self._use_simplification = use_simplification
         if use_python:
             self._backend_generator_function = self._python_generator_function
         else:
@@ -49,13 +51,11 @@ class AGraphGenerator(Generator):
         individual.command_array = self._create_command_array()
         return individual
 
-    @staticmethod
-    def _python_generator_function():
-        return pyAGraph()
+    def _python_generator_function(self):
+        return pyAGraph(use_simplification=self._use_simplification)
 
-    @staticmethod
-    def _generator_function():
-        return AGraph()
+    def _generator_function(self):
+        return AGraph(use_simplification=self._use_simplification)
 
     def _create_command_array(self):
         command_array = np.empty((self.agraph_size, 3), dtype=int)

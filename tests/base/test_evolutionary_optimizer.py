@@ -11,6 +11,7 @@ from bingo.stats.hall_of_fame import HallOfFame
 
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', ])
+DummyDiagnostics = namedtuple('DummyDiagnostics', ['summary', ])
 
 
 class DummyEO(EvolutionaryOptimizer):
@@ -31,6 +32,9 @@ class DummyEO(EvolutionaryOptimizer):
 
     def get_fitness_evaluation_count(self):
         return self.generational_age * 2
+
+    def get_ea_diagnostic_info(self):
+        return DummyDiagnostics(0)
 
     def _get_potential_hof_members(self):
         return [DummyIndv(self.best_fitness)]

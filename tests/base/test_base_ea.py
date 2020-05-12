@@ -17,7 +17,10 @@ def sample_ea(add_e_evaluation, add_v_variation, add_s_selection):
 
 @pytest.fixture
 def numbered_pop():
-    return [SingleValueChromosome(str(i)) for i in range(10)]
+    population = [SingleValueChromosome(str(i)) for i in range(10)]
+    for indv in population:
+        indv.fitness = indv.value
+    return population
 
 
 def test_correct_order_of_algorithm_phases(sample_ea, numbered_pop):

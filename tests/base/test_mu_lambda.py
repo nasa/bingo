@@ -14,7 +14,10 @@ from SingleValue import SingleValueChromosome
 
 @pytest.fixture
 def population():
-    return [SingleValueChromosome(str(i)) for i in range(10)]
+    population = [SingleValueChromosome(str(i)) for i in range(10)]
+    for indv in population:
+        indv.fitness = indv.value
+    return population
 
 
 def mutation_function():

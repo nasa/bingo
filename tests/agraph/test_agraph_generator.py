@@ -22,7 +22,7 @@ def test_raises_error_invalid_agraph_size_gen(agraph_size,
 @pytest.mark.parametrize("python_backend", [
     True,
     pytest.param(False,
-                 marks=pytest.mark.skipif(BINGOCPP is None,
+                 marks=pytest.mark.skipif(not BINGOCPP,
                                           reason="failed bingocpp import"))])
 def test_return_correct_agraph_backend(python_backend,
                                        sample_component_generator):

@@ -95,7 +95,6 @@ class SerialArchipelago(Archipelago):
             summary of evolutionary algorithm diagnostics
         """
         all_diagnostics = [i.get_ea_diagnostic_info() for i in self._islands]
-        print(all_diagnostics)
         return sum(all_diagnostics)
 
     @staticmethod

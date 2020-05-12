@@ -30,6 +30,10 @@ class VariationAddV(Variation):
                      for i in range(number_offspring)]
         for indv in offspring:
             indv.value += "v"
+        self.crossover_offspring = np.zeros(len(offspring), dtype=bool)
+        self.mutation_offspring = np.zeros(len(offspring), dtype=bool)
+        self.offspring_parents = [[i % len(population)]
+                                  for i in range(number_offspring)]
         return offspring
 
 

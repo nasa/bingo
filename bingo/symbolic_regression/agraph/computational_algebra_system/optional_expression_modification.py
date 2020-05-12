@@ -3,8 +3,10 @@ from .expression import Expression
 
 INSERT_SUBTRACTION = True
 REPLACE_INTEGER_POWERS = True
+REPLACE_INTEGERS_WITH_CONSTANTS = False
 
 NEGATIVE_ONE = Expression(INTEGER, [-1])
+SOME_BIG_INT = 1000000
 
 
 def optional_modifications(expression):
@@ -12,6 +14,8 @@ def optional_modifications(expression):
         expression = _insert_subtraction(expression)
     if REPLACE_INTEGER_POWERS:
         expression = _replace_integer_powers(expression)
+    if REPLACE_INTEGERS_WITH_CONSTANTS:
+        expression = _replace_integers_with_constants(expression)
     return expression
 
 
@@ -66,5 +70,17 @@ def _replace_integer_powers(expression):
 
     power = operands_w_replaced[1].operands[0]
     return Expression(MULTIPLICATION, [operands_w_replaced[0]] * power)
+
+
+def _replace_integers_with_constants(expression):
+    operator = expression.operator
+    if operator in [CONSTANT, VARIABLE]:
+        return expression
+    if operator == INTEGER:
+        return Expression(CONSTANT, [SOME_BIG_INT + expression.operands[0]])
+
+    operands_w_replaced = [_replace_integers_with_constants(operand)
+                           for operand in expression.operands]
+    return Expression(operator, operands_w_replaced)
 
 

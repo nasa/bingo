@@ -34,4 +34,3 @@ def test_evaluation_finds_fitness_for_individuals_that_need_it(mocker):
             assert (indv, ) in fit_func_args
         else:
             assert (indv, ) not in fit_func_args
-

@@ -42,7 +42,9 @@ def execute_generational_steps():
     crossover = AGraphCrossover(component_generator)
     mutation = AGraphMutation(component_generator)
 
-    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
+    agraph_generator = AGraphGenerator(STACK_SIZE, component_generator,
+                                       #use_simplification=True
+                                       )
 
     fitness = ExplicitRegression(training_data=training_data)
     local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
@@ -57,9 +59,11 @@ def execute_generational_steps():
     opt_result = archipelago.evolve_until_convergence(max_generations=500,
                                                       fitness_threshold=1.0e-4)
     if opt_result.success:
-        print(archipelago.get_best_individual().get_latex_string())
+        print(archipelago.get_best_individual().get_console_string())
     else:
         print("Failed.")
+
+    print(opt_result.ea_diagnostics)
 
 
 def main():

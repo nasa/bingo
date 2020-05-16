@@ -16,16 +16,16 @@ class Evaluation:
     Parameters
     ----------
     fitness_function : FitnessFunction
-                        The function class that is used to calculate fitnesses
-                        of individuals in the population.
+        The function class that is used to calculate fitnesses of individuals
+        in the population.
 
     Attributes
     ----------
     fitness_function : FitnessFunction
-                        The function class that is used to calculate fitnesses
-                        of individuals in the population.
+        The function class that is used to calculate fitnesses of individuals
+        in the population.
     eval_count : int
-                 the number of fitness function evaluations that have occurred
+        the number of fitness function evaluations that have occurred
     """
     def __init__(self, fitness_function):
         self.fitness_function = fitness_function

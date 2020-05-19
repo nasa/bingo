@@ -1,6 +1,5 @@
 """variation where crossover, mutation, or replication may occur
 
-
 var_or.py allows for definition of a variation by crossover, replication, and
 mutation probabilities. Offspring may be the result of either crossover,
 replication :or: mutation, hence the name. Only one may occur at a time.
@@ -20,24 +19,25 @@ class VarOr(Variation):
     Parameters
     ----------
     crossover : Crossover
-                Crossover function class used in variation
+        Crossover function class used in variation
     mutation : Mutation
-               Mutation function class used in variation
+        Mutation function class used in variation
     crossover_probability : float
-                            Probability that crossover will occur on an
-                            individual
+        Probability that crossover will occur on an individual
     mutation_probability : float
-                           Probability that mutation will occur on an
-                           individual
+        Probability that mutation will occur on an individual
 
     Attributes
     ----------
     crossover_offspring : array of bool
-                          list indicating whether the corresponding member of
-                          the last offspring was a result of crossover
+        list indicating whether the corresponding member of the last offspring
+        was a result of crossover
     mutation_offspring : array of bool
-                         list indicating whether the corresponding member of
-                         the last offspring was a result of mutation
+        list indicating whether the corresponding member of the last offspring
+        was a result of mutation
+    offspring_parents : list of list of int
+        list indicating the parents (by index in the population) of the
+        corresponding member of the last offspring
 
 
     """

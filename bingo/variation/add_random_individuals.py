@@ -1,17 +1,16 @@
 """variation that adds random individual(s)
 
-This module wraps a variation in order to supply random
-individual(s) to the offspring after the variation is carried out.
+This module wraps a variation in order to supply random individual(s) to the
+offspring after the variation is carried out.
 """
 import numpy as np
 
 from .variation import Variation
 
 
-class AddRandomIndividual(Variation):
-    """A variation object that takes in an implementation of variation
-    that adds a random individual to the population before performing
-    variation.
+class AddRandomIndividuals(Variation):
+    """A variation object that takes in an implementation of variation that
+    adds a random individual to the population before performing variation.
 
     Parameters
     ----------
@@ -21,7 +20,6 @@ class AddRandomIndividual(Variation):
         Generator for random individual
     num_rand_indvs : int
         The number of random individuals to generate per call
-
     """
     def __init__(self, variation, chromosome_generator, num_rand_indvs=1):
         super().__init__()
@@ -30,7 +28,7 @@ class AddRandomIndividual(Variation):
         self._num_rand_indvs = num_rand_indvs
 
     def __call__(self, population, number_offspring):
-        """Generates a number of random indiviudals and adds the to the
+        """Generates a number of random individuals and adds the to the
         population then performs variation on the new population.
 
         Parameters

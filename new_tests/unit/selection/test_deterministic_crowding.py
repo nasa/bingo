@@ -1,9 +1,6 @@
 # Ignoring some linting rules in tests
-# pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import pytest
-import numpy as np
-
 from bingo.chromosomes.chromosome import Chromosome
 from bingo.selection.deterministic_crowding import DeterministicCrowding
 

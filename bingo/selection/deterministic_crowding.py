@@ -19,7 +19,7 @@ class DeterministicCrowding(Selection):
         population : list of chromosomes
             The population on which to perform selection. This population
             includes both the parent and child populations, with the parents in
-            the first half and the children in thelatter half
+            the first half and the children in the latter half
         target_population_size : int
             The size of the next generation
 

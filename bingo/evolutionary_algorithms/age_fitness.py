@@ -55,8 +55,6 @@ class AgeFitnessEA(MuPlusLambda):
                          crossover_probability, mutation_probability,
                          number_offspring=population_size,
                          target_population_size=population_size)
-        self.variation = VarAnd(crossover, mutation,
-                                crossover_probability,
+        self.variation = VarAnd(crossover, mutation, crossover_probability,
                                 mutation_probability)
-        self.variation = AddRandomIndividuals(self.variation,
-                                              generator)
+        self.variation = AddRandomIndividuals(self.variation, generator)

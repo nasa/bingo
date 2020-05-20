@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import scipy.optimize as optimize
 
-from ..evaluation.fitness_function import FitnessFunction, VectorBasedFunction
+from ..evaluation.fitness_function import FitnessFunction
 
 ROOT_SET = {
     # 'hybr',

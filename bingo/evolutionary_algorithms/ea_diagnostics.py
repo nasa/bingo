@@ -1,5 +1,11 @@
-from collections import namedtuple
+"""Evolutionary algorithm diagnostics
 
+EA diagnostics are tracked to allow for investigating convergence properties,
+etc.  Currently ony diagnostics associated with the variation phase of a EA are
+tracked.
+"""
+
+from collections import namedtuple
 import numpy as np
 
 EaDiagnosticsSummary = namedtuple("EaDiagnosticsSummary",
@@ -12,6 +18,18 @@ EaDiagnosticsSummary = namedtuple("EaDiagnosticsSummary",
 
 
 class EaDiagnostics:
+    """Evolutionary Algorithm Diagnostic Information
+
+    EA diagnostics are tracked to allow for investigating convergence
+    properties, etc.  Currently ony diagnostics associated with the variation
+    phase of a EA are tracked.
+
+    Attributes
+    ----------
+    summary : `EaDiagnosticsSummary`
+        namedtuple describing the summary of the diagnostic information
+
+    """
     def __init__(self):
         self._crossover_stats = np.zeros(3)
         self._mutation_stats = np.zeros(3)
@@ -29,6 +47,25 @@ class EaDiagnostics:
 
     def update(self, population, offspring, offspring_parents,
                offspring_crossover, offspring_mutation):
+        """Updates the diagnostic information associated with a single step in
+        an EA
+
+        Parameters
+        ----------
+        population : list of `Chromosome`
+            population at the beginning of the generational step
+        offspring : list of `Chromosome`
+            the result of the EAs variation phase
+        offspring_parents : list of list of int
+            list indicating the parents (by index in population) of the
+            corresponding member of offspring
+        offspring_crossover : list of bool
+            list indicating whether the corresponding member of offspring
+            was a result of crossover
+        offspring_mutation : list of bool
+            list indicating whether the corresponding member of offspring
+            was a result of mutation
+        """
         beneficial_var = np.zeros(len(offspring), dtype=bool)
         detrimental_var = np.zeros(len(offspring), dtype=bool)
         for i, (child, parent_indices) in \

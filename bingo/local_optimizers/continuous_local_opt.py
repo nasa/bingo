@@ -89,11 +89,10 @@ class ContinuousLocalOptimization(FitnessFunction):
     Attributes
     ----------
     eval_count : int
-                 the number of evaluations that have been performed by the
-                 wrapped fitness function
+        the number of evaluations that have been performed by the wrapped
+        fitness function
     training_data :
-                   (Optional) data that can be used in the wrapped fitness
-                   function
+        (Optional) data that can be used in the wrapped fitness function
 
     Raises
     ------

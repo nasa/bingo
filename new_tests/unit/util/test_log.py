@@ -14,6 +14,8 @@ from bingo.util import log
                           ("quiet", 30),
                           (31, 31),
                           (0.5, 25)])
+@pytest.mark.filterwarnings("ignore:Unrecognized verbosity level provided. "
+                            "Using standard verbosity.")
 def test_configure_logging_verbosity(verbosity, expected_level, mocker):
     mocker.patch('logging.Logger.setLevel')
     log.configure_logging(verbosity)

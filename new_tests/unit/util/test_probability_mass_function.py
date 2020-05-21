@@ -65,12 +65,15 @@ def test_add_items_to_empty_pmf(empty_pmf, item, weight):
     assert empty_pmf.draw_sample() == item
 
 
+@pytest.mark.filterwarnings("ignore:divide by zero encountered in true_divide")
+@pytest.mark.filterwarnings("ignore:invalid value encountered in reduce")
 def test_raises_exception_negative_weights(empty_pmf):
     empty_pmf.add_item("-", -1.0)
     with pytest.raises(ValueError):
         empty_pmf.add_item("+", 1.0)
 
 
+@pytest.mark.filterwarnings("ignore:invalid value encountered in true_divide")
 def test_raises_exception_nan_weights(empty_pmf):
     with pytest.raises(ValueError):
         empty_pmf.add_item("a", 0.0)

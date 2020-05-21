@@ -5,8 +5,8 @@ import pytest
 import os
 from collections import namedtuple
 
-from bingo.evolutionary_optimizers.evolutionary_optimizer import EvolutionaryOptimizer, \
-    load_evolutionary_optimizer_from_file
+from bingo.evolutionary_optimizers.evolutionary_optimizer \
+    import EvolutionaryOptimizer, load_evolutionary_optimizer_from_file
 from bingo.stats.hall_of_fame import HallOfFame
 
 

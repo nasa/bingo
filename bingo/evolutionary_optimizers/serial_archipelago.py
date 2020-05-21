@@ -122,8 +122,8 @@ class SerialArchipelago(Archipelago):
     def _population_exchange_program(island_1, island_2):
         indvs_to_2 = island_1.dump_fraction_of_population(0.5)
         indvs_to_1 = island_2.dump_fraction_of_population(0.5)
-        island_1.load_population(indvs_to_1, replace=False)
-        island_2.load_population(indvs_to_2, replace=False)
+        island_1.population += indvs_to_1
+        island_2.population += indvs_to_2
 
     def _log_evolution(self, start_time):
         pass

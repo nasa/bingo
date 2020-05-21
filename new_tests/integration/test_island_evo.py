@@ -39,12 +39,12 @@ def mutation_function():
 
 def test_manual_evaluation(island):
     island.evaluate_population()
-    for indv in island.get_population():
+    for indv in island.population:
         assert indv.fit_set
 
 
 def test_generational_steps_change_population_age(island):
-    for indv in island.get_population():
+    for indv in island.population:
         assert indv.genetic_age == 0
     island._execute_generational_step()
     for indv in island.population:
@@ -62,14 +62,14 @@ def test_generational_age_increases(island):
 
 def test_best_individual(island):
     island.evolve(1)
-    fitness = [indv.fitness for indv in island.get_population()]
+    fitness = [indv.fitness for indv in island.population]
     best = island.get_best_individual()
     assert best.fitness == min(fitness)
 
 
 def test_best_fitness(island):
     island.evolve(1)
-    fitness = [indv.fitness for indv in island.get_population()]
+    fitness = [indv.fitness for indv in island.population]
     best_fitness = island.get_best_fitness()
     assert best_fitness == min(fitness)
 
@@ -98,14 +98,3 @@ def test_island_hof(mocker):
     hof_update_pop = hof.update.call_args[0][0]
     for h, i in zip(hof_update_pop, island.population):
         assert h == i
-
-
-def test_load_population(island):
-    initial_pop = list(island.population)
-    island.load_population(["added indv"], replace=False)
-    assert island.population == initial_pop + ["added indv"]
-
-
-def test_load_replacement_population(island):
-    island.load_population(["added indv"], replace=True)
-    assert island.population == ["added indv"]

@@ -195,7 +195,7 @@ class ParallelArchipelago(Archipelago):
                                                  sendtag=MIGRATION,
                                                  source=partner,
                                                  recvtag=MIGRATION)
-        self._island.load_population(received_population, replace=False)
+        self._island.population += received_population
 
     def _log_evolution(self, start_time):
         elapsed_time = datetime.now() - start_time

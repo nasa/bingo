@@ -49,15 +49,18 @@ def test_evaluate_population(mocker):
     mocked_ea.evaluation.assert_called_once()
 
 
-def test_best_individual(mocker, dummy_chromosome):
+@pytest.mark.parametrize("best_index", [0, 2, 4])
+def test_best_individual(mocker, dummy_chromosome, best_index):
     mocked_generator = mocker.Mock()
     mocked_ea = mocker.Mock()
     island = Island(mocked_ea, mocked_generator, population_size=10)
 
-    dummy_pop = [dummy_chromosome(fitness=5 - i) for i in range(5)]
-    island.population = dummy_pop
+    best_indv = dummy_chromosome(fitness=0)
+    dummy_pop = [dummy_chromosome(fitness=1) for _ in range(5)]
+    island.population = list(dummy_pop)
+    island.population[best_index] = best_indv
 
-    assert island.get_best_individual() == dummy_pop[-1]
+    assert island.get_best_individual() == best_indv
 
 
 def test_best_fitness(mocker, dummy_chromosome):

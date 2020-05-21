@@ -102,28 +102,20 @@ def island(evol_alg):
 
 def test_archipelago_generated(island):
     archipelago = SerialArchipelago(island, num_islands=3)
-    assert len(archipelago._islands) == 3
-    for island_i in archipelago._islands:
+    assert len(archipelago.islands) == 3
+    for island_i in archipelago.islands:
         assert island_i != island
         assert island_i._population_size == island._population_size
 
 
-# def test_generational_step_executed(island):
-#     random.seed(0)
-#     archipelago = SerialArchipelago(island, num_islands=3)
-#     archipelago._step_through_generations(1)
-#     for island_i in archipelago._islands:
-#         assert island_i.get_best_individual()
-
-
 def test_island_migration(one_island, island_list):
     archipelago = SerialArchipelago(one_island, num_islands=4)
-    archipelago._islands = island_list
+    archipelago.islands = island_list
 
     archipelago._coordinate_migration_between_islands()
 
     migration_count = 0
-    for i, island in enumerate(archipelago._islands):
+    for i, island in enumerate(archipelago.islands):
         initial_individual_values = [i]*VALUE_LIST_SIZE
         for individual in island.population:
             if initial_individual_values != individual.values:
@@ -134,7 +126,7 @@ def test_island_migration(one_island, island_list):
 
 def test_convergence_of_archipelago(one_island, island_list):
     archipelago = SerialArchipelago(one_island, num_islands=4)
-    archipelago._islands = island_list
+    archipelago.islands = island_list
 
     assert archipelago.get_best_fitness() <= 0
 
@@ -146,9 +138,10 @@ def test_convergence_of_archipelago_unconverged(one_island):
 
 def test_best_individual_returned(one_island):
     archipelago = SerialArchipelago(one_island)
-    generator = MultipleValueChromosomeGenerator(generate_zero, VALUE_LIST_SIZE)
+    generator = MultipleValueChromosomeGenerator(generate_zero,
+                                                 VALUE_LIST_SIZE)
     best_indv = generator()
-    archipelago._islands[0].load_population([best_indv], replace=False)
+    archipelago.islands[0].population += [best_indv]
     assert archipelago.get_best_individual().fitness == 0
 
 
@@ -162,13 +155,15 @@ def test_best_fitness_eval_count(one_island):
     assert archipelago.get_fitness_evaluation_count() == expected_evaluations
 
 
+@pytest.mark.filterwarnings("ignore:invalid value encountered in "
+                            "double_scalars")
 def test_archipelago_runs(one_island, two_island, three_island):
     max_generations = 100
     min_generations = 20
     error_tol = 0
     generation_step_report = 10
     archipelago = SerialArchipelago(one_island, num_islands=4)
-    archipelago._islands = [one_island, two_island, three_island, three_island]
+    archipelago.islands = [one_island, two_island, three_island, three_island]
     result = archipelago.evolve_until_convergence(max_generations,
                                                   error_tol,
                                                   generation_step_report,
@@ -178,9 +173,9 @@ def test_archipelago_runs(one_island, two_island, three_island):
 
 def test_total_population_not_affected_by_migration(one_island):
     archipelago = SerialArchipelago(one_island, num_islands=4)
-    total_pop_before = sum([len(i.population) for i in archipelago._islands])
+    total_pop_before = sum([len(i.population) for i in archipelago.islands])
     archipelago._coordinate_migration_between_islands()
-    total_pop_after = sum([len(i.population) for i in archipelago._islands])
+    total_pop_after = sum([len(i.population) for i in archipelago.islands])
     assert total_pop_after == total_pop_before
 
 
@@ -189,5 +184,5 @@ def test_potential_hof_members(mocker, one_island):
     island_b = mocker.Mock(hall_of_fame=['b'])
     island_c = mocker.Mock(hall_of_fame=['c'])
     archipelago = SerialArchipelago(one_island, num_islands=3)
-    archipelago._islands = [island_a, island_b, island_c]
+    archipelago.islands = [island_a, island_b, island_c]
     assert archipelago._get_potential_hof_members() == ['a', 'b', 'c']

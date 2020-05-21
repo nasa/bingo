@@ -140,7 +140,7 @@ def test_best_fitness_returned(one_island):
 def test_potential_hof_members(mocker, one_island):
     island_a = mocker.Mock(hall_of_fame=['a'])
     archipelago = ParallelArchipelago(one_island)
-    archipelago._island = island_a
+    archipelago._template_island = island_a
     assert archipelago._get_potential_hof_members() == ['a']
 
 

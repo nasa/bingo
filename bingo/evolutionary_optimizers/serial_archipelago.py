@@ -1,4 +1,4 @@
-"""The serial implemenation of the Archipelago
+"""The serial implementation of the Archipelago
 
 This module defines the Archipelago data structure that runs serially on
 one processor.
@@ -25,8 +25,7 @@ class SerialArchipelago(Archipelago):
     template_island : `Island`
         The island that acts as a template for all islands in the archipelago
     num_islands : int
-        The number of islands to create in the archipelago's
-        list of islands
+        The number of islands to create in the archipelago's list of islands
 
     Attributes
     ----------
@@ -70,7 +69,7 @@ class SerialArchipelago(Archipelago):
 
         Returns
         -------
-        chromosomes :
+        `Chromosome` :
             The individual with lowest fitness
         """
         list_of_best_indvs = [i.get_best_individual() for i in self.islands]
@@ -93,7 +92,7 @@ class SerialArchipelago(Archipelago):
 
         Returns
         -------
-        EaDiagnosticsSummary :
+        `EaDiagnosticsSummary` :
             summary of evolutionary algorithm diagnostics
         """
         all_diagnostics = [i.get_ea_diagnostic_info() for i in self.islands]

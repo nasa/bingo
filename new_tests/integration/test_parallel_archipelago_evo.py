@@ -117,7 +117,7 @@ def test_best_individual_returned(one_island):
     generator = MultipleValueChromosomeGenerator(generate_zero,
                                                  VALUE_LIST_SIZE)
     best_indv = generator()
-    one_island.load_population([best_indv], replace=False)
+    one_island.population += [best_indv]
     archipelago = ParallelArchipelago(one_island)
     assert archipelago.get_best_individual().fitness == 0
 
@@ -129,7 +129,7 @@ def test_best_fitness_returned(one_island):
     generator = MultipleValueChromosomeGenerator(generate_zero,
                                                  VALUE_LIST_SIZE)
     best_indv = generator()
-    one_island.load_population([best_indv], replace=False)
+    one_island.population += [best_indv]
     archipelago = ParallelArchipelago(one_island)
     assert archipelago.get_best_fitness() == 0
 
@@ -140,7 +140,7 @@ def test_best_fitness_returned(one_island):
 def test_potential_hof_members(mocker, one_island):
     island_a = mocker.Mock(hall_of_fame=['a'])
     archipelago = ParallelArchipelago(one_island)
-    archipelago._template_island = island_a
+    archipelago.island = island_a
     assert archipelago._get_potential_hof_members() == ['a']
 
 

@@ -86,7 +86,7 @@ def test_best_fitness_returned():
 def test_potential_hof_members():
     island_a = Mock(hall_of_fame=[COMM_RANK, COMM_RANK])
     archipelago = ParallelArchipelago(num_island(1))
-    archipelago._template_island = island_a
+    archipelago.island = island_a
     actual_members = archipelago._get_potential_hof_members()
     expected_memebers = [i for i in range(COMM_SIZE) for _ in range(2)]
     return mpi_assert_equal(actual_members, expected_memebers)
@@ -97,7 +97,7 @@ def test_island_migration_doesnt_chane_pop_size():
     archipelago = ParallelArchipelago(island)
     archipelago._coordinate_migration_between_islands()
     expected_pop = (COMM_SIZE * (COMM_SIZE - 1)) // 2 + (2 * COMM_SIZE)
-    total_pop_after = COMM.allreduce(len(archipelago._template_island.population),
+    total_pop_after = COMM.allreduce(len(archipelago.island.population),
                                      MPI.SUM)
     return mpi_assert_equal(total_pop_after, expected_pop)
 
@@ -109,7 +109,7 @@ def test_island_migration():
 
     native_individual_values = [COMM_RANK]*VALUE_LIST_SIZE
     non_native_indv_found = False
-    for individual in archipelago._template_island.population:
+    for individual in archipelago.island.population:
         if individual.values != native_individual_values:
             non_native_indv_found = True
             break
@@ -135,7 +135,7 @@ def test_non_blocking_evolution():
     archipelago = ParallelArchipelago(island, sync_frequency=10,
                                        non_blocking=True)
     archipelago.evolve(steps)
-    island_age = archipelago._template_island.generational_age
+    island_age = archipelago.island.generational_age
     archipelago_age = archipelago.generational_age
     return mpi_assert_mean_near(island_age, archipelago_age, rel=0.1)
 

@@ -30,9 +30,8 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the archipelago
     """
-    def __init__(self, template_island, num_islands, hall_of_fame=None):
+    def __init__(self, num_islands, hall_of_fame=None):
         super().__init__(hall_of_fame)
-        self._template_island = template_island
         self._num_islands = num_islands
 
     def _do_evolution(self, num_generations):

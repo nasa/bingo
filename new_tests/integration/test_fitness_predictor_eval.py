@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evolutionary_optimizers.fitness_predictor\
-    import FitnessPredictorFitnessFunction, FitnessPredictorIndexGenerator
+    import FitnessPredictorFitnessFunction
 from bingo.chromosomes.multiple_values import MultipleValueChromosome
 
 
@@ -36,15 +36,6 @@ def predictor_fitness_function(training_data,
     return FitnessPredictorFitnessFunction(training_data,
                                            fitness_function,
                                            sample_population, 4)
-
-
-def test_raises_error_not_enough_valid_trainers(training_data,
-                                                fitness_function,
-                                                sample_population):
-    with pytest.raises(RuntimeError):
-        _ = FitnessPredictorFitnessFunction(training_data,
-                                            fitness_function,
-                                            sample_population, 11)
 
 
 @pytest.mark.parametrize("predictor_values", [[0, 1],
@@ -79,10 +70,3 @@ def test_predicted_fitness_for_trainer(predictor_fitness_function,
         expected_prediction = i + 4.5
         np.testing.assert_almost_equal(prediction, expected_prediction)
 
-
-@pytest.mark.parametrize("maximum", [2, 20])
-def test_index_generator(maximum):
-    generator = FitnessPredictorIndexGenerator(maximum)
-    indices = np.array([generator() for _ in range(100)])
-    assert np.all(indices >= 0)
-    assert np.all(indices < maximum)

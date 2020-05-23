@@ -30,6 +30,7 @@ class DistanceToAverage(FitnessFunction):
         avg_data = np.mean(self.training_data)
         return np.linalg.norm(individual.values - avg_data)
 
+
 @pytest.fixture
 def full_training_data():
     return np.linspace(0.1, 1, FULL_TRAINING_DATA_SIZE)
@@ -54,12 +55,12 @@ def generator():
 @pytest.fixture
 def fitness_predictor_island(ev_alg, generator):
     island = FPI(ev_alg, generator, MAIN_POPULATION_SIZE,
-        predictor_population_size=PREDICTOR_POPULATION_SIZE,
-        trainer_population_size=TRAINER_POPULATION_SIZE,
-        predictor_size_ratio=SUBSET_TRAINING_DATA_SIZE/FULL_TRAINING_DATA_SIZE,
-        predictor_computation_ratio=0.4,
-        trainer_update_frequency=4,
-        predictor_update_frequency=5)
+                 predictor_population_size=PREDICTOR_POPULATION_SIZE,
+                 trainer_population_size=TRAINER_POPULATION_SIZE,
+                 predictor_size_ratio=SUBSET_TRAINING_DATA_SIZE/FULL_TRAINING_DATA_SIZE,
+                 predictor_computation_ratio=0.4,
+                 trainer_update_frequency=4,
+                 predictor_update_frequency=5)
     island._predictor_island._ea.variation._mutation_probability = 1.0
     return island
 
@@ -68,30 +69,15 @@ def fitness_predictor_island(ev_alg, generator):
 def fp_island_and_hof(ev_alg, generator):
     hof = HallOfFame(5)
     fp_island = FPI(ev_alg, generator, MAIN_POPULATION_SIZE,
-        predictor_population_size=PREDICTOR_POPULATION_SIZE,
-        trainer_population_size=TRAINER_POPULATION_SIZE,
-        predictor_size_ratio=SUBSET_TRAINING_DATA_SIZE/FULL_TRAINING_DATA_SIZE,
-        predictor_computation_ratio=0.4,
-        trainer_update_frequency=4,
-        predictor_update_frequency=5,
-        hall_of_fame=hof)
+                    predictor_population_size=PREDICTOR_POPULATION_SIZE,
+                    trainer_population_size=TRAINER_POPULATION_SIZE,
+                    predictor_size_ratio=SUBSET_TRAINING_DATA_SIZE/FULL_TRAINING_DATA_SIZE,
+                    predictor_computation_ratio=0.4,
+                    trainer_update_frequency=4,
+                    predictor_update_frequency=5,
+                    hall_of_fame=hof)
     fp_island._predictor_island._ea.variation._mutation_probability = 1.0
     return fp_island, hof
-
-@pytest.mark.parametrize("param, illegal_value",
-                         [("predictor_population_size", -1),
-                          ("predictor_update_frequency", 0),
-                          ("predictor_size_ratio", 0),
-                          ("predictor_size_ratio", 1.2),
-                          ("predictor_computation_ratio", -0.2),
-                          ("predictor_computation_ratio", 1),
-                          ("trainer_population_size", -1),
-                          ("trainer_update_frequency", 0)])
-def test_raises_error_on_illegal_value_in_init(ev_alg, generator, param,
-                                               illegal_value):
-    kwargs = {param: illegal_value}
-    with pytest.raises(ValueError):
-        _ = FPI(ev_alg, generator, 10, **kwargs)
 
 
 def test_best_fitness_is_true_fitness(fitness_predictor_island,
@@ -221,11 +207,6 @@ def test_temp_hof_is_cleared_with_predictor_update(fp_island_and_hof, mocker):
 
 def assert_expected_compute_ratio(fitness_predictor_island, point_evals_main,
                                   point_evals_predictor):
-    # print("Expected:\n", point_evals_main, point_evals_predictor, "\nActual:")
-    # print(fitness_predictor_island._fitness_function.eval_count *
-    #       SUBSET_TRAINING_DATA_SIZE,
-    #       fitness_predictor_island._predictor_fitness_function.point_eval_count)
-
     current_ratio = \
         fitness_predictor_island._get_predictor_computation_ratio()
     np.testing.assert_almost_equal(current_ratio,

@@ -5,6 +5,7 @@ import warnings
 import pytest
 import numpy as np
 
+from bingo.symbolic_regression.equation import Equation
 from bingo.symbolic_regression.atomic_potential_regression import PairwiseAtomicPotential, \
                                             PairwiseAtomicTrainingData
 
@@ -14,6 +15,38 @@ class SampleTrainingData:
         self.r = r
         self.potential_energy = potential_energy
         self.config_lims_r = config_lims_r
+
+
+class SumEquation(Equation):
+    def evaluate_equation_at(self, x):
+        return np.sum(x, axis=1).reshape((-1, 1))
+
+    def evaluate_equation_with_x_gradient_at(self, x):
+        x_sum = self.evaluate_equation_at(x)
+        return x_sum, x
+
+    def evaluate_equation_with_local_opt_gradient_at(self, x):
+        pass
+
+    def get_complexity(self):
+        pass
+
+    def get_latex_string(self):
+        pass
+
+    def get_console_string(self):
+        pass
+
+    def __str__(self):
+        pass
+
+    def distance(self, _chromosome):
+        return 0
+
+
+@pytest.fixture()
+def dummy_sum_equation():
+    return SumEquation()
 
 
 @pytest.fixture()
@@ -101,8 +134,6 @@ def test_training_data_synthesis_of_configurations(configuration_set):
     training_data = \
         PairwiseAtomicTrainingData(potential_energy=energies,
                                    configurations=configuration_set)
-    print(training_data.r)
-    print(training_data.config_lims_r)
     expected_r = np.full((9, 1), 0.5)
     expected_r[2:4] = np.sqrt(0.34)
     expected_r[6] = 0.0

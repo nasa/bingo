@@ -97,7 +97,7 @@ class ComponentGenerator:
         Parameters
         ----------
         stack_location : int
-                         location in the stack for the command
+            location in the stack for the command
 
         Returns
         -------
@@ -134,7 +134,7 @@ class ComponentGenerator:
         Parameters
         ----------
         stack_location : int
-                         location of command in stack
+            location of command in stack
 
         Returns
         -------
@@ -144,27 +144,25 @@ class ComponentGenerator:
 
         Notes
         -----
-        The returned random operator parameter is guranteed to be less than
+        The returned random operator parameter is guaranteed to be less than
         stack_location.
         """
         return np.random.randint(stack_location)
 
     def _random_terminal_command(self, _=None):
         terminal = self.random_terminal()
-        return np.array([terminal,
-                         self.random_terminal_parameter(terminal),
-                         self.random_terminal_parameter(terminal)],
-                        dtype=int)
+        param = self.random_terminal_parameter(terminal)
+        return np.array([terminal, param, param], dtype=int)
 
     def random_terminal(self):
         """Get a random terminal
 
-         Get a random load-X or load-C terminal.
+         Get a random VARIABLE or CONSTANT terminal.
 
         Returns
         -------
         int
-            terminal number (0 or 1)
+            terminal number (VARIABLE or CONSTANT)
         """
         return self._terminal_pmf.draw_sample()
 
@@ -174,8 +172,7 @@ class ComponentGenerator:
         Parameters
         ----------
         terminal_number : int
-                          terminal number for which random parameter should be
-                          generated
+            terminal number for which random parameter should be generated
 
         Returns
         -------

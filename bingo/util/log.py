@@ -20,6 +20,20 @@ except (ImportError, AttributeError):
 
 def configure_logging(verbosity="standard", module=False, timestamp=False,
                       stats_file=None):
+    """Configuration of Bingo logging
+
+    Parameters
+    ----------
+    verbosity : str or int
+        verbosity options are "quiet", "standard", "detailed", "debug", or an
+        integer (0 - 100) that corresponds to typical python log level.
+    module : bool
+        whether to show the module name on logging output. Default False
+    timestamp :
+        whether to show a time stamp on logging output. Default False
+    stats_file : str
+        (optional) file name for evolution statistics to be logged to
+    """
     level = _get_log_level_from_verbosity(verbosity)
 
     root_logger = logging.getLogger()

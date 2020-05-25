@@ -49,8 +49,8 @@ def argument_validation(**argchecks):
     Parameters
     ----------
     argchecks : dict
-                keyword arguments used as a dictionary of checks to be
-                performed on input arguments
+        keyword arguments used as a dictionary of checks to be performed on
+        input arguments
 
     Notes
     -----
@@ -92,11 +92,11 @@ class FunctionArgChecker:
     Parameters
     ----------
     func : function
-           the function for which argument checking will be performed
+        the function for which argument checking will be performed
     positional_args : tuple
-                    the positional arguments passed to the function
+        the positional arguments passed to the function
     keyword_args : dict
-                   the keyword arguments passed to the function
+        the keyword arguments passed to the function
 
     """
     def __init__(self, func, positional_args, keyword_args):
@@ -125,10 +125,10 @@ class FunctionArgChecker:
         Parameters
         ----------
         arg_name : str
-                   name of argument to be chekced
+            name of argument to be chekced
         checks : dict {str: any}
-                 dictionary defining checks to perform on argument. The
-                 dictionary is of the form: {type_of_check: check_value, ...}
+            dictionary defining checks to perform on argument. The dictionary
+            is of the form: {type_of_check: check_value, ...}
         """
         if arg_name in self._args:
             self._perform_check(arg_name, self._args[arg_name], checks)

@@ -9,7 +9,7 @@ the variation result, the initial population, and a random chromosome.
 from ..selection.age_fitness import AgeFitness
 from .mu_plus_lambda import MuPlusLambda
 from ..variation.var_and import VarAnd
-from ..variation.add_random_individual import AddRandomIndividual
+from ..variation.add_random_individuals import AddRandomIndividuals
 
 
 class AgeFitnessEA(MuPlusLambda):
@@ -55,8 +55,6 @@ class AgeFitnessEA(MuPlusLambda):
                          crossover_probability, mutation_probability,
                          number_offspring=population_size,
                          target_population_size=population_size)
-        self.variation = VarAnd(crossover, mutation,
-                                crossover_probability,
+        self.variation = VarAnd(crossover, mutation, crossover_probability,
                                 mutation_probability)
-        self.variation = AddRandomIndividual(self.variation,
-                                             generator)
+        self.variation = AddRandomIndividuals(self.variation, generator)

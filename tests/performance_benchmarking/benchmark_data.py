@@ -8,7 +8,7 @@ from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 from bingo.symbolic_regression.implicit_regression \
-    import ImplicitRegression, ImplicitTrainingData, calculate_partials
+    import ImplicitRegression, ImplicitTrainingData, _calculate_partials
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitRegression, ExplicitTrainingData
 from bingocpp.build import symbolic_regression as bingocpp
@@ -153,7 +153,7 @@ def write_x_vals(test_x_vals):
 
 
 def initialize_implicit_data(initial_x):
-    x, dx_dt, _ = calculate_partials(initial_x)
+    x, dx_dt, _ = _calculate_partials(initial_x)
     return x, dx_dt
 
 

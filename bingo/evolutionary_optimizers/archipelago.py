@@ -18,9 +18,8 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
 
     Parameters
     ----------
-    island : Island
-        Island that contains the generator for the individuals used in the
-        evolutionary_algorithms
+    template_island : Island
+        Island that will be used as a template for islands in the archipelago
     num_islands : int
         The size of the archipelago; the number of islands it contains
 
@@ -31,9 +30,8 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the archipelago
     """
-    def __init__(self, island, num_islands, hall_of_fame=None):
+    def __init__(self, num_islands, hall_of_fame=None):
         super().__init__(hall_of_fame)
-        self._island = island
         self._num_islands = num_islands
 
     def _do_evolution(self, num_generations):

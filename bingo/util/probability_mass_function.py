@@ -18,16 +18,16 @@ class ProbabilityMassFunction:
     Parameters
     ----------
     items : list, optional
-            The starting items in the PMF.
+        The starting items in the PMF.
     weights : list-like of numeric, optional
-              The relative weights of the items. The default is even weighting.
+        The relative weights of the items. The default is even weighting.
 
     Attributes
     ----------
     items : list
-            The current items in the PMF
+        The current items in the PMF
     normalized_weights : list-like numeric
-                         The probabilities of items
+        The probabilities of items
     """
 
     def __init__(self, items=None, weights=None):
@@ -82,10 +82,10 @@ class ProbabilityMassFunction:
         Parameters
         ----------
         new_item :
-                   The item to be added.
-        new_weight : numeric, optional
-                     The weight associated with the item. The default is the
-                     average weight of the other items.
+            The item to be added.
+        new_weight : numeric
+            (Optional) The weight associated with the item. The default is the
+            average weight of the other items.
         """
         self.items.append(new_item)
 

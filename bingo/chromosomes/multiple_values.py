@@ -36,20 +36,20 @@ class MultipleValueChromosome(Chromosome):
     def __str__(self):
         return str(self.values)
 
-    def distance(self, chromosome):
+    def distance(self, other):
         """Computes the distance (a measure of similarity) between
         two individuals.
 
         Parameters
         ----------
-        chromosome : MultipleValueChromosome
+        other : MultipleValueChromosome
 
         Returns
         -------
         dist : float
             The distance between self and another chromosome
         """
-        dist = np.sum(self.values != chromosome.values)
+        dist = sum([v1 != v2 for v1, v2 in zip(self.values, other.values)])
         return dist
 
 
@@ -59,10 +59,9 @@ class MultipleValueChromosomeGenerator(Generator):
         Parameters
         ----------
         random_value_function : user defined function
-            a function that returns a list of randomly generated values.
-            This list is then passed to the ``MultipleValueChromosome``
-            constructor.
-        values_per_chromosome : int, default=10
+            a function that returns randomly generated values to be used as
+            components of the chromosomes.
+        values_per_chromosome : int
             the number of values that each chromosome will hold
         """
     @argument_validation(values_per_chromosome={">=": 0})
@@ -72,20 +71,18 @@ class MultipleValueChromosomeGenerator(Generator):
         self._values_per_chromosome = values_per_chromosome
 
     def __call__(self):
-        """Generation of a population of size 'population_size'
-        of Multi-Value chromosomes with lists that contain
-        'values_per_list' values
+        """Generation of a Multi-Value chromosome
 
         Returns
         -------
-        random_list :
-            A list of ``MultipleValueChromosome``s
+        MultipleValueChromosome :
+            A chromosome generated using the random value function
         """
         random_list = self._generate_list(self._values_per_chromosome)
         return MultipleValueChromosome(random_list)
 
     def _generate_list(self, number_of_values):
-        return [self._random_value_function() for i in range(number_of_values)]
+        return [self._random_value_function() for _ in range(number_of_values)]
 
 
 class SinglePointMutation(Mutation):
@@ -98,8 +95,8 @@ class SinglePointMutation(Mutation):
     Parameters
     ----------
     mutation_function : user defined function
-        a function that returns a random value that will
-        replace (or "mutate") a random value in a chromosome list.
+        a function that returns a random value that will replace (or "mutate")
+        a random value in the chromosome.
     """
     def __init__(self, mutation_function):
         super().__init__()

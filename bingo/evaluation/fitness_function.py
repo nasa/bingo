@@ -17,14 +17,14 @@ class FitnessFunction(metaclass=ABCMeta):
     Parameters
     ----------
     training_data :
-                   (Optional) data that can be used in fitness evaluation
+        Optional) data that can be used in fitness evaluation
 
     Attributes
     ----------
     eval_count : int
-                 the number of evaluations that have been performed
+        the number of evaluations that have been performed
     training_data :
-                   (Optional) data that can be used in fitness evaluation
+        (Optional) data that can be used in fitness evaluation
     """
     def __init__(self, training_data=None):
         self.eval_count = 0
@@ -37,7 +37,7 @@ class FitnessFunction(metaclass=ABCMeta):
         Parameters
         ----------
         individual : chromosomes
-                     individual for which fitness will be calculated
+            individual for which fitness will be calculated
 
         Notes
         -----
@@ -58,7 +58,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     Parameters
     ----------
     training_data : ExplicitTrainingData
-                    data that is used in fitness evaluation.
+        data that is used in fitness evaluation.
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error', and
@@ -85,7 +85,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         Parameters
         ----------
         individual : chromosomes
-                     individual for which fitness will be calculated
+            individual for which fitness will be calculated
 
         Returns
         -------

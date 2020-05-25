@@ -15,6 +15,15 @@ class Chromosome(metaclass=ABCMeta):
     This class is the base of a genetic individual in bingo evolutionary
     analyses.
 
+    Parameters
+    ----------
+    genetic_age : int
+        age of the oldest component of the genetic material in the individual
+    fitness :
+        starting value of fitness
+    fit_set : bool
+        Whether the fitness has been calculated for the individual
+
     Attributes
     ----------
     fitness

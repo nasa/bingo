@@ -60,10 +60,6 @@ class ImplicitRegression(VectorBasedFunction):
         enough_params_used = np.any(n_params_used >= self._required_params)
         return enough_params_used
 
-    @staticmethod
-    def _normalize_by_row(array):
-        return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
-
 
 class ImplicitTrainingData(TrainingData):
     """

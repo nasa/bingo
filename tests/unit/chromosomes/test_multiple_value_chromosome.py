@@ -98,6 +98,9 @@ def test_crossover_uses_oldest_genetic_age(chromosome):
 
     crossover = SinglePointCrossover()
     child_1, child_2 = crossover(chromosome, older_chromosome)
+    child_3, child_4 = crossover(older_chromosome, chromosome)
 
     assert child_1.genetic_age == 100
-    assert child_1.genetic_age == 100
+    assert child_2.genetic_age == 100
+    assert child_3.genetic_age == 100
+    assert child_4.genetic_age == 100

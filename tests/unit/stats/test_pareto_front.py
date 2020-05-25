@@ -1,9 +1,9 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import pytest
 from collections import namedtuple
-
+import pytest
+import numpy as np
 from bingo.stats.pareto_front import ParetoFront
 
 DummyIndv = namedtuple('DummyIndv', ['fitness', 'gene', 'att1', 'att2'])
@@ -34,9 +34,11 @@ def all_pfs(request, empty_pf, full_pf):
 
 
 @pytest.mark.parametrize("pop, new_len",
-                        [([DummyIndv(-1, -1, 5, 3)], 6),
+                        [([DummyIndv(np.nan, np.nan, 5, 3)], 5),
+                         ([DummyIndv(-1, -1, 5, 3)], 6),
                          ([DummyIndv(-1, 0, 5, 3)], 5),
                          ([DummyIndv(0, -1, 5, 3)], 5),
+                         ([DummyIndv(0, -1, 0, 3)], 1),
                          ([DummyIndv(0, -1, 0, 3)], 1),
                          ([DummyIndv(-1, -1, 5, 3),
                            DummyIndv(-1, -2, -1, 3)], 1),

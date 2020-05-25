@@ -53,3 +53,13 @@ def test_generator():
     chromosome.set_local_optimization_params([1, 1, 1])
     for i in needs_opt_list:
         assert chromosome.values[i] == 1
+
+
+def test_generator_default():
+    def dummy_function():
+        return DUMMY_VALUE
+    generator = MultipleFloatChromosomeGenerator(dummy_function,
+                                                 values_per_chromosome=6)
+    chromosome = generator()
+    assert chromosome.get_number_local_optimization_params() == 0
+

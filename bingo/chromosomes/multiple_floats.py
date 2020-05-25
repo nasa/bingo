@@ -101,8 +101,8 @@ class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):
         if not all(isinstance(x, int) for x in list_of_indices):
             raise ValueError("The list of optimization indices must be \
                               unsigned integers.")
-        if min(list_of_indices) < 0 or \
-               max(list_of_indices) >= self._values_per_chromosome:
+        if list_of_indices and (min(list_of_indices) < 0 or
+               max(list_of_indices) >= self._values_per_chromosome):
             raise ValueError("The list of optimization indices must be within \
                               the length of the list of values.")
 

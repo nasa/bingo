@@ -1,10 +1,12 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
+import pytest
 from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
 from bingo.evolutionary_algorithms import mu_plus_lambda
 
 
-def test_all_phases_occur_in_correct_order(mocker):
+@pytest.mark.parametrize("target_pop_size", [None, 10])
+def test_all_phases_occur_in_correct_order(mocker, target_pop_size):
     dummy_population = [0]*10
     dummy_offspring = [1]*10
     dummy_next_gen = [2]*10
@@ -22,6 +24,7 @@ def test_all_phases_occur_in_correct_order(mocker):
 
     evo_alg = MuPlusLambda(mocked_evaluation, mocked_selection,
                            mocked_crossover, mocked_mutation,
+                           target_population_size=target_pop_size,
                            crossover_probability=0.5,
                            mutation_probability=0.3,
                            number_offspring=10)

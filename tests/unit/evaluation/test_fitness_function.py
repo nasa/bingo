@@ -37,6 +37,15 @@ def test_vector_based_function_metrics(mocker, metric, expected_fit):
     fit_func.evaluate_fitness_vector.assert_called_once_with(dummy_indv)
 
 
+def test_vector_based_function_invalid_metric(mocker):
+    mocker.patch.object(VectorBasedFunction, "__abstractmethods__",
+                        new_callable=set)
+    mocker.patch.object(VectorBasedFunction, "evaluate_fitness_vector",
+                        return_value=[-2, -1, 0, 1, 2])
+    with pytest.raises(KeyError):
+        _ = VectorBasedFunction(metric="invalid metric")
+
+
 @pytest.mark.parametrize("metric", ["mae", "mse", "rmse"])
 def test_vector_based_function_with_nan(mocker, metric):
     mocker.patch.object(VectorBasedFunction, "__abstractmethods__",

@@ -26,7 +26,7 @@ def population_0123_times_4(dummy_chromosome):
 
 
 def test_correctly_updated_summary(population_12, population_0123_times_4):
-    offspring_parents = [[0, 1]] * 8 + [[0]] * 8
+    offspring_parents = [[0, 1]] * 8 + [[0]] * 6 + [[]]*2
     offspring_crossover = np.array([1] * 8 + [0] * 8, dtype=bool)
     offspring_mutation = np.array([0] * 4 + [1] * 8 + [0] * 4, dtype=bool)
 

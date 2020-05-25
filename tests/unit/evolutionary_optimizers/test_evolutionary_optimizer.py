@@ -15,10 +15,11 @@ DummyDiagnostics = namedtuple('DummyDiagnostics', ['summary', ])
 
 
 class DummyEO(EvolutionaryOptimizer):
-    def __init__(self, convergence_rate, hall_of_fame=None):
+    def __init__(self, convergence_rate, hall_of_fame=None,
+                 test_function=None):
         self.best_fitness = 1.0
         self.convergence_rate = convergence_rate
-        super().__init__(hall_of_fame)
+        super().__init__(hall_of_fame, test_function)
 
     def _do_evolution(self, num_generations):
         self.best_fitness *= self.convergence_rate
@@ -239,3 +240,13 @@ def test_hof_integration(converging_eo):
                                           fitness_threshold=0.126,
                                           stagnation_generations=10)
     assert hof[0].fitness == 0.125
+
+
+def test_that_test_function_is_used(mocker):
+    mocked_test_function = mocker.Mock(return_value=1.0)
+    convergeing_eo_with_test_func = \
+        DummyEO(0.5, test_function=mocked_test_function)
+    _ = convergeing_eo_with_test_func.evolve_until_convergence(
+            max_generations=2, convergence_check_frequency=1,
+            fitness_threshold=0.126)
+    assert mocked_test_function.call_count == 3

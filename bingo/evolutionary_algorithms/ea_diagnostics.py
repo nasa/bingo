@@ -102,4 +102,4 @@ class EaDiagnostics:
     def __radd__(self, other):
         if other == 0:
             return self
-        return self.__add__(other)
+        raise NotImplementedError

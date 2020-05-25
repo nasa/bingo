@@ -1,6 +1,7 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
 import pytest
+import numpy as np
 from bingo.chromosomes.chromosome import Chromosome
 from bingo.selection.age_fitness import AgeFitness
 
@@ -19,14 +20,19 @@ def population_01234(dummy_chromosome):
 
 
 @pytest.fixture
+def population_nans(dummy_chromosome, population_01234):
+    return [dummy_chromosome(fitness=np.nan) for _ in range(5)] + \
+           population_01234
+
+
+@pytest.fixture
 def three_non_dominated_population(dummy_chromosome):
     return [dummy_chromosome(fitness=i, genetic_age=j)
             for i, j in [(0, 2), (1, 1), (2, 0), (0, 3), (3, 0), (1, 2)]]
 
-
 @pytest.fixture
 def non_dominated_population(dummy_chromosome):
-    return [dummy_chromosome(fitness=i, genetic_age=5 - i) for i in range(5)]
+    return [dummy_chromosome(fitness=i, genetic_age=6 - i) for i in range(6)]
 
 
 @pytest.mark.parametrize("selection_size,expected_error", [
@@ -44,8 +50,10 @@ def test_raises_error_with_too_large_target_population(population_01234):
         _ = age_fitness(population_01234, target_population_size=6)
 
 
-def test_return_initial_population_if_non_dominated(non_dominated_population):
-    age_fitness = AgeFitness()
+@pytest.mark.parametrize("selection_size", [2, 5])
+def test_return_initial_population_if_non_dominated(non_dominated_population,
+                                                    selection_size):
+    age_fitness = AgeFitness(selection_size=selection_size)
     new_pop = age_fitness(non_dominated_population, target_population_size=2)
     assert new_pop == non_dominated_population
 
@@ -57,8 +65,18 @@ def test_target_population_size(population_01234, target_size):
     assert len(new_pop) == target_size
 
 
-def test_proper_selection(three_non_dominated_population):
-    age_fitness = AgeFitness()
+@pytest.mark.parametrize("target_size", [2, 5])
+@pytest.mark.parametrize("selection_size", [2, 5])
+def test_target_population_size_with_nans(population_nans, target_size,
+                                          selection_size):
+    age_fitness = AgeFitness(selection_size=selection_size)
+    new_pop = age_fitness(population_nans, target_size)
+    assert len(new_pop) == target_size
+
+
+@pytest.mark.parametrize("selection_size", [2, 5])
+def test_proper_selection(three_non_dominated_population, selection_size):
+    age_fitness = AgeFitness(selection_size=selection_size)
     new_pop = age_fitness(three_non_dominated_population,
                           target_population_size=2)
     new_pop = sorted(new_pop, key=lambda x: x.fitness)

@@ -1,9 +1,9 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import pytest
 from collections import namedtuple
-
+import pytest
+import numpy as np
 from bingo.stats.hall_of_fame import HallOfFame
 
 
@@ -84,6 +84,7 @@ def test_insert_into_partial_hof(partial_hof):
 
 def test_update_hof_with_population(all_hofs):
     population = [DummyIndv(i, i) for i in range(-7, 0)]
+    population += [DummyIndv(np.nan, np.nan)]
     all_hofs.update(population)
     for i, expected_fitness in enumerate(range(-7, -2)):
         assert all_hofs[i].fitness == expected_fitness

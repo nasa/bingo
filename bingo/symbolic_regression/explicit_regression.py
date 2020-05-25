@@ -20,6 +20,8 @@ LOGGER = logging.getLogger(__name__)
 class ExplicitRegression(VectorBasedFunction):
     """ExplicitRegression
 
+    The traditional fitness evaluation for symbolic regression
+
     Parameters
     ----------
     training_data : ExplicitTrainingData
@@ -71,18 +73,18 @@ class ExplicitTrainingData(TrainingData):
     """
     def __init__(self, x, y):
         if x.ndim == 1:
-            warnings.warn("Explicit training x should be 2 dim array, " +
-                          "reshaping array")
+            # warnings.warn("Explicit training x should be 2 dim array, " +
+            #               "reshaping array")
             x = x.reshape([-1, 1])
         if x.ndim > 2:
-            raise ValueError('Explicit training x should be 2 dim array')
+            raise TypeError('Explicit training x should be 2 dim array')
 
         if y.ndim == 1:
-            warnings.warn("Explicit training y should be 2 dim array, " +
-                          "reshaping array")
+            # warnings.warn("Explicit training y should be 2 dim array, " +
+            #               "reshaping array")
             y = y.reshape([-1, 1])
         if y.ndim > 2:
-            raise ValueError('Explicit training y should be 2 dim array')
+            raise TypeError('Explicit training y should be 2 dim array')
 
         self.x = x
         self.y = y

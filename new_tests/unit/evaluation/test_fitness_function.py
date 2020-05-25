@@ -35,3 +35,15 @@ def test_vector_based_function_metrics(mocker, metric, expected_fit):
     
     assert fit_func(dummy_indv) == pytest.approx(expected_fit)
     fit_func.evaluate_fitness_vector.assert_called_once_with(dummy_indv)
+
+
+@pytest.mark.parametrize("metric", ["mae", "mse", "rmse"])
+def test_vector_based_function_with_nan(mocker, metric):
+    mocker.patch.object(VectorBasedFunction, "__abstractmethods__",
+                        new_callable=set)
+    mocker.patch.object(VectorBasedFunction, "evaluate_fitness_vector",
+                        return_value=[np.nan, -1, 0, 1, 2])
+    fit_func = VectorBasedFunction(metric=metric)
+    dummy_indv = None
+
+    assert np.isnan(fit_func(dummy_indv))

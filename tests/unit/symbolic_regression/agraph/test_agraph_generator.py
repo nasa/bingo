@@ -32,15 +32,12 @@ def test_return_correct_agraph_backend(python_backend,
     assert agraph.is_cpp() != python_backend
 
 
-def test_generate(sample_component_generator):
-    np.random.seed(0)
-    expected_command_array = np.array([[0, 1, 0],
-                                       [0, 1, 1],
-                                       [6, 0, 1],
-                                       [6, 2, 1],
-                                       [6, 0, 1],
-                                       [2, 1, 4]], dtype=int)
-    generate_agraph = AGraphGenerator(6, sample_component_generator)
+def test_generate(mocker):
+    expected_command_array = np.arange(30).reshape((10, 3), dtype=int)
+    mocked_component_generator = mocker.Mock()
+    mocked_component_generator.random_command.side_effect = \
+        [list(row) for row in expected_command_array]
+
+    generate_agraph = AGraphGenerator(10, mocked_component_generator)
     agraph = generate_agraph()
-    np.testing.assert_array_equal(agraph.command_array,
-                                  expected_command_array)
+    np.testing.assert_array_equal(agraph.command_array, expected_command_array)

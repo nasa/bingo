@@ -70,7 +70,7 @@ def perfect_individual():
 def test_best_individual_returned():
     island = num_island(COMM_RANK + 1)
     if COMM_RANK == 0:
-        island.load_population([perfect_individual()], replace=False)
+        island.population += [perfect_individual()]
     archipelago = ParallelArchipelago(island)
     return mpi_assert_equal(archipelago.get_best_individual().fitness, 0)
 
@@ -78,7 +78,7 @@ def test_best_individual_returned():
 def test_best_fitness_returned():
     island = num_island(COMM_RANK + 1)
     if COMM_RANK == 0:
-        island.load_population([perfect_individual()], replace=False)
+        island.population += [perfect_individual()]
     archipelago = ParallelArchipelago(island)
     return mpi_assert_equal(archipelago.get_best_fitness(), 0)
 

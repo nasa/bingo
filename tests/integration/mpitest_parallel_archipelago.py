@@ -161,7 +161,7 @@ def test_dump_then_load_equal_procs():
     if COMM_RANK == 0:
         os.remove(file_name)
 
-    origin_proc = archipelago._island.population[0].values[0]
+    origin_proc = archipelago.island.population[0].values[0]
     return mpi_assert_equal(origin_proc, COMM_RANK)
 
 
@@ -177,7 +177,7 @@ def test_dump_then_load_more_procs():
     if COMM_RANK == 0:
         os.remove(file_name)
 
-    origin_proc = archipelago._island.population[0].values[0]
+    origin_proc = archipelago.island.population[0].values[0]
     expected_origin = COMM_RANK + 1
     if COMM_RANK == COMM_SIZE - 1:
         expected_origin = 1
@@ -205,7 +205,7 @@ def test_dump_then_load_less_procs():
     if COMM_RANK == 0:
         os.remove(file_name)
 
-    origin_proc = archipelago._island.population[0].values[0]
+    origin_proc = archipelago.island.population[0].values[0]
     expected_origin = (COMM_RANK + 1) % COMM_SIZE
     return mpi_assert_equal(origin_proc, expected_origin)
 

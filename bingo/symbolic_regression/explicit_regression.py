@@ -7,8 +7,6 @@ The classes in this module encapsulate the parts of bingo evolutionary analysis
 that are unique to explicit symbolic regression. Namely, these classes are an
 appropriate fitness evaluator and a corresponding training data container.
 """
-
-import warnings
 import logging
 
 from ..evaluation.fitness_function import VectorBasedFunction
@@ -90,17 +88,17 @@ class ExplicitTrainingData(TrainingData):
         self.y = y
 
     def __getitem__(self, items):
-        """gets a subset of the ExplicitTrainingData
+        """gets a subset of the `ExplicitTrainingData`
 
         Parameters
         ----------
         items : list or int
-                index (or indices) of the subset
+            index (or indices) of the subset
 
         Returns
         -------
-        ExplicitTrainingData :
-                                a Subset
+        `ExplicitTrainingData` :
+            a Subset
         """
         temp = ExplicitTrainingData(self.x[items, :], self.y[items, :])
         return temp
@@ -111,6 +109,6 @@ class ExplicitTrainingData(TrainingData):
         Returns
         -------
         int :
-              index-able size
+            index-able size
         """
         return self.x.shape[0]

@@ -34,15 +34,15 @@ def explicit(request):
 
 @pytest.fixture
 def sample_explicit(explicit):
-    return make_sample_explicit(explicit, relative=False)
+    return _make_sample_explicit(explicit, relative=False)
 
 
 @pytest.fixture
 def sample_explicit_relative(explicit):
-    return make_sample_explicit(explicit, relative=True)
+    return _make_sample_explicit(explicit, relative=True)
 
 
-def make_sample_explicit(explicit, relative):
+def _make_sample_explicit(explicit, relative):
     x = np.arange(10, dtype=float)
     y = np.arange(1, 11, dtype=float)
     etd = explicit.training_data(x, y)
@@ -100,13 +100,14 @@ def test_training_data_xy(explicit):
 def test_training_data_slicing(sample_explicit):
     indices = [2, 4, 6, 8]
     sliced_etd = sample_explicit.training_data[indices]
-    expected_values = np.array(indices).reshape((-1, 1))
-    np.testing.assert_array_equal(sliced_etd.x, expected_values)
-    np.testing.assert_array_equal(sliced_etd.y, expected_values)
+    expected_x = np.array(indices).reshape((-1, 1))
+    expected_y = np.array(indices).reshape((-1, 1)) + 1
+    np.testing.assert_array_equal(sliced_etd.x, expected_x)
+    np.testing.assert_array_equal(sliced_etd.y, expected_y)
 
 
 @pytest.mark.parametrize("num_elements", range(1, 4))
-def test_training_data_slicing(explicit, num_elements):
+def test_training_data_len(explicit, num_elements):
     x = np.arange(num_elements)
     y = np.arange(num_elements)
     etd = explicit.training_data(x, y)

@@ -23,7 +23,7 @@ class ComponentGenerator:
         number of independent variables
     num_initial_load_statements : int
         number of commands at the beginning of stack which are required to be
-        "load" commands. Default 1
+        terminals. Default 1
     terminal_probability : float [0.0-1.0]
         probability that a new node will be a terminal. Default 0.1
     constant_probability : float [0.0-1.0] (optional)

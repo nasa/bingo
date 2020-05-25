@@ -34,21 +34,17 @@ class ImplicitRegression(VectorBasedFunction):
         data that is used in fitness evaluation.
     required_params : int
         (optional) minimum number of nonzero components of dot
-    normalize_dot : bool
-        (optional) normalize the terms in the dot product. Default False
     """
-    def __init__(self, training_data, required_params=None,
-                 normalize_dot=False):
+    def __init__(self, training_data, required_params=None):
         super().__init__(training_data)
         self._required_params = required_params
-        self._normalize_dot = normalize_dot
 
     def evaluate_fitness_vector(self, individual):
         self.eval_count += 1
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)
 
-        dot_product = self._do_dfdx_dot_dxdt(df_dx)
+        dot_product = df_dx * self.training_data.dx_dt
 
         if self._required_params is not None:
             if not self._enough_parameters_used(dot_product):
@@ -64,63 +60,9 @@ class ImplicitRegression(VectorBasedFunction):
         enough_params_used = np.any(n_params_used >= self._required_params)
         return enough_params_used
 
-    def _do_dfdx_dot_dxdt(self, df_dx):
-        left_dot = df_dx
-        right_dot = self.training_data.dx_dt
-        if self._normalize_dot:
-            left_dot = self._normalize_by_row(left_dot)
-            right_dot = self._normalize_by_row(right_dot)
-        return left_dot * right_dot
-
     @staticmethod
     def _normalize_by_row(array):
         return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
-
-
-class ImplicitRegressionSchmidt(VectorBasedFunction):
-    """ Implicit Regression, Adapted from Schmidt and Lipson papers
-
-    Fitness in this method is the difference of partial derivatives pairs
-    calculated with the data and the input `Equation` individual.
-
-    Parameters
-    ----------
-    training_data : 'ImplicitTrainingData`
-        data that is used in fitness evaluation.  Must have attributes x and
-        dx_dt.
-
-    Notes
-    -----
-    This may not be a correct implementation of this algorithm.  Importantly,
-    it couldn't reproduce the  results in the papers.
-    """
-    def evaluate_fitness_vector(self, individual):
-        _, df_dx = individual.evaluate_equation_with_x_gradient_at(
-            x=self.training_data.x)
-
-        num_parameters = self.training_data.x.shape[1]
-        worst_fitness = 0
-        diff_worst = np.full((num_parameters, ), np.inf)
-        for i in range(num_parameters):
-            for j in range(num_parameters):
-                if i != j:
-                    df_dxi = np.copy(df_dx[:, i])
-                    df_dxj = np.copy(df_dx[:, j])
-                    dxi_dxj_2 = (self.training_data.dx_dt[:, i] /
-                                 self.training_data.dx_dt[:, j])
-                    for k in range(num_parameters):
-                        if k not in (i, j):
-                            df_dxj += df_dx[:, k] * \
-                                      self.training_data.dx_dt[:, k] / \
-                                      self.training_data.dx_dt[:, j]
-
-                    dxi_dxj_1 = df_dxj / df_dxi
-                    diff = np.log(1. + np.abs(dxi_dxj_1 + dxi_dxj_2))
-                    fit = np.mean(diff)
-                    if np.isfinite(fit) and fit > worst_fitness:
-                        diff_worst = np.copy(diff)
-                        worst_fitness = fit
-        return diff_worst
 
 
 class ImplicitTrainingData(TrainingData):

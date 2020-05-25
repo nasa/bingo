@@ -34,19 +34,17 @@ def implicit(request):
 
 @pytest.fixture
 def sample_implicit(implicit):
-    return _make_sample_implicit(implicit, required_params=None,
-                                 normalize_dot=False)
+    return _make_sample_implicit(implicit, required_params=None)
 
 
-def _make_sample_implicit(implicit, required_params, normalize_dot):
+def _make_sample_implicit(implicit, required_params):
     x = np.arange(30, dtype=float).reshape((10, 3))
     dx_dt = np.array([[3, 2, 1]]*10, dtype=float)
     itd = implicit.training_data(x, dx_dt)
     if required_params is None:
-        reg = implicit.regression(itd, normalize_dot=normalize_dot)
+        reg = implicit.regression(itd)
     else:
-        reg = implicit.regression(itd, required_params=required_params,
-                                  normalize_dot=normalize_dot)
+        reg = implicit.regression(itd, required_params=required_params)
 
     class SampleEqu(implicit.equation):
         def evaluate_equation_at(self, x):
@@ -138,114 +136,10 @@ def test_correct_partial_calculation_in_training_data_2_sections(implicit):
                                          expected_derivative)
 
 
-@pytest.mark.parametrize("required_params, normalize_dot, expected_fit",
-                         [(None, False, 0.5),
-                          (2, False, 0.5),
-                          (3, False, np.inf),
-                          (None, True, 0.5),
-                          ])
-def test_implict_regression(implicit, required_params, normalize_dot,
-                            expected_fit):
-    sample = _make_sample_implicit(implicit, required_params, normalize_dot)
+@pytest.mark.parametrize("required_params, expected_fit",
+                         [(None, 0.5), (2, 0.5), (3, np.inf)])
+def test_implicit_regression(implicit, required_params, expected_fit):
+    sample = _make_sample_implicit(implicit, required_params)
     fit_vec = sample.regression.evaluate_fitness_vector(sample.equation)
     expected_fit_vec = np.full((10,), expected_fit, dtype=float)
     np.testing.assert_array_almost_equal(fit_vec, expected_fit_vec)
-
-
-# import pytest
-# import numpy as np
-#
-# from bingo.symbolic_regression.implicit_regression import ImplicitRegression, \
-#                                      ImplicitRegressionSchmidt, \
-#                                      ImplicitTrainingData
-# try:
-#     from bingocpp.build import symbolic_regression as bingocpp
-# except ImportError:
-#     bingocpp = None
-
-
-# class SampleTrainingData:
-#     def __init__(self, x, dx_dt):
-#         self.x = x
-#         self.dx_dt = dx_dt
-#
-#
-# def init_x_and_dx_dt():
-#     x = np.linspace(0, 1, 50, endpoint=False).reshape((-1, 5))
-#     dx_dt = np.ones(x.shape)
-#     dx_dt[:, [3, 4]] *= -1
-#     dx_dt[:, 2] = 0
-#     return (x, dx_dt)
-#
-#
-# @pytest.fixture()
-# def dummy_training_data():
-#     x, dx_dt = init_x_and_dx_dt()
-#     return SampleTrainingData(x, dx_dt)
-#
-#
-# @pytest.fixture()
-# def dummy_training_data_cpp():
-#     if bingocpp is None:
-#         return None
-#     x, dx_dt = init_x_and_dx_dt()
-#     return bingocpp.ImplicitTrainingData(x, dx_dt)
-#
-#
-# @pytest.fixture(params=[
-#     "python",
-#     pytest.param("cpp", marks=pytest.mark.skipif( not bingocpp,
-#                         reason='BingoCpp import failure'))
-# ])
-# def implicit_data(request, dummy_training_data, dummy_training_data_cpp,
-#                            dummy_sum_equation, dummy_sum_equation_cpp):
-#     if request.param == "python":
-#         return (dummy_training_data, dummy_sum_equation)
-#     return (dummy_training_data_cpp, dummy_sum_equation_cpp)
-#
-#
-# @pytest.fixture(params=[
-#     "python",
-#     pytest.param("cpp", marks=pytest.mark.skipif( not bingocpp,
-#                         reason='BingoCpp import failure'))
-# ])
-# def implicit_data_nan(request, dummy_sum_equation, dummy_sum_equation_cpp):
-#     x, y = init_x_and_dx_dt()
-#     x[0, 0] = np.nan
-#     if request.param == "python":
-#         return (SampleTrainingData(x, y), dummy_sum_equation)
-#     return (bingocpp.ImplicitTrainingData(x, y), dummy_sum_equation_cpp)
-#
-#
-# @pytest.mark.parametrize("normalize_dot", [True, False])
-# def test_implicit_regression(implicit_data, normalize_dot):
-#     dummy_training_data = implicit_data[0]
-#     dummy_sum_equation = implicit_data[1]
-#     regressor = ImplicitRegression(dummy_training_data,
-#                                    required_params=None,
-#                                    normalize_dot=normalize_dot)
-#     fitness = regressor(dummy_sum_equation)
-#     np.testing.assert_almost_equal(fitness, 0.14563031020)
-#
-#
-# @pytest.mark.parametrize("required_params, infinite_fitness_expected",
-#                          [(4, False), (5, True)])
-# def test_implicit_regression_no_normalization(implicit_data,
-#                                               required_params,
-#                                               infinite_fitness_expected):
-#     dummy_training_data = implicit_data[0]
-#     dummy_sum_equation = implicit_data[1]
-#     regressor = ImplicitRegression(dummy_training_data,
-#                                    required_params=required_params,
-#                                    normalize_dot=False)
-#     fitness = regressor(dummy_sum_equation)
-#     assert np.isinf(fitness) == infinite_fitness_expected
-#
-#
-# def test_schmidt_regression(implicit_data):
-#     dummy_training_data = implicit_data[0]
-#     dummy_sum_equation = implicit_data[1]
-#     regressor = ImplicitRegressionSchmidt(dummy_training_data)
-#     fitness = regressor(dummy_sum_equation)
-#     np.testing.assert_almost_equal(fitness, 0.44420421701352086)
-#

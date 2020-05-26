@@ -7,6 +7,7 @@ import pytest
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
+from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 
@@ -75,6 +76,15 @@ def mutation_parent(request, agraph_implementation):
     return _sample_agraph_2(test_graph)
 
 
+@pytest.fixture(params=[1, 2])
+def crossover_parents(request, agraph_implementation):
+    parent_1 = agraph_implementation()
+    parent_2 = agraph_implementation()
+    if request.param == 1:
+        return _sample_agraph_1(parent_1), _sample_agraph_2(parent_2)
+    return _sample_agraph_2(parent_1), _sample_agraph_1(parent_2)
+
+
 def test_mutation_genetic_age(mutation_parent, sample_component_generator):
     mutation = AGraphMutation(sample_component_generator)
     child = mutation(mutation_parent)
@@ -109,4 +119,17 @@ def test_mutation_creates_valid_parameters(mutation_parent):
             if not IS_TERMINAL_MAP[operation[0]]:
                 assert operation[1] < row
                 assert operation[2] < row
+
+
+def test_crossover_resets_fitness(sample_component_generator,
+                                  crossover_parents):
+    assert crossover_parents[0].fit_set
+    assert crossover_parents[1].fit_set
+
+    crossover = AGraphCrossover()
+    child_1, child_2 = crossover(crossover_parents[0], crossover_parents[1])
+    assert not child_1.fit_set
+    assert not child_2.fit_set
+    assert child_1.fitness is None
+    assert child_2.fitness is None
 

@@ -10,29 +10,21 @@ from ...chromosomes.crossover import Crossover
 
 class AGraphCrossover(Crossover):
     """Crossover between acyclic graph individuals
-
-    Parameters
-    ----------
-    component_generator : ComponentGenerator
-        Component generator used for generating numerical constants.
     """
-
-    def __init__(self, component_generator):
-        self._component_generator = component_generator
 
     def __call__(self, parent_1, parent_2):
         """Single point crossover.
 
         Parameters
         ----------
-        parent_1 : Agraph
-                   The first parent individual
-        parent_2 : Agraph
-                   The second parent individual
+        parent_1 : `AGraph`
+            The first parent individual
+        parent_2 : `AGraph`
+            The second parent individual
 
         Returns
         -------
-        tuple(Agraph, Agraph) :
+        tuple(`AGraph`, `AGraph`) :
             The two children from the crossover.
         """
 

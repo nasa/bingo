@@ -86,6 +86,26 @@ def test_engine_identification(engine, addition_agraph):
     assert addition_agraph.engine == engine
 
 
+def test_setting_fitness_updates_fit_set_cpp(addition_agraph):
+    assert not addition_agraph.fit_set
+    addition_agraph.fitness = 0
+    assert addition_agraph.fit_set
+
+
+def test_mutable_access_to_command_array_unsets_fitness(addition_agraph):
+    addition_agraph.fitness = 0
+    assert addition_agraph.fit_set
+    _ = addition_agraph.mutable_command_array
+    assert not addition_agraph.fit_set
+
+
+def test_setting_command_array_unsets_fitness(addition_agraph):
+    addition_agraph.fitness = 0
+    assert addition_agraph.fit_set
+    addition_agraph.command_array = np.ones((1, 3))
+    assert not addition_agraph.fit_set
+    
+
 @pytest.mark.parametrize("format_", ["latex", "console", "stack"])
 @pytest.mark.parametrize("raw", [True, False])
 def test_can_get_formatted_strings(format_, raw, addition_agraph):

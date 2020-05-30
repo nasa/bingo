@@ -5,7 +5,8 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.symbolic_regression.agraph import backend as PythonBackend
+from bingo.symbolic_regression.agraph.evaluation_backend import \
+    evaluation_backend as PythonBackend
 
 try:
     from bingocpp.build import symbolic_regression as CppBackend

@@ -1,8 +1,8 @@
 import pytest
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
-from bingo.symbolic_regression.agraph.computational_algebra_system.expression import Expression
-from bingo.symbolic_regression.agraph.computational_algebra_system.constant_folding import fold_constants
+from bingo.symbolic_regression.agraph.simplification_backend.expression import Expression
+from bingo.symbolic_regression.agraph.simplification_backend.constant_folding import fold_constants
 
 
 @pytest.fixture

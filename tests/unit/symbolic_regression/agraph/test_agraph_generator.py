@@ -31,7 +31,8 @@ def test_return_correct_agraph_backend(mocker, python_backend):
                                       use_python=python_backend)
     print(python_backend, generate_agraph._backend_generator_function)
     agraph = generate_agraph()
-    assert agraph.is_cpp() != python_backend
+    expected_engine = "Python" if python_backend else "Cpp"
+    assert agraph.engine == expected_engine
 
 
 def test_generate(mocker):

@@ -16,7 +16,7 @@ except ImportError:
     cpp_agraph = None
 
 
-agraph.Backend = py_backend
+agraph.evaluation_backend = py_backend
 EVALUATE = "bingo.symbolic_regression.agraph.agraph.Backend.evaluate"
 EVALUATE_WTIH_DERIV = ("bingo.symbolic_regression.agraph.agraph.Backend."
                        "evaluate_with_derivative")
@@ -256,7 +256,7 @@ def test_evaluate_overflow_exception(mocker,
                                      sample_agraph_1,
                                      sample_agraph_1_values):
     mocker.patch(EVALUATE)
-    agraph.Backend.evaluate.side_effect = OverflowError
+    bingo.symbolic_regression.agraph.evaluation_backend.backend.evaluate.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
     assert np.isnan(values).all()
@@ -266,7 +266,7 @@ def test_evaluate_gradient_overflow_exception(mocker,
                                               sample_agraph_1,
                                               sample_agraph_1_values):
     mocker.patch(EVALUATE_WTIH_DERIV)
-    agraph.Backend.evaluate_with_derivative.side_effect = OverflowError
+    bingo.symbolic_regression.agraph.evaluation_backend.backend.evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_x_gradient_at(
         sample_agraph_1_values.x)
@@ -277,7 +277,7 @@ def test_evaluate_local_opt_gradient_overflow_exception(mocker,
                                                         sample_agraph_1,
                                                         sample_agraph_1_values):
     mocker.patch(EVALUATE_WTIH_DERIV)
-    agraph.Backend.evaluate_with_derivative.side_effect = OverflowError
+    bingo.symbolic_regression.agraph.evaluation_backend.backend.evaluate_with_derivative.side_effect = OverflowError
 
     values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
         sample_agraph_1_values.x)

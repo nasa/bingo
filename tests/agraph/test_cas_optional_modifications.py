@@ -1,6 +1,6 @@
 from bingo.symbolic_regression.agraph.operator_definitions import *
-from bingo.symbolic_regression.agraph.computational_algebra_system.expression import Expression
-from bingo.symbolic_regression.agraph.computational_algebra_system.optional_expression_modification import optional_modifications
+from bingo.symbolic_regression.agraph.simplification_backend.expression import Expression
+from bingo.symbolic_regression.agraph.simplification_backend.optional_expression_modification import optional_modifications
 
 
 def test_inserting_subtraction():

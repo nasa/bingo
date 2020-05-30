@@ -2,7 +2,8 @@
 
 
 This module contains most of the code necessary for the representation of an
-acyclic graph (linear stack) in symbolic regression. 
+acyclic graph (linear stack) in symbolic regression.
+
 Stack
 -----
 
@@ -20,7 +21,7 @@ command in the stack is the evaluation of the equation.
 Note: Parameter values have special meaning for two of the nodes (0 and 1).
 
 Nodes
----------
+-----
 
 An integer to node mapping is how the command stack is parsed.
 The current map is outlined below.
@@ -49,10 +50,14 @@ import numpy as np
 from .string_generation import get_formatted_string
 from ..equation import Equation
 from ...local_optimizers import continuous_local_opt
+from .operator_definitions import CONSTANT
+
 try:
-    from bingocpp.build import symbolic_regression as Backend
+    from bingocpp.build import symbolic_regression as evaluation_backend
+    from bingocpp.build import symbolic_regression as simplification_backend
 except ImportError:
-    from . import backend as Backend
+    from .evaluation_backend import evaluation_backend
+    from .simplification_backend import simplification_backend
 
 LOGGER = logging.getLogger(__name__)
 
@@ -60,13 +65,19 @@ LOGGER = logging.getLogger(__name__)
 class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     """Acyclic graph representation of an equation.
 
-    Agraph is initialized with with empty command array and no constants.
+    `AGraph` is initialized with with empty command array and no constants.
 
     Attributes
     ----------
-    command_array
-    constants
-    num_constants
+    command_array : Nx3 numpy array of int.
+        The command stack associated with an equation. N is the number of
+        commands in the stack. This is read-only.
+    mutable_command_array : Nx3 numpy array of int.
+        The version of the command array that must be used if modifications are
+        to be made.
+    constants : tuple of numeric
+        numeric constants that are used in the equation
+
     """
     def __init__(self, use_simplification=False):
         super().__init__()
@@ -80,9 +91,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._used_constant_commands = []
         self._use_simplification = use_simplification
 
-    @staticmethod
-    def is_cpp():
-        return False
+    @property
+    def engine(self):
+        return "Python"
 
     @property
     def command_array(self):
@@ -124,13 +135,12 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     def _update(self):
         if self._use_simplification:
             self._simplified_command_array = \
-                Backend.simplify_stack(self._command_array)
+                simplification_backend.simplify_stack(self._command_array)
         else:
             self._simplified_command_array = \
-                Backend.reduce_stack(self._command_array)
+                simplification_backend.reduce_stack(self._command_array)
 
-        # TODO hard coded info about node map
-        const_commands = self._simplified_command_array[:, 0] == 1
+        const_commands = self._simplified_command_array[:, 0] == CONSTANT
         num_const = np.count_nonzero(const_commands)
         self._simplified_command_array[const_commands, 1] = np.arange(num_const)
         self._simplified_command_array[const_commands, 2] = np.arange(num_const)
@@ -149,13 +159,13 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._modified = False
 
     def needs_local_optimization(self):
-        """The Agraph needs local optimization.
+        """The `AGraph` needs local optimization.
 
         Find out whether constants need optimization.
 
         Returns
         -------
-        bool
+        bool :
             Constants need optimization
         """
         if self._modified:
@@ -169,7 +179,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
         Returns
         -------
-        int
+        int :
             Number of constants that need to be optimized
         """
         if self._modified:
@@ -184,7 +194,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         Parameters
         ----------
         params : list of numeric
-                 Values to set constants
+            Values to set constants
         """
         self._simplified_constants = tuple(params)
         self._needs_opt = False
@@ -192,7 +202,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     def get_utilized_commands(self):
         """"Find which commands are utilized.
 
-        Find the commands in the command array of the agraph upon which the
+        Find the commands in the command array of the `AGraph` upon which the
         last command relies. This is inclusive of the last command.
 
         Returns
@@ -200,12 +210,12 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         list of bool of length N
             Boolean values for whether each command is utilized.
         """
-        return Backend.get_utilized_commands(self._command_array)
+        return simplification_backend.get_utilized_commands(self._command_array)
 
     def evaluate_equation_at(self, x):
-        """Evaluate the agraph equation.
+        """Evaluate the `AGraph` equation.
 
-        evaluation of the Agraph equation at points x.
+        evaluation of the `AGraph` equation at points x.
 
         Parameters
         ----------
@@ -221,8 +231,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         if self._modified:
             self._update()
         try:
-            f_of_x = Backend.evaluate(self._simplified_command_array,
-                                      x, self._simplified_constants)
+            f_of_x = \
+                evaluation_backend.evaluate(self._simplified_command_array, x,
+                                            self._simplified_constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
@@ -230,9 +241,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             return np.full(x.shape, np.nan)
 
     def evaluate_equation_with_x_gradient_at(self, x):
-        """Evaluate Agraph and get its derivatives.
+        """Evaluate `AGraph` and get its derivatives.
 
-        Evaluate the agraph equation at x and the gradient of x.
+        Evaluate the `AGraph` equation at x and the gradient of x.
 
         Parameters
         ----------
@@ -248,7 +259,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         if self._modified:
             self._update()
         try:
-            f_of_x, df_dx = Backend.evaluate_with_derivative(
+            f_of_x, df_dx = evaluation_backend.evaluate_with_derivative(
                 self._simplified_command_array, x,
                 self._simplified_constants, True)
             return f_of_x, df_dx
@@ -259,9 +270,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             return nan_array, np.array(nan_array)
 
     def evaluate_equation_with_local_opt_gradient_at(self, x):
-        """Evaluate Agraph and get its derivatives.
+        """Evaluate `AGraph` and get its derivatives.
 
-        Evaluate the agraph equation at x and get the gradient of constants.
+        Evaluate the `AGraph` equation at x and get the gradient of constants.
         Constants are of length L.
 
         Parameters
@@ -278,7 +289,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         if self._modified:
             self._update()
         try:
-            f_of_x, df_dc = Backend.evaluate_with_derivative(
+            f_of_x, df_dc = evaluation_backend.evaluate_with_derivative(
                 self._simplified_command_array, x,
                 self._simplified_constants, False)
             return f_of_x, df_dc
@@ -290,66 +301,45 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             return nan_array, np.array(nan_array)
 
     def __str__(self):
-        """Console string output of Agraph equation.
+        """Console string output of `AGraph` equation.
 
         Returns
         -------
-        str
+        str :
             equation in console form
         """
-        return self.get_console_string()
+        return self.get_formatted_string("console")
 
-    def get_latex_string(self):
-        """Latex interpretable version of Agraph equation.
+    def get_formatted_string(self, format_, raw=False):
+        """Output a string description of the the `AGraph` in a given format.
+
+        Parameters
+        ----------
+        format_ : str
+            The requested format of the equation. Options are "console",
+            "latex", and "stack".
+        raw : bool
+            (optional) Output of the raw command array rather than the
+            processed version. Default False.
 
         Returns
         -------
-        str
-            Equation in latex form
+        str :
+            Equation in specified form
         """
+        if raw:
+            return get_formatted_string(format_, self._command_array, tuple())
         if self._modified:
             self._update()
-        return get_formatted_string("latex", self._simplified_command_array,
+        return get_formatted_string(format_, self._simplified_command_array,
                                     self._simplified_constants)
-
-    def get_console_string(self):
-        """Console version of Agraph equation.
-
-        Returns
-        -------
-        str
-            Equation in simple form
-        """
-        if self._modified:
-            self._update()
-        return get_formatted_string("console", self._simplified_command_array,
-                                    self._simplified_constants)
-
-    def get_stack_string(self):
-        """Stack output of Agraph equation.
-
-        Returns
-        -------
-        str
-            equation in stack form and simplified stack form
-        """
-        if self._modified:
-            self._update()
-        print_str = "---full stack---\n"
-        print_str += get_formatted_string("stack", self._command_array,
-                                          tuple())
-        print_str += "---small stack---\n"
-        print_str += get_formatted_string("stack",
-                                          self._simplified_command_array,
-                                          self._simplified_constants)
-        return print_str
 
     def get_complexity(self):
         """Calculate complexity of agraph equation.
 
         Returns
         -------
-        int
+        int :
             number of utilized commands in stack
         """
         if self._modified:
@@ -357,18 +347,18 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         return self._simplified_command_array.shape[0]
 
     def distance(self, chromosome):
-        """Computes the distance to another Agraph
+        """Computes the distance to another `AGraph`
 
         Distance is a measure of similarity of the two command_arrays
 
         Parameters
         ----------
-        chromosome : Agraph
-                     The individual to which distance will be calculated
+        chromosome : `AGraph`
+            The individual to which distance will be calculated
 
         Returns
         -------
-         : int
+        int :
             distance from self to individual
         """
         dist = np.sum(self.command_array != chromosome.command_array)

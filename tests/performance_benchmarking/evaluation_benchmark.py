@@ -1,7 +1,9 @@
 import timeit
 
 from bingo.symbolic_regression.agraph \
-    import agraph as agraph_module, backend as pyBackend
+    import agraph as agraph_module
+from bingo.symbolic_regression.agraph.evaluation_backend import \
+    evaluation_backend as pyBackend
 from bingocpp.build import symbolic_regression as cppBackend
 
 import benchmark_data as benchmark_data
@@ -26,7 +28,7 @@ def benchmark_evaluate_w_c_derivative():
 def do_benchmarking():
     printer = benchmark_data.StatsPrinter("EVALUATION BENCHMARKS")
     for backend, name in [[pyBackend, "py"], [cppBackend, "c++"]]:
-        agraph_module.Backend = backend
+        agraph_module.evaluation_backend = backend
         printer.add_stats(name + ": evaluate",
                           timeit.repeat(benchmark_evaluate,
                                         number=EVAL_TIMING_NUMBER,

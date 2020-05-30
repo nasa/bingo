@@ -1,7 +1,9 @@
 import timeit
 
 from bingo.symbolic_regression.agraph \
-    import agraph as agraph_module, backend as pyBackend
+    import agraph as agraph_module
+from bingo.symbolic_regression.agraph.evaluation_backend import \
+    evaluation_backend as pyBackend
 from bingocpp.build import symbolic_regression as cppBackend
 
 import benchmark_data as benchmark_data
@@ -54,7 +56,7 @@ def do_benchmarking():
 
 def _run_benchmarks(printer, regression, regression_cpp):
     for backend, name in [[pyBackend, " py"], [cppBackend, "c++"]]:
-        agraph_module.Backend = backend
+        agraph_module.evaluation_backend = backend
         printer.add_stats(
             "py:  fitness " + name + ": evaluate ",
             timeit.repeat(regression,

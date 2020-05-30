@@ -14,7 +14,7 @@ ENGINE = "Python"
 def evaluate(stack, x, constants):
     """Evaluate an equation
 
-    Evauluate the equation associated with an Agraph, at the values x.
+    Evaluate the equation associated with an Agraph, at the values x.
 
     Parameters
     ----------

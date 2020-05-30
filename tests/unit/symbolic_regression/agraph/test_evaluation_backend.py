@@ -18,6 +18,10 @@ CPP_PARAM = pytest.param("Cpp",
                                                   reason='BingoCpp import '
                                                          'failure'))
 
+OPERATOR_LIST = [INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION,
+                 MULTIPLICATION, DIVISION, SIN, COS, EXPONENTIAL, LOGARITHM,
+                 POWER, ABS, SQRT]
+
 
 @pytest.fixture(params=["Python", CPP_PARAM])
 def engine(request):
@@ -75,19 +79,20 @@ def sample_constants():
 def operator_evals_x0(sample_x, sample_constants):
     x_0 = sample_x[:, 0].reshape((-1, 1))
     c_0 = np.full(x_0.shape, sample_constants[0])
-    return [x_0,
-            c_0,
-            x_0+x_0,
-            x_0-x_0,
-            x_0*x_0,
-            x_0/x_0,
-            np.sin(x_0),
-            np.cos(x_0),
-            np.exp(x_0),
-            np.log(np.abs(x_0)),
-            np.power(np.abs(x_0), x_0),
-            np.abs(x_0),
-            np.sqrt(np.abs(x_0))]
+    return {INTEGER: np.zeros_like(x_0),
+            VARIABLE: x_0,
+            CONSTANT: c_0,
+            ADDITION: x_0+x_0,
+            SUBTRACTION: x_0-x_0,
+            MULTIPLICATION: x_0*x_0,
+            DIVISION: x_0/x_0,
+            SIN: np.sin(x_0),
+            COS: np.cos(x_0),
+            EXPONENTIAL: np.exp(x_0),
+            LOGARITHM: np.log(np.abs(x_0)),
+            POWER: np.power(np.abs(x_0), x_0),
+            ABS: np.abs(x_0),
+            SQRT: np.sqrt(np.abs(x_0))}
 
 
 @pytest.fixture
@@ -96,37 +101,39 @@ def operator_x_derivs(sample_x):
         array[-1] = np.nan
         return array
     x_0 = sample_x[:, 0].reshape((-1, 1))
-    return [np.ones(x_0.shape),
-            np.zeros(x_0.shape),
-            np.full(x_0.shape, 2.0),
-            np.zeros(x_0.shape),
-            2*x_0,
-            last_nan(np.zeros(x_0.shape)),
-            np.cos(x_0),
-            -np.sin(x_0),
-            np.exp(x_0),
-            1.0 / x_0,
-            last_nan(np.power(np.abs(x_0), x_0)*(np.log(np.abs(x_0)) + 1)),
-            np.sign(x_0),
-            0.5*np.sign(x_0) / np.sqrt(np.abs(x_0))]
+    return {INTEGER: np.zeros_like(x_0),
+            VARIABLE: np.ones(x_0.shape),
+            CONSTANT: np.zeros(x_0.shape),
+            ADDITION: np.full(x_0.shape, 2.0),
+            SUBTRACTION: np.zeros(x_0.shape),
+            MULTIPLICATION: 2*x_0,
+            DIVISION: last_nan(np.zeros(x_0.shape)),
+            SIN: np.cos(x_0),
+            COS: -np.sin(x_0),
+            EXPONENTIAL: np.exp(x_0),
+            LOGARITHM: 1.0 / x_0,
+            POWER: last_nan(np.power(np.abs(x_0), x_0)*(np.log(np.abs(x_0)) + 1)),
+            ABS: np.sign(x_0),
+            SQRT: 0.5*np.sign(x_0) / np.sqrt(np.abs(x_0))}
 
 
 @pytest.fixture
 def operator_c_derivs(sample_x, sample_constants):
     c_1 = np.full((sample_x.shape[0], 1), sample_constants[1])
-    return [np.zeros(c_1.shape),
-            np.ones(c_1.shape),
-            np.full(c_1.shape, 2.0),
-            np.zeros(c_1.shape),
-            2*c_1,
-            np.zeros(c_1.shape),
-            np.cos(c_1),
-            -np.sin(c_1),
-            np.exp(c_1),
-            1.0 / c_1,
-            np.power(np.abs(c_1), c_1)*(np.log(np.abs(c_1)) + 1),
-            np.sign(c_1),
-            0.5*np.sign(c_1) / np.sqrt(np.abs(c_1))]
+    return {INTEGER: np.zeros_like(c_1),
+            VARIABLE: np.zeros(c_1.shape),
+            CONSTANT: np.ones(c_1.shape),
+            ADDITION: np.full(c_1.shape, 2.0),
+            SUBTRACTION: np.zeros(c_1.shape),
+            MULTIPLICATION: 2*c_1,
+            DIVISION: np.zeros(c_1.shape),
+            SIN: np.cos(c_1),
+            COS: -np.sin(c_1),
+            EXPONENTIAL: np.exp(c_1),
+            LOGARITHM: 1.0 / c_1,
+            POWER: np.power(np.abs(c_1), c_1)*(np.log(np.abs(c_1)) + 1),
+            ABS: np.sign(c_1),
+            SQRT: 0.5*np.sign(c_1) / np.sqrt(np.abs(c_1))}
 
 
 def test_all_funcs_eval(eval_backend, all_funcs_command_array):
@@ -213,7 +220,7 @@ def test_higher_dim_func_deriv_c(eval_backend, higher_dim_command_array):
     np.testing.assert_array_almost_equal(df_dc, expected_df_dc)
 
 
-@pytest.mark.parametrize("operator", range(13))
+@pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_backend_evaluate(eval_backend, sample_x, sample_constants, operator,
                           operator_evals_x0):
     expected_outcome = operator_evals_x0[operator]
@@ -224,7 +231,7 @@ def test_backend_evaluate(eval_backend, sample_x, sample_constants, operator,
     np.testing.assert_allclose(expected_outcome, f_of_x)
 
 
-@pytest.mark.parametrize("operator", range(13))
+@pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_backend_evaluate_with_x_derivative(eval_backend, sample_x,
                                             sample_constants, operator,
                                             operator_x_derivs):
@@ -239,7 +246,7 @@ def test_backend_evaluate_with_x_derivative(eval_backend, sample_x,
     np.testing.assert_allclose(expected_derivative, df_dx)
 
 
-@pytest.mark.parametrize("operator", range(13))
+@pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_backend_evaluate_with_c_derivative(eval_backend, sample_x,
                                             sample_constants, operator,
                                             operator_c_derivs):

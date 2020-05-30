@@ -48,6 +48,24 @@ def sample_agraph(agraph_implementation):  # sin(X_0 + 2.0) + 2.0
 
 
 @pytest.fixture
+def overcomplex_agraph_with_simplification(agraph_implementation):
+    sample = agraph_implementation(use_simplification=True)
+    sample.command_array = np.array([[VARIABLE, 0, 0],
+                                     [SUBTRACTION, 0, 0],
+                                     [ADDITION, 1, 0]], dtype=int)
+    return sample
+
+
+@pytest.fixture
+def overcomplex_agraph_without_simplification(agraph_implementation):
+    sample = agraph_implementation(use_simplification=False)
+    sample.command_array = np.array([[VARIABLE, 0, 0],
+                                     [SUBTRACTION, 0, 0],
+                                     [ADDITION, 1, 0]], dtype=int)
+    return sample
+
+
+@pytest.fixture
 def sample_agraph_values():
     values = namedtuple('Data', ['x', 'f_of_x', 'grad_x', 'grad_c'])
     x = np.vstack((np.linspace(-1.0, 0.0, 11),
@@ -80,6 +98,13 @@ def test_evaluate_agraph_c_gradient(sample_agraph, sample_agraph_values):
     np.testing.assert_allclose(f_of_x, sample_agraph_values.f_of_x)
     np.testing.assert_allclose(df_dc, sample_agraph_values.grad_c)
 
+
+def test_using_simplification(overcomplex_agraph_with_simplification):
+    assert overcomplex_agraph_with_simplification.get_complexity() == 1
+
+
+def test_not_using_simplification(overcomplex_agraph_without_simplification):
+    assert overcomplex_agraph_without_simplification.get_complexity() == 3
 
 # def test_evaluate_overflow_exception(mocker,
 #                                      sample_agraph_1,

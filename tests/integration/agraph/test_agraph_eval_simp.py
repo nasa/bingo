@@ -40,10 +40,9 @@ def sample_agraph(agraph_implementation):  # sin(X_0 + 2.0) + 2.0
                                          [SIN, 2, 2],
                                          [ADDITION, 0, 1],
                                          [ADDITION, 3, 1]], dtype=int)
-    test_graph.genetic_age = 10
     _ = test_graph.needs_local_optimization()
     test_graph.set_local_optimization_params([2.0, ])
-    test_graph.fitness = 1
+    _ = test_graph.mutable_command_array
     return test_graph
 
 
@@ -106,33 +105,37 @@ def test_using_simplification(overcomplex_agraph_with_simplification):
 def test_not_using_simplification(overcomplex_agraph_without_simplification):
     assert overcomplex_agraph_without_simplification.get_complexity() == 3
 
-# def test_evaluate_overflow_exception(mocker,
-#                                      sample_agraph_1,
-#                                      sample_agraph_1_values):
-#     mocker.patch(EVALUATE)
-#     bingo.symbolic_regression.agraph.evaluation_backend.backend.evaluate.side_effect = OverflowError
-#
-#     values = sample_agraph_1.evaluate_equation_at(sample_agraph_1_values.x)
-#     assert np.isnan(values).all()
-#
-#
-# def test_evaluate_gradient_overflow_exception(mocker,
-#                                               sample_agraph_1,
-#                                               sample_agraph_1_values):
-#     mocker.patch(EVALUATE_WTIH_DERIV)
-#     bingo.symbolic_regression.agraph.evaluation_backend.backend.evaluate_with_derivative.side_effect = OverflowError
-#
-#     values = sample_agraph_1.evaluate_equation_with_x_gradient_at(
-#         sample_agraph_1_values.x)
-#     assert np.isnan(values).all()
-#
-#
-# def test_evaluate_local_opt_gradient_overflow_exception(mocker,
-#                                                         sample_agraph_1,
-#                                                         sample_agraph_1_values):
-#     mocker.patch(EVALUATE_WTIH_DERIV)
-#     bingo.symbolic_regression.agraph.evaluation_backend.backend.evaluate_with_derivative.side_effect = OverflowError
-#
-#     values = sample_agraph_1.evaluate_equation_with_local_opt_gradient_at(
-#         sample_agraph_1_values.x)
-#     assert np.isnan(values).all()
+
+def test_evaluate_overflow_exception(mocker, engine, sample_agraph,
+                                     sample_agraph_values):
+    if engine == "Python":
+        mocker.patch("bingo.symbolic_regression.agraph.agraph."
+                     "evaluation_backend.evaluate", side_effect=OverflowError)
+
+        values = sample_agraph.evaluate_equation_at(sample_agraph_values.x)
+        assert np.isnan(values).all()
+
+
+def test_evaluate_gradient_overflow_exception(mocker, engine, sample_agraph,
+                                              sample_agraph_values):
+    if engine == "Python":
+        mocker.patch("bingo.symbolic_regression.agraph.agraph."
+                     "evaluation_backend.evaluate_with_derivative",
+                     side_effect=OverflowError)
+
+        values = sample_agraph.evaluate_equation_with_x_gradient_at(
+                sample_agraph_values.x)
+        assert np.isnan(values).all()
+
+
+def test_evaluate_local_opt_gradient_overflow_exception(mocker, engine,
+                                                        sample_agraph,
+                                                        sample_agraph_values):
+    if engine == "Python":
+        mocker.patch("bingo.symbolic_regression.agraph.agraph."
+                     "evaluation_backend.evaluate_with_derivative",
+                     side_effect=OverflowError)
+
+        values = sample_agraph.evaluate_equation_with_local_opt_gradient_at(
+                sample_agraph_values.x)
+        assert np.isnan(values).all()

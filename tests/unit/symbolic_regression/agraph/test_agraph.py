@@ -72,14 +72,17 @@ def test_agraph_complexity(addition_agraph, sin_agraph):
     assert sin_agraph.get_complexity() == 2
 
 
-def test_local_opt_interface(addition_agraph_with_constants):
+def test_local_opt_interface_1(addition_agraph_with_constants):
     assert addition_agraph_with_constants.needs_local_optimization()
-    n_p = addition_agraph_with_constants.get_number_local_optimization_params()
-    assert n_p == 2
     params = (2, 3)
     addition_agraph_with_constants.set_local_optimization_params(params)
     assert addition_agraph_with_constants.constants == params
     assert not addition_agraph_with_constants.needs_local_optimization()
+
+
+def test_local_opt_interface_2(addition_agraph_with_constants):
+    n_p = addition_agraph_with_constants.get_number_local_optimization_params()
+    assert n_p == 2
 
 
 def test_engine_identification(engine, addition_agraph):

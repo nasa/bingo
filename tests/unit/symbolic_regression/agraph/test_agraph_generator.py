@@ -29,7 +29,6 @@ def test_return_correct_agraph_backend(mocker, python_backend):
     mocked_component_generator.random_command.return_value = [0, 0, 0]
     generate_agraph = AGraphGenerator(6, mocked_component_generator,
                                       use_python=python_backend)
-    print(python_backend, generate_agraph._backend_generator_function)
     agraph = generate_agraph()
     expected_engine = "Python" if python_backend else "Cpp"
     assert agraph.engine == expected_engine

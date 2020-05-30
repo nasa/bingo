@@ -4,6 +4,7 @@ from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.simplification_backend.expression import Expression
 from bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification import automatic_simplify
 
+
 @pytest.fixture
 def x_var():
     return Expression(VARIABLE, [0, ])
@@ -13,9 +14,11 @@ def x_var():
 def y_var():
     return Expression(VARIABLE, [1, ])
 
+
 @pytest.fixture
 def negative_one():
     return Expression(INTEGER, [-1, ])
+
 
 @pytest.fixture
 def zero():

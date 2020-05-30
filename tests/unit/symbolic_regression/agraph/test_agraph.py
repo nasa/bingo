@@ -104,7 +104,7 @@ def test_setting_command_array_unsets_fitness(addition_agraph):
     assert addition_agraph.fit_set
     addition_agraph.command_array = np.ones((1, 3))
     assert not addition_agraph.fit_set
-    
+
 
 @pytest.mark.parametrize("format_", ["latex", "console", "stack"])
 @pytest.mark.parametrize("raw", [True, False])

@@ -224,8 +224,8 @@ def test_higher_dim_func_deriv_c(eval_backend, higher_dim_command_array):
 def test_backend_evaluate(eval_backend, sample_x, sample_constants, operator,
                           operator_evals_x0):
     expected_outcome = operator_evals_x0[operator]
-    stack = np.array([[0, 0, 0],
-                      [0, 1, 1],
+    stack = np.array([[VARIABLE, 0, 0],
+                      [VARIABLE, 1, 1],
                       [operator, 0, 0]])
     f_of_x = eval_backend.evaluate(stack, sample_x, sample_constants)
     np.testing.assert_allclose(expected_outcome, f_of_x)
@@ -237,9 +237,9 @@ def test_backend_evaluate_with_x_derivative(eval_backend, sample_x,
                                             operator_x_derivs):
     expected_derivative = np.zeros(sample_x.shape)
     expected_derivative[:, 0] = operator_x_derivs[operator].flatten()
-    stack = np.array([[0, 0, 0],
-                      [0, 0, 0],
-                      [0, 1, 1],
+    stack = np.array([[VARIABLE, 0, 0],
+                      [VARIABLE, 0, 0],
+                      [VARIABLE, 1, 1],
                       [operator, 0, 1]])
     _, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
                                                      sample_constants, True)
@@ -252,9 +252,9 @@ def test_backend_evaluate_with_c_derivative(eval_backend, sample_x,
                                             operator_c_derivs):
     expected_derivative = np.zeros(sample_x.shape)
     expected_derivative[:, 1] = operator_c_derivs[operator].flatten()
-    stack = np.array([[1, 1, 1],
-                      [1, 1, 1],
-                      [0, 1, 1],
+    stack = np.array([[CONSTANT, 1, 1],
+                      [CONSTANT, 1, 1],
+                      [VARIABLE, 1, 1],
                       [operator, 1, 0]])
     _, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
                                                      sample_constants, False)

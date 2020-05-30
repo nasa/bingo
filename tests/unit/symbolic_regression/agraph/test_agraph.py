@@ -113,5 +113,10 @@ def test_can_get_formatted_strings(format_, raw, addition_agraph):
     assert isinstance(string, str)
 
 
+def test_default_string_is_console_string(addition_agraph):
+    console_string = addition_agraph.get_formatted_string("console")
+    assert str(addition_agraph) == console_string
+
+
 def test_can_pickle(addition_agraph):
     _ = dill.loads(dill.dumps(addition_agraph))

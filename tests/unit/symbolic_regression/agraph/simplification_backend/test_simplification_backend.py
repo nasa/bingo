@@ -56,3 +56,62 @@ def test_reduce_stack(simp_backend, sample_command_array):
                                    [SIN, 2, 2],
                                    [ADDITION, 3, 3]])
     np.testing.assert_array_equal(reduction, expected_reduction)
+
+
+def test_simplification_1(simp_backend):
+    stack = np.array([[CONSTANT, -1, -1],
+                      [MULTIPLICATION, 0, 0],
+                      [ADDITION, 1, 0],
+                      [SUBTRACTION, 1, 0],
+                      [CONSTANT, -1, -1],
+                      [VARIABLE, 0, 0],
+                      [ADDITION, 2, 4],
+                      [ADDITION, 6, 3],
+                      [SUBTRACTION, 7, 5],
+                      [ADDITION, 8, 2],
+                      [SUBTRACTION, 4, 9],
+                      ])
+    simp_stack = simp_backend.simplify_stack(stack)
+    expected_simp = np.array([[CONSTANT, -1, -1],
+                              [VARIABLE, 0, 0],
+                              [ADDITION, 0, 1]])
+    np.testing.assert_array_equal(simp_stack, expected_simp)
+
+
+def test_simplification_2(simp_backend):
+    stack = np.array([[CONSTANT, -1, -1],
+                      [VARIABLE, 0, 0],
+                      [CONSTANT, -1, -1],
+                      [ADDITION, 1, 1],
+                      [SUBTRACTION, 3, 3],
+                      [SUBTRACTION, 2, 0],
+                      [MULTIPLICATION, 5, 4],
+                      [SUBTRACTION, 6, 5],
+                      ])
+    simp_stack = simp_backend.simplify_stack(stack)
+    expected_simp = np.array([[CONSTANT, -1, -1]])
+    np.testing.assert_array_equal(simp_stack, expected_simp)
+
+
+def test_simplification_3(simp_backend):
+    stack = np.array([[CONSTANT, -1, -1],
+                      [VARIABLE, 0, 0],
+                      [SUBTRACTION, 0, 0],
+                      [ADDITION, 2, 2],
+                      [MULTIPLICATION, 3, 2],
+                      [SUBTRACTION, 4, 0],
+                      [SUBTRACTION, 1, 3],
+                      [MULTIPLICATION, 6, 2],
+                      [MULTIPLICATION, 5, 7],
+                      [ADDITION, 6, 2],
+                      [ADDITION, 8, 9],
+                      [SUBTRACTION, 10, 0],
+                      [SUBTRACTION, 11, 4],
+                      [CONSTANT, -1, -1],
+                      [ADDITION, 12, 13],
+                      ])
+    simp_stack = simp_backend.simplify_stack(stack)
+    expected_simp = np.array([[CONSTANT, -1, -1],
+                              [VARIABLE, 0, 0],
+                              [ADDITION, 0, 1]])
+    np.testing.assert_array_equal(simp_stack, expected_simp)

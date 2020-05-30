@@ -13,7 +13,7 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 
-from .operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions import *
 
 
 # Integer value

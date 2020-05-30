@@ -1,9 +1,9 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-from collections import namedtuple
 import numpy as np
 import pytest
+import dill
 
 from bingo.symbolic_regression import explicit_regression as pyexplicit
 from bingo.symbolic_regression.equation import Equation as pyequation
@@ -143,3 +143,7 @@ def test_explicit_regression_relative(sample_regression_relative,
         sample_equation)
     expected_fit_vec = (1 - np.arange(1, 11)) / np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+
+
+def test_can_pickle(sample_regression):
+    _ = dill.loads(dill.dumps(sample_regression))

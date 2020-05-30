@@ -210,7 +210,8 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         list of bool of length N
             Boolean values for whether each command is utilized.
         """
-        return simplification_backend.get_utilized_commands(self._command_array)
+        return simplification_backend.get_utilized_commands(
+                self._command_array)
 
     def evaluate_equation_at(self, x):
         """Evaluate the `AGraph` equation.

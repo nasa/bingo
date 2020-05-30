@@ -3,6 +3,7 @@
 # pylint: disable=missing-docstring
 import numpy as np
 import pytest
+import dill
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
@@ -97,3 +98,13 @@ def test_local_opt_interface(addition_agraph_with_constants):
 def test_engine_identification(engine, addition_agraph):
     assert addition_agraph.engine == engine
 
+
+@pytest.mark.parametrize("format_", ["latex", "console", "stack"])
+@pytest.mark.parametrize("raw", [True, False])
+def test_can_get_formatted_strings(format_, raw, addition_agraph):
+    string = addition_agraph.get_formatted_string(format_, raw=raw)
+    assert isinstance(string, str)
+
+
+def test_can_pickle(addition_agraph):
+    _ = dill.loads(dill.dumps(addition_agraph))

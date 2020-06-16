@@ -38,6 +38,8 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
 
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
+    
+    root_logger.handlers=[] # remove current handlers
 
     console_handler = _make_console_handler(level, module, timestamp)
     root_logger.addHandler(console_handler)

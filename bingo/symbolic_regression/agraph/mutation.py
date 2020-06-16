@@ -90,7 +90,6 @@ class AGraphMutation(Mutation):
         child = parent.copy()
         mutation_algorithm = self._mutation_function_pmf.draw_sample()
         mutation_algorithm(child)
-        print(self._last_mutation_type, self._last_mutation_location)
 
         return child
 

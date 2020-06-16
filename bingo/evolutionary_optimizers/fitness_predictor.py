@@ -72,7 +72,6 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
                                          self._true_fitness_for_trainers):
             predicted_fitness = \
                 self.predict_fitness_for_trainer(individual, trainer)
-            print(predicted_fitness)
             error_in_fitness_predictions += abs(true_fitness
                                                 - predicted_fitness)
         return error_in_fitness_predictions / len(self._trainers)

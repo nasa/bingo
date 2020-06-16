@@ -49,7 +49,7 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
     if logfile is not None:
         logfile_handler = _make_logfile_handler(logfile, level, module, 
                                                 timestamp)
-        root_logger.addHandler(console_handler)
+        root_logger.addHandler(logfile_handler)
     
     if stats_file is not None:
         stats_file_handler = _make_stats_file_handler(stats_file)

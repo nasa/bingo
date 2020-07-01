@@ -330,7 +330,7 @@ class AGraphMutation(Mutation):
         fork_commands = self._generate_fork(fork_size, fork_space,
                                             new_mut_location)
 
-        individual.command_array[fork_space] = fork_commands
+        individual.command_array[fork_space] = fork_commands.copy()
 
         self._last_mutation_location = 0
         self._last_mutation_type = FORK_MUTATION
@@ -359,8 +359,8 @@ class AGraphMutation(Mutation):
                         fork_space = [mutation_location + 1]
                     else:
                         fork_space.append(fork_space[-1] + 1)
-                    new_permutation[fork_space[-1] + 1:i + 1] = \
-                        np.roll(new_permutation[fork_space[-1] + 1:i + 1], 1)
+                    new_permutation[fork_space[-1]:i + 1] = \
+                        np.roll(new_permutation[fork_space[-1]:i + 1], 1)
                     if len(fork_space) == fork_size:
                         break
         # update parameters
@@ -376,7 +376,7 @@ class AGraphMutation(Mutation):
             parameter_conversion[individual.command_array[used_operators, 2]]
         # move commands
         individual.command_array[:, :] = \
-            individual.command_array[new_permutation, :]
+            individual.command_array[new_permutation, :].copy()
         return fork_space, new_mut_location
 
     def _generate_fork(self, fork_size, fork_space, new_mut_location):

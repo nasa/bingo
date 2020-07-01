@@ -81,8 +81,8 @@ class ComponentGenerator:
     def _make_random_command_pmf(self, terminal_probability):
         command_weights = [terminal_probability,
                            1.0 - terminal_probability]
-        return ProbabilityMassFunction(items=[self._random_terminal_command,
-                                              self._random_operator_command],
+        return ProbabilityMassFunction(items=[self.random_terminal_command,
+                                              self.random_operator_command],
                                        weights=command_weights)
 
     def add_operator(self, operator_to_add, operator_weight=None):
@@ -126,10 +126,10 @@ class ComponentGenerator:
 
         """
         if stack_location < self._num_initial_load_statements:
-            return self._random_terminal_command(stack_location)
+            return self.random_terminal_command(stack_location)
         return self._random_command_function_pmf.draw_sample()(stack_location)
 
-    def _random_operator_command(self, stack_location):
+    def random_operator_command(self, stack_location):
         return np.array([self.random_operator(),
                          self.random_operator_parameter(stack_location),
                          self.random_operator_parameter(stack_location)],
@@ -169,7 +169,7 @@ class ComponentGenerator:
         """
         return np.random.randint(stack_location)
 
-    def _random_terminal_command(self, _=None):
+    def random_terminal_command(self, _=None):
         terminal = self.random_terminal()
         return np.array([terminal,
                          self.random_terminal_parameter(terminal),

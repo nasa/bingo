@@ -113,6 +113,28 @@ def _cos_reverse_eval(reverse_index, param1, _param2, forward_eval,
         reverse_eval[reverse_index] * np.sin(forward_eval[param1])
 
 
+# Hyperbolic Sine 
+def _sinh_forward_eval(param1, _param2, _x, _constants, forward_eval):
+    return np.sinh(forward_eval[param1])
+
+
+def _sinh_reverse_eval(reverse_index, param1, _param2, forward_eval,
+                      reverse_eval):
+    reverse_eval[param1] += \
+        reverse_eval[reverse_index] * np.cosh(forward_eval[param1])
+
+
+# Hyperbolic Cosine
+def _cosh_forward_eval(param1, _param2, _x, _constants, forward_eval):
+    return np.cosh(forward_eval[param1])
+
+
+def _cosh_reverse_eval(reverse_index, param1, _param2, forward_eval,
+                      reverse_eval):
+    reverse_eval[param1] -= \
+        reverse_eval[reverse_index] * np.sinh(forward_eval[param1])
+
+
 # Exponential
 def _exp_forward_eval(param1, _param2, _x, _constants, forward_eval):
     return np.exp(forward_eval[param1])
@@ -195,6 +217,8 @@ FORWARD_EVAL_MAP = {INTEGER: _integer_forward_eval,
                     DIVISION: _divide_forward_eval,
                     SIN: _sin_forward_eval,
                     COS: _cos_forward_eval,
+                    SINH: _sinh_forward_eval,
+                    COSH: _cosh_forward_eval,
                     EXPONENTIAL: _exp_forward_eval,
                     LOGARITHM: _log_forward_eval,
                     POWER: _pow_forward_eval,
@@ -210,6 +234,8 @@ REVERSE_EVAL_MAP = {INTEGER: _integer_reverse_eval,
                     DIVISION: _divide_reverse_eval,
                     SIN: _sin_reverse_eval,
                     COS: _cos_reverse_eval,
+                    SINH: _sin_reverse_eval,
+                    COSH: _cos_reverse_eval,
                     EXPONENTIAL: _exp_reverse_eval,
                     LOGARITHM: _log_reverse_eval,
                     POWER: _pow_reverse_eval,

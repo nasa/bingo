@@ -19,11 +19,13 @@ MULTIPLICATION = 4
 DIVISION = 5
 SIN = 6
 COS = 7
-EXPONENTIAL = 8
-LOGARITHM = 9
-POWER = 10
-ABS = 11
-SQRT = 12
+SINH = 8
+COSH = 9
+EXPONENTIAL = 10
+LOGARITHM = 11
+POWER = 12
+ABS = 13
+SQRT = 14
 IS_ARITY_2_MAP = {INTEGER: False,
                   VARIABLE: False,
                   CONSTANT: False,
@@ -33,6 +35,8 @@ IS_ARITY_2_MAP = {INTEGER: False,
                   DIVISION: True,
                   SIN: False,
                   COS: False,
+                  SINH: False,
+                  COSH: False,
                   EXPONENTIAL: False,
                   LOGARITHM: False,
                   POWER: True,
@@ -47,6 +51,8 @@ IS_TERMINAL_MAP = {INTEGER: True,
                    DIVISION: False,
                    SIN: False,
                    COS: False,
+                   SINH: False,
+                   COSH: False,
                    EXPONENTIAL: False,
                    LOGARITHM: False,
                    POWER: False,
@@ -61,6 +67,8 @@ OPERATOR_NAMES = {INTEGER: ["integer"],
                   DIVISION: ["divide", "division", "/"],
                   SIN: ["sine", "sin"],
                   COS: ["cosine", "cos"],
+                  SINH: ["sineh", "sinh"],
+                  COSH: ["cosineh", "cosh"],
                   EXPONENTIAL: ["exponential", "exp", "e"],
                   LOGARITHM: ["logarithm", "log"],
                   POWER: ["power", "pow", "^"],

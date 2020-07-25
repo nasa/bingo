@@ -1,25 +1,33 @@
 # from SMCpy import ?
+import numpy as np
+from scipy import stats
+
+from smcpy.mcmc.vector_mcmc import VectorMCMC
+from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
+from smcpy import SMCSampler
+
 from ...evaluation.fitness_function import FitnessFunction
-
-
-class ModelWrapper: #(SMCModel)
-    def __init__(self, equation, x):
-        self._equation = equation
-        self._x = x
-        self.eval_count = 0
-
-    def evaluate(self, params):
-        self.eval_count += 1
-        self._equation.set_local_optimization_params(params)
-        return self._equation.evaluate_equation_at(self._x)
 
 
 class ModelEvidenceFunction(FitnessFunction):
 
-    def __init__(self, continuous_local_opt):
+    def __init__(self, continuous_local_opt,
+                 num_particles=150, smc_steps=15, mcmc_steps=12,
+                 ess_threshold=0.75, phi_sequence="linear"):
+        # TODO: What are the default hyper params?
+
         self._continuous_local_opt = continuous_local_opt
         self._eval_count = 0
-        # hyper parameters initialized here
+
+        self._num_particles = num_particles
+        self._smc_steps = smc_steps
+        self._mcmc_steps = mcmc_steps
+        self._ess_threshold = ess_threshold
+        if phi_sequence == "linear":
+            self._phi_sequence = np.linspace(0, 1, smc_steps)
+        else:
+            # TODO: Implement an exponential sequence?
+            raise NotImplementedError("The specified phi sequence is invalid.")
 
     def __call__(self, individual):
         """ Bulk of SMC stuff goes here
@@ -35,15 +43,38 @@ class ModelEvidenceFunction(FitnessFunction):
         float :
             the model evidence
         """
-        _ = self._continuous_local_opt(individual)
-        optimal_params = individual.get_local_optimization_params()
-        model = ModelWrapper(individual, self.training_data.x)
-        observed_data = self.training_data.y
-        # Do some SMC!
+        # TODO: how does this work when num model params = 0?
+        num_model_params = individual.get_number_local_optimization_params()
+        param_names = ['p{}'.format(i) for i in range(num_model_params)]
 
+        # TODO: What should we use for Priors?
+        priors = []
+        # potential suggestion:
+        # _ = self._continuous_local_opt(individual)
+        # optimal_params = individual.get_local_optimization_params()
+        # param_vars = ?
+        # priors = [stats.norm(mean, var) for mean, var in zip(optimal_params,
+        #                                                      param_vars)]
 
-        self._eval_count += model.eval_count
-        return  # evidence
+        # TODO: estimate or assume noise_std?
+        vector_mcmc = VectorMCMC(self._evaluate_model,
+                                 self.training_data.y.flatten(),
+                                 priors,
+                                 noise_std,
+                                 )
+        mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
+        smc = SMCSampler(mcmc_kernel)
+
+        _, evidence = smc.sample(self._num_particles, self._mcmc_steps,
+                                 self._phi_sequence, self._ess_threshold)
+
+        return evidence
+
+    def _evaluate_model(self, theta, individual):
+        self._eval_count += 1
+        theta = theta.T
+        individual.set_local_optimization_params(theta)
+        return individual.evaluate_equation_at(self.training_data.x).T
 
     @property
     def training_data(self):

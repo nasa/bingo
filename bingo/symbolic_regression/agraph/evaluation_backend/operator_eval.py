@@ -131,7 +131,7 @@ def _cosh_forward_eval(param1, _param2, _x, _constants, forward_eval):
 
 def _cosh_reverse_eval(reverse_index, param1, _param2, forward_eval,
                       reverse_eval):
-    reverse_eval[param1] -= \
+    reverse_eval[param1] += \
         reverse_eval[reverse_index] * np.sinh(forward_eval[param1])
 
 

@@ -104,6 +104,15 @@ class AGraphMutation(Mutation):
         # TODO can we shift this responsibility to agraph?
         child.notify_command_array_modification()
 
+
+
+        for i, (command, op1, op2) in enumerate(child.command_array):
+            if not IS_TERMINAL_MAP[command]:
+                if op1 >= i or op2 >= i:
+                    print("bad!", self._last_mutation_type, self._last_mutation_location)
+                    print("parent", parent.command_array)
+                    print("child", child.command_array)
+                    raise(RuntimeError)
         return child
 
     @staticmethod
@@ -332,7 +341,16 @@ class AGraphMutation(Mutation):
 
         individual.command_array[fork_space] = fork_commands.copy()
 
-        self._last_mutation_location = 0
+        # this check is needed to account for the case when an arity 1 node is
+        # mutated/shifted, then the op2 argument can get messed up
+        # TODO: this is messy
+        for i, (command, _, op2) in enumerate(individual.command_array):
+            if not IS_TERMINAL_MAP[command]:
+                if op2 >= i:
+                    individual.command_array[i, 2] = \
+                        self._component_generator.random_operator_parameter(i)
+
+        self._last_mutation_location = mutation_location
         self._last_mutation_type = FORK_MUTATION
 
     @staticmethod

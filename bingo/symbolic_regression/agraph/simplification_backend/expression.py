@@ -98,8 +98,6 @@ class Expression:
             return False
         if self._operator != other.operator:
             return False
-        if hash(self) != hash(other):
-            return False
         return self._operands == other.operands
 
     def __ne__(self, other):

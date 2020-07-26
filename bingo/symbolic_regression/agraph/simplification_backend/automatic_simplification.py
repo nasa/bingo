@@ -1,5 +1,6 @@
 from ..operator_definitions import *
 from .expression import Expression
+from collections import defaultdict
 
 
 NEGATIVE_ONE = Expression(INTEGER, [-1])
@@ -13,43 +14,15 @@ def automatic_simplify(expression):
 
     expr_w_simp_operands = expression.map(automatic_simplify)
 
-    if expr_w_simp_operands.operator == POWER:
-        return simplify_power(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == MULTIPLICATION:
-        return simplify_product(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == ADDITION:
-        return simplify_sum(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == DIVISION:
-        return simplify_quotient(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == SUBTRACTION:
-        return simplify_difference(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == SIN:
-        return simplify_sin(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == COS:
-        return simplify_cos(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == LOGARITHM:
-        return simplify_logarithm(expr_w_simp_operands)
-
-    if expr_w_simp_operands.operator == EXPONENTIAL:
-        return simplify_exponential(expr_w_simp_operands)
-
-    # abs, sqrt not implemented
-
-    return expr_w_simp_operands
+    return SIMPLIFICATION_FUNCTIONS[expr_w_simp_operands.operator](
+            expr_w_simp_operands)
 
 
 def simplify_power(expression):
     base, exponent = expression.operands
-    if base == ONE:
+    if base.is_one():
         return ONE.copy()
-    if base == ZERO and exponent.operator == INTEGER \
+    if base.is_zero() and exponent.operator == INTEGER \
             and exponent.operands[0] > 0:
         return ZERO.copy()
     if exponent.operator in [INTEGER, CONSTANT]:
@@ -58,9 +31,9 @@ def simplify_power(expression):
 
 
 def _simplify_constant_power(base, exponent):
-    if exponent == ONE:
+    if exponent.is_one():
         return base
-    if exponent == ZERO:
+    if exponent.is_zero():
         return ONE.copy()
 
     if base.operator == INTEGER and exponent.operator == INTEGER \
@@ -106,14 +79,14 @@ def _simplify_product_rec(operands):
         if op_1.operator == INTEGER and op_2.operator == INTEGER:
             new_integer = op_1.operands[0] * op_2.operands[0]
             simpl_const_prod = Expression(INTEGER, [new_integer])
-            if simpl_const_prod == ONE:
+            if simpl_const_prod.is_one():
                 return []
             return [simpl_const_prod]
 
         if op_1.operator != MULTIPLICATION and op_2.operator != MULTIPLICATION:
-            if op_1 == ONE:
+            if op_1.is_one():
                 return [op_2]
-            if op_2 == ONE:
+            if op_2.is_one():
                 return [op_1]
 
             if op_1.base == op_2.base:
@@ -123,7 +96,7 @@ def _simplify_product_rec(operands):
                 combined_op = Expression(POWER, [op_1.base, new_exponent])
                 combined_op = simplify_power(combined_op)
 
-                if combined_op == ONE:
+                if combined_op.is_one():
                     return []
                 return [combined_op]
 
@@ -185,14 +158,14 @@ def _simplify_sum_rec(operands):
         if op_1.operator == INTEGER and op_2.operator == INTEGER:
             new_integer = op_1.operands[0] + op_2.operands[0]
             simpl_const_sum = Expression(INTEGER, [new_integer])
-            if simpl_const_sum == ZERO:
+            if simpl_const_sum.is_zero():
                 return []
             return [simpl_const_sum]
 
         if op_1.operator != ADDITION and op_2.operator != ADDITION:
-            if op_1 == ZERO:
+            if op_1.is_zero():
                 return [op_2]
-            if op_2 == ZERO:
+            if op_2.is_zero():
                 return [op_1]
 
             if op_1.term == op_2.term:
@@ -204,7 +177,7 @@ def _simplify_sum_rec(operands):
                                          [new_coefficient, op_1.term])
                 combined_op = simplify_product(combined_op)
 
-                if combined_op == ZERO:
+                if combined_op.is_zero():
                     return []
                 return [combined_op]
 
@@ -271,20 +244,20 @@ def simplify_difference(expression):
 
 
 def simplify_sin(expression):
-    if expression.operands[0] == ZERO:
+    if expression.operands[0].is_zero():
         return ZERO.copy()
     return expression
 
 
 def simplify_cos(expression):
-    if expression.operands[0] == ZERO:
+    if expression.operands[0].is_zero():
         return ONE.copy()
     return expression
 
 
 def simplify_logarithm(expression):
     operand = expression.operands[0]
-    if operand == ONE:
+    if operand.is_one():
         return ZERO.copy()
     if operand.operator == EXPONENTIAL:
         return operand.operands[0]
@@ -292,6 +265,25 @@ def simplify_logarithm(expression):
 
 
 def simplify_exponential(expression):
-    if expression.operands[0] == ZERO:
+    if expression.operands[0].is_zero():
         return ONE.copy()
     return expression
+
+
+def no_simplification(expression):
+    return expression
+
+
+SIMPLIFICATION_FUNCTIONS = {
+    POWER: simplify_power,
+    MULTIPLICATION: simplify_product,
+    ADDITION: simplify_sum,
+    DIVISION: simplify_quotient,
+    SUBTRACTION: simplify_difference,
+    SIN: simplify_sin,
+    COS: simplify_cos,
+    LOGARITHM: simplify_logarithm,
+    EXPONENTIAL: simplify_exponential,
+    ABS: no_simplification,
+    SQRT: no_simplification
+}

@@ -93,6 +93,16 @@ class Expression:
         mapped_operands = [mapped_function(i) for i in self._operands]
         return Expression(self._operator, mapped_operands)
 
+    def is_zero(self):
+        if self._operator != INTEGER:
+            return False
+        return self._operands[0] == 0
+
+    def is_one(self):
+        if self._operator != INTEGER:
+            return False
+        return self._operands[0] == 1
+
     def __eq__(self, other):
         if other is None:
             return False

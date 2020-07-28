@@ -67,7 +67,7 @@ def higher_dim_command_array():
 @pytest.fixture
 def sample_x():
     return np.vstack((np.linspace(-1.0, 0.0, 11),
-               np.linspace(0.0, 1.0, 11))).transpose()
+                      np.linspace(0.0, 1.0, 11))).transpose()
 
 
 @pytest.fixture
@@ -90,7 +90,8 @@ def operator_evals_x0(sample_x, sample_constants):
             COS: np.cos(x_0),
             EXPONENTIAL: np.exp(x_0),
             LOGARITHM: np.log(np.abs(x_0)),
-            POWER: np.power(np.abs(x_0), x_0),
+            POWER: np.power(x_0, x_0),
+            SAFE_POWER: np.power(np.abs(x_0), x_0),
             ABS: np.abs(x_0),
             SQRT: np.sqrt(np.abs(x_0))}
 
@@ -112,7 +113,9 @@ def operator_x_derivs(sample_x):
             COS: -np.sin(x_0),
             EXPONENTIAL: np.exp(x_0),
             LOGARITHM: 1.0 / x_0,
-            POWER: last_nan(np.power(np.abs(x_0), x_0)*(np.log(np.abs(x_0)) + 1)),
+            POWER: last_nan(np.power(x_0, x_0)*(np.log(x_0) + 1)),
+            SAFE_POWER: last_nan(np.power(np.abs(x_0), x_0) *
+                                 (np.log(np.abs(x_0)) + 1)),
             ABS: np.sign(x_0),
             SQRT: 0.5*np.sign(x_0) / np.sqrt(np.abs(x_0))}
 
@@ -131,7 +134,8 @@ def operator_c_derivs(sample_x, sample_constants):
             COS: -np.sin(c_1),
             EXPONENTIAL: np.exp(c_1),
             LOGARITHM: 1.0 / c_1,
-            POWER: np.power(np.abs(c_1), c_1)*(np.log(np.abs(c_1)) + 1),
+            POWER: np.power(c_1, c_1)*(np.log(c_1) + 1),
+            SAFE_POWER: np.power(np.abs(c_1), c_1)*(np.log(np.abs(c_1)) + 1),
             ABS: np.sign(c_1),
             SQRT: 0.5*np.sign(c_1) / np.sqrt(np.abs(c_1))}
 

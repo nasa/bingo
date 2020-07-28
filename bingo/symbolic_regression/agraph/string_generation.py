@@ -20,7 +20,8 @@ STACK_PRINT_MAP = {ADDITION: "({}) + ({})",
                    LOGARITHM: "log ({})",
                    POWER: "({}) ^ ({})",
                    ABS: "abs ({})",
-                   SQRT: "sqrt ({})"}
+                   SQRT: "sqrt ({})",
+                   SAFE_POWER: "(|{}|) ^ ({})"}
 LATEX_PRINT_MAP = {ADDITION: "{} + {}",
                    SUBTRACTION: "{} - ({})",
                    MULTIPLICATION: "({})({})",
@@ -31,7 +32,8 @@ LATEX_PRINT_MAP = {ADDITION: "{} + {}",
                    LOGARITHM: "log{{ {} }}",
                    POWER: "({})^{{ ({}) }}",
                    ABS: "|{}|",
-                   SQRT: "\\sqrt{{ {} }}"}
+                   SQRT: "\\sqrt{{ {} }}",
+                   SAFE_POWER: "(|{}|)^{{ ({}) }}"}
 CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
                      SUBTRACTION: "{} - ({})",
                      MULTIPLICATION: "({})({})",
@@ -42,7 +44,8 @@ CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
                      LOGARITHM: "log({})",
                      POWER: "({})^({})",
                      ABS: "|{}|",
-                     SQRT: "sqrt({})"}
+                     SQRT: "sqrt({})",
+                     SAFE_POWER: "(|{}|)^({})",}
 
 
 def get_formatted_string(eq_format, command_array, constants):

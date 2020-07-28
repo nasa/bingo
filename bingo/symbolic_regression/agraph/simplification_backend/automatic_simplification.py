@@ -284,5 +284,6 @@ SIMPLIFICATION_FUNCTIONS = {
     LOGARITHM: simplify_logarithm,
     EXPONENTIAL: simplify_exponential,
     ABS: no_simplification,
-    SQRT: no_simplification
+    SQRT: no_simplification,
+    SAFE_POWER: simplify_power,
 }

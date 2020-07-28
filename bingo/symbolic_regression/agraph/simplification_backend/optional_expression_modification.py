@@ -2,7 +2,7 @@ from ..operator_definitions import *
 from .expression import Expression
 
 INSERT_SUBTRACTION = True
-REPLACE_INTEGER_POWERS = False
+REPLACE_INTEGER_POWERS = True
 REPLACE_INTEGERS_WITH_CONSTANTS = False
 
 NEGATIVE_ONE = Expression(INTEGER, [-1])
@@ -70,10 +70,8 @@ def _replace_integer_powers(expression):
     operands_w_replaced = [_replace_integer_powers(operand)
                            for operand in expression.operands]
 
-    if operator != POWER:
-        return Expression(operator, operands_w_replaced)
-
-    if operands_w_replaced[1].operator != INTEGER:
+    if operator != POWER or operands_w_replaced[1].operator != INTEGER \
+            or operands_w_replaced[1].operands[0] <= 0:
         return Expression(operator, operands_w_replaced)
 
     power = operands_w_replaced[1].operands[0]

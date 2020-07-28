@@ -1,6 +1,5 @@
 from ..operator_definitions import *
 from .expression import Expression
-from collections import defaultdict
 
 
 NEGATIVE_ONE = Expression(INTEGER, [-1])
@@ -45,7 +44,7 @@ def _simplify_constant_power(base, exponent):
         base_exponent = base.operands[1]
         mult_exp = Expression(MULTIPLICATION, [base_exponent, exponent])
         new_exponent = simplify_product(mult_exp)
-        if base_exponent in [INTEGER, CONSTANT]:
+        if base_exponent.operator in [INTEGER, CONSTANT]:
             return _simplify_constant_power(base_base, new_exponent)
         return Expression(POWER, [base_base, new_exponent])
 

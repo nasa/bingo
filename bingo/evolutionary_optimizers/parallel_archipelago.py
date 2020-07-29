@@ -166,6 +166,7 @@ class ParallelArchipelago(Archipelago):
         partner = self._get_migration_partner()
         if partner is not None:
             self._population_exchange_program(partner)
+            self.island.reset_fitness()
 
     def _get_migration_partner(self):
         if self.comm_rank == 0:

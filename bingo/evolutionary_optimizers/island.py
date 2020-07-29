@@ -135,3 +135,8 @@ class Island(EvolutionaryOptimizer):
         """Randomly regenerates the population"""
         self.population = [self._generator()
                            for _ in range(len(self.population))]
+
+    @staticmethod
+    def reset_fitness(population):
+        for indv in population:
+            indv.fit_set = False

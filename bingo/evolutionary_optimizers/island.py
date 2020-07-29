@@ -136,7 +136,9 @@ class Island(EvolutionaryOptimizer):
         self.population = [self._generator()
                            for _ in range(len(self.population))]
 
-    @staticmethod
-    def reset_fitness(population):
+    def reset_fitness(self, population=None):
+        if population is None:
+            population = self.population
+            
         for indv in population:
             indv.fit_set = False

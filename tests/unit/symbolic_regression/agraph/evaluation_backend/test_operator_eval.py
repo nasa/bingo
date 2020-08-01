@@ -9,7 +9,7 @@ from bingo.symbolic_regression.agraph.evaluation_backend \
     import evaluation_backend as py_eval_backend
 
 try:
-    from bingocpp.build import symbolic_regression as cpp_eval_backend
+    from bingocpp import evaluation_backend as cpp_eval_backend
 except ImportError:
     cpp_eval_backend = None
 
@@ -47,7 +47,7 @@ def sample_x():
 
 @pytest.fixture
 def sample_constants():
-    return 10, 3.14
+    return np.array([10, 3.14])
 
 
 def _terminal_evaluations(terminal, x, constants):
@@ -180,8 +180,7 @@ def test_operator_derivative_x0x1(eval_backend, sample_x, sample_constants,
                       [VARIABLE, 1, 1],
                       [operator, 0, 1]])
     _, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants,
-                                                     wrt_param_x_or_c=True)
+                                                     sample_constants, True)
     np.testing.assert_allclose(expected_outcome, df_dx)
 
 
@@ -204,8 +203,7 @@ def test_operator_derivative_x0x0(eval_backend, sample_x, sample_constants,
                       [VARIABLE, 1, 1],
                       [operator, 0, 0]])
     _, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants,
-                                                     wrt_param_x_or_c=True)
+                                                     sample_constants, True)
     np.testing.assert_allclose(expected_outcome, df_dx)
 
 
@@ -231,8 +229,7 @@ def test_operator_derivative_c0c1(eval_backend, sample_x, sample_constants,
                       [CONSTANT, 1, 1],
                       [operator, 0, 1]])
     _, df_dc = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants,
-                                                     wrt_param_x_or_c=False)
+                                                     sample_constants, False)
     np.testing.assert_allclose(expected_outcome, df_dc)
 
 
@@ -260,6 +257,5 @@ def test_operator_derivative_with_chain_rule(eval_backend, sample_x,
                       [MULTIPLICATION, 3, 1],
                       [operator, 4, 5]])
     f, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants,
-                                                     wrt_param_x_or_c=True)
+                                                     sample_constants, True)
     np.testing.assert_allclose(expected_outcome, df_dx)

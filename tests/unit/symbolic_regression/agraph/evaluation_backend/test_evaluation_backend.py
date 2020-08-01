@@ -9,7 +9,7 @@ from bingo.symbolic_regression.agraph.evaluation_backend \
     import evaluation_backend as py_eval_backend
 
 try:
-    from bingocpp.build import symbolic_regression as cpp_eval_backend
+    from bingocpp import evaluation_backend as cpp_eval_backend
 except ImportError:
     cpp_eval_backend = None
 
@@ -72,7 +72,14 @@ def sample_x():
 
 @pytest.fixture
 def sample_constants():
-    return 10, 3.14
+    return np.array([10, 3.14])
+
+
+def test_cpp_evaluation_backend_can_be_loaded():
+    if cpp_eval_backend is None:
+        raise ModuleNotFoundError("evaluation_backend could not be loaded from"
+                                  " bingocpp; its remaining tests will be "
+                                  "skipped.")
 
 
 def test_all_funcs_eval(eval_backend, all_funcs_command_array):

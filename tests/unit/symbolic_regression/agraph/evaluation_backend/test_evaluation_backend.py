@@ -75,13 +75,6 @@ def sample_constants():
     return np.array([10, 3.14])
 
 
-def test_cpp_evaluation_backend_can_be_loaded():
-    if cpp_eval_backend is None:
-        raise ModuleNotFoundError("evaluation_backend could not be loaded from"
-                                  " bingocpp; its remaining tests will be "
-                                  "skipped.")
-
-
 def test_all_funcs_eval(eval_backend, all_funcs_command_array):
     x = np.arange(1, 6).reshape((-1, 1))
     constants = (10, )

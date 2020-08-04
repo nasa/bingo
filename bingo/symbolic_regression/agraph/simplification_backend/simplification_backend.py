@@ -14,7 +14,7 @@ ENGINE = "Python"
 
 
 def get_utilized_commands(stack):
-    """Find which commands are utilized.
+    """Find which commands are utilized
 
     Find the commands (rows) of the stack upon which the last command of the
     stack depends. This is inclusive of the last command.
@@ -62,7 +62,7 @@ def simplify_stack(stack):
 
 
 def reduce_stack(stack):
-    """Reduces a stack.
+    """Reduces a stack
 
     An acyclic graph is given in stack form.  The stack is simplified to
     consist only of the commands used by the last command.

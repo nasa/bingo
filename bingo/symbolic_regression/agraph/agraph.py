@@ -88,7 +88,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
         self._needs_opt = False
         self._modified = False
-        self._used_constant_commands = []
         self._use_simplification = use_simplification
 
     @property

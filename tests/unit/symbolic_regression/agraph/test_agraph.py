@@ -9,12 +9,12 @@ from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
 
 try:
-    from bingocpp.build import symbolic_regression as bingocpp
+    from bingocpp import AGraph as cppagraph
 except ImportError:
-    bingocpp = None
+    cppagraph = None
 
-CPP_PARAM = pytest.param("Cpp",
-                         marks=pytest.mark.skipif(not bingocpp,
+CPP_PARAM = pytest.param("c++",
+                         marks=pytest.mark.skipif(not cppagraph,
                                                   reason='BingoCpp import '
                                                          'failure'))
 
@@ -28,7 +28,7 @@ def engine(request):
 def agraph_implementation(engine):
     if engine == "Python":
         return pyagraph
-    return bingocpp.AGraph
+    return cppagraph
 
 
 @pytest.fixture

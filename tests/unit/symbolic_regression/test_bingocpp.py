@@ -35,3 +35,31 @@ def test_cpp_simplification_backend():
         raise ModuleNotFoundError("Bingocpp simplification_backend could not "
                                   "be loaded."
                                   " Its tests will be skipped.")
+
+
+def test_cpp_implicit_regression():
+    try:
+        from bingocpp import ImplicitTrainingData, ImplicitRegression, \
+                             Equation
+        bingocpp = True
+    except ModuleNotFoundError:
+        bingocpp = False
+
+    if not bingocpp:
+        raise ModuleNotFoundError("Bingocpp implicit regression classes could"
+                                  " not be loaded."
+                                  " Its tests will be skipped.")
+
+
+def test_cpp_explicit_regression():
+    try:
+        from bingocpp import ExplicitTrainingData, ExplicitRegression, \
+                             Equation
+        bingocpp = True
+    except ModuleNotFoundError:
+        bingocpp = False
+
+    if not bingocpp:
+        raise ModuleNotFoundError("Bingocpp explicit regression classes could"
+                                  " not be loaded."
+                                  " Its tests will be skipped.")

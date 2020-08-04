@@ -5,12 +5,17 @@ import numpy as np
 import pytest
 import dill
 
-from bingo.symbolic_regression import explicit_regression as pyexplicit
-from bingo.symbolic_regression.equation import Equation as pyequation
+from bingo.symbolic_regression.explicit_regression \
+    import ExplicitTrainingData as pyExplicitTrainingData, \
+           ExplicitRegression as pyExplicitRegression
+from bingo.symbolic_regression.equation import Equation as pyEquation
 try:
-    from bingocpp.build import symbolic_regression as bingocpp
+    from bingocpp import ExplicitTrainingData as cppExplicitTrainingData, \
+                         ExplicitRegression as cppExplicitRegression, \
+                         Equation as cppEquation
+    bingocpp = True
 except ImportError:
-    bingocpp = None
+    bingocpp = False
 
 CPP_PARAM = pytest.param("Cpp",
                          marks=pytest.mark.skipif(not bingocpp,
@@ -26,22 +31,22 @@ def engine(request):
 @pytest.fixture
 def explicit_training_data(engine):
     if engine == "Python":
-        return pyexplicit.ExplicitTrainingData
-    return bingocpp.ExplicitTrainingData
+        return pyExplicitTrainingData
+    return cppExplicitTrainingData
 
 
 @pytest.fixture
 def explicit_regression(engine):
     if engine == "Python":
-        return pyexplicit.ExplicitRegression
-    return bingocpp.ExplicitRegression
+        return pyExplicitRegression
+    return cppExplicitRegression
 
 
 @pytest.fixture
 def equation(engine):
     if engine == "Python":
-        return pyequation
-    return bingocpp.Equation
+        return pyEquation
+    return cppEquation
 
 
 @pytest.fixture

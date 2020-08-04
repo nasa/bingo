@@ -8,7 +8,7 @@ from bingo.symbolic_regression.agraph.evaluation_backend import \
     evaluation_backend as pyBackend
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
-from bingocpp.build import symbolic_regression as cppBackend
+from bingocpp import evaluation_backend as cppBackend
 
 from benchmark_data import StatsPrinter, \
                            generate_random_individuals, \

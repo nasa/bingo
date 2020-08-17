@@ -106,6 +106,7 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
 ## Authors
   * Geoffrey Bomarito
   * Tyler Townsend
+  * Jacob Hochhalter
   * Ethan Adams
   * Kathryn Esham
   * Diana Vera

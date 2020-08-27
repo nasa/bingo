@@ -49,7 +49,7 @@ class Expression:
     @property
     def term(self):
         if self._operator == MULTIPLICATION:
-            if self._operands[0].is_constant_valued:
+            if self._operands[0].operator in [INTEGER, CONSTANT]:
                 return Expression(MULTIPLICATION, self._operands[1:])
             return self
 
@@ -60,7 +60,7 @@ class Expression:
     @property
     def coefficient(self):
         if self._operator == MULTIPLICATION and \
-                self._operands[0].is_constant_valued:
+                self._operands[0].operator in [INTEGER, CONSTANT]:
             return self._operands[0]
         if self._operator == INTEGER:
             return None

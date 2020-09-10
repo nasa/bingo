@@ -37,13 +37,14 @@ Node      Name                                     Math
 5         division (not divide-by-zero protected)  :math:`p1 / p2`
 6         sine                                     :math:`sin(p1)`
 7         cosine                                   :math:`cos(p1)`
-8         hyperbolic sine                          :math:`sinh(p1)`
-9         hyperbolic cosine                        :math:`cosh(p1)`
-10        exponential                              :math:`exp(p1)`
-11        logarithm                                :math:`log(|p1|)`
-12        power                                    :math:`|p1|^{p2}`
-13        absolute value                           :math:`|p1|`
-14        square root                              :math:`sqrt(|p1|)`
+8         exponential                              :math:`exp(p1)`
+9         logarithm                                :math:`log(|p1|)`
+10        power                                    :math:`p1^{p2}`
+11        absolute value                           :math:`|p1|`
+12        square root                              :math:`sqrt(|p1|)`
+13        safe                                     :math:`|p1|^{p2}`
+14        hyperbolic sine                          :math:`sinh(p1)`
+15        hyperbolic cosine                        :math:`cosh(p1)`
 ========  =======================================  =================
 """
 import logging
@@ -55,8 +56,8 @@ from ...local_optimizers import continuous_local_opt
 from .operator_definitions import CONSTANT
 
 try:
-    from bingocpp.build import evaluation_backend
-    from bingocpp.build import simplification_backend
+    from bingocpp import evaluation_backend
+    from bingocpp import simplification_backend
 except ImportError:
     from .evaluation_backend import evaluation_backend
     from .simplification_backend import simplification_backend

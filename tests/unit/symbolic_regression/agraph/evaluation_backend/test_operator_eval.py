@@ -20,7 +20,7 @@ CPP_PARAM = pytest.param("Cpp",
 
 OPERATOR_LIST = [INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION,
                  MULTIPLICATION, DIVISION, SIN, COS, EXPONENTIAL, LOGARITHM,
-                 POWER, ABS, SQRT, SAFE_POWER]
+                 POWER, ABS, SQRT, SAFE_POWER, SINH, COSH]
 
 
 @pytest.fixture(params=["Python", CPP_PARAM])
@@ -99,12 +99,16 @@ def _function_evaluations(function, a, b):
         return np.log(np.abs(a))
     if function == POWER:
         return np.power(a, b)
-    if function == SAFE_POWER:
-        return np.power(np.abs(a), b)
     if function == ABS:
         return np.abs(a)
     if function == SQRT:
         return np.sqrt(np.abs(a))
+    if function == SAFE_POWER:
+        return np.power(np.abs(a), b)
+    if function == SINH:
+        return np.sinh(a)
+    if function == COSH:
+        return np.cosh(a)
     raise NotImplementedError("No test for operator: %d" % function)
 
 
@@ -138,6 +142,10 @@ def _function_derivatives(function, a, b, da, db):
         return da * np.sign(a), zero
     if function == SQRT:
         return da * np.sign(a) * 0.5 / np.sqrt(np.abs(a)), zero
+    if function == SINH:
+        return da*np.cosh(a), zero
+    if function == COSH:
+        return da*np.sinh(a), zero
     raise NotImplementedError("No test for operator: %d" % function)
 
 

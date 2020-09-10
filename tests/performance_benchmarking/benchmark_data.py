@@ -11,7 +11,7 @@ from bingo.symbolic_regression.implicit_regression \
     import ImplicitRegression, ImplicitTrainingData, _calculate_partials
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitRegression, ExplicitTrainingData
-from bingocpp.build import symbolic_regression as bingocpp
+import bingocpp
 
 LOG_WIDTH = 78
 NUM_AGRAPHS_INDVS = 100

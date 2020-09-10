@@ -19,13 +19,15 @@ MULTIPLICATION = 4
 DIVISION = 5
 SIN = 6
 COS = 7
-SINH = 8
-COSH = 9
-EXPONENTIAL = 10
-LOGARITHM = 11
-POWER = 12
-ABS = 13
-SQRT = 14
+EXPONENTIAL = 8
+LOGARITHM = 9
+POWER = 10
+ABS = 11
+SQRT = 12
+SAFE_POWER = 13
+SINH = 14
+COSH = 15
+
 IS_ARITY_2_MAP = {INTEGER: False,
                   VARIABLE: False,
                   CONSTANT: False,
@@ -41,7 +43,8 @@ IS_ARITY_2_MAP = {INTEGER: False,
                   LOGARITHM: False,
                   POWER: True,
                   ABS: False,
-                  SQRT: False}
+                  SQRT: False,
+                  SAFE_POWER: True}
 IS_TERMINAL_MAP = {INTEGER: True,
                    VARIABLE: True,
                    CONSTANT: True,
@@ -57,7 +60,8 @@ IS_TERMINAL_MAP = {INTEGER: True,
                    LOGARITHM: False,
                    POWER: False,
                    ABS: False,
-                   SQRT: False}
+                   SQRT: False,
+                   SAFE_POWER: False}
 OPERATOR_NAMES = {INTEGER: ["integer"],
                   VARIABLE: ["load", "x"],
                   CONSTANT: ["constant", "c"],
@@ -73,4 +77,5 @@ OPERATOR_NAMES = {INTEGER: ["integer"],
                   LOGARITHM: ["logarithm", "log"],
                   POWER: ["power", "pow", "^"],
                   ABS: ["absolute value", "||", "|"],
-                  SQRT: ["square root", "sqrt"]}
+                  SQRT: ["square root", "sqrt"],
+                  SAFE_POWER: ["safe power", "safe pow"]}

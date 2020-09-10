@@ -4,7 +4,7 @@ from bingo.symbolic_regression.agraph \
     import agraph as agraph_module
 from bingo.symbolic_regression.agraph.evaluation_backend import \
     evaluation_backend as pyBackend
-from bingocpp.build import symbolic_regression as cppBackend
+from bingocpp import evaluation_backend as cppBackend
 
 import benchmark_data as benchmark_data
 from benchmark_data import TEST_AGRAPHS, TEST_X, EVAL_TIMING_NUMBER, \

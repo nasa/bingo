@@ -167,7 +167,7 @@ class FitnessPredictorIsland(Island):
         if self.generational_age % self._predictor_update_frequency == 0:
             LOGGER.debug("Updating fitness predictor")
             self._update_to_use_best_fitness_predictor()
-            self._reset_fitness(self.population)
+            self.reset_fitness(self.population)
             if self._hof_w_predicted_fitness is not None:
                 self._hof_w_predicted_fitness.clear()
             self.evaluate_population()
@@ -176,7 +176,7 @@ class FitnessPredictorIsland(Island):
         if self.generational_age % self._trainer_update_frequency == 0:
             LOGGER.debug("Updating trainer")
             self._add_new_trainer()
-            self._reset_fitness(self._predictor_island.population)
+            self.reset_fitness(self._predictor_island.population)
             self._predictor_island.evaluate_population()
 
     def _update_to_use_best_fitness_predictor(self):
@@ -216,11 +216,6 @@ class FitnessPredictorIsland(Island):
         island_expense = self._fitness_function.eval_count \
                          * self._predictor_size
         return predictor_expense / (predictor_expense + island_expense)
-
-    @staticmethod
-    def _reset_fitness(population):
-        for indv in population:
-            indv.fit_set = False
 
     def _get_potential_hof_members(self):
         self._hof_w_predicted_fitness.update(self.population)

@@ -30,7 +30,7 @@ def test_return_correct_agraph_backend(mocker, python_backend):
     generate_agraph = AGraphGenerator(6, mocked_component_generator,
                                       use_python=python_backend)
     agraph = generate_agraph()
-    expected_engine = "Python" if python_backend else "Cpp"
+    expected_engine = "Python" if python_backend else "c++"
     assert agraph.engine == expected_engine
 
 

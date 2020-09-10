@@ -49,9 +49,17 @@ def _insert_subtraction(expression):
                                            Expression(ADDITION,
                                                       subtractive_operands)])
 
-    return Expression(SUBTRACTION,
-                      [Expression(ADDITION, additive_operands),
-                       Expression(ADDITION, subtractive_operands)])
+    if len(subtractive_operands) == 1:
+        subtractive_exp = subtractive_operands[0]
+    else:
+        subtractive_exp = Expression(ADDITION, subtractive_operands)
+
+    if len(additive_operands) == 1:
+        additive_exp = additive_operands[0]
+    else:
+        additive_exp = Expression(ADDITION, additive_operands)
+
+    return Expression(SUBTRACTION, [additive_exp, subtractive_exp])
 
 
 def _replace_integer_powers(expression):
@@ -62,10 +70,8 @@ def _replace_integer_powers(expression):
     operands_w_replaced = [_replace_integer_powers(operand)
                            for operand in expression.operands]
 
-    if operator != POWER:
-        return Expression(operator, operands_w_replaced)
-
-    if operands_w_replaced[1].operator != INTEGER:
+    if operator != POWER or operands_w_replaced[1].operator != INTEGER \
+            or operands_w_replaced[1].operands[0] <= 0:
         return Expression(operator, operands_w_replaced)
 
     power = operands_w_replaced[1].operands[0]

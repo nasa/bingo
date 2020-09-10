@@ -55,8 +55,8 @@ from ...local_optimizers import continuous_local_opt
 from .operator_definitions import CONSTANT
 
 try:
-    from bingocpp.build import symbolic_regression as evaluation_backend
-    from bingocpp.build import symbolic_regression as simplification_backend
+    from bingocpp.build import evaluation_backend
+    from bingocpp.build import simplification_backend
 except ImportError:
     from .evaluation_backend import evaluation_backend
     from .simplification_backend import simplification_backend
@@ -90,7 +90,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
         self._needs_opt = False
         self._modified = False
-        self._used_constant_commands = []
         self._use_simplification = use_simplification
 
     @property

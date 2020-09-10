@@ -12,12 +12,12 @@ from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 
 try:
-    from bingocpp.build import symbolic_regression as bingocpp
+    from bingocpp import AGraph as cppagraph
 except ImportError:
-    bingocpp = None
+    cppagraph = None
 
 CPP_PARAM = pytest.param("cpp",
-                         marks=pytest.mark.skipif(not bingocpp,
+                         marks=pytest.mark.skipif(not cppagraph,
                                                   reason='BingoCpp import '
                                                          'failure'))
 
@@ -26,7 +26,14 @@ CPP_PARAM = pytest.param("cpp",
 def agraph_implementation(request):
     if request.param == "python":
         return pyagraph
-    return bingocpp.AGraph
+    return cppagraph
+
+
+@pytest.fixture
+def unset_fitness(agraph_implementation):
+    if agraph_implementation == pyagraph:
+        return None
+    return 1e9
 
 
 @pytest.fixture
@@ -91,13 +98,14 @@ def test_mutation_genetic_age(mutation_parent, sample_component_generator):
     assert child.genetic_age == mutation_parent.genetic_age
 
 
-def test_mutation_resets_fitness(mutation_parent, sample_component_generator):
+def test_mutation_resets_fitness(mutation_parent, sample_component_generator,
+                                 unset_fitness):
     assert mutation_parent.fit_set
 
     mutation = AGraphMutation(sample_component_generator)
     child = mutation(mutation_parent)
     assert not child.fit_set
-    assert child.fitness is None
+    assert child.fitness == unset_fitness
 
 
 def test_mutation_creates_valid_parameters(mutation_parent):
@@ -122,7 +130,7 @@ def test_mutation_creates_valid_parameters(mutation_parent):
 
 
 def test_crossover_resets_fitness(sample_component_generator,
-                                  crossover_parents):
+                                  crossover_parents, unset_fitness):
     assert crossover_parents[0].fit_set
     assert crossover_parents[1].fit_set
 
@@ -130,6 +138,6 @@ def test_crossover_resets_fitness(sample_component_generator,
     child_1, child_2 = crossover(crossover_parents[0], crossover_parents[1])
     assert not child_1.fit_set
     assert not child_2.fit_set
-    assert child_1.fitness is None
-    assert child_2.fitness is None
+    assert child_1.fitness == unset_fitness
+    assert child_2.fitness == unset_fitness
 

@@ -6,7 +6,7 @@ graph individuals.
 import numpy as np
 
 try:
-    from bingocpp.build.symbolic_regression import AGraph
+    from bingocpp import AGraph
     BINGOCPP = True
 except ImportError as e:
     from .agraph import AGraph

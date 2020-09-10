@@ -49,7 +49,7 @@ class Expression:
     @property
     def term(self):
         if self._operator == MULTIPLICATION:
-            if self._operands[0].is_constant_valued:
+            if self._operands[0].operator in [INTEGER, CONSTANT]:
                 return Expression(MULTIPLICATION, self._operands[1:])
             return self
 
@@ -60,7 +60,7 @@ class Expression:
     @property
     def coefficient(self):
         if self._operator == MULTIPLICATION and \
-                self._operands[0].is_constant_valued:
+                self._operands[0].operator in [INTEGER, CONSTANT]:
             return self._operands[0]
         if self._operator == INTEGER:
             return None
@@ -85,7 +85,7 @@ class Expression:
         if self._operator == VARIABLE:
             return {"x"}
         if self._operator == CONSTANT:
-            return {self.operands[0]}
+            return {self._operands[0]}
 
         return set.union(*[o.depends_on for o in self._operands])
 
@@ -93,14 +93,22 @@ class Expression:
         mapped_operands = [mapped_function(i) for i in self._operands]
         return Expression(self._operator, mapped_operands)
 
+    def is_zero(self):
+        if self._operator != INTEGER:
+            return False
+        return self._operands[0] == 0
+
+    def is_one(self):
+        if self._operator != INTEGER:
+            return False
+        return self._operands[0] == 1
+
     def __eq__(self, other):
         if other is None:
             return False
-        if hash(self) != hash(other):
+        if self._operator != other.operator:
             return False
-        if self.operator != other.operator:
-            return False
-        return self.operands == other.operands
+        return self._operands == other.operands
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -109,7 +117,7 @@ class Expression:
         if self.is_constant_valued or other.is_constant_valued:
             return self._constant_lt(other)
 
-        s_op = self.operator
+        s_op = self._operator
         o_op = other.operator
         if s_op == MULTIPLICATION or o_op == MULTIPLICATION:
             return self._associative_lt(other, MULTIPLICATION)
@@ -126,9 +134,9 @@ class Expression:
         return self._general_lt(other)
 
     def _general_lt(self, other):
-        if self.operator != other.operator:
-            return self.operator < other.operator
-        return self._operands_lt(self.operands, other.operands)
+        if self._operator != other.operator:
+            return self._operator < other.operator
+        return self._operands_lt(self._operands, other.operands)
 
     @staticmethod
     def _operands_lt(s_operands, o_operands):
@@ -139,11 +147,11 @@ class Expression:
         return len(s_operands) < len(o_operands)
 
     def _associative_lt(self, other, associative_operator):
-        if self.operator == associative_operator:
+        if self._operator == associative_operator:
             if other.operator == associative_operator:
-                return self._operands_lt(self.operands,
+                return self._operands_lt(self._operands,
                                          other.operands)
-            return self._operands_lt(self.operands, [other, ])
+            return self._operands_lt(self._operands, [other, ])
         return self._operands_lt([self, ], other.operands)
 
     def _power_lt(self, other):
@@ -180,6 +188,6 @@ class Expression:
 
     def __hash__(self):
         if self._hash is None:
-            self._hash = hash((self.operator,) +
-                              tuple([hash(i) for i in self.operands]))
+            self._hash = hash((self._operator,) +
+                              tuple([hash(i) for i in self._operands]))
         return self._hash

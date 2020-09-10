@@ -158,11 +158,26 @@ def _log_reverse_eval(reverse_index, param1, _param2, forward_eval,
 
 # Power
 def _pow_forward_eval(param1, param2, _x, _constants, forward_eval):
-    return np.power(np.abs(forward_eval[param1]), forward_eval[param2])
+    return np.power(forward_eval[param1], forward_eval[param2])
 
 
 def _pow_reverse_eval(reverse_index, param1, param2, forward_eval,
                       reverse_eval):
+    reverse_eval[param1] += reverse_eval[reverse_index] *\
+                            forward_eval[reverse_index] *\
+                            forward_eval[param2] / forward_eval[param1]
+    reverse_eval[param2] += reverse_eval[reverse_index] *\
+                            forward_eval[reverse_index] *\
+                            np.log(forward_eval[param1])
+
+
+# Safe Power
+def _safe_pow_forward_eval(param1, param2, _x, _constants, forward_eval):
+    return np.power(np.abs(forward_eval[param1]), forward_eval[param2])
+
+
+def _safe_pow_reverse_eval(reverse_index, param1, param2, forward_eval,
+                           reverse_eval):
     reverse_eval[param1] += reverse_eval[reverse_index] *\
                             forward_eval[reverse_index] *\
                             forward_eval[param2] / forward_eval[param1]
@@ -222,7 +237,8 @@ FORWARD_EVAL_MAP = {INTEGER: _integer_forward_eval,
                     LOGARITHM: _log_forward_eval,
                     POWER: _pow_forward_eval,
                     ABS: _abs_forward_eval,
-                    SQRT: _sqrt_forward_eval}
+                    SQRT: _sqrt_forward_eval,
+                    SAFE_POWER: _safe_pow_forward_eval}
 
 REVERSE_EVAL_MAP = {INTEGER: _integer_reverse_eval,
                     VARIABLE: _loadx_reverse_eval,
@@ -239,4 +255,5 @@ REVERSE_EVAL_MAP = {INTEGER: _integer_reverse_eval,
                     LOGARITHM: _log_reverse_eval,
                     POWER: _pow_reverse_eval,
                     ABS: _abs_reverse_eval,
-                    SQRT: _sqrt_reverse_eval}
+                    SQRT: _sqrt_reverse_eval,
+                    SAFE_POWER: _safe_pow_reverse_eval}

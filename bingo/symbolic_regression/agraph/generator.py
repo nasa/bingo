@@ -8,7 +8,7 @@ import numpy as np
 try:
     from bingocpp import AGraph
     BINGOCPP = True
-except ImportError as e:
+except (ImportError, KeyError, ModuleNotFoundError) as e:
     from .agraph import AGraph
     BINGOCPP = False
 from .agraph import AGraph as pyAGraph

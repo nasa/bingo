@@ -77,6 +77,7 @@ def _add_command_to_stack_dict(command, stack_dict):
 
 
 def _add_associative_operators_to_stack(operator, operand_locs, stack_dict):
+    print(operand_locs)
     if len(operand_locs) == 1:
         return operand_locs[0]
     operand_div = len(operand_locs) // 2

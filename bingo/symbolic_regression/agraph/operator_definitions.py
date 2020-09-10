@@ -25,6 +25,9 @@ POWER = 10
 ABS = 11
 SQRT = 12
 SAFE_POWER = 13
+SINH = 14
+COSH = 15
+
 IS_ARITY_2_MAP = {INTEGER: False,
                   VARIABLE: False,
                   CONSTANT: False,
@@ -34,6 +37,8 @@ IS_ARITY_2_MAP = {INTEGER: False,
                   DIVISION: True,
                   SIN: False,
                   COS: False,
+                  SINH: False,
+                  COSH: False,
                   EXPONENTIAL: False,
                   LOGARITHM: False,
                   POWER: True,
@@ -49,6 +54,8 @@ IS_TERMINAL_MAP = {INTEGER: True,
                    DIVISION: False,
                    SIN: False,
                    COS: False,
+                   SINH: False,
+                   COSH: False,
                    EXPONENTIAL: False,
                    LOGARITHM: False,
                    POWER: False,
@@ -64,6 +71,8 @@ OPERATOR_NAMES = {INTEGER: ["integer"],
                   DIVISION: ["divide", "division", "/"],
                   SIN: ["sine", "sin"],
                   COS: ["cosine", "cos"],
+                  SINH: ["sineh", "sinh"],
+                  COSH: ["cosineh", "cosh"],
                   EXPONENTIAL: ["exponential", "exp", "e"],
                   LOGARITHM: ["logarithm", "log"],
                   POWER: ["power", "pow", "^"],

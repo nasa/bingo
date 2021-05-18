@@ -30,7 +30,7 @@ MINIMIZE_SET = {
     'Powell',
     'CG',
     'BFGS',
-    # 'Newton-CG',
+    'Newton-CG',
     'L-BFGS-B',
     # 'TNC',
     # 'COBYLA',
@@ -40,6 +40,19 @@ MINIMIZE_SET = {
     # 'trust-ncg',
     # 'trust-exact',
     # 'trust-krylov'
+}
+
+JACOBIAN_SET = {
+    'CG',
+    'BFGS',
+    'Newton-CG',
+    'L-BFGS-B',
+    'TNC',
+    'SLSQP',
+    'dogleg',
+    'trust-ncg',
+    'trust-exact',
+    'trust-krylov'
 }
 
 
@@ -179,10 +192,20 @@ class ContinuousLocalOptimization(FitnessFunction):
                                             method=self._algorithm,
                                             tol=1e-6)
         else:
-            optimize_result = optimize.minimize(sub_routine, params,
-                                                args=(individual),
-                                                method=self._algorithm,
-                                                tol=1e-6)
+            if self._algorithm in JACOBIAN_SET:
+                def jacobian_wrapper(x, individual):
+                    return self._fitness_function.get_derivative(individual)
+
+                optimize_result = optimize.minimize(sub_routine, params,
+                                                    args=(individual),
+                                                    jac=jacobian_wrapper,
+                                                    method=self._algorithm,
+                                                    tol=1e-6)
+            else:
+                optimize_result = optimize.minimize(sub_routine, params,
+                                                    args=(individual),
+                                                    method=self._algorithm,
+                                                    tol=1e-6)
         return optimize_result.x
 
     def _evaluate_fitness(self, individual):

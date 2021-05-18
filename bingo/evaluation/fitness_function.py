@@ -66,13 +66,16 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     """
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data)
+        self._metric_derivative = None
 
         if metric in ["mean absolute error", "mae"]:
             self._metric = VectorBasedFunction._mean_absolute_error
         elif metric in ["mean squared error", "mse"]:
             self._metric = VectorBasedFunction._mean_squared_error
+            self._metric_derivative = VectorBasedFunction._mean_squared_error_derivative
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = VectorBasedFunction._root_mean_squared_error
+            self._metric_derivative = VectorBasedFunction._root_mean_squared_error_derivative
         else:
             raise KeyError("Invalid metric for Fitness Function")
 
@@ -95,8 +98,21 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         fitness_vector = self.evaluate_fitness_vector(individual)
         return self._metric(fitness_vector)
 
+    def get_derivative(self, individual):
+        if self._metric_derivative is not None:
+            fitness_vector = self.evaluate_fitness_vector(individual)
+            fitness_derivative = self.evaluate_fitness_derivative(individual)
+
+            return self._metric_derivative(fitness_vector, fitness_derivative)
+        else:
+            raise TypeError("Can't get the derivative of the provided metric")
+
     @abstractmethod
     def evaluate_fitness_vector(self, individual):
+        raise NotImplementedError
+
+    @abstractmethod
+    def evaluate_fitness_derivative(self, individual):
         raise NotImplementedError
 
     @staticmethod
@@ -108,5 +124,14 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         return np.sqrt(np.mean(np.square(vector)))
 
     @staticmethod
+    def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
+        # TODO implement
+        raise NotImplementedError()
+
+    @staticmethod
     def _mean_squared_error(vector):
         return np.mean(np.square(vector))
+
+    @staticmethod
+    def _mean_squared_error_derivative(fitness_vector, fitness_partials):
+        return 2 * np.mean(fitness_vector * fitness_partials)

@@ -58,7 +58,7 @@ class ExplicitRegression(VectorBasedFunction):
     def evaluate_fitness_derivative(self, individual):
         f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(self.training_data.x)
         # TODO relative?
-        return df_dc.flatten()
+        return df_dc
 
 
 class ExplicitTrainingData(TrainingData):

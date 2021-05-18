@@ -194,7 +194,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         else:
             if self._algorithm in JACOBIAN_SET:
                 def jacobian_wrapper(x, individual):
-                    return self._fitness_function.get_derivative(individual)
+                    return self._fitness_function.get_jacobian(individual)
 
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual),

@@ -49,8 +49,8 @@ def main():
     grad_algorithm = 'CG'
     grad_optimizer = ContinuousLocalOptimization(fitness, algorithm=grad_algorithm)
 
-    # np.random.seed(16)
-    np.random.seed(17)
+    np.random.seed(16)
+    # np.random.seed(17)
     normal_agraph = agraph_generator()
     grad_agraph = deepcopy(normal_agraph)
 

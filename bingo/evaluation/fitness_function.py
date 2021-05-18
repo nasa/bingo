@@ -98,12 +98,15 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         fitness_vector = self.evaluate_fitness_vector(individual)
         return self._metric(fitness_vector)
 
-    def get_derivative(self, individual):
+    def get_jacobian(self, individual):
         if self._metric_derivative is not None:
             fitness_vector = self.evaluate_fitness_vector(individual)
-            fitness_derivative = self.evaluate_fitness_derivative(individual)
+            fitness_derivatives = self.evaluate_fitness_derivative(individual).transpose()
 
-            return self._metric_derivative(fitness_vector, fitness_derivative)
+            jacobian = np.zeros(len(individual.constants))
+            for i in range(len(fitness_derivatives)):
+                jacobian[i] = self._metric_derivative(fitness_vector, fitness_derivatives[i])
+            return jacobian
         else:
             raise TypeError("Can't get the derivative of the provided metric")
 

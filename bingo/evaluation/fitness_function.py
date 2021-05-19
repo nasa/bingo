@@ -98,6 +98,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         fitness_vector = self.evaluate_fitness_vector(individual)
         return self._metric(fitness_vector)
 
+    # TODO document
     def get_jacobian(self, individual):
         if self._metric_derivative is not None:
             fitness_vector = self.evaluate_fitness_vector(individual)
@@ -128,8 +129,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @staticmethod
     def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
-        # TODO implement
-        raise NotImplementedError()
+        return 1/np.sqrt(np.mean(np.square(fitness_vector))) * np.mean(fitness_vector * fitness_partials)
 
     @staticmethod
     def _mean_squared_error(vector):

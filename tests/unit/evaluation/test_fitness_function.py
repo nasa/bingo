@@ -37,6 +37,23 @@ def test_vector_based_function_metrics(mocker, metric, expected_fit):
     fit_func.evaluate_fitness_vector.assert_called_once_with(dummy_indv)
 
 
+@pytest.mark.parametrize("metric, expected_fit_grad", [("mae", [-1/3, 2/3]),
+                                                       ("mse", [-4/3, 8/3]),
+                                                       ("rmse", [np.sqrt(3/8) * -2/3, np.sqrt(3/8) * 4/3])])
+def test_vector_based_function_gradient_metrics(mocker, metric, expected_fit_grad):
+    mocker.patch.object(VectorBasedFunction, "__abstractmethods__",
+                        new_callable=set)
+    mocker.patch.object(VectorBasedFunction, "evaluate_fitness_vector",
+                        return_value=np.array([-2, 0, 2]))
+    mocker.patch.object(VectorBasedFunction, "evaluate_fitness_derivative",
+                        return_value=np.array([[0.5, 1, -0.5], [1, 2, 3]]).transpose())
+    fit_func = VectorBasedFunction(metric=metric)
+    dummy_indv = None
+
+    np.testing.assert_array_equal(fit_func.get_gradient(dummy_indv), expected_fit_grad)
+    fit_func.evaluate_fitness_derivative.assert_called_once_with(dummy_indv)
+
+
 def test_vector_based_function_invalid_metric(mocker):
     mocker.patch.object(VectorBasedFunction, "__abstractmethods__",
                         new_callable=set)

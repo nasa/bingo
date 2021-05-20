@@ -101,16 +101,13 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     # TODO document
     def get_gradient(self, individual):
-        if self._metric_derivative is not None:
-            fitness_vector = self.evaluate_fitness_vector(individual)
-            fitness_derivatives = self.evaluate_fitness_derivative(individual).transpose()
+        fitness_vector = self.evaluate_fitness_vector(individual)
+        fitness_derivatives = self.evaluate_fitness_derivative(individual).transpose()
 
-            gradient = np.zeros(len(individual.constants))
-            for i in range(len(fitness_derivatives)):
-                gradient[i] = self._metric_derivative(fitness_vector, fitness_derivatives[i])
-            return gradient
-        else:
-            raise TypeError("Can't get the derivative of the provided metric")
+        gradient = np.zeros(len(fitness_derivatives))
+        for i in range(len(fitness_derivatives)):
+            gradient[i] = self._metric_derivative(fitness_vector, fitness_derivatives[i])
+        return gradient
 
     @abstractmethod
     def evaluate_fitness_vector(self, individual):

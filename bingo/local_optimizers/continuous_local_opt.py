@@ -32,7 +32,7 @@ MINIMIZE_SET = {
     'BFGS',
     'Newton-CG',
     'L-BFGS-B',
-    # 'TNC',
+    'TNC',
     # 'COBYLA',
     'SLSQP'
     # 'trust-constr'
@@ -48,11 +48,11 @@ JACOBIAN_SET = {
     'Newton-CG',
     'L-BFGS-B',
     'TNC',
-    'SLSQP',
-    'dogleg',
-    'trust-ncg',
-    'trust-exact',
-    'trust-krylov'
+    'SLSQP'
+    # 'dogleg',
+    # 'trust-ncg',
+    # 'trust-exact',
+    # 'trust-krylov'
 }
 
 
@@ -193,6 +193,7 @@ class ContinuousLocalOptimization(FitnessFunction):
                                             tol=1e-6)
         else:
             if self._algorithm in JACOBIAN_SET:
+                # TODO use lambda instead
                 def jacobian_wrapper(x, individual):
                     return self._fitness_function.get_gradient(individual)
 

@@ -16,8 +16,12 @@ NUM_OPT = 3
 
 class MultipleFloatValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
-        print(individual)
+        # print(individual)
         return np.linalg.norm(individual.values)
+
+    def get_gradient(self, individual):
+        full_gradient = individual.values / np.linalg.norm(individual.values)
+        return [full_gradient[i] for i in individual._needs_opt_list]
 
 
 class FloatVectorFitnessFunction(VectorBasedFunction):
@@ -45,7 +49,8 @@ def reg_individual():
     'BFGS',
     # 'Newton-CG',
     'L-BFGS-B',
-    # 'TNC',
+    # TODO sometimes TNC doesn't fall within 5e-06 tolerance
+    'TNC',
     # 'COBYLA',
     'SLSQP'
     # 'trust-constr'

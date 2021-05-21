@@ -99,8 +99,21 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         fitness_vector = self.evaluate_fitness_vector(individual)
         return self._metric(fitness_vector)
 
-    # TODO document
     def get_gradient(self, individual):
+        """Vector based fitness gradient
+
+        Get the gradient of this function with respect to an individual's constants.
+
+        Parameters
+        ----------
+        individual : chromosomes
+            individual for which the gradient will be calculated for
+
+        Returns
+        -------
+        gradient :
+            the gradient of this function with respect to each of the individual's constants
+        """
         fitness_vector = self.evaluate_fitness_vector(individual)
         fitness_derivatives = self.evaluate_fitness_derivative(individual).transpose()
 

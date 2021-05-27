@@ -5,14 +5,19 @@ import numpy as np
 import pytest
 import dill
 
-from bingo.symbolic_regression import implicit_regression as pyimplicit
-from bingo.symbolic_regression.equation import Equation as pyequation
+from bingo.symbolic_regression.implicit_regression \
+    import ImplicitTrainingData as pyImplicitTrainingData, \
+           ImplicitRegression as pyImplicitRegression
+from bingo.symbolic_regression.equation import Equation as pyEquation
 try:
-    from bingocpp.build import symbolic_regression as bingocpp
+    from bingocpp import ImplicitTrainingData as cppImplicitTrainingData, \
+                         ImplicitRegression as cppImplicitRegression, \
+                         Equation as cppEquation
+    bingocpp = True
 except ImportError:
-    bingocpp = None
+    bingocpp = False
 
-CPP_PARAM = pytest.param("cpp",
+CPP_PARAM = pytest.param("Cpp",
                          marks=pytest.mark.skipif(not bingocpp,
                                                   reason='BingoCpp import '
                                                          'failure'))
@@ -26,22 +31,22 @@ def engine(request):
 @pytest.fixture
 def implicit_training_data(engine):
     if engine == "python":
-        return pyimplicit.ImplicitTrainingData
-    return bingocpp.ImplicitTrainingData
+        return pyImplicitTrainingData
+    return cppImplicitTrainingData
 
 
 @pytest.fixture
 def implicit_regression(engine):
     if engine == "python":
-        return pyimplicit.ImplicitRegression
-    return bingocpp.ImplicitRegression
+        return pyImplicitRegression
+    return cppImplicitRegression
 
 
 @pytest.fixture
 def equation(engine):
     if engine == "python":
-        return pyequation
-    return bingocpp.Equation
+        return pyEquation
+    return cppEquation
 
 
 @pytest.fixture
@@ -155,7 +160,10 @@ def test_correct_partial_calculation_in_training_data_2_sections(
                          [(None, 0.5), (2, 0.5), (3, np.inf)])
 def test_implicit_regression(implicit_regression, sample_training_data,
                              sample_equation, required_params, expected_fit):
-    reg = implicit_regression(sample_training_data, required_params)
+    if required_params is None:
+        reg = implicit_regression(sample_training_data)
+    else:
+        reg = implicit_regression(sample_training_data, required_params)
     fit_vec = reg.evaluate_fitness_vector(sample_equation)
     expected_fit_vec = np.full((10,), expected_fit, dtype=float)
     np.testing.assert_array_almost_equal(fit_vec, expected_fit_vec)

@@ -15,7 +15,7 @@ from .atomic_potential_regression import *
 # TODO: consider this init file but remove imports for python
 # that have C++ bindings
 try:
-    from bingocpp.build.symbolic_regression import *
+    from bingocpp.symbolic_regression import *
     ISCPP = True
 except ImportError as e:
     from .agraph.agraph import *

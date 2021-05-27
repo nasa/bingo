@@ -119,6 +119,8 @@ class SerialArchipelago(Archipelago):
         partner_1 = self.islands[partner_1_index]
         partner_2 = self.islands[partner_2_index]
         self._population_exchange_program(partner_1, partner_2)
+        partner_1.reset_fitness()
+        partner_2.reset_fitness()
 
     @staticmethod
     def _population_exchange_program(island_1, island_2):

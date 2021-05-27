@@ -9,7 +9,7 @@ from bingo.symbolic_regression.agraph.simplification_backend \
     import simplification_backend as py_simp_backend
 
 try:
-    from bingocpp.build import symbolic_regression as cpp_simp_backend
+    from bingocpp import simplification_backend as cpp_simp_backend
 except ImportError:
     cpp_simp_backend = None
 

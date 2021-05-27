@@ -16,33 +16,42 @@ STACK_PRINT_MAP = {ADDITION: "({}) + ({})",
                    DIVISION: "({}) / ({}) ",
                    SIN: "sin ({})",
                    COS: "cos ({})",
+                   SINH: "sinh ({})",
+                   COSH: "cosh ({})",
                    EXPONENTIAL: "exp ({})",
                    LOGARITHM: "log ({})",
                    POWER: "({}) ^ ({})",
                    ABS: "abs ({})",
-                   SQRT: "sqrt ({})"}
+                   SQRT: "sqrt ({})",
+                   SAFE_POWER: "(|{}|) ^ ({})"}
 LATEX_PRINT_MAP = {ADDITION: "{} + {}",
                    SUBTRACTION: "{} - ({})",
                    MULTIPLICATION: "({})({})",
                    DIVISION: "\\frac{{ {} }}{{ {} }}",
                    SIN: "sin{{ {} }}",
                    COS: "cos{{ {} }}",
+                   SINH: "sinh{{ {} }}",
+                   COSH: "cosh{{ {} }}",
                    EXPONENTIAL: "exp{{ {} }}",
                    LOGARITHM: "log{{ {} }}",
                    POWER: "({})^{{ ({}) }}",
                    ABS: "|{}|",
-                   SQRT: "\\sqrt{{ {} }}"}
+                   SQRT: "\\sqrt{{ {} }}",
+                   SAFE_POWER: "(|{}|)^{{ ({}) }}"}
 CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
                      SUBTRACTION: "{} - ({})",
                      MULTIPLICATION: "({})({})",
                      DIVISION: "({})/({}) ",
                      SIN: "sin({})",
                      COS: "cos({})",
+                     SINH: "sinh({})",
+                     COSH: "cosh({})",
                      EXPONENTIAL: "exp({})",
                      LOGARITHM: "log({})",
                      POWER: "({})^({})",
                      ABS: "|{}|",
-                     SQRT: "sqrt({})"}
+                     SQRT: "sqrt({})",
+                     SAFE_POWER: "(|{}|)^({})",}
 
 
 def get_formatted_string(eq_format, command_array, constants):

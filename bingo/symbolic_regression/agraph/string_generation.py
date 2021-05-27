@@ -8,39 +8,50 @@ LATEX_PRINT_MAP : dict {int: str}
 CONSOLE_PRINT_MAP : dict {int: str}
                   A map of node number to a format string for console output
 """
-STACK_PRINT_MAP = {2: "({}) + ({})",
-                   3: "({}) - ({})",
-                   4: "({}) * ({})",
-                   5: "({}) / ({}) ",
-                   6: "sin ({})",
-                   7: "cos ({})",
-                   8: "exp ({})",
-                   9: "log ({})",
-                   10: "({}) ^ ({})",
-                   11: "abs ({})",
-                   12: "sqrt ({})"}
-LATEX_PRINT_MAP = {2: "{} + {}",
-                   3: "{} - ({})",
-                   4: "({})({})",
-                   5: "\\frac{{ {} }}{{ {} }}",
-                   6: "sin{{ {} }}",
-                   7: "cos{{ {} }}",
-                   8: "exp{{ {} }}",
-                   9: "log{{ {} }}",
-                   10: "({})^{{ ({}) }}",
-                   11: "|{}|",
-                   12: "\\sqrt{{ {} }}"}
-CONSOLE_PRINT_MAP = {2: "{} + {}",
-                     3: "{} - ({})",
-                     4: "({})({})",
-                     5: "({})/({}) ",
-                     6: "sin({})",
-                     7: "cos({})",
-                     8: "exp({})",
-                     9: "log({})",
-                     10: "({})^({})",
-                     11: "|{}|",
-                     12: "sqrt({})"}
+from .operator_definitions import *
+
+STACK_PRINT_MAP = {ADDITION: "({}) + ({})",
+                   SUBTRACTION: "({}) - ({})",
+                   MULTIPLICATION: "({}) * ({})",
+                   DIVISION: "({}) / ({}) ",
+                   SIN: "sin ({})",
+                   COS: "cos ({})",
+                   SINH: "sinh ({})",
+                   COSH: "cosh ({})",
+                   EXPONENTIAL: "exp ({})",
+                   LOGARITHM: "log ({})",
+                   POWER: "({}) ^ ({})",
+                   ABS: "abs ({})",
+                   SQRT: "sqrt ({})",
+                   SAFE_POWER: "(|{}|) ^ ({})"}
+LATEX_PRINT_MAP = {ADDITION: "{} + {}",
+                   SUBTRACTION: "{} - ({})",
+                   MULTIPLICATION: "({})({})",
+                   DIVISION: "\\frac{{ {} }}{{ {} }}",
+                   SIN: "sin{{ {} }}",
+                   COS: "cos{{ {} }}",
+                   SINH: "sinh{{ {} }}",
+                   COSH: "cosh{{ {} }}",
+                   EXPONENTIAL: "exp{{ {} }}",
+                   LOGARITHM: "log{{ {} }}",
+                   POWER: "({})^{{ ({}) }}",
+                   ABS: "|{}|",
+                   SQRT: "\\sqrt{{ {} }}",
+                   SAFE_POWER: "(|{}|)^{{ ({}) }}"}
+CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
+                     SUBTRACTION: "{} - ({})",
+                     MULTIPLICATION: "({})({})",
+                     DIVISION: "({})/({}) ",
+                     SIN: "sin({})",
+                     COS: "cos({})",
+                     SINH: "sinh({})",
+                     COSH: "cosh({})",
+                     EXPONENTIAL: "exp({})",
+                     LOGARITHM: "log({})",
+                     POWER: "({})^({})",
+                     ABS: "|{}|",
+                     SQRT: "sqrt({})",
+                     SAFE_POWER: "(|{}|)^({})",}
 
 
 def get_formatted_string(eq_format, command_array, constants):
@@ -86,13 +97,15 @@ def _get_stack_string(command_array, constants):
 def _get_stack_element_string(command_index, stack_element, constants):
     node, param1, param2 = stack_element
     tmp_str = "(%d) <= " % command_index
-    if node == 0:
+    if node == VARIABLE:
         tmp_str += "X_%d" % param1
-    elif node == 1:
+    elif node == CONSTANT:
         if param1 == -1 or param1 >= len(constants):
             tmp_str += "C"
         else:
             tmp_str += "C_{} = {}".format(param1, constants[param1])
+    elif node == INTEGER:
+        tmp_str += "{} (integer)".format(param1)
     else:
         tmp_str += STACK_PRINT_MAP[node].format(param1, param2)
     tmp_str += "\n"
@@ -102,13 +115,15 @@ def _get_stack_element_string(command_index, stack_element, constants):
 def _get_formatted_element_string(stack_element, str_list,
                                   format_dict, constants):
     node, param1, param2 = stack_element
-    if node == 0:
+    if node == VARIABLE:
         tmp_str = "X_%d" % param1
-    elif node == 1:
+    elif node == CONSTANT:
         if param1 == -1 or param1 >= len(constants):
             tmp_str = "?"
         else:
             tmp_str = str(constants[param1])
+    elif node == INTEGER:
+        tmp_str = str(int(param1))
     else:
         tmp_str = format_dict[node].format(str_list[param1], str_list[param2])
     return tmp_str

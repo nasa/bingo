@@ -35,15 +35,15 @@ def execute_generational_steps():
     training_data = ExplicitTrainingData(x, y)
 
     component_generator = ComponentGenerator(x.shape[1])
-    component_generator.add_operator(2)
-    component_generator.add_operator(3)
-    component_generator.add_operator(4)
+    component_generator.add_operator("+")
+    component_generator.add_operator("-")
+    component_generator.add_operator("*")
 
-    crossover = AGraphCrossover(component_generator)
+    crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator,
-                                       #use_simplification=True
+                                       use_simplification=True
                                        )
 
     fitness = ExplicitRegression(training_data=training_data)
@@ -59,7 +59,7 @@ def execute_generational_steps():
     opt_result = archipelago.evolve_until_convergence(max_generations=500,
                                                       fitness_threshold=1.0e-4)
     if opt_result.success:
-        print(archipelago.get_best_individual().get_console_string())
+        print(archipelago.get_best_individual().get_formatted_string("console"))
     else:
         print("Failed.")
 

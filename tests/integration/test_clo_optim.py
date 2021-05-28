@@ -7,7 +7,7 @@ import numpy as np
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
 from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+    import ContinuousLocalOptimization, MINIMIZE_SET, ROOT_SET
 from bingo.chromosomes.multiple_floats import MultipleFloatChromosome
 
 NUM_VALS = 10
@@ -16,7 +16,6 @@ NUM_OPT = 3
 
 class MultipleFloatValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
-        # print(individual)
         return np.linalg.norm(individual.values)
 
     def get_gradient(self, individual):
@@ -27,7 +26,15 @@ class MultipleFloatValueFitnessFunction(FitnessFunction):
 class FloatVectorFitnessFunction(VectorBasedFunction):
     def evaluate_fitness_vector(self, individual):
         vals = individual.values
-        return [x - 0 for x in vals]
+        return [np.abs(x) - 0 for x in vals]
+
+    def evaluate_fitness_derivative(self, individual):
+        print(individual.values)
+        jacobian = np.zeros((len(individual.values), len(individual._needs_opt_list)))
+        for i, optimize_i in enumerate(individual._needs_opt_list):
+            jacobian[optimize_i][i] = np.sign(individual.values[optimize_i])
+        print(jacobian)
+        return jacobian
 
 
 @pytest.fixture
@@ -42,23 +49,7 @@ def reg_individual():
     return MultipleFloatChromosome(vals)
 
 
-@pytest.mark.parametrize("algorithm", [
-    'Nelder-Mead',
-    'Powell',
-    'CG',
-    'BFGS',
-    # 'Newton-CG',
-    'L-BFGS-B',
-    # TODO sometimes TNC doesn't fall within 5e-06 tolerance
-    'TNC',
-    # 'COBYLA',
-    'SLSQP'
-    # 'trust-constr'
-    # 'dogleg',
-    # 'trust-ncg',
-    # 'trust-exact',
-    # 'trust-krylov'
-])
+@pytest.mark.parametrize("algorithm", MINIMIZE_SET)
 def test_optimize_params(opt_individual, reg_individual, algorithm):
     fitness_function = MultipleFloatValueFitnessFunction()
     local_opt_fitness_function = ContinuousLocalOptimization(
@@ -70,18 +61,7 @@ def test_optimize_params(opt_individual, reg_individual, algorithm):
     assert reg_indv_fitness == pytest.approx(np.sqrt(NUM_VALS))
 
 
-@pytest.mark.parametrize("algorithm", [
-    # 'hybr',
-    'lm'
-    # 'broyden1',
-    # 'broyden2',
-    # 'anderson',
-    # 'linearmixing',
-    # 'diagbroyden',
-    # 'excitingmixing',
-    # 'krylov',
-    # 'df-sane'
-])
+@pytest.mark.parametrize("algorithm", ROOT_SET)
 def test_optimize_fitness_vector(opt_individual, reg_individual, algorithm):
     reg_list = [1. for _ in range(NUM_VALS)]
     opt_list = [1. for _ in range(NUM_VALS)]

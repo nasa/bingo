@@ -96,6 +96,7 @@ def test_optimize_params_minimize(mocker, algorithm):
 def test_optimize_params_root(mocker, algorithm):
     fitness_function = mocker.create_autospec(VectorBasedFunction)
     fitness_function.evaluate_fitness_vector = lambda x: 1 + np.abs([x.param])
+    fitness_function.evaluate_fitness_derivative = lambda x: np.sign([x.param])
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)

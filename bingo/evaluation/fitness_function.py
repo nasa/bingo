@@ -66,7 +66,6 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     """
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data)
-        self._metric_derivative = None
 
         if metric in ["mean absolute error", "mae"]:
             self._metric = VectorBasedFunction._mean_absolute_error
@@ -126,8 +125,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     def evaluate_fitness_vector(self, individual):
         raise NotImplementedError
 
-    # @abstractmethod
-    # TODO how to deal with some fitness functions not needing this, make subclass for gradient VectorBasedFunctions?
+    @abstractmethod
     # TODO decide on expected return dimensions
     # TODO rename to make more clear that we're dealing with partial derivatives
     def evaluate_fitness_derivative(self, individual):
@@ -145,7 +143,6 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     def _root_mean_squared_error(vector):
         return np.sqrt(np.mean(np.square(vector)))
 
-    # TODO can change np.mean(a * b) to 1/n np.dot(a, b)?
     @staticmethod
     def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
         return 1/np.sqrt(np.mean(np.square(fitness_vector))) * np.mean(fitness_vector * fitness_partials)

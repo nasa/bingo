@@ -52,6 +52,9 @@ class PairwiseAtomicPotential(VectorBasedFunction):
 
         return np.array(err_vec).flatten()
 
+    def evaluate_fitness_derivative(self, individual):
+        raise NotImplementedError("Derivative-based optimization not available for this fitness function")
+
 
 class PairwiseAtomicTrainingData(TrainingData):
     """PairwiseAtomicTrainingData:

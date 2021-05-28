@@ -55,6 +55,9 @@ class ImplicitRegression(VectorBasedFunction):
         normalized_fitness[~np.isfinite(denominator)] = np.inf
         return normalized_fitness
 
+    def evaluate_fitness_derivative(self, individual):
+        raise NotImplementedError("Derivative-based optimization not available for this fitness function")
+
     def _enough_parameters_used(self, dot_product):
         n_params_used = (abs(dot_product) > 1e-16).sum(1)
         enough_params_used = np.any(n_params_used >= self._required_params)

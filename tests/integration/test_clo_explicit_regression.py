@@ -1,12 +1,11 @@
 import pytest
 import numpy as np
 
-from bingo.local_optimizers.continuous_local_opt import MINIMIZE_SET, ContinuousLocalOptimization
+from bingo.local_optimizers.continuous_local_opt import MINIMIZE_SET, ROOT_SET, ContinuousLocalOptimization
 
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitTrainingData as pyExplicitTrainingData, \
     ExplicitRegression as pyExplicitRegression
-from bingo.symbolic_regression.equation import Equation as pyEquation
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
 from bingo.symbolic_regression.agraph.operator_definitions import *
 try:
@@ -83,7 +82,8 @@ def opt_individual(agraph_implementation):
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_mae(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
-    fitness = explicit_regression(training_data=training_data, metric="mae")
+    # np.random.seed(7)  # example seed where BFGS and CG initialization matters
+    fitness = explicit_regression(training_data=training_data, metric='mae')
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)
     assert fitness(norm_individual) == pytest.approx(fitness(opt_individual), abs=1e-5)
@@ -92,16 +92,25 @@ def test_explicit_regression_clo_linear_mae(explicit_regression, training_data, 
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_mse(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
-    fitness = explicit_regression(training_data=training_data, metric="mse")
+    fitness = explicit_regression(training_data=training_data, metric='mse')
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)
-    assert fitness(norm_individual) == pytest.approx(fitness(opt_individual))
+    assert fitness(norm_individual) == pytest.approx(fitness(opt_individual), abs=1e-5)
 
 
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_rmse(explicit_regression, training_data, algorithm,
+                                             norm_individual, opt_individual):
+    fitness = explicit_regression(training_data=training_data, metric='rmse')
+    optimizer = ContinuousLocalOptimization(fitness, algorithm)
+    optimizer(norm_individual)
+    assert fitness(norm_individual) == pytest.approx(fitness(opt_individual), abs=1e-5)
+
+
+@pytest.mark.parametrize('algorithm', ROOT_SET)
+def test_explicit_regression_clo_linear_root(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
-    fitness = explicit_regression(training_data=training_data, metric="rmse")
+    fitness = explicit_regression(training_data=training_data)
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)
     assert fitness(norm_individual) == pytest.approx(fitness(opt_individual), abs=1e-5)

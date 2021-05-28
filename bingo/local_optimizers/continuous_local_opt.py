@@ -30,7 +30,7 @@ MINIMIZE_SET = {
     'Powell',
     'CG',
     'BFGS',
-    'Newton-CG',
+    # 'Newton-CG',
     'L-BFGS-B',
     'TNC',
     # 'COBYLA',
@@ -79,7 +79,7 @@ class ContinuousLocalOptimization(FitnessFunction):
                 - BFGS
                 - Newton-CG (not available yet)
                 - L-BFGS-B
-                - TNC (not available yet)
+                - TNC
                 - COBYLA (not available yet)
                 - SLSQP
                 - trust-constr (not available yet)
@@ -193,13 +193,9 @@ class ContinuousLocalOptimization(FitnessFunction):
                                             tol=1e-6)
         else:
             if self._algorithm in JACOBIAN_SET:
-                # TODO use lambda instead
-                def jacobian_wrapper(x, individual):
-                    return self._fitness_function.get_gradient(individual)
-
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual),
-                                                    jac=jacobian_wrapper,
+                                                    jac=lambda x, individual: self._fitness_function.get_gradient(individual),
                                                     method=self._algorithm,
                                                     tol=1e-6)
             else:

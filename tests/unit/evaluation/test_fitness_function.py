@@ -45,13 +45,13 @@ def test_vector_based_function_gradient_metrics(mocker, metric, expected_fit_gra
                         new_callable=set)
     mocker.patch.object(VectorBasedFunction, "evaluate_fitness_vector",
                         return_value=np.array([-2, 0, 2]))
-    mocker.patch.object(VectorBasedFunction, "evaluate_fitness_derivative",
+    mocker.patch.object(VectorBasedFunction, "get_jacobian",
                         return_value=np.array([[0.5, 1, -0.5], [1, 2, 3]]).transpose())
     fit_func = VectorBasedFunction(metric=metric)
     dummy_indv = None
 
     np.testing.assert_array_equal(fit_func.get_gradient(dummy_indv), expected_fit_grad)
-    fit_func.evaluate_fitness_derivative.assert_called_once_with(dummy_indv)
+    fit_func.get_jacobian.assert_called_once_with(dummy_indv)
 
 
 def test_vector_based_function_invalid_metric(mocker):

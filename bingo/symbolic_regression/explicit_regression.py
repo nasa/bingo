@@ -55,7 +55,7 @@ class ExplicitRegression(VectorBasedFunction):
             return error.flatten()
         return (error / self.training_data.y).flatten()
 
-    def evaluate_fitness_derivative(self, individual):
+    def get_jacobian(self, individual):
         f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(self.training_data.x)
         if not self._relative:
             return df_dc

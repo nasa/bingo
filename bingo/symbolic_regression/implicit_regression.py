@@ -55,7 +55,7 @@ class ImplicitRegression(VectorBasedFunction):
         normalized_fitness[~np.isfinite(denominator)] = np.inf
         return normalized_fitness
 
-    def evaluate_fitness_derivative(self, individual):
+    def get_jacobian(self, individual):
         raise NotImplementedError("Derivative-based optimization not available for this fitness function")
 
     def _enough_parameters_used(self, dot_product):

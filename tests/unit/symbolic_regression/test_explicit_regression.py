@@ -208,13 +208,13 @@ def test_differentiable_explicit_regression_relative(sample_regression_relative,
 
 
 def test_explicit_regression_gradient(sample_regression, sample_differentiable_equation):
-    fit_grad = sample_regression.evaluate_fitness_derivative(sample_differentiable_equation)
+    fit_grad = sample_regression.get_jacobian(sample_differentiable_equation)
     expected_grad = np.vstack((np.arange(10, dtype=float), np.ones(10))).transpose()
     np.testing.assert_array_equal(fit_grad, expected_grad)
 
 
 def test_explicit_regression_relative_gradient(sample_regression_relative, sample_differentiable_equation):
-    fit_grad = sample_regression_relative.evaluate_fitness_derivative(sample_differentiable_equation)
+    fit_grad = sample_regression_relative.get_jacobian(sample_differentiable_equation)
     expected_grad = np.vstack((np.arange(10, dtype=float) / np.arange(1, 11), np.ones(10) / np.arange(1, 11))).transpose()
     np.testing.assert_array_equal(fit_grad, expected_grad)
 

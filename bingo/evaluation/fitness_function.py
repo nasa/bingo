@@ -114,7 +114,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
             the gradient of this function with respect to each of the individual's constants
         """
         fitness_vector = self.evaluate_fitness_vector(individual)
-        fitness_derivatives = self.evaluate_fitness_derivative(individual).transpose()
+        fitness_derivatives = self.get_jacobian(individual).transpose()
 
         gradient = np.zeros(len(fitness_derivatives))
         for i in range(len(fitness_derivatives)):
@@ -126,9 +126,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    # TODO decide on expected return dimensions
-    # TODO rename to make more clear that we're dealing with partial derivatives
-    def evaluate_fitness_derivative(self, individual):
+    def get_jacobian(self, individual):
         raise NotImplementedError
 
     @staticmethod

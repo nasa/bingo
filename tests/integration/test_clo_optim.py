@@ -28,7 +28,7 @@ class FloatVectorFitnessFunction(VectorBasedFunction):
         vals = individual.values
         return [np.abs(x) - 0 for x in vals]
 
-    def evaluate_fitness_derivative(self, individual):
+    def get_jacobian(self, individual):
         print(individual.values)
         jacobian = np.zeros((len(individual.values), len(individual._needs_opt_list)))
         for i, optimize_i in enumerate(individual._needs_opt_list):

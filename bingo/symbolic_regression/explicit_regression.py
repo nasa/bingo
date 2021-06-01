@@ -10,12 +10,13 @@ appropriate fitness evaluator and a corresponding training data container.
 import logging
 
 from ..evaluation.fitness_function import VectorBasedFunction
+from ..evaluation.gradient_mixin import VectorGradientMixin
 from ..evaluation.training_data import TrainingData
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ExplicitRegression(VectorBasedFunction):
+class ExplicitRegression(VectorBasedFunction, VectorGradientMixin):
     """ExplicitRegression
 
     The traditional fitness evaluation for symbolic regression

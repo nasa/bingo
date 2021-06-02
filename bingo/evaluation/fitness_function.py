@@ -108,7 +108,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @staticmethod
     def _mean_absolute_error_derivative(fitness_vector, fitness_partials):
-        return np.mean(np.sign(fitness_vector) * fitness_partials)
+        return np.mean(np.sign(fitness_vector) * fitness_partials, axis=1)
 
     @staticmethod
     def _root_mean_squared_error(vector):
@@ -116,7 +116,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @staticmethod
     def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
-        return 1/np.sqrt(np.mean(np.square(fitness_vector))) * np.mean(fitness_vector * fitness_partials)
+        return 1/np.sqrt(np.mean(np.square(fitness_vector))) * np.mean(fitness_vector * fitness_partials, axis=1)
 
     @staticmethod
     def _mean_squared_error(vector):
@@ -124,4 +124,4 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @staticmethod
     def _mean_squared_error_derivative(fitness_vector, fitness_partials):
-        return 2 * np.mean(fitness_vector * fitness_partials)
+        return 2 * np.mean(fitness_vector * fitness_partials, axis=1)

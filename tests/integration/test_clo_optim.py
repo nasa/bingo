@@ -6,6 +6,7 @@ import numpy as np
 
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
+from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization, MINIMIZE_SET, ROOT_SET
 from bingo.chromosomes.multiple_floats import MultipleFloatChromosome
@@ -14,7 +15,7 @@ NUM_VALS = 10
 NUM_OPT = 3
 
 
-class MultipleFloatValueFitnessFunction(FitnessFunction):
+class MultipleFloatValueFitnessFunction(FitnessFunction, GradientMixin):
     def __call__(self, individual):
         return np.linalg.norm(individual.values)
 
@@ -23,7 +24,7 @@ class MultipleFloatValueFitnessFunction(FitnessFunction):
         return [full_gradient[i] for i in individual._needs_opt_list]
 
 
-class FloatVectorFitnessFunction(VectorBasedFunction):
+class FloatVectorFitnessFunction(VectorBasedFunction, VectorGradientMixin):
     def evaluate_fitness_vector(self, individual):
         vals = individual.values
         return [np.abs(x) - 0 for x in vals]

@@ -52,9 +52,6 @@ class PairwiseAtomicPotential(VectorBasedFunction):
 
         return np.array(err_vec).flatten()
 
-    def get_jacobian(self, individual):
-        raise NotImplementedError("Derivative-based optimization not available for this fitness function")
-
 
 class PairwiseAtomicTrainingData(TrainingData):
     """PairwiseAtomicTrainingData:

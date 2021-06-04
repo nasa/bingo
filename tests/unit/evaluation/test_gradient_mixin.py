@@ -31,6 +31,7 @@ def test_vector_gradient_mixin_get_jacobian_raises_not_implemented_error(mocker)
     with pytest.raises(NotImplementedError):
         vector_gradient_mixin.get_jacobian(None)
 
+
 class VectorGradFitnessFunction(VectorGradientMixin, VectorBasedFunction):
     def __init__(self, metric):
         super().__init__(metric=metric)

@@ -15,20 +15,24 @@ NUM_VALS = 10
 NUM_OPT = 3
 
 
-class MultipleFloatValueFitnessFunction(GradientMixin, FitnessFunction):
+class MultipleFloatValueFitnessFunction(FitnessFunction):
     def __call__(self, individual):
         return np.linalg.norm(individual.values)
 
+
+class MultipleFloatValueFitnessFunctionWithGradient(GradientMixin, MultipleFloatValueFitnessFunction):
     def get_gradient(self, individual):
         full_gradient = individual.values / np.linalg.norm(individual.values)
         return [full_gradient[i] for i in individual._needs_opt_list]
 
 
-class FloatVectorFitnessFunction(VectorGradientMixin, VectorBasedFunction):
+class FloatVectorFitnessFunction(VectorBasedFunction):
     def evaluate_fitness_vector(self, individual):
         vals = individual.values
         return [x - 0 for x in vals]
 
+
+class FloatVectorFitnessFunctionWithJacobian(VectorGradientMixin, FloatVectorFitnessFunction):
     def get_jacobian(self, individual):
         jacobian = np.zeros((len(individual.values), len(individual._needs_opt_list)))
         for i, optimize_i in enumerate(individual._needs_opt_list):
@@ -49,7 +53,7 @@ def reg_individual():
 
 
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
-def test_optimize_params(opt_individual, reg_individual, algorithm):
+def test_optimize_params_without_gradient(opt_individual, reg_individual, algorithm):
     fitness_function = MultipleFloatValueFitnessFunction()
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)
@@ -60,8 +64,20 @@ def test_optimize_params(opt_individual, reg_individual, algorithm):
     assert reg_indv_fitness == pytest.approx(np.sqrt(NUM_VALS))
 
 
+@pytest.mark.parametrize("algorithm", MINIMIZE_SET)
+def test_optimize_params_with_gradient(opt_individual, reg_individual, algorithm):
+    fitness_function = MultipleFloatValueFitnessFunctionWithGradient()
+    local_opt_fitness_function = ContinuousLocalOptimization(
+        fitness_function, algorithm)
+    opt_indv_fitness = local_opt_fitness_function(opt_individual)
+    reg_indv_fitness = local_opt_fitness_function(reg_individual)
+    assert opt_indv_fitness == pytest.approx(np.sqrt(NUM_VALS - NUM_OPT),
+                                             rel=5.e-6)
+    assert reg_indv_fitness == pytest.approx(np.sqrt(NUM_VALS))
+
+
 @pytest.mark.parametrize("algorithm", ROOT_SET)
-def test_optimize_fitness_vector(opt_individual, reg_individual, algorithm):
+def test_optimize_fitness_vector_without_jacobian(opt_individual, reg_individual, algorithm):
     reg_list = [1. for _ in range(NUM_VALS)]
     opt_list = [1. for _ in range(NUM_VALS)]
     opt_list[:3] = [0., 0., 0.]
@@ -72,3 +88,18 @@ def test_optimize_fitness_vector(opt_individual, reg_individual, algorithm):
     reg_indv_fitness = local_opt_fitness_function(reg_individual)
     assert opt_indv_fitness == pytest.approx(np.mean(opt_list))
     assert reg_indv_fitness == pytest.approx(np.mean(reg_list))
+
+
+@pytest.mark.parametrize("algorithm", ROOT_SET)
+def test_optimize_fitness_vector_with_jacobian(opt_individual, reg_individual, algorithm):
+    reg_list = [1. for _ in range(NUM_VALS)]
+    opt_list = [1. for _ in range(NUM_VALS)]
+    opt_list[:3] = [0., 0., 0.]
+    fitness_function = FloatVectorFitnessFunctionWithJacobian()
+    local_opt_fitness_function = ContinuousLocalOptimization(
+        fitness_function, algorithm)
+    opt_indv_fitness = local_opt_fitness_function(opt_individual)
+    reg_indv_fitness = local_opt_fitness_function(reg_individual)
+    assert opt_indv_fitness == pytest.approx(np.mean(opt_list))
+    assert reg_indv_fitness == pytest.approx(np.mean(reg_list))
+

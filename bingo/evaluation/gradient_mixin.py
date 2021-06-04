@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 class GradientMixin(metaclass=ABCMeta):
     """Mixin for using gradients for fitness functions
 
-    An abstract base class used to implement the gradients
+    An abstract base class/mixin used to implement the gradients
     of fitness functions.
     """
     @abstractmethod
@@ -36,7 +36,7 @@ class GradientMixin(metaclass=ABCMeta):
 class VectorGradientMixin(GradientMixin):
     """Mixin for using gradients and jacobians for vector based fitness functions
 
-    An abstract base class used to implement the gradients and jacobians
+    An abstract base class/mixin used to implement the gradients and jacobians
     of vector based fitness functions.
     """
     def get_gradient(self, individual):
@@ -57,7 +57,6 @@ class VectorGradientMixin(GradientMixin):
         gradient :
             the gradient of this function with respect to each of the individual's constants
         """
-        # TODO elegant way to get fitness vector and metric derivative?
         fitness_vector = self.evaluate_fitness_vector(individual)
         fitness_partials = self.get_jacobian(individual).transpose()
         return self._metric_derivative(fitness_vector, fitness_partials)

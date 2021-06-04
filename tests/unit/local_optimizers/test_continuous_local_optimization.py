@@ -6,6 +6,7 @@ import numpy as np
 
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
+from bingo.evaluation.gradient_mixin import GradientMixin
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization, ChromosomeInterface, \
            ROOT_SET, MINIMIZE_SET
@@ -79,8 +80,29 @@ def test_set_training_data_pass_through(mocker):
 
 
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
-def test_optimize_params_minimize(mocker, algorithm):
+def test_optimize_params_minimize_without_gradient(mocker, algorithm):
     fitness_function = mocker.create_autospec(FitnessFunction)
+    fitness_function.side_effect = lambda individual: 1 + abs(individual.param)
+
+    local_opt_fitness_function = ContinuousLocalOptimization(
+        fitness_function, algorithm)
+
+    individual = DummyLocalOptIndividual()
+    opt_indv_fitness = local_opt_fitness_function(individual)
+    assert opt_indv_fitness == pytest.approx(1, rel=0.05)
+
+
+class GradientFitnessFunction(FitnessFunction, GradientMixin):
+    def __call__(self, individual):
+        pass
+
+    def get_gradient(self, individual):
+        pass
+
+
+@pytest.mark.parametrize("algorithm", MINIMIZE_SET)
+def test_optimize_params_minimize_with_gradient(mocker, algorithm):
+    fitness_function = mocker.create_autospec(GradientFitnessFunction)
     fitness_function.side_effect = lambda individual: 1 + abs(individual.param)
     fitness_function.get_gradient = lambda individual: np.sign([individual.param])
 

@@ -11,6 +11,7 @@ import numpy as np
 import scipy.optimize as optimize
 
 from ..evaluation.fitness_function import FitnessFunction
+from ..evaluation.gradient_mixin import GradientMixin
 
 ROOT_SET = {
     # 'hybr',
@@ -36,19 +37,6 @@ MINIMIZE_SET = {
     # 'COBYLA',
     'SLSQP'
     # 'trust-constr'
-    # 'dogleg',
-    # 'trust-ncg',
-    # 'trust-exact',
-    # 'trust-krylov'
-}
-
-JACOBIAN_SET = {
-    'CG',
-    'BFGS',
-    'Newton-CG',
-    'L-BFGS-B',
-    'TNC',
-    'SLSQP'
     # 'dogleg',
     # 'trust-ncg',
     # 'trust-exact',
@@ -192,7 +180,7 @@ class ContinuousLocalOptimization(FitnessFunction):
                                             method=self._algorithm,
                                             tol=1e-6)
         else:
-            if self._algorithm in JACOBIAN_SET:
+            if isinstance(self._fitness_function, GradientMixin):
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual),
                                                     jac=lambda x, individual: self._fitness_function.get_gradient(individual),

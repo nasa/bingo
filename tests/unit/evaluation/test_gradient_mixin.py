@@ -15,24 +15,21 @@ def test_vector_gradient_mixin_cant_be_instanced():
         _ = VectorGradientMixin()
 
 
-# TODO figure out how to do this with mocking
-def get_vector_function(metric):
-    class VectorGradFitnessFunction(VectorBasedFunction, VectorGradientMixin):
-        def __init__(self, metric):
-            super().__init__(metric=metric)
+class VectorGradFitnessFunction(VectorBasedFunction, VectorGradientMixin):
+    def __init__(self, metric):
+        super().__init__(metric=metric)
 
-        def evaluate_fitness_vector(self, individual):
-            return np.array([-2, 0, 2])
+    def evaluate_fitness_vector(self, individual):
+        return np.array([-2, 0, 2])
 
-        def get_jacobian(self, individual):
-            return np.array([[0.5, 1, -0.5], [1, 2, 3]]).transpose()
-    return VectorGradFitnessFunction(metric)
+    def get_jacobian(self, individual):
+        return np.array([[0.5, 1, -0.5], [1, 2, 3]]).transpose()
 
 
 @pytest.mark.parametrize("metric, expected_fit_grad", [("mae", [-1/3, 2/3]),
                                                        ("mse", [-4/3, 8/3]),
                                                        ("rmse", [np.sqrt(3/8) * -2/3, np.sqrt(3/8) * 4/3])])
 def test_vector_gradient(metric, expected_fit_grad):
-    vector_function = get_vector_function(metric)
+    vector_function = VectorGradFitnessFunction(metric)
     np.testing.assert_array_equal(vector_function.get_gradient(None), expected_fit_grad)
     # vector_function.get_jacobian.assert_called_once_with(dummy_indv)

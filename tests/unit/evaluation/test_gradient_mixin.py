@@ -15,6 +15,22 @@ def test_vector_gradient_mixin_cant_be_instanced():
         _ = VectorGradientMixin()
 
 
+def test_gradient_mixin_get_gradient_raises_not_implemented_error(mocker):
+    # patch __abstractmethods__ so we can instantiate GradientMixin for this test
+    mocker.patch.object(GradientMixin, "__abstractmethods__", new_callable=set)
+
+    gradient_mixin = GradientMixin()
+    with pytest.raises(NotImplementedError):
+        gradient_mixin.get_gradient(None)
+
+
+def test_vector_gradient_mixin_get_jacobian_raises_not_implemented_error(mocker):
+    mocker.patch.object(VectorGradientMixin, "__abstractmethods__", new_callable=set)
+
+    vector_gradient_mixin = VectorGradientMixin()
+    with pytest.raises(NotImplementedError):
+        vector_gradient_mixin.get_jacobian(None)
+
 class VectorGradFitnessFunction(VectorGradientMixin, VectorBasedFunction):
     def __init__(self, metric):
         super().__init__(metric=metric)

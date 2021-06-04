@@ -16,7 +16,7 @@ from ..evaluation.training_data import TrainingData
 LOGGER = logging.getLogger(__name__)
 
 
-class ExplicitRegression(VectorBasedFunction, VectorGradientMixin):
+class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
     """ExplicitRegression
 
     The traditional fitness evaluation for symbolic regression

@@ -15,7 +15,7 @@ NUM_VALS = 10
 NUM_OPT = 3
 
 
-class MultipleFloatValueFitnessFunction(FitnessFunction, GradientMixin):
+class MultipleFloatValueFitnessFunction(GradientMixin, FitnessFunction):
     def __call__(self, individual):
         return np.linalg.norm(individual.values)
 
@@ -24,7 +24,7 @@ class MultipleFloatValueFitnessFunction(FitnessFunction, GradientMixin):
         return [full_gradient[i] for i in individual._needs_opt_list]
 
 
-class FloatVectorFitnessFunction(VectorBasedFunction, VectorGradientMixin):
+class FloatVectorFitnessFunction(VectorGradientMixin, VectorBasedFunction):
     def evaluate_fitness_vector(self, individual):
         vals = individual.values
         return [x - 0 for x in vals]

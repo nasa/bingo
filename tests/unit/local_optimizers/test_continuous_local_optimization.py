@@ -92,7 +92,7 @@ def test_optimize_params_minimize_without_gradient(mocker, algorithm):
     assert opt_indv_fitness == pytest.approx(1, rel=0.05)
 
 
-class GradientFitnessFunction(FitnessFunction, GradientMixin):
+class GradientFitnessFunction(GradientMixin, FitnessFunction):
     def __call__(self, individual):
         pass
 
@@ -114,7 +114,7 @@ def test_optimize_params_minimize_with_gradient(mocker, algorithm):
     assert opt_indv_fitness == pytest.approx(1, rel=0.05)
 
 
-class JacobianVectorFitnessFunction(VectorBasedFunction, VectorGradientMixin):
+class JacobianVectorFitnessFunction(VectorGradientMixin, VectorBasedFunction):
     def evaluate_fitness_vector(self, individual):
         pass
 

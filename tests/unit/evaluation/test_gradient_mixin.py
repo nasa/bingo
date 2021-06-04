@@ -15,7 +15,7 @@ def test_vector_gradient_mixin_cant_be_instanced():
         _ = VectorGradientMixin()
 
 
-class VectorGradFitnessFunction(VectorBasedFunction, VectorGradientMixin):
+class VectorGradFitnessFunction(VectorGradientMixin, VectorBasedFunction):
     def __init__(self, metric):
         super().__init__(metric=metric)
 

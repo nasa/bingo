@@ -82,7 +82,7 @@ def test_set_training_data_pass_through(mocker):
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
 def test_optimize_params_minimize_without_gradient(mocker, algorithm):
     fitness_function = mocker.create_autospec(FitnessFunction)
-    fitness_function.side_effect = lambda individual: 1 + abs(individual.param)
+    fitness_function.side_effect = lambda individual: 1 + individual.param**2
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)
@@ -103,8 +103,8 @@ class GradientFitnessFunction(FitnessFunction, GradientMixin):
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
 def test_optimize_params_minimize_with_gradient(mocker, algorithm):
     fitness_function = mocker.create_autospec(GradientFitnessFunction)
-    fitness_function.side_effect = lambda individual: 1 + abs(individual.param)
-    fitness_function.get_gradient = lambda individual: np.sign([individual.param])
+    fitness_function.side_effect = lambda individual: 1 + individual.param**2
+    fitness_function.get_gradient = lambda individual: 2*individual.param
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)

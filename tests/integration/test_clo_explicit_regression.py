@@ -51,8 +51,8 @@ def agraph_implementation(engine):
 
 @pytest.fixture
 def training_data(explicit_training_data):
-    x = np.arange(1, 10).reshape(-1, 1)
-    y = 2 * x + 3
+    x = np.arange(-10, 11).reshape(-1, 1)
+    y = 2 * x**2 + 3 * x
     return explicit_training_data(x, y)
 
 
@@ -61,9 +61,13 @@ def norm_individual(agraph_implementation):
     individual = agraph_implementation()
     individual.command_array = np.array([[CONSTANT, -1, -1],
                                          [VARIABLE, 0, 0],
-                                         [MULTIPLICATION, 0, 1],
+                                         [VARIABLE, 0, 0],
+                                         [MULTIPLICATION, 1, 2],
+                                         [MULTIPLICATION, 0, 3],
                                          [CONSTANT, -1, -1],
-                                         [ADDITION, 2, 3]], dtype=int)
+                                         [VARIABLE, 0, 0],
+                                         [MULTIPLICATION, 5, 6],
+                                         [ADDITION, 4, 7]], dtype=int)
     return individual
 
 
@@ -72,9 +76,13 @@ def opt_individual(agraph_implementation):
     individual = agraph_implementation()
     individual.command_array = np.array([[CONSTANT, -1, -1],
                                          [VARIABLE, 0, 0],
-                                         [MULTIPLICATION, 0, 1],
+                                         [VARIABLE, 0, 0],
+                                         [MULTIPLICATION, 1, 2],
+                                         [MULTIPLICATION, 0, 3],
                                          [CONSTANT, -1, -1],
-                                         [ADDITION, 2, 3]], dtype=int)
+                                         [VARIABLE, 0, 0],
+                                         [MULTIPLICATION, 5, 6],
+                                         [ADDITION, 4, 7]], dtype=int)
     individual.set_local_optimization_params(np.array([2, 3]))
     return individual
 
@@ -82,7 +90,6 @@ def opt_individual(agraph_implementation):
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_mae(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
-    # np.random.seed(7)  # example seed where BFGS and CG initialization matters
     fitness = explicit_regression(training_data=training_data, metric='mae')
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)

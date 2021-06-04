@@ -27,14 +27,12 @@ class MultipleFloatValueFitnessFunction(FitnessFunction, GradientMixin):
 class FloatVectorFitnessFunction(VectorBasedFunction, VectorGradientMixin):
     def evaluate_fitness_vector(self, individual):
         vals = individual.values
-        return [np.abs(x) - 0 for x in vals]
+        return [x - 0 for x in vals]
 
     def get_jacobian(self, individual):
-        print(individual.values)
         jacobian = np.zeros((len(individual.values), len(individual._needs_opt_list)))
         for i, optimize_i in enumerate(individual._needs_opt_list):
-            jacobian[optimize_i][i] = np.sign(individual.values[optimize_i])
-        print(jacobian)
+            jacobian[optimize_i][i] = 1
         return jacobian
 
 

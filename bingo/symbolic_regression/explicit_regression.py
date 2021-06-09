@@ -10,12 +10,13 @@ appropriate fitness evaluator and a corresponding training data container.
 import logging
 
 from ..evaluation.fitness_function import VectorBasedFunction
+from ..evaluation.gradient_mixin import VectorGradientMixin
 from ..evaluation.training_data import TrainingData
 
 LOGGER = logging.getLogger(__name__)
 
 
-class ExplicitRegression(VectorBasedFunction):
+class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
     """ExplicitRegression
 
     The traditional fitness evaluation for symbolic regression
@@ -54,6 +55,12 @@ class ExplicitRegression(VectorBasedFunction):
         if not self._relative:
             return error.flatten()
         return (error / self.training_data.y).flatten()
+
+    def get_jacobian(self, individual):
+        f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(self.training_data.x)
+        if not self._relative:
+            return df_dc
+        return df_dc / self.training_data.y
 
 
 class ExplicitTrainingData(TrainingData):

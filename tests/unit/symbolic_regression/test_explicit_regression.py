@@ -97,6 +97,49 @@ def sample_equation(equation):
     return SampleEqu()
 
 
+@pytest.fixture
+def sample_constants():
+    return [2.0, 3.0]
+
+
+@pytest.fixture
+def sample_differentiable_equation(equation, sample_constants):
+    class SampleDiffEqu(equation):
+        def __init__(self):
+            self.constants = sample_constants
+
+        def evaluate_equation_at(self, x):
+            return self.constants[0] * x + self.constants[1]
+
+        def evaluate_equation_with_x_gradient_at(self, x):
+            return self.constants[0]
+
+        def evaluate_equation_with_local_opt_gradient_at(self, x):
+            return self.evaluate_equation_at(x), np.concatenate((x, np.ones(len(x)).reshape(-1, 1)), axis=1)
+
+        def get_complexity(self):
+            pass
+
+        def get_latex_string(self):
+            pass
+
+        def get_console_string(self):
+            pass
+
+        def __str__(self):
+            pass
+
+        def distance(self, _chromosome):
+            return 0
+
+    return SampleDiffEqu()
+
+
+@pytest.fixture
+def expected_differentiable_equation_output(sample_constants):
+    return sample_constants[0] * np.arange(10, dtype=float) + sample_constants[1]
+
+
 @pytest.mark.parametrize("three_dim", ["x", "y"])
 def test_raises_error_on_training_data_with_high_dims(explicit_training_data,
                                                       three_dim):
@@ -148,6 +191,32 @@ def test_explicit_regression_relative(sample_regression_relative,
         sample_equation)
     expected_fit_vec = (1 - np.arange(1, 11)) / np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+
+
+def test_differentiable_explicit_regression(sample_regression, sample_differentiable_equation,
+                                            expected_differentiable_equation_output):
+    fit_vec = sample_regression.evaluate_fitness_vector(sample_differentiable_equation)
+    expected_fit_vec = expected_differentiable_equation_output - np.arange(1, 11)
+    np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+
+
+def test_differentiable_explicit_regression_relative(sample_regression_relative, sample_differentiable_equation,
+                                                     expected_differentiable_equation_output):
+    fit_vec = sample_regression_relative.evaluate_fitness_vector(sample_differentiable_equation)
+    expected_fit_vec = (expected_differentiable_equation_output - np.arange(1, 11)) / np.arange(1, 11)
+    np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+
+
+def test_explicit_regression_gradient(sample_regression, sample_differentiable_equation):
+    fit_grad = sample_regression.get_jacobian(sample_differentiable_equation)
+    expected_grad = np.vstack((np.arange(10, dtype=float), np.ones(10))).transpose()
+    np.testing.assert_array_equal(fit_grad, expected_grad)
+
+
+def test_explicit_regression_relative_gradient(sample_regression_relative, sample_differentiable_equation):
+    fit_grad = sample_regression_relative.get_jacobian(sample_differentiable_equation)
+    expected_grad = np.vstack((np.arange(10, dtype=float) / np.arange(1, 11), np.ones(10) / np.arange(1, 11))).transpose()
+    np.testing.assert_array_equal(fit_grad, expected_grad)
 
 
 def test_can_pickle(sample_regression):

@@ -69,13 +69,10 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
         if metric in ["mean absolute error", "mae"]:
             self._metric = VectorBasedFunction._mean_absolute_error
-            self._metric_derivative = VectorBasedFunction._mean_absolute_error_derivative
         elif metric in ["mean squared error", "mse"]:
             self._metric = VectorBasedFunction._mean_squared_error
-            self._metric_derivative = VectorBasedFunction._mean_squared_error_derivative
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = VectorBasedFunction._root_mean_squared_error
-            self._metric_derivative = VectorBasedFunction._root_mean_squared_error_derivative
         else:
             raise KeyError("Invalid metric for Fitness Function")
 
@@ -107,21 +104,9 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         return np.mean(np.abs(vector))
 
     @staticmethod
-    def _mean_absolute_error_derivative(fitness_vector, fitness_partials):
-        return np.mean(np.sign(fitness_vector) * fitness_partials, axis=1)
-
-    @staticmethod
     def _root_mean_squared_error(vector):
         return np.sqrt(np.mean(np.square(vector)))
 
     @staticmethod
-    def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
-        return 1/np.sqrt(np.mean(np.square(fitness_vector))) * np.mean(fitness_vector * fitness_partials, axis=1)
-
-    @staticmethod
     def _mean_squared_error(vector):
         return np.mean(np.square(vector))
-
-    @staticmethod
-    def _mean_squared_error_derivative(fitness_vector, fitness_partials):
-        return 2 * np.mean(fitness_vector * fitness_partials, axis=1)

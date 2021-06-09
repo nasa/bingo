@@ -8,6 +8,8 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
+from .fitness_function import VectorBasedFunction
+
 
 class GradientMixin(metaclass=ABCMeta):
     """Mixin for using gradients for fitness functions
@@ -40,24 +42,17 @@ class VectorGradientMixin(GradientMixin):
 
     An abstract base class/mixin used to implement the gradients and jacobians
     of vector based fitness functions.
-
-    Parameters
-    ----------
-    training_data : ExplicitTrainingData
-        data that is used in fitness evaluation.
-    metric : str
-        String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', and
-        'root mean squared error'
     """
-    def __init__(self, training_data=None, metric="mae"):
-        super().__init__(training_data, metric)
+    def __init__(self, *args, **kwargs):
+        if not isinstance(self, VectorBasedFunction):
+            raise TypeError("VectorGradientMixin should be used with a VectorBasedFunction")
+        super().__init__(*args, **kwargs)
 
-        if metric in ["mean absolute error", "mae"]:
+        if self._metric_string == "mae":
             self._metric_derivative = VectorGradientMixin._mean_absolute_error_derivative
-        elif metric in ["mean squared error", "mse"]:
+        elif self._metric_string == "mse":
             self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
-        elif metric in ["root mean squared error", "rmse"]:
+        elif self._metric_string == "rmse":
             self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
 
     def get_gradient(self, individual):

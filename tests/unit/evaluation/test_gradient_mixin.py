@@ -15,6 +15,15 @@ def test_vector_gradient_mixin_cant_be_instanced():
         _ = VectorGradientMixin()
 
 
+def test_vector_gradient_mixin_cant_be_instanced_without_vector_based_function():
+    class MixinWithoutVectorBasedFunction(VectorGradientMixin):
+        def get_jacobian(self, individual):
+            pass
+
+    with pytest.raises(TypeError):
+        _ = MixinWithoutVectorBasedFunction()
+
+
 class VectorFitnessFunction(VectorGradientMixin, VectorBasedFunction):
     pass
 
@@ -60,4 +69,3 @@ class VectorGradFitnessFunction(VectorGradientMixin, VectorBasedFunction):
 def test_vector_gradient(metric, expected_fit_grad):
     vector_function = VectorGradFitnessFunction(metric)
     np.testing.assert_array_equal(vector_function.get_gradient(None), expected_fit_grad)
-    # vector_function.get_jacobian.assert_called_once_with(dummy_indv)

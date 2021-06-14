@@ -47,11 +47,11 @@ def execute_generational_steps():
     training_data = ExplicitTrainingData(x, y)
 
     component_generator = ComponentGenerator(x.shape[1])
-    component_generator.add_operator(2)
-    component_generator.add_operator(3)
-    component_generator.add_operator(4)
+    component_generator.add_operator("+")
+    component_generator.add_operator("-")
+    component_generator.add_operator("*")
 
-    crossover = AGraphCrossover(component_generator)
+    crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)

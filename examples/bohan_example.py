@@ -5,6 +5,8 @@ from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
 from bingo.symbolic_regression.agraph.string_generation \
     import get_formatted_string
 
+from time import time
+
 
 def _create_random_equation():
     comp_gen = ComponentGenerator(2)
@@ -54,7 +56,11 @@ if __name__ == "__main__":
     # this is the evaluation of the equation
     # the evaluation function is where we want to start off looking for speedup
     # we may end up moving more work to the GPU but lets start with this
+    start = time()
     Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
+    end = time()
+    print("Time elapsed (seconds): ", end - start)
+
 
 
 

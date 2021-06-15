@@ -11,7 +11,11 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 """
 
 import numpy as np
+from numba import njit, prange
+
 np.seterr(divide='ignore', invalid='ignore')
+
+USE_GPU_FLAG = False
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
 
@@ -48,8 +52,36 @@ def _loadc_reverse_eval(_reverseindex, _param1, _param2, _forwardeval,
 
 # Addition
 def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
-    return forward_eval[param1] + forward_eval[param2]
+    if USE_GPU_FLAG:
+        print("using gpu")
+        if isinstance(param1, np.ndarray) and isinstance(param2, np.ndarray):
+            if len(param1.shape) < len(param2.shape):
+                param1 = np.resize(param1, param2.shape)
+            elif len(param2.shape) < len(param1.shape):
+                param2 = np.resize(param2, param1.shape)
 
+            if not param1.shape == param2.shape:
+                raise RuntimeError("Error: matrix dimensions {} and {} are not compatible with addition".format(param1.shape, param2.shape))
+
+            return _elementwise_op_gpu_helper(param1, param2, lambda a, b, i : a[i] + b[i])
+        elif isinstance(param1, np.ndarray):
+            return _elementwise_op_gpu_helper(param1, param2, lambda a, b, i : a[i] + b)
+        elif isinstance(param2, np.ndarray):
+            return _elementwise_op_gpu_helper(param2, param1, lambda a, b, i : a[i] + b)
+        else:
+            return forward_eval[param1] + forward_eval[param2]
+    else:
+        print("not using gpu")
+        return forward_eval[param1] + forward_eval[param2]
+
+@njit(parallel=True)
+def _elementwise_op_gpu_helper(param1, param2, op):
+    result = np.zeros(param1.shape)
+    for i in prange(np.prod(param1.shape)):
+        indices = np.unravel_index(i, param1.shape)
+        result[indices] = op(param1, param2, indices)
+
+    return result
 
 def _add_reverse_eval(reverse_index, param1, param2, _forwardeval,
                       reverse_eval):

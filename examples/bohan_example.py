@@ -5,6 +5,8 @@ from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
 from bingo.symbolic_regression.agraph.string_generation \
     import get_formatted_string
 
+import bingo.symbolic_regression.agraph.evaluation_backend.operator_eval as operator_eval
+
 from time import time
 
 
@@ -50,16 +52,27 @@ if __name__ == "__main__":
     #                            [f"C_{i}" for i in range(NUM_CONSTS)]))
 
     # this is roughly representative of the dimensions of the data we are using
-    CONSTANTS = np.linspace(0, 1, 800 * NUM_CONSTS).reshape(NUM_CONSTS, 800)
-    X_DATA = np.linspace(-10, 10, 400).reshape(200, 2)
+    constant_data_size = 8000
+    data_size = 20000
+    CONSTANTS = np.linspace(0, 1, constant_data_size * NUM_CONSTS).reshape(NUM_CONSTS, constant_data_size)
+    X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 
     # this is the evaluation of the equation
     # the evaluation function is where we want to start off looking for speedup
     # we may end up moving more work to the GPU but lets start with this
+
     start = time()
+    operator_eval.USE_GPU_FLAG = False
     Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
+    mid = time()
+    operator_eval.USE_GPU_FLAG = True
+    Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
     end = time()
-    print("Time elapsed (seconds): ", end - start)
+
+    np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)
+
+    print("Time elapsed for original example (seconds): ", mid - start)
+    print("Time elapsed for parallelized example (seconds): ", end - mid)
 
 
 

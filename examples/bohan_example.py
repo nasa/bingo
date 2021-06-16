@@ -52,8 +52,8 @@ if __name__ == "__main__":
     #                            [f"C_{i}" for i in range(NUM_CONSTS)]))
 
     # this is roughly representative of the dimensions of the data we are using
-    constant_data_size = 8000
-    data_size = 20000
+    constant_data_size = 800
+    data_size = 200
     CONSTANTS = np.linspace(0, 1, constant_data_size * NUM_CONSTS).reshape(NUM_CONSTS, constant_data_size)
     X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 

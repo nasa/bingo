@@ -11,7 +11,8 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 """
 
 import numpy as np
-from numba import njit, prange
+from numba import jit, prange
+from math import prod
 
 np.seterr(divide='ignore', invalid='ignore')
 
@@ -50,38 +51,50 @@ def _loadc_reverse_eval(_reverseindex, _param1, _param2, _forwardeval,
     pass
 
 
-# Addition
-def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
-    if USE_GPU_FLAG:
-        print("using gpu")
-        if isinstance(param1, np.ndarray) and isinstance(param2, np.ndarray):
-            if len(param1.shape) < len(param2.shape):
-                param1 = np.resize(param1, param2.shape)
-            elif len(param2.shape) < len(param1.shape):
-                param2 = np.resize(param2, param1.shape)
-
-            if not param1.shape == param2.shape:
-                raise RuntimeError("Error: matrix dimensions {} and {} are not compatible with addition".format(param1.shape, param2.shape))
-
-            return _elementwise_op_gpu_helper(param1, param2, lambda a, b, i : a[i] + b[i])
-        elif isinstance(param1, np.ndarray):
-            return _elementwise_op_gpu_helper(param1, param2, lambda a, b, i : a[i] + b)
-        elif isinstance(param2, np.ndarray):
-            return _elementwise_op_gpu_helper(param2, param1, lambda a, b, i : a[i] + b)
-        else:
-            return forward_eval[param1] + forward_eval[param2]
-    else:
-        print("not using gpu")
-        return forward_eval[param1] + forward_eval[param2]
-
-@njit(parallel=True)
-def _elementwise_op_gpu_helper(param1, param2, op):
-    result = np.zeros(param1.shape)
-    for i in prange(np.prod(param1.shape)):
+@jit(parallel=True)
+def _elementwise_op_gpu_helper(param1, param2, op, result):
+    for i in prange(prod(param1.shape)):
         indices = np.unravel_index(i, param1.shape)
         result[indices] = op(param1, param2, indices)
 
-    return result
+# Addition
+def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
+    elem1 = forward_eval[param1]
+    elem2 = forward_eval[param2]
+
+    if USE_GPU_FLAG:
+        print("using gpu")
+        if isinstance(elem1, np.ndarray) and isinstance(elem2, np.ndarray):
+            if len(elem1.shape) < len(elem2.shape):
+                elem1 = np.resize(elem1, elem2.shape)
+            elif len(elem2.shape) < len(elem1.shape):
+                elem2 = np.resize(elem2, elem1.shape)
+                print("resized")
+
+            if not elem1.shape == elem2.shape:
+                raise RuntimeError("Error: matrix dimensions {} and {} are not compatible with addition".format(elem1.shape, elem2.shape))
+
+            result = np.zeros(elem1.shape)
+            _elementwise_op_gpu_helper(elem1, elem2, lambda a, b, i : a[i] + b[i], result)
+            return result
+        elif isinstance(elem1, np.ndarray):
+            result = np.zeros(elem1.shape)
+            _elementwise_op_gpu_helper(elem1, elem2, lambda a, b, i : a[i] + b, result)
+            return result
+        elif isinstance(elem2, np.ndarray):
+            result = np.zeros(elem2.shape)
+            _elementwise_op_gpu_helper(elem2, elem1, lambda a, b, i : a[i] + b, result)
+            return result
+        else:
+            return elem1 + elem2
+    else:
+        print("not using gpu")
+        return elem1 + elem2
+
+@jit
+def _add_forward_eval_jit(param1, param2, _x, _constants, forward_eval):
+    return forward_eval[param1] + forward_eval[param2]
+
 
 def _add_reverse_eval(reverse_index, param1, param2, _forwardeval,
                       reverse_eval):
@@ -91,7 +104,7 @@ def _add_reverse_eval(reverse_index, param1, param2, _forwardeval,
 
 # Subtraction
 def _subtract_forward_eval(param1, param2, _x, _constants, forward_eval):
-    return forward_eval[param1] - forward_eval[param2]
+    return _add_forward_eval(param1, -param2, _x, _constants, forward_eval)
 
 
 def _subtract_reverse_eval(reverse_index, param1, param2, _forwardeval,

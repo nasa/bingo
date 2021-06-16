@@ -7,3 +7,6 @@ pytest>=3.6
 pytest-mock>=1.10.0
 scipy>=1.2.0
 dill>=0.2.9
+
+numba~=0.53.1
+setuptools~=57.0.0

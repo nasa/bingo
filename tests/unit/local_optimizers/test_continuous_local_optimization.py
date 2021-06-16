@@ -6,6 +6,7 @@ import numpy as np
 
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
+from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization, ChromosomeInterface, \
            ROOT_SET, MINIMIZE_SET
@@ -79,9 +80,9 @@ def test_set_training_data_pass_through(mocker):
 
 
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
-def test_optimize_params(algorithm):
-    def fitness_function(individual):
-        return 1 + abs(individual.param)
+def test_optimize_params_minimize_without_gradient(mocker, algorithm):
+    fitness_function = mocker.create_autospec(FitnessFunction)
+    fitness_function.side_effect = lambda individual: 1 + individual.param**2
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)
@@ -91,10 +92,55 @@ def test_optimize_params(algorithm):
     assert opt_indv_fitness == pytest.approx(1, rel=0.05)
 
 
+class GradientFitnessFunction(GradientMixin, FitnessFunction):
+    def __call__(self, individual):
+        pass
+
+    def get_gradient(self, individual):
+        pass
+
+
+@pytest.mark.parametrize("algorithm", MINIMIZE_SET)
+def test_optimize_params_minimize_with_gradient(mocker, algorithm):
+    fitness_function = mocker.create_autospec(GradientFitnessFunction)
+    fitness_function.side_effect = lambda individual: 1 + individual.param**2
+    fitness_function.get_gradient = lambda individual: 2*individual.param
+
+    local_opt_fitness_function = ContinuousLocalOptimization(
+        fitness_function, algorithm)
+
+    individual = DummyLocalOptIndividual()
+    opt_indv_fitness = local_opt_fitness_function(individual)
+    assert opt_indv_fitness == pytest.approx(1, rel=0.05)
+
+
+class JacobianVectorFitnessFunction(VectorGradientMixin, VectorBasedFunction):
+    def evaluate_fitness_vector(self, individual):
+        pass
+
+    def get_jacobian(self, individual):
+        pass
+
+
 @pytest.mark.parametrize("algorithm", ROOT_SET)
-def test_optimize_params(mocker, algorithm):
+def test_optimize_params_root_without_jacobian(mocker, algorithm):
     fitness_function = mocker.create_autospec(VectorBasedFunction)
     fitness_function.evaluate_fitness_vector = lambda x: 1 + np.abs([x.param])
+
+    local_opt_fitness_function = ContinuousLocalOptimization(
+        fitness_function, algorithm)
+
+    individual = DummyLocalOptIndividual()
+    _ = local_opt_fitness_function(individual)
+    opt_indv_fitness = fitness_function.evaluate_fitness_vector(individual)
+    assert opt_indv_fitness[0] == pytest.approx(1, rel=0.05)
+
+
+@pytest.mark.parametrize("algorithm", ROOT_SET)
+def test_optimize_params_root_with_jacobian(mocker, algorithm):
+    fitness_function = mocker.create_autospec(JacobianVectorFitnessFunction)
+    fitness_function.evaluate_fitness_vector = lambda x: 1 + np.abs([x.param])
+    fitness_function.get_jacobian = lambda x: np.sign([x.param])
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)

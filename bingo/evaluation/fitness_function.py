@@ -69,10 +69,13 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
         if metric in ["mean absolute error", "mae"]:
             self._metric = VectorBasedFunction._mean_absolute_error
+            self._metric_string = "mae"
         elif metric in ["mean squared error", "mse"]:
             self._metric = VectorBasedFunction._mean_squared_error
+            self._metric_string = "mse"
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = VectorBasedFunction._root_mean_squared_error
+            self._metric_string = "rmse"
         else:
             raise KeyError("Invalid metric for Fitness Function")
 

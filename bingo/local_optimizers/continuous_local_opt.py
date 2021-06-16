@@ -11,6 +11,7 @@ import numpy as np
 import scipy.optimize as optimize
 
 from ..evaluation.fitness_function import FitnessFunction
+from ..evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 
 ROOT_SET = {
     # 'hybr',
@@ -32,7 +33,7 @@ MINIMIZE_SET = {
     'BFGS',
     # 'Newton-CG',
     'L-BFGS-B',
-    # 'TNC',
+    'TNC',
     # 'COBYLA',
     'SLSQP'
     # 'trust-constr'
@@ -66,7 +67,7 @@ class ContinuousLocalOptimization(FitnessFunction):
                 - BFGS
                 - Newton-CG (not available yet)
                 - L-BFGS-B
-                - TNC (not available yet)
+                - TNC
                 - COBYLA (not available yet)
                 - SLSQP
                 - trust-constr (not available yet)
@@ -174,15 +175,29 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     def _run_algorithm_for_optimization(self, sub_routine, individual, params):
         if self._algorithm in ROOT_SET:
-            optimize_result = optimize.root(sub_routine, params,
-                                            args=(individual),
-                                            method=self._algorithm,
-                                            tol=1e-6)
-        else:
-            optimize_result = optimize.minimize(sub_routine, params,
+            if isinstance(self._fitness_function, VectorGradientMixin):
+                optimize_result = optimize.root(sub_routine, params,
+                                                args=(individual),
+                                                jac=lambda x, individual: self._fitness_function.get_jacobian(individual),
+                                                method=self._algorithm,
+                                                tol=1e-6)
+            else:
+                optimize_result = optimize.root(sub_routine, params,
                                                 args=(individual),
                                                 method=self._algorithm,
                                                 tol=1e-6)
+        else:
+            if isinstance(self._fitness_function, GradientMixin):
+                optimize_result = optimize.minimize(sub_routine, params,
+                                                    args=(individual),
+                                                    jac=lambda x, individual: self._fitness_function.get_gradient(individual),
+                                                    method=self._algorithm,
+                                                    tol=1e-6)
+            else:
+                optimize_result = optimize.minimize(sub_routine, params,
+                                                    args=(individual),
+                                                    method=self._algorithm,
+                                                    tol=1e-6)
         return optimize_result.x
 
     def _evaluate_fitness(self, individual):

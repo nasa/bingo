@@ -14,6 +14,8 @@ import numpy as np
 from numba import jit, prange, cuda
 from math import prod, ceil
 
+from time import time
+
 np.seterr(divide='ignore', invalid='ignore')
 
 USE_GPU_FLAG = False
@@ -72,14 +74,22 @@ def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
 
     if not USE_GPU_FLAG:
         print("not using gpu")
-        return elem1 + elem2
+        start = time()
+        retval = elem1 + elem2
+        end = time()
+        print("non-gpu add took {} seconds".format(end - start))
+        return retval
 
     else:
         print("using gpu")
+        start = time()
         result = np.zeros(prod(elem1.shape))
         blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
         _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1.flatten(), elem2.flatten(), result)
-        return result.reshape(elem1.shape)
+        retval = result.reshape(elem1.shape)
+        end = time()
+        print("gpu add took {} seconds".format(end - start))
+        return retval
 
     """
     if isinstance(elem1, np.ndarray) and isinstance(elem2, np.ndarray):

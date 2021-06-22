@@ -75,7 +75,7 @@ if __name__ == "__main__":
     Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
     end = time()
 
-    np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)
+    np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
 
     print("Time elapsed for original example (seconds): ", mid - start)
     print("Time elapsed for parallelized example (seconds): ", end - mid)

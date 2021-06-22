@@ -9,6 +9,8 @@ import bingo.symbolic_regression.agraph.evaluation_backend.operator_eval as oper
 
 from time import time
 
+import sys
+
 
 def _create_random_equation():
     comp_gen = ComponentGenerator(2)
@@ -52,8 +54,8 @@ if __name__ == "__main__":
     #                            [f"C_{i}" for i in range(NUM_CONSTS)]))
 
     # this is roughly representative of the dimensions of the data we are using
-    constant_data_size = 20000
-    data_size = 20000
+    constant_data_size = int(sys.argv[1])
+    data_size = constant_data_size
     CONSTANTS = np.linspace(0, 1, constant_data_size * NUM_CONSTS).reshape(NUM_CONSTS, constant_data_size, 1)
     X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 

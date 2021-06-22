@@ -26,6 +26,9 @@ from bingo.symbolic_regression.agraph.operator_definitions import *
 def set_use_gpu(flag):
     NUMERICAL_LIB = cp if flag else np
 
+def is_using_gpu():
+    return NUMERICAL_LIB == cp
+
 # Integer value
 def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):
     return float(param1)

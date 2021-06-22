@@ -5,8 +5,10 @@ represented by an `AGraph`.  It can also perform derivatives.
 """
 
 import numpy as np
+import cupy as cp
 
 from .operator_eval import forward_eval_function, reverse_eval_function
+import operator_eval
 
 ENGINE = "Python"
 
@@ -45,6 +47,9 @@ def _reshape_output(output, constants, x):
     if isinstance(output, np.ndarray) and \
             output.shape == (x_dim, c_dim):
         return output
+
+    if operator_eval.is_using_gpu():
+        return cp.ones((x_dim, c_dim)) * output
     return np.ones((x_dim, c_dim)) * output
 
 

@@ -8,9 +8,8 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
-from .fitness_function import VectorBasedFunction
 
-
+# TODO fix documentation
 class GradientMixin(metaclass=ABCMeta):
     """Mixin for using gradients for fitness functions
 
@@ -18,7 +17,7 @@ class GradientMixin(metaclass=ABCMeta):
     of fitness functions.
     """
     @abstractmethod
-    def get_gradient(self, individual):
+    def get_fitness_and_gradient(self, individual):
         """Fitness function gradient
 
         Get the gradient of this function with respect to the
@@ -43,19 +42,22 @@ class VectorGradientMixin(GradientMixin):
     An abstract base class/mixin used to implement the gradients and jacobians
     of vector based fitness functions.
     """
-    def __init__(self, *args, **kwargs):
-        if not isinstance(self, VectorBasedFunction):
-            raise TypeError("VectorGradientMixin should be used with a VectorBasedFunction")
-        super().__init__(*args, **kwargs)
+    def __init__(self, training_data=None, metric="mae"):
+        super().__init__(training_data, metric)
 
-        if self._metric_string == "mae":
+        if metric == "mae":
+            self._metric = VectorGradientMixin._mean_absolute_error
             self._metric_derivative = VectorGradientMixin._mean_absolute_error_derivative
-        elif self._metric_string == "mse":
+        elif metric == "mse":
+            self._metric = VectorGradientMixin._mean_squared_error
             self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
-        elif self._metric_string == "rmse":
+        elif metric == "rmse":
+            self._metric = VectorGradientMixin._root_mean_squared_error
             self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
+        else:
+            raise KeyError("Invalid metric for vector gradient mixin")
 
-    def get_gradient(self, individual):
+    def get_fitness_and_gradient(self, individual):
         """Gradient of vector based fitness function with metric
         (i.e. the fitness function originally returns a vector
         that is converted into a scalar using some metric)
@@ -73,12 +75,11 @@ class VectorGradientMixin(GradientMixin):
         gradient :
             the gradient of this function with respect to each of the individual's constants
         """
-        fitness_vector = self.evaluate_fitness_vector(individual)
-        fitness_partials = self.get_jacobian(individual).transpose()
-        return self._metric_derivative(fitness_vector, fitness_partials)
+        fitness_vector, jacobian = self.get_fitness_vector_and_jacobian(individual)
+        return self._metric(fitness_vector), self._metric_derivative(fitness_vector, jacobian.transpose())
 
     @abstractmethod
-    def get_jacobian(self, individual):
+    def get_fitness_vector_and_jacobian(self, individual):
         """Returns the jacobian of this vector fitness function with
         respect to the passed in individual's constants
 
@@ -101,6 +102,18 @@ class VectorGradientMixin(GradientMixin):
             to each of the individual's constants
         """
         raise NotImplementedError
+
+    @staticmethod
+    def _mean_absolute_error(vector):
+        return np.mean(np.abs(vector))
+
+    @staticmethod
+    def _root_mean_squared_error(vector):
+        return np.sqrt(np.mean(np.square(vector)))
+
+    @staticmethod
+    def _mean_squared_error(vector):
+        return np.mean(np.square(vector))
 
     @staticmethod
     def _mean_absolute_error_derivative(fitness_vector, fitness_partials):

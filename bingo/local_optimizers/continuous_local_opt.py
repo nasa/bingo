@@ -169,8 +169,13 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     def _sub_routine_for_fit_function(self, params, individual):
         individual.set_local_optimization_params(params)
+
         if self._algorithm in ROOT_SET:
+            if isinstance(self._fitness_function, VectorGradientMixin):
+                return self._fitness_function.get_fitness_vector_and_jacobian(individual)
             return self._fitness_function.evaluate_fitness_vector(individual)
+        if isinstance(self._fitness_function, GradientMixin):
+            return self._fitness_function.get_fitness_and_gradient(individual)
         return self._fitness_function(individual)
 
     def _run_algorithm_for_optimization(self, sub_routine, individual, params):
@@ -178,7 +183,7 @@ class ContinuousLocalOptimization(FitnessFunction):
             if isinstance(self._fitness_function, VectorGradientMixin):
                 optimize_result = optimize.root(sub_routine, params,
                                                 args=(individual),
-                                                jac=lambda x, individual: self._fitness_function.get_jacobian(individual),
+                                                jac=True,
                                                 method=self._algorithm,
                                                 tol=1e-6)
             else:
@@ -190,7 +195,7 @@ class ContinuousLocalOptimization(FitnessFunction):
             if isinstance(self._fitness_function, GradientMixin):
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual),
-                                                    jac=lambda x, individual: self._fitness_function.get_gradient(individual),
+                                                    jac=True,
                                                     method=self._algorithm,
                                                     tol=1e-6)
             else:

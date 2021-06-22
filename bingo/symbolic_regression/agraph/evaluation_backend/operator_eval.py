@@ -11,6 +11,7 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 """
 
 import numpy as np
+import cupy as cp
 from numba import jit, prange, cuda
 from math import prod, ceil
 
@@ -18,11 +19,12 @@ from time import time
 
 np.seterr(divide='ignore', invalid='ignore')
 
-USE_GPU_FLAG = False
-GPU_THREADS_PER_BLOCK = 256
+NUMERICAL_LIB = np
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
 
+def set_use_gpu(flag):
+    NUMERICAL_LIB = cp if flag else np
 
 # Integer value
 def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):
@@ -53,73 +55,13 @@ def _loadc_reverse_eval(_reverseindex, _param1, _param2, _forwardeval,
                         _reverseeval):
     pass
 
-@cuda.jit
-def _add_gpu_kernel(elem1, elem2, result):
-    index = cuda.grid(1)
-
-    if index < result.shape[0]:
-        result[index] = elem1[index] + elem2[index]
-
-@cuda.jit
-def _sub_gpu_kernel(elem1, elem2, result):
-    index = cuda.grid(1)
-
-    if index < result.shape[0]:
-        result[index] = elem1[index] - elem2[index]
 
 # Addition
 def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
     elem1 = forward_eval[param1]
     elem2 = forward_eval[param2]
 
-    if not USE_GPU_FLAG:
-        print("not using gpu")
-        start = time()
-        retval = elem1 + elem2
-        end = time()
-        print("non-gpu add took {} seconds".format(end - start))
-        return retval
-
-    else:
-        print("using gpu")
-
-        result = np.zeros(prod(elem1.shape))
-        blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
-        flattened1 = elem1.flatten()
-        flattened2 = elem2.flatten()
-        start = time()
-        _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](flattened1, flattened2, result)
-        end = time()
-        retval = result.reshape(elem1.shape)
-        print("gpu add took {} seconds".format(end - start))
-        return retval
-
-    """
-    if isinstance(elem1, np.ndarray) and isinstance(elem2, np.ndarray):
-        if len(elem1.shape) < len(elem2.shape):
-            elem1 = np.resize(elem1, elem2.shape)
-        elif len(elem2.shape) < len(elem1.shape):
-            elem2 = np.resize(elem2, elem1.shape)
-            print("resized")
-        if not elem1.shape == elem2.shape:
-            raise RuntimeError("Error: matrix dimensions {} and {} are not compatible with addition".format(elem1.shape, elem2.shape))
-
-        result = np.zeros(elem1.shape)
-        _elementwise_op_gpu_helper(elem1, elem2)
-        return result
-    elif isinstance(elem1, np.ndarray):
-        result = np.zeros(elem1.shape)
-        _elementwise_op_gpu_helper(elem1, elem2)
-        return result
-    elif isinstance(elem2, np.ndarray):
-        result = np.zeros(elem2.shape)
-        _elementwise_op_gpu_helper(elem2, elem1, lambda a, b, i : a[i] + b, result)
-        return result
-    else:
-        return elem1 + elem2
-        
-    """
-
+    return elem1 + elem2
 
 def _add_reverse_eval(reverse_index, param1, param2, _forwardeval,
                       reverse_eval):
@@ -132,15 +74,7 @@ def _subtract_forward_eval(param1, param2, _x, _constants, forward_eval):
     elem1 = forward_eval[param1]
     elem2 = forward_eval[param2]
 
-    if not USE_GPU_FLAG:
-        return elem1 - elem2
-
-    else:
-        result = np.zeros(prod(elem1.shape))
-        blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
-        _sub_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1.flatten(), elem2.flatten(), result)
-        return result.reshape(elem1.shape)
-
+    return elem1 - elem2
 
 def _subtract_reverse_eval(reverse_index, param1, param2, _forwardeval,
                            reverse_eval):

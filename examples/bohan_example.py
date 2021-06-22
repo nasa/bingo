@@ -1,4 +1,5 @@
 import numpy as np
+import cupy as cp
 from bingo.symbolic_regression import ComponentGenerator, AGraphGenerator
 from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
     import evaluate
@@ -64,11 +65,14 @@ if __name__ == "__main__":
     # we may end up moving more work to the GPU but lets start with this
 
     start = time()
-    operator_eval.USE_GPU_FLAG = False
+    operator_eval.set_use_gpu(False)
     Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
     mid = time()
-    operator_eval.USE_GPU_FLAG = True
-    Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
+    operator_eval.set_use_gpu(True)
+
+    CONSTANTS_GPU = cp.array(CONSTANTS)
+    X_DATA_GPU = cp.array(X_DATA)
+    Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU)
     end = time()
 
     np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)

@@ -85,10 +85,12 @@ def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
 
         result = np.zeros(prod(elem1.shape))
         blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
+        flattened1 = elem1.flatten()
+        flattened2 = elem2.flatten()
         start = time()
-        _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1.flatten(), elem2.flatten(), result)
-        retval = result.reshape(elem1.shape)
+        _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](flattened1, flattened2, result)
         end = time()
+        retval = result.reshape(elem1.shape)
         print("gpu add took {} seconds".format(end - start))
         return retval
 

@@ -27,19 +27,19 @@ def _create_random_equation():
 
 if __name__ == "__main__":
     # equation to use in the example
-    COMMAND_ARRAY = np.array([[1, 0, 0],
-                              [-1, 2, 2],
-                              [1, 1, 1],
-                              [4, 1, 2],
-                              [0, 0, 0],
-                              [4, 3, 4],
-                              [-1, -1, -1],
-                              [4, 6, 2],
-                              [4, 7, 4],
-                              [2, 5, 8],
-                              [2, 0, 9],
-                              [0, 1, 1],
-                              [3, 10, 11]])
+    COMMAND_ARRAY = np.array([[1, 0, 0],    # 0
+                              [-1, 2, 2],   # 1
+                              [1, 1, 1],    # 2
+                              [4, 1, 2],    # 3
+                              [0, 0, 0],    # 4
+                              [4, 3, 4],    # 5
+                              [-1, -1, -1], # 6
+                              [4, 6, 2],    # 7
+                              [4, 7, 4],    # 8
+                              [2, 5, 8],    # 9
+                              [2, 0, 9],    # 10
+                              [0, 1, 1],    # 11
+                              [3, 10, 11]]) # 12
     NUM_CONSTS = 2
 
     # you can test out other equations by uncommenting the next line
@@ -52,9 +52,9 @@ if __name__ == "__main__":
     #                            [f"C_{i}" for i in range(NUM_CONSTS)]))
 
     # this is roughly representative of the dimensions of the data we are using
-    constant_data_size = 800
-    data_size = 200
-    CONSTANTS = np.linspace(0, 1, constant_data_size * NUM_CONSTS).reshape(NUM_CONSTS, constant_data_size)
+    constant_data_size = 20000
+    data_size = 20000
+    CONSTANTS = np.linspace(0, 1, constant_data_size * NUM_CONSTS).reshape(NUM_CONSTS, constant_data_size, 1)
     X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 
     # this is the evaluation of the equation

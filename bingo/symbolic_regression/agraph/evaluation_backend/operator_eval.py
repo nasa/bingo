@@ -71,9 +71,11 @@ def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
     elem2 = forward_eval[param2]
 
     if not USE_GPU_FLAG:
+        print("not using gpu")
         return elem1 + elem2
 
     else:
+        print("using gpu")
         result = np.zeros(prod(elem1.shape))
         blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
         _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1.flatten(), elem2.flatten(), result)

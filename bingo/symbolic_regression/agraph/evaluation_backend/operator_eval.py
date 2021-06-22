@@ -55,19 +55,15 @@ def _loadc_reverse_eval(_reverseindex, _param1, _param2, _forwardeval,
 def _add_gpu_kernel(elem1, elem2, result):
     index = cuda.grid(1)
 
-    if index < prod(result.shape):
-        pass
-        array_indices = np.unravel_index(index, result.shape)
-        result[array_indices] = elem1[array_indices] + elem2[array_indices]
+    if index < result.shape[0]:
+        result[index] = elem1[index] + elem2[index]
 
 @cuda.jit
 def _sub_gpu_kernel(elem1, elem2, result):
     index = cuda.grid(1)
 
-    if index < prod(result.shape):
-        pass
-        array_indices = np.unravel_index(index, result.shape)
-        result[array_indices] = elem1[array_indices] - elem2[array_indices]
+    if index < result.shape[0]:
+        result[index] = elem1[index] - elem2[index]
 
 # Addition
 def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
@@ -78,9 +74,11 @@ def _add_forward_eval(param1, param2, _x, _constants, forward_eval):
         return elem1 + elem2
 
     else:
-        result = np.zeros(elem1.shape)
+        result = np.zeros(prod(elem1.shape))
         blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
-        _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1, elem2, result)
+        _add_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1.flatten(), elem2.flatten(), result)
+        return result.reshape(elem1.shape)
+
     """
     if isinstance(elem1, np.ndarray) and isinstance(elem2, np.ndarray):
         if len(elem1.shape) < len(elem2.shape):
@@ -123,9 +121,10 @@ def _subtract_forward_eval(param1, param2, _x, _constants, forward_eval):
         return elem1 - elem2
 
     else:
-        result = np.zeros(elem1.shape)
+        result = np.zeros(prod(elem1.shape))
         blockspergrid = ceil(prod(result.shape) / GPU_THREADS_PER_BLOCK)
-        _sub_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1, elem2, result)
+        _sub_gpu_kernel[blockspergrid, GPU_THREADS_PER_BLOCK](elem1.flatten(), elem2.flatten(), result)
+        return result.reshape(elem1.shape)
 
 
 def _subtract_reverse_eval(reverse_index, param1, param2, _forwardeval,

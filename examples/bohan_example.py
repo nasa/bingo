@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     CONSTANTS_GPU = cp.array(CONSTANTS)
     X_DATA_GPU = cp.array(X_DATA)
-    Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU)
+    Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
     end = time()
 
     np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)

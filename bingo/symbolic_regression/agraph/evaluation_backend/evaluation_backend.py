@@ -8,12 +8,11 @@ import numpy as np
 import cupy as cp
 
 from .operator_eval import forward_eval_function, reverse_eval_function
-import operator_eval
 
 ENGINE = "Python"
 
 
-def evaluate(stack, x, constants):
+def evaluate(stack, x, constants, use_gpu = False):
     """Evaluate an equation
 
     Evaluate the equation associated with an Agraph, at the values x.
@@ -35,10 +34,10 @@ def evaluate(stack, x, constants):
         :math`f(x)`
     """
     forward_eval = _forward_eval(stack, x, constants)
-    return _reshape_output(forward_eval[-1], constants, x)
+    return _reshape_output(forward_eval[-1], constants, x, use_gpu)
 
 
-def _reshape_output(output, constants, x):
+def _reshape_output(output, constants, x, use_gpu = False):
     x_dim = len(x)
     c_dim = 1
     if len(constants) > 0:
@@ -48,7 +47,7 @@ def _reshape_output(output, constants, x):
             output.shape == (x_dim, c_dim):
         return output
 
-    if operator_eval.is_using_gpu():
+    if use_gpu:
         return cp.ones((x_dim, c_dim)) * output
     return np.ones((x_dim, c_dim)) * output
 

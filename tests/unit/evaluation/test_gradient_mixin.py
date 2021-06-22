@@ -65,9 +65,10 @@ class VectorGradFitnessFunction(VectorGradientMixin, VectorBasedFunction):
 
 
 @pytest.mark.parametrize("metric, expected_fitness, expected_fit_grad",
-                         [("mae", 4/3, [-1/3, 2/3]),
-                          ("mse", 8/3, [-4/3, 8/3]),
-                          ("rmse", np.sqrt(8/3), [np.sqrt(3/8) * -2/3, np.sqrt(3/8) * 4/3])])
+                         [("mae", 4/3, [-1/3, 2/3]), ("mean absolute error", 4/3, [-1/3, 2/3]),
+                          ("mse", 8/3, [-4/3, 8/3]), ("mean squared error", 8/3, [-4/3, 8/3]),
+                          ("rmse", np.sqrt(8/3), [np.sqrt(3/8) * -2/3, np.sqrt(3/8) * 4/3]),
+                          ("root mean squared error", np.sqrt(8/3), [np.sqrt(3/8) * -2/3, np.sqrt(3/8) * 4/3])])
 def test_vector_gradient(metric, expected_fitness, expected_fit_grad):
     vector_function = VectorGradFitnessFunction(metric)
     fitness, gradient = vector_function.get_fitness_and_gradient(None)

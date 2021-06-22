@@ -45,13 +45,13 @@ class VectorGradientMixin(GradientMixin):
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data, metric)
 
-        if metric == "mae":
+        if metric in ["mean absolute error", "mae"]:
             self._metric = VectorGradientMixin._mean_absolute_error
             self._metric_derivative = VectorGradientMixin._mean_absolute_error_derivative
-        elif metric == "mse":
+        elif metric in ["mean squared error", "mse"]:
             self._metric = VectorGradientMixin._mean_squared_error
             self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
-        elif metric == "rmse":
+        elif metric in ["root mean squared error", "rmse"]:
             self._metric = VectorGradientMixin._root_mean_squared_error
             self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
         else:

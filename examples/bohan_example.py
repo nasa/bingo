@@ -10,6 +10,7 @@ from bingo.symbolic_regression.agraph.string_generation \
 import bingo.symbolic_regression.agraph.evaluation_backend.operator_eval as operator_eval
 
 from time import time
+from scipy.stats import describe
 
 import sys
 
@@ -59,9 +60,10 @@ if __name__ == "__main__":
 
     num_trials = 1000
 
-    avg_np_time = 0
-    avg_gpu_time = 0
-    avg_cpu_time = 0
+    np_times = np.zeros((num_trials))
+    gpu_times = np.zeros((num_trials))
+    cpu_times = np.zeros((num_trials))
+
     for i in range(num_trials):
         constant_data_size = int(sys.argv[1])
         data_size = constant_data_size
@@ -92,22 +94,30 @@ if __name__ == "__main__":
         end_gpu.record()
         end_gpu.synchronize()
 
-        avg_np_time += mid - start
-        avg_cpu_time += end_cpu - start_cpu
-        avg_gpu_time += cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
+        np_times[i] = mid - start
+        cpu_times += end_cpu - start_cpu
+        gpu_times += cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
         np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
 
-    avg_np_time /= num_trials
-    avg_gpu_time /= num_trials
-    avg_cpu_time /= num_trials
+    avg_np_time = sum(np_times) / num_trials
+    avg_gpu_time = sum(gpu_times) / num_trials
+    avg_cpu_time = sum(cpu_times) / num_trials
 
     print("Average time elapsed on CPU for parallelized example (seconds): ", avg_cpu_time)
     print("Average time elapsed on GPU for parallelized example (seconds): ", avg_gpu_time)
 
     print("Average time elapsed for original example (seconds): ", avg_np_time)
+    
+    print("-----------------np stats-----------------")
+    print(describe(np_times))
+    print("-----------------cpu stats-----------------")
+    print(describe(cpu_times))
+    print("-----------------gpu stats-----------------")
+    print(describe(gpu_times))
+
     #results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1)
     #print(results)
     

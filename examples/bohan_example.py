@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     print("Time elapsed for original example (seconds): ", mid - start)
     print("Time elapsed on CPU for parallelized example (seconds): ", end_cpu - start_cpu)
-    print("Time elapsed on GPU for parallelized example (seconds): ", cp.cuda.get_elapsed_time(start_gpu, end_gpu))
+    print("Time elapsed on GPU for parallelized example (seconds): ", cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000)
 
 
 

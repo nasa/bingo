@@ -29,6 +29,8 @@ def _create_random_equation():
     return equ._simplified_command_array, \
            equ.get_number_local_optimization_params()
 
+def reject_outliers(data, m=2):
+    return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 if __name__ == "__main__":
     # equation to use in the example
@@ -112,11 +114,11 @@ if __name__ == "__main__":
     print("Average time elapsed for original example (seconds): ", avg_np_time)
 
     print("-----------------np stats-----------------")
-    print(describe(np_times))
+    print(describe(reject_outliers(np_times)))
     print("-----------------cpu stats-----------------")
-    print(describe(cpu_times))
+    print(describe(reject_outliers(cpu_times)))
     print("-----------------gpu stats-----------------")
-    print(describe(gpu_times))
+    print(describe(reject_outliers(gpu_times)))
 
     #results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1)
     #print(results)

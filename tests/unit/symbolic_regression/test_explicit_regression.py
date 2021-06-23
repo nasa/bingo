@@ -179,17 +179,21 @@ def test_training_data_len(explicit_training_data, num_elements):
 
 
 def test_explicit_regression(sample_regression, sample_equation):
+    assert sample_regression.eval_count == 0
     fit_vec = sample_regression.evaluate_fitness_vector(sample_equation)
     expected_fit_vec = 1 - np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+    assert sample_regression.eval_count == 1
 
 
 def test_explicit_regression_relative(sample_regression_relative,
                                       sample_equation):
+    assert sample_regression_relative.eval_count == 0
     fit_vec = sample_regression_relative.evaluate_fitness_vector(
         sample_equation)
     expected_fit_vec = (1 - np.arange(1, 11)) / np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+    assert sample_regression_relative.eval_count == 1
 
 
 @pytest.mark.parametrize("metric, expected_fit, expected_grad",
@@ -199,41 +203,51 @@ def test_explicit_regression_relative(sample_regression_relative,
 def test_explicit_regression_get_fit_and_grad(explicit_regression, sample_training_data, sample_differentiable_equation,
                                               metric, expected_fit, expected_grad):
     sample_regression = explicit_regression(sample_training_data, metric, relative=False)
+    assert sample_regression.eval_count == 0
     fitness, gradient = sample_regression.get_fitness_and_gradient(sample_differentiable_equation)
 
     assert fitness == expected_fit
     np.testing.assert_array_equal(gradient, expected_grad)
+    assert sample_regression.eval_count == 1
 
 
 @pytest.mark.parametrize("metric, expected_fit, expected_grad",
                          [("mae", 1.293, np.array([0.707, 0.293])),
                           ("mse", 1.741, 2 * np.array([0.845, 0.448])),
                           ("rmse", 1.319, 0.758 * np.array([0.845, 0.448]))])
-def test_explicit_regression_relative_get_fit_and_grad(explicit_regression, sample_training_data, sample_differentiable_equation,
-                                              metric, expected_fit, expected_grad):
-    sample_regression = explicit_regression(sample_training_data, metric, relative=True)
-    fitness, gradient = sample_regression.get_fitness_and_gradient(sample_differentiable_equation)
+def test_explicit_regression_relative_get_fit_and_grad(explicit_regression, sample_training_data,
+                                                       sample_differentiable_equation, metric, expected_fit,
+                                                       expected_grad):
+    sample_regression_relative = explicit_regression(sample_training_data, metric, relative=True)
+    assert sample_regression_relative.eval_count == 0
+    fitness, gradient = sample_regression_relative.get_fitness_and_gradient(sample_differentiable_equation)
 
     assert fitness == pytest.approx(expected_fit, 0.001)
     np.testing.assert_array_almost_equal(gradient, expected_grad, 3)
+    assert sample_regression_relative.eval_count == 1
 
 
 def test_differentiable_explicit_regression(sample_regression, sample_differentiable_equation,
                                             expected_differentiable_equation_output):
+    assert sample_regression.eval_count == 0
     fit_vec = sample_regression.evaluate_fitness_vector(sample_differentiable_equation)
     expected_fit_vec = expected_differentiable_equation_output - np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+    assert sample_regression.eval_count == 1
 
 
 def test_differentiable_explicit_regression_relative(sample_regression_relative, sample_differentiable_equation,
                                                      expected_differentiable_equation_output):
+    assert sample_regression_relative.eval_count == 0
     fit_vec = sample_regression_relative.evaluate_fitness_vector(sample_differentiable_equation)
     expected_fit_vec = (expected_differentiable_equation_output - np.arange(1, 11)) / np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
+    assert sample_regression_relative.eval_count == 1
 
 
 def test_explicit_regression_get_fit_vec_and_jac(sample_regression, sample_differentiable_equation,
                                                  expected_differentiable_equation_output):
+    assert sample_regression.eval_count == 0
     fit_vec, fit_jac = sample_regression.get_fitness_vector_and_jacobian(sample_differentiable_equation)
 
     expected_fit_vec = expected_differentiable_equation_output - np.arange(1, 11)
@@ -241,10 +255,12 @@ def test_explicit_regression_get_fit_vec_and_jac(sample_regression, sample_diffe
 
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
     np.testing.assert_array_equal(fit_jac, expected_jac)
+    assert sample_regression.eval_count == 1
 
 
 def test_explicit_regression_relative_get_fit_vec_and_jac(sample_regression_relative, sample_differentiable_equation,
                                                           expected_differentiable_equation_output):
+    assert sample_regression_relative.eval_count == 0
     fit_vec, fit_jac = sample_regression_relative.get_fitness_vector_and_jacobian(sample_differentiable_equation)
 
     expected_fit_vec = (expected_differentiable_equation_output - np.arange(1, 11)) / np.arange(1, 11)
@@ -252,6 +268,7 @@ def test_explicit_regression_relative_get_fit_vec_and_jac(sample_regression_rela
 
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
     np.testing.assert_array_equal(fit_jac, expected_jac)
+    assert sample_regression_relative.eval_count == 1
 
 
 def test_can_pickle(sample_regression):

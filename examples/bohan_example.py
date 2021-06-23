@@ -75,6 +75,7 @@ if __name__ == "__main__":
         CONSTANTS_GPU = cp.array(CONSTANTS)
         X_DATA_GPU = cp.array(X_DATA)
 
+    """
     start_gpu = cp.cuda.Event()
     end_gpu = cp.cuda.Event()
     start_gpu.record()
@@ -84,18 +85,19 @@ if __name__ == "__main__":
     end_gpu.record()
     end_gpu.synchronize()
 
-
     #print(Y_PREDICTION_GPU)
     #print(Y_PREDICTION)
     np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
+    
+    print("Time elapsed on CPU for parallelized example (seconds): ", end_cpu - start_cpu)
+    print("Time elapsed on GPU for parallelized example (seconds): ", cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000)
+    """
 
-
+    print("Time elapsed for original example (seconds): ", mid - start)
     results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1000)
     print(results)
     
-    print("Time elapsed for original example (seconds): ", mid - start)
-    print("Time elapsed on CPU for parallelized example (seconds): ", end_cpu - start_cpu)
-    print("Time elapsed on GPU for parallelized example (seconds): ", cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000)
+
 
 
 

@@ -94,7 +94,7 @@ if __name__ == "__main__":
     """
 
     print("Time elapsed for original example (seconds): ", mid - start)
-    results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1000)
+    results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1)
     print(results)
     
 

@@ -8,6 +8,19 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 
 
+# Fitness metric functions, outside of FitnessFunction for use in GradientMixin
+def mean_absolute_error(vector):
+    return np.mean(np.abs(vector))
+
+
+def root_mean_squared_error(vector):
+    return np.sqrt(np.mean(np.square(vector)))
+
+
+def mean_squared_error(vector):
+    return np.mean(np.square(vector))
+
+
 class FitnessFunction(metaclass=ABCMeta):
     """Fitness evaluation metric for individuals.
 
@@ -68,11 +81,11 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         super().__init__(training_data)
 
         if metric in ["mean absolute error", "mae"]:
-            self._metric = VectorBasedFunction._mean_absolute_error
+            self._metric = mean_absolute_error
         elif metric in ["mean squared error", "mse"]:
-            self._metric = VectorBasedFunction._mean_squared_error
+            self._metric = mean_squared_error
         elif metric in ["root mean squared error", "rmse"]:
-            self._metric = VectorBasedFunction._root_mean_squared_error
+            self._metric = root_mean_squared_error
         else:
             raise KeyError("Invalid metric for Fitness Function")
 
@@ -98,15 +111,3 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     @abstractmethod
     def evaluate_fitness_vector(self, individual):
         raise NotImplementedError
-
-    @staticmethod
-    def _mean_absolute_error(vector):
-        return np.mean(np.abs(vector))
-
-    @staticmethod
-    def _root_mean_squared_error(vector):
-        return np.sqrt(np.mean(np.square(vector)))
-
-    @staticmethod
-    def _mean_squared_error(vector):
-        return np.mean(np.square(vector))

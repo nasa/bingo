@@ -5,6 +5,7 @@ This module defines the basis of gradient and jacobian partial derivatives
 of fitness functions used in bingo evolutionary analyses.
 """
 from abc import ABCMeta, abstractmethod
+from .fitness_function import mean_absolute_error, mean_squared_error, root_mean_squared_error
 
 import numpy as np
 
@@ -55,13 +56,13 @@ class VectorGradientMixin(GradientMixin):
         super().__init__(training_data, metric)
 
         if metric in ["mean absolute error", "mae"]:
-            self._metric = VectorGradientMixin._mean_absolute_error
+            self._metric = mean_absolute_error
             self._metric_derivative = VectorGradientMixin._mean_absolute_error_derivative
         elif metric in ["mean squared error", "mse"]:
-            self._metric = VectorGradientMixin._mean_squared_error
+            self._metric = mean_squared_error
             self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
         elif metric in ["root mean squared error", "rmse"]:
-            self._metric = VectorGradientMixin._root_mean_squared_error
+            self._metric = root_mean_squared_error
             self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
         else:
             raise KeyError("Invalid metric for vector gradient mixin")
@@ -115,18 +116,6 @@ class VectorGradientMixin(GradientMixin):
             to the individual's constants
         """
         raise NotImplementedError
-
-    @staticmethod
-    def _mean_absolute_error(vector):
-        return np.mean(np.abs(vector))
-
-    @staticmethod
-    def _root_mean_squared_error(vector):
-        return np.sqrt(np.mean(np.square(vector)))
-
-    @staticmethod
-    def _mean_squared_error(vector):
-        return np.mean(np.square(vector))
 
     @staticmethod
     def _mean_absolute_error_derivative(fitness_vector, fitness_partials):

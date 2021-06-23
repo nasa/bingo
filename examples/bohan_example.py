@@ -95,8 +95,8 @@ if __name__ == "__main__":
         end_gpu.synchronize()
 
         np_times[i] = mid - start
-        cpu_times += end_cpu - start_cpu
-        gpu_times += cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
+        cpu_times[i] = end_cpu - start_cpu
+        gpu_times[i] = cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     print("Average time elapsed on GPU for parallelized example (seconds): ", avg_gpu_time)
 
     print("Average time elapsed for original example (seconds): ", avg_np_time)
-    
+
     print("-----------------np stats-----------------")
     print(describe(np_times))
     print("-----------------cpu stats-----------------")

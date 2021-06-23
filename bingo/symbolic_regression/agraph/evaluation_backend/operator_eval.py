@@ -18,7 +18,7 @@ from bingo.symbolic_regression.agraph.operator_definitions import *
 
 # Integer value
 def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):
-    return param1
+    return float(param1)
 
 
 def _integer_reverse_eval(_reverseindex, _param1, _param2, _forwardeval,

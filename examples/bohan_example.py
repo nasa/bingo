@@ -56,46 +56,60 @@ if __name__ == "__main__":
     #                            [f"C_{i}" for i in range(NUM_CONSTS)]))
 
     # this is roughly representative of the dimensions of the data we are using
-    constant_data_size = int(sys.argv[1])
-    data_size = constant_data_size
-    CONSTANTS = np.linspace(0, 1, constant_data_size * NUM_CONSTS).reshape(NUM_CONSTS, constant_data_size)
-    X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 
-    # this is the evaluation of the equation
-    # the evaluation function is where we want to start off looking for speedup
-    # we may end up moving more work to the GPU but lets start with this
+    num_trials = 1000
 
-    operator_eval.set_use_gpu(False)
-    start = time()
-    Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
-    mid = time()
-    operator_eval.set_use_gpu(True)
+    avg_np_time = 0
+    avg_gpu_time = 0
+    avg_cpu_time = 0
+    for i in range(num_trials):
+        constant_data_size = int(sys.argv[1])
+        data_size = constant_data_size
+        CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
+        X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 
-    with cp.cuda.Device(0):
-        CONSTANTS_GPU = cp.array(CONSTANTS)
-        X_DATA_GPU = cp.array(X_DATA)
+        # this is the evaluation of the equation
+        # the evaluation function is where we want to start off looking for speedup
+        # we may end up moving more work to the GPU but lets start with this
 
-    """
-    start_gpu = cp.cuda.Event()
-    end_gpu = cp.cuda.Event()
-    start_gpu.record()
-    start_cpu = time()
-    Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
-    end_cpu = time()
-    end_gpu.record()
-    end_gpu.synchronize()
+        operator_eval.set_use_gpu(False)
+        start = time()
+        Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
+        mid = time()
+        operator_eval.set_use_gpu(True)
 
-    #print(Y_PREDICTION_GPU)
-    #print(Y_PREDICTION)
-    np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
-    
-    print("Time elapsed on CPU for parallelized example (seconds): ", end_cpu - start_cpu)
-    print("Time elapsed on GPU for parallelized example (seconds): ", cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000)
-    """
+        with cp.cuda.Device(0):
+            CONSTANTS_GPU = cp.array(CONSTANTS)
+            X_DATA_GPU = cp.array(X_DATA)
 
-    print("Time elapsed for original example (seconds): ", mid - start)
-    results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1)
-    print(results)
+
+        start_gpu = cp.cuda.Event()
+        end_gpu = cp.cuda.Event()
+        start_gpu.record()
+        start_cpu = time()
+        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
+        end_cpu = time()
+        end_gpu.record()
+        end_gpu.synchronize()
+
+        avg_np_time += mid - start
+        avg_cpu_time += end_cpu - start_cpu
+        avg_gpu_time += cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
+
+        #print(Y_PREDICTION_GPU)
+        #print(Y_PREDICTION)
+        np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
+
+    avg_np_time /= num_trials
+    avg_gpu_time /= num_trials
+    avg_cpu_time /= num_trials
+
+    print("Average time elapsed on CPU for parallelized example (seconds): ", avg_cpu_time)
+    print("Average time elapsed on GPU for parallelized example (seconds): ", avg_gpu_time)
+
+    print("Average time elapsed for original example (seconds): ", avg_np_time)
+    #results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1)
+    #print(results)
     
 
 

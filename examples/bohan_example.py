@@ -64,23 +64,34 @@ if __name__ == "__main__":
     # the evaluation function is where we want to start off looking for speedup
     # we may end up moving more work to the GPU but lets start with this
 
-    start = time()
     operator_eval.set_use_gpu(False)
+    start = time()
     Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
     mid = time()
     operator_eval.set_use_gpu(True)
 
-    CONSTANTS_GPU = cp.array(CONSTANTS)
-    X_DATA_GPU = cp.array(X_DATA)
+    with cp.cuda.Device(0):
+        CONSTANTS_GPU = cp.array(CONSTANTS)
+        X_DATA_GPU = cp.array(X_DATA)
+
+    start_gpu = cp.cuda.Event()
+    end_gpu = cp.cuda.Event()
+    start_gpu.record()
+    start_cpu = time()
     Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
-    end = time()
+    end_cpu = time()
+    end_gpu.record()
+    end_gpu.synchronize()
+
 
     #print(Y_PREDICTION_GPU)
     #print(Y_PREDICTION)
     np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
 
     print("Time elapsed for original example (seconds): ", mid - start)
-    print("Time elapsed for parallelized example (seconds): ", end - mid)
+    print("Time elapsed on CPU for parallelized example (seconds): ", end_cpu - start_cpu)
+    print("Time elapsed on GPU for parallelized example (seconds): ", cp.cuda.get_elapsed_time(start_gpu, end_gpu))
+
 
 
 

@@ -82,16 +82,18 @@ if __name__ == "__main__":
         mid = time()
         operator_eval.set_use_gpu(True)
 
-        with cp.cuda.Device(0):
-            CONSTANTS_GPU = cp.array(CONSTANTS)
-            X_DATA_GPU = cp.array(X_DATA)
-
-
         start_gpu = cp.cuda.Event()
         end_gpu = cp.cuda.Event()
         start_gpu.record()
         start_cpu = time()
+
+        with cp.cuda.Device(0):
+            CONSTANTS_GPU = cp.array(CONSTANTS)
+            X_DATA_GPU = cp.array(X_DATA)
+
         Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
+        Y_OUTPUT_GPU = Y_PREDICTION_GPU.get()
+
         end_cpu = time()
         end_gpu.record()
         end_gpu.synchronize()
@@ -102,7 +104,7 @@ if __name__ == "__main__":
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
-        np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
+        np.testing.assert_allclose(Y_OUTPUT_GPU, Y_PREDICTION)
 
     avg_np_time = sum(np_times) / num_trials
     avg_gpu_time = sum(gpu_times) / num_trials

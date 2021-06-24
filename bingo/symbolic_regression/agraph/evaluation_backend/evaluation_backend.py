@@ -11,6 +11,7 @@ from .operator_eval import forward_eval_function, reverse_eval_function
 
 ENGINE = "Python"
 
+EVALUATION_PARAMS = {"NUM_LIB": np}
 
 def evaluate(stack, x, constants, use_gpu = False):
     """Evaluate an equation

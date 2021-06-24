@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     for i in range(num_trials):
         constant_data_size = int(sys.argv[1])
-        data_size = constant_data_size
+        data_size = 200
         CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
         X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 

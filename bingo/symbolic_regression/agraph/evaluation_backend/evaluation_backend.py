@@ -5,13 +5,11 @@ represented by an `AGraph`.  It can also perform derivatives.
 """
 
 import numpy as np
-import cupy as cp
 
 from .operator_eval import forward_eval_function, reverse_eval_function
 
 ENGINE = "Python"
-
-EVALUATION_PARAMS = {"NUM_LIB": np}
+_using_gpu = False
 
 def evaluate(stack, x, constants, use_gpu = False):
     """Evaluate an equation
@@ -34,11 +32,19 @@ def evaluate(stack, x, constants, use_gpu = False):
     Mx1 array of numeric
         :math`f(x)`
     """
+    if use_gpu != _using_gpu:
+        _numlib_import_helper(use_gpu)
     forward_eval = _forward_eval(stack, x, constants)
-    return _reshape_output(forward_eval[-1], constants, x, use_gpu)
+    return _reshape_output(forward_eval[-1], constants, x)
 
+def _numlib_import_helper(use_gpu):
+    global np
+    if use_gpu:
+        import cupy as np
+    else:
+        import numpy as np
 
-def _reshape_output(output, constants, x, use_gpu = False):
+def _reshape_output(output, constants, x):
     x_dim = len(x)
     c_dim = 1
     if len(constants) > 0:
@@ -48,8 +54,6 @@ def _reshape_output(output, constants, x, use_gpu = False):
             output.shape == (x_dim, c_dim):
         return output
 
-    if use_gpu:
-        return cp.ones((x_dim, c_dim)) * output
     return np.ones((x_dim, c_dim)) * output
 
 

@@ -34,6 +34,7 @@ def evaluate(stack, x, constants, use_gpu = False):
     """
     if use_gpu != _using_gpu:
         _numlib_import_helper(use_gpu)
+        _using_gpu = use_gpu
     forward_eval = _forward_eval(stack, x, constants)
     return _reshape_output(forward_eval[-1], constants, x)
 

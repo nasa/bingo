@@ -7,6 +7,7 @@ represented by an `AGraph`.  It can also perform derivatives.
 import numpy as np
 
 from .operator_eval import forward_eval_function, reverse_eval_function
+import bingo.util.global_imports as gi
 
 ENGINE = "Python"
 
@@ -47,7 +48,7 @@ def _reshape_output(output, constants, x):
             output.shape == (x_dim, c_dim):
         return output
 
-    return np.ones((x_dim, c_dim)) * output
+    return gi.num_lib.ones((x_dim, c_dim)) * output
 
 
 def evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):

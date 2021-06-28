@@ -9,9 +9,8 @@ import numpy as np
 from .operator_eval import forward_eval_function, reverse_eval_function
 
 ENGINE = "Python"
-_using_gpu = False
 
-def evaluate(stack, x, constants, use_gpu = False):
+def evaluate(stack, x, constants):
     """Evaluate an equation
 
     Evaluate the equation associated with an Agraph, at the values x.
@@ -32,14 +31,11 @@ def evaluate(stack, x, constants, use_gpu = False):
     Mx1 array of numeric
         :math`f(x)`
     """
-    global _using_gpu
-    if use_gpu != _using_gpu:
-        _numlib_import_helper(use_gpu)
-        _using_gpu = use_gpu
+
     forward_eval = _forward_eval(stack, x, constants)
     return _reshape_output(forward_eval[-1], constants, x)
 
-def _numlib_import_helper(use_gpu):
+def set_use_gpu(use_gpu):
     global np
     if use_gpu:
         import cupy as np

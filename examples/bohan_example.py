@@ -7,7 +7,7 @@ from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
 from bingo.symbolic_regression.agraph.string_generation \
     import get_formatted_string
 
-import bingo.symbolic_regression.agraph.evaluation_backend.operator_eval as operator_eval
+import bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend as eval
 
 from time import time
 from scipy.stats import describe
@@ -84,23 +84,18 @@ if __name__ == "__main__":
         # the evaluation function is where we want to start off looking for speedup
         # we may end up moving more work to the GPU but lets start with this
 
-        operator_eval.set_use_gpu(False)
+        eval.set_use_gpu(False)
         start = time()
-        Y_PREDICTION = evaluate(COMMAND_ARRAY, X_DATA, CONSTANTS)
+        Y_PREDICTION = evaluate(graph._simplified_command_array, X_DATA, CONSTANTS)
         mid = time()
-        operator_eval.set_use_gpu(True)
+        eval.set_use_gpu(True)
 
         start_gpu = cp.cuda.Event()
         end_gpu = cp.cuda.Event()
         start_gpu.record()
         start_cpu = time()
 
-        with cp.cuda.Device(0):
-            CONSTANTS_GPU = cp.array(CONSTANTS)
-            X_DATA_GPU = cp.array(X_DATA)
-
-        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
-        Y_OUTPUT_GPU = Y_PREDICTION_GPU.get()
+        Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
 
         end_cpu = time()
         end_gpu.record()
@@ -112,7 +107,7 @@ if __name__ == "__main__":
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
-        np.testing.assert_allclose(Y_OUTPUT_GPU, Y_PREDICTION)
+        np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)
 
     avg_np_time = sum(np_times) / num_trials
     avg_gpu_time = sum(gpu_times) / num_trials

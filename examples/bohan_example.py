@@ -28,7 +28,7 @@ def _create_random_equation():
     equ_gen = AGraphGenerator(32, comp_gen, use_simplification=True)
 
     equ = equ_gen()
-    while equ.get_number_local_optimization_params() != 2 \
+    while equ.get_number_local_optimization_params() <= 2 \
             or equ.get_complexity() < 10:
         equ = equ_gen()
 

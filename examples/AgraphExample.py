@@ -44,7 +44,7 @@ def init_island():
     component_generator.add_operator("-")
     component_generator.add_operator("*")
 
-    crossover = AGraphCrossover(component_generator)
+    crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)

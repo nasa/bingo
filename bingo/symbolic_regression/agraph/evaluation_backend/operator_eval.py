@@ -11,7 +11,7 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 """
 
 import numpy as np
-import cupy as cp
+
 from numba import jit, prange, cuda
 from math import prod, ceil
 
@@ -22,12 +22,6 @@ np.seterr(divide='ignore', invalid='ignore')
 NUMERICAL_LIB = np
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
-
-def set_use_gpu(flag):
-    NUMERICAL_LIB = cp if flag else np
-
-def is_using_gpu():
-    return NUMERICAL_LIB == cp
 
 # Integer value
 def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):

@@ -14,6 +14,12 @@ from scipy.stats import describe
 
 import sys
 
+def _evaluate_from_np(graph, data, constants):
+    cp_data = cp.asarray(data)
+    cp_constants = cp.asarray(constants)
+
+    graph.set_local_optimization_params(cp_constants)
+    return graph.evaluate_equation_at(cp_data).get()
 
 def _create_random_equation():
     comp_gen = ComponentGenerator(2)
@@ -22,18 +28,18 @@ def _create_random_equation():
     equ_gen = AGraphGenerator(32, comp_gen, use_simplification=True)
 
     equ = equ_gen()
-    while equ.get_number_local_optimization_params() < 2 \
+    while equ.get_number_local_optimization_params() != 2 \
             or equ.get_complexity() < 10:
         equ = equ_gen()
 
-    return equ._simplified_command_array, \
-           equ.get_number_local_optimization_params()
+    return equ
 
 def reject_outliers(data, m=2):
     return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 if __name__ == "__main__":
     # equation to use in the example
+    """
     COMMAND_ARRAY = np.array([[1, 0, 0],    # 0
                               [-1, 2, 2],   # 1
                               [1, 1, 1],    # 2
@@ -48,9 +54,11 @@ if __name__ == "__main__":
                               [0, 1, 1],    # 11
                               [3, 10, 11]]) # 12
     NUM_CONSTS = 2
+    """
 
-    # you can test out other equations by uncommenting the next line
-    # COMMAND_ARRAY, NUM_CONSTS = _create_random_equation()
+    graph = _create_random_equation()
+    NUM_CONSTS = graph.get_number_local_optimization_params()
+    print(get_formatted_string("console", graph._simplified_command_array, [f"C_{i}" for i in range(NUM_CONSTS)]))
 
     # you can print out the equation by uncommenting one of the following lines
     # print(get_formatted_string("console", COMMAND_ARRAY,

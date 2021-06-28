@@ -24,8 +24,8 @@ def _evaluate_from_np(graph, data, constants):
 def _create_random_equation():
     comp_gen = ComponentGenerator(2)
     for op in ["+", "-", "*", "/", "|",
-               "sin", "cos", "sinh", "cosh",
-               "log", "sqrt", "pow", "exp"]:
+               "sin", "cos", "sinh", "cosh"]:
+               #"log", "sqrt", "pow", "exp"]:
         comp_gen.add_operator(op)
     equ_gen = AGraphGenerator(32, comp_gen, use_simplification=True)
 

@@ -7,7 +7,7 @@ from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
 from bingo.symbolic_regression.agraph.string_generation \
     import get_formatted_string
 
-import bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend as eval
+import bingo.util.global_imports as gi
 
 from time import time
 from scipy.stats import describe
@@ -84,11 +84,11 @@ if __name__ == "__main__":
         # the evaluation function is where we want to start off looking for speedup
         # we may end up moving more work to the GPU but lets start with this
 
-        eval.set_use_gpu(False)
+        gi.set_use_gpu(False)
         start = time()
         Y_PREDICTION = evaluate(graph._simplified_command_array, X_DATA, CONSTANTS)
         mid = time()
-        eval.set_use_gpu(True)
+        gi.set_use_gpu(True)
 
         start_gpu = cp.cuda.Event()
         end_gpu = cp.cuda.Event()

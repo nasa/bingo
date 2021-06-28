@@ -35,12 +35,7 @@ def evaluate(stack, x, constants):
     forward_eval = _forward_eval(stack, x, constants)
     return _reshape_output(forward_eval[-1], constants, x)
 
-def set_use_gpu(use_gpu):
-    global np
-    if use_gpu:
-        import cupy as np
-    else:
-        import numpy as np
+
 
 def _reshape_output(output, constants, x):
     x_dim = len(x)

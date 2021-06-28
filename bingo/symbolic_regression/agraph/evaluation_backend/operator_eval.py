@@ -19,7 +19,7 @@ from time import time
 
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
-import bingo.symbolic_regression.agraph.evaluation_backend as eval
+import bingo.util.global_imports as gi
 
 # Integer value
 def _integer_forward_eval(param1, _param2, _x, _constants, _forwardeval):
@@ -102,50 +102,50 @@ def _divide_reverse_eval(reverse_index, param1, param2, forward_eval,
 
 # Sine
 def _sin_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.sin(forward_eval[param1])
+    return gi.num_lib.sin(forward_eval[param1])
 
 
 def _sin_reverse_eval(reverse_index, param1, _param2, forward_eval,
                       reverse_eval):
     reverse_eval[param1] += \
-        reverse_eval[reverse_index] * eval.np.cos(forward_eval[param1])
+        reverse_eval[reverse_index] * gi.num_lib.cos(forward_eval[param1])
 
 
 # Cosine
 def _cos_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.cos(forward_eval[param1])
+    return gi.num_lib.cos(forward_eval[param1])
 
 
 def _cos_reverse_eval(reverse_index, param1, _param2, forward_eval,
                       reverse_eval):
     reverse_eval[param1] -= \
-        reverse_eval[reverse_index] * eval.np.sin(forward_eval[param1])
+        reverse_eval[reverse_index] * gi.num_lib.sin(forward_eval[param1])
 
 
 # Hyperbolic Sine
 def _sinh_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.sinh(forward_eval[param1])
+    return gi.num_lib.sinh(forward_eval[param1])
 
 
 def _sinh_reverse_eval(reverse_index, param1, _param2, forward_eval,
                       reverse_eval):
     reverse_eval[param1] += \
-        reverse_eval[reverse_index] * eval.np.cosh(forward_eval[param1])
+        reverse_eval[reverse_index] * gi.num_lib.cosh(forward_eval[param1])
 
 
 # Hyperbolic Cosine
 def _cosh_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.cosh(forward_eval[param1])
+    return gi.num_lib.cosh(forward_eval[param1])
 
 
 def _cosh_reverse_eval(reverse_index, param1, _param2, forward_eval,
                       reverse_eval):
     reverse_eval[param1] += \
-        reverse_eval[reverse_index] * eval.np.sinh(forward_eval[param1])
+        reverse_eval[reverse_index] * gi.num_lib.sinh(forward_eval[param1])
 
 # Exponential
 def _exp_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.exp(forward_eval[param1])
+    return gi.num_lib.exp(forward_eval[param1])
 
 
 def _exp_reverse_eval(reverse_index, param1, _param2, forward_eval,
@@ -156,7 +156,7 @@ def _exp_reverse_eval(reverse_index, param1, _param2, forward_eval,
 
 # Natural logarithm
 def _log_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.log(eval.np.abs(forward_eval[param1]))
+    return gi.num_lib.log(gi.num_lib.abs(forward_eval[param1]))
 
 
 def _log_reverse_eval(reverse_index, param1, _param2, forward_eval,
@@ -167,7 +167,7 @@ def _log_reverse_eval(reverse_index, param1, _param2, forward_eval,
 
 # Power
 def _pow_forward_eval(param1, param2, _x, _constants, forward_eval):
-    return eval.np.power(forward_eval[param1], forward_eval[param2])
+    return gi.num_lib.power(forward_eval[param1], forward_eval[param2])
 
 
 def _pow_reverse_eval(reverse_index, param1, param2, forward_eval,
@@ -175,14 +175,14 @@ def _pow_reverse_eval(reverse_index, param1, param2, forward_eval,
     reverse_eval[param1] += reverse_eval[reverse_index] *\
                             forward_eval[reverse_index] *\
                             forward_eval[param2] / forward_eval[param1]
-    reverse_eval[param2] += reverse_eval[reverse_index] *\
-                            forward_eval[reverse_index] *\
-                            eval.np.log(forward_eval[param1])
+    reverse_eval[param2] += reverse_eval[reverse_index] * \
+                            forward_eval[reverse_index] * \
+                            gi.num_lib.log(forward_eval[param1])
 
 
 # Safe Power
 def _safe_pow_forward_eval(param1, param2, _x, _constants, forward_eval):
-    return eval.np.power(eval.np.abs(forward_eval[param1]), forward_eval[param2])
+    return gi.num_lib.power(gi.num_lib.abs(forward_eval[param1]), forward_eval[param2])
 
 
 def _safe_pow_reverse_eval(reverse_index, param1, param2, forward_eval,
@@ -190,32 +190,32 @@ def _safe_pow_reverse_eval(reverse_index, param1, param2, forward_eval,
     reverse_eval[param1] += reverse_eval[reverse_index] *\
                             forward_eval[reverse_index] *\
                             forward_eval[param2] / forward_eval[param1]
-    reverse_eval[param2] += reverse_eval[reverse_index] *\
-                            forward_eval[reverse_index] *\
-                            eval.np.log(eval.np.abs(forward_eval[param1]))
+    reverse_eval[param2] += reverse_eval[reverse_index] * \
+                            forward_eval[reverse_index] * \
+                            gi.num_lib.log(gi.num_lib.abs(forward_eval[param1]))
 
 
 # Absolute value
 def _abs_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.abs(forward_eval[param1])
+    return gi.num_lib.abs(forward_eval[param1])
 
 
 def _abs_reverse_eval(reverse_index, param1, _param2, forward_eval,
                       reverse_eval):
-    reverse_eval[param1] += reverse_eval[reverse_index] *\
-                            eval.np.sign(forward_eval[param1])
+    reverse_eval[param1] += reverse_eval[reverse_index] * \
+                            gi.num_lib.sign(forward_eval[param1])
 
 
 # Square root
 def _sqrt_forward_eval(param1, _param2, _x, _constants, forward_eval):
-    return eval.np.sqrt(eval.np.abs(forward_eval[param1]))
+    return gi.num_lib.sqrt(gi.num_lib.abs(forward_eval[param1]))
 
 
 def _sqrt_reverse_eval(reverse_index, param1, _param2, forward_eval,
                        reverse_eval):
-    reverse_eval[param1] += 0.5*reverse_eval[reverse_index] /\
-                            forward_eval[reverse_index] *\
-                            eval.np.sign(forward_eval[param1])
+    reverse_eval[param1] += 0.5 * reverse_eval[reverse_index] / \
+                            forward_eval[reverse_index] * \
+                            gi.num_lib.sign(forward_eval[param1])
 
 
 def forward_eval_function(node, param1, param2, x, constants, forward_eval):

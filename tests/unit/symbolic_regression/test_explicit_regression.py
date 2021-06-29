@@ -105,6 +105,7 @@ def sample_constants():
 def sample_differentiable_equation(equation, sample_constants):
     class SampleDiffEqu(equation):
         def __init__(self):
+            super().__init__()
             self.constants = sample_constants
 
         def evaluate_equation_at(self, x):

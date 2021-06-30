@@ -21,9 +21,9 @@ class MultipleFloatValueFitnessFunction(FitnessFunction):
 
 
 class MultipleFloatValueFitnessFunctionWithGradient(GradientMixin, MultipleFloatValueFitnessFunction):
-    def get_gradient(self, individual):
+    def get_fitness_and_gradient(self, individual):
         full_gradient = individual.values / np.linalg.norm(individual.values)
-        return [full_gradient[i] for i in individual._needs_opt_list]
+        return self.__call__(individual), [full_gradient[i] for i in individual._needs_opt_list]
 
 
 class FloatVectorFitnessFunction(VectorBasedFunction):
@@ -33,11 +33,11 @@ class FloatVectorFitnessFunction(VectorBasedFunction):
 
 
 class FloatVectorFitnessFunctionWithJacobian(VectorGradientMixin, FloatVectorFitnessFunction):
-    def get_jacobian(self, individual):
+    def get_fitness_vector_and_jacobian(self, individual):
         jacobian = np.zeros((len(individual.values), len(individual._needs_opt_list)))
         for i, optimize_i in enumerate(individual._needs_opt_list):
             jacobian[optimize_i][i] = 1
-        return jacobian
+        return self.evaluate_fitness_vector(individual), jacobian
 
 
 @pytest.fixture

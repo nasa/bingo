@@ -5,10 +5,9 @@ This module defines the basis of gradient and jacobian partial derivatives
 of fitness functions used in bingo evolutionary analyses.
 """
 from abc import ABCMeta, abstractmethod
+from .fitness_function import mean_absolute_error, mean_squared_error, root_mean_squared_error
 
 import numpy as np
-
-from .fitness_function import VectorBasedFunction
 
 
 class GradientMixin(metaclass=ABCMeta):
@@ -18,21 +17,22 @@ class GradientMixin(metaclass=ABCMeta):
     of fitness functions.
     """
     @abstractmethod
-    def get_gradient(self, individual):
-        """Fitness function gradient
+    def get_fitness_and_gradient(self, individual):
+        """Fitness function evaluation and gradient
 
-        Get the gradient of this function with respect to the
-        passed in individual's constants.
+        Get the fitness of the individual and the gradient
+        of this function with respect to the individual's constants.
 
         Parameters
         ----------
         individual : chromosomes
-            individual for which the gradient will be calculated for
+            individual for which the fitness and gradient will be calculated for
 
         Returns
         -------
-        gradient :
-            the gradient of this function with respect to each of the individual's constants
+        fitness, gradient :
+            fitness of the individual and the gradient of this function
+            with respect to the individual's constants
         """
         raise NotImplementedError
 
@@ -42,45 +42,58 @@ class VectorGradientMixin(GradientMixin):
 
     An abstract base class/mixin used to implement the gradients and jacobians
     of vector based fitness functions.
+
+    Parameters
+    ----------
+    training_data : ExplicitTrainingData
+        data that is used in fitness evaluation (passed to parent).
+    metric : str
+        String defining the measure of error to use. Available options are:
+        'mean absolute error', 'mean squared error', and
+        'root mean squared error'
     """
-    def __init__(self, *args, **kwargs):
-        if not isinstance(self, VectorBasedFunction):
-            raise TypeError("VectorGradientMixin should be used with a VectorBasedFunction")
-        super().__init__(*args, **kwargs)
+    def __init__(self, training_data=None, metric="mae"):
+        super().__init__(training_data, metric)
 
-        if self._metric_string == "mae":
+        if metric in ["mean absolute error", "mae"]:
+            self._metric = mean_absolute_error
             self._metric_derivative = VectorGradientMixin._mean_absolute_error_derivative
-        elif self._metric_string == "mse":
+        elif metric in ["mean squared error", "mse"]:
+            self._metric = mean_squared_error
             self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
-        elif self._metric_string == "rmse":
+        elif metric in ["root mean squared error", "rmse"]:
+            self._metric = root_mean_squared_error
             self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
+        else:
+            raise KeyError("Invalid metric for vector gradient mixin")
 
-    def get_gradient(self, individual):
-        """Gradient of vector based fitness function with metric
-        (i.e. the fitness function originally returns a vector
-        that is converted into a scalar using some metric)
+    def get_fitness_and_gradient(self, individual):
+        """Fitness evaluation and gradient of vector based fitness
+        function using metric (i.e. the fitness function returns
+        a vector that is converted into a scalar using its metric function)
 
-        Get the gradient of this function with respect to the
-        passed in individual's constants.
+        Get the fitness of the individual and the gradient
+        of this function with respect to the individual's constants.
 
         Parameters
         ----------
         individual : chromosomes
-            individual for which the gradient will be calculated for
+            individual for which the fitness and gradient will be calculated for
 
         Returns
         -------
-        gradient :
-            the gradient of this function with respect to each of the individual's constants
+        fitness, gradient :
+            fitness of the individual and the gradient of this function
+            with respect to the individual's constants
         """
-        fitness_vector = self.evaluate_fitness_vector(individual)
-        fitness_partials = self.get_jacobian(individual).transpose()
-        return self._metric_derivative(fitness_vector, fitness_partials)
+        fitness_vector, jacobian = self.get_fitness_vector_and_jacobian(individual)
+        return self._metric(fitness_vector), self._metric_derivative(fitness_vector, jacobian.transpose())
 
     @abstractmethod
-    def get_jacobian(self, individual):
-        """Returns the jacobian of this vector fitness function with
-        respect to the passed in individual's constants
+    def get_fitness_vector_and_jacobian(self, individual):
+        """Returns the vectorized fitness of this individual and
+        the jacobian of this vector fitness function with
+        respect to the individual's constants
 
         jacobian = [[:math:`df1/dc1`, :math:`df1/dc2`, ...],
                     [:math:`df2/dc1`, :math:`df2/dc2`, ...],
@@ -92,13 +105,15 @@ class VectorGradientMixin(GradientMixin):
         Parameters
         ----------
         individual : chromosomes
-            individual whose constants are used for the jacobian calculation
+            individual used for vectorized fitness evaluation and jacobian
+            calculation
 
         Returns
         -------
-        jacobian :
+        fitness_vector, jacobian :
+            the vectorized fitness of the individual and
             the partial derivatives of each fitness function with respect
-            to each of the individual's constants
+            to the individual's constants
         """
         raise NotImplementedError
 

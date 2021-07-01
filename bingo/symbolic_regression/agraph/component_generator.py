@@ -164,7 +164,7 @@ class ComponentGenerator:
 
         Notes
         -----
-        The returned random operator parameter is guranteed to be less than
+        The returned random operator parameter is guaranteed to be less than
         stack_location.
         """
         return np.random.randint(stack_location)

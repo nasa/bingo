@@ -242,7 +242,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         ngen = self.generational_age - self._starting_age
         run_time = (datetime.now() - start_time).total_seconds()
         if status == 0:
-            message = "Absolte convergence occurred with best fitness < " + \
+            message = "Absolute convergence occurred with best fitness < " + \
                       "{}".format(aux_info)
             success = True
         elif status == 1:

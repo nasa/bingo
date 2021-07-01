@@ -52,7 +52,7 @@ class AgeFitness(Selection):
         Raises
         ------
         ValueError
-            If the ``target_population_size`` is larger than the intial
+            If the ``target_population_size`` is larger than the initial
             `population`
         """
         if target_population_size > len(population):

@@ -1,7 +1,7 @@
 import numpy as np
 import cupy as cp
 from cupyx.time import repeat
-from bingo.symbolic_regression import ComponentGenerator, AGraphGenerator
+from bingo.symbolic_regression import ComponentGenerator, AGraphGenerator, AGraph
 from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
     import evaluate
 from bingo.symbolic_regression.agraph.string_generation \

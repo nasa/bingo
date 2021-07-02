@@ -57,6 +57,19 @@ def single_variable_agraph(mocker):
 
 
 @pytest.fixture
+def fork_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[1, -1, -1],  # sin(sin(X_0))
+                                         [0, 0, 0],
+                                         [3, 1, 1],
+                                         [3, 1, 1],
+                                         [6, 1, 1],
+                                         [6, 4, 4]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([])
+    return test_graph
+
+@pytest.fixture
 def sample_component_generator(mocker):
     sample = mocker.create_autospec(ComponentGenerator)
     random_commands = cycle([[CONSTANT, -1, -1],
@@ -80,12 +93,12 @@ def sample_component_generator(mocker):
     (2.5, ValueError),
     ("string", TypeError)
 ])
-@pytest.mark.parametrize("prob_index", range(4))
+@pytest.mark.parametrize("prob_index", range(5))
 def test_raises_error_invalid_mutation_probability(mocker, prob,
                                                    expected_error,
                                                    prob_index):
     mocked_component_generator = mocker.Mock()
-    input_probabilities = [0.25]*4
+    input_probabilities = [0.20]*5
     input_probabilities[prob_index] = prob
     with pytest.raises(expected_error):
         _ = AGraphMutation(mocked_component_generator, *input_probabilities)
@@ -95,7 +108,7 @@ def test_raises_error_invalid_mutation_probability(mocker, prob,
 @pytest.mark.parametrize("algo_index", range(3))
 def test_single_point_mutations(sample_agraph, sample_component_generator,
                                 algo_index, repeats):
-    input_probabilities = [0.0] * 4
+    input_probabilities = [0.0] * 5
     input_probabilities[algo_index] = 1.0
     mutation = AGraphMutation(sample_component_generator, *input_probabilities)
 
@@ -121,7 +134,7 @@ def test_single_point_mutations(sample_agraph, sample_component_generator,
 ])
 def test_mutation_of_nodes(sample_agraph, sample_component_generator,
                            algo_index, expected_node_mutation, repeats):
-    input_probabilities = [0.0] * 4
+    input_probabilities = [0.0] * 5
     input_probabilities[algo_index] = 1.0
     mutation = AGraphMutation(sample_component_generator, *input_probabilities)
 
@@ -140,7 +153,7 @@ def test_mutation_of_nodes(sample_agraph, sample_component_generator,
 @pytest.mark.parametrize("algo_index", [2, 3])
 def test_mutation_of_parameters(sample_agraph, sample_component_generator,
                                 algo_index, repeats):
-    input_probabilities = [0.0] * 4
+    input_probabilities = [0.0] * 5
     input_probabilities[algo_index] = 1.0
     mutation = AGraphMutation(sample_component_generator, *input_probabilities)
 
@@ -158,7 +171,8 @@ def test_pruning_mutation(sample_agraph, sample_component_generator, repeats):
                               command_probability=0.0,
                               node_probability=0.0,
                               parameter_probability=0.0,
-                              prune_probability=1.0)
+                              prune_probability=1.0,
+                              fork_probability=0.0)
     child = mutation(sample_agraph)
     p_stack = sample_agraph.command_array
     c_stack = child.mutable_command_array
@@ -182,7 +196,7 @@ def test_impossible_param_or_prune_mutation(mocker, algo_index,
                                             sample_component_generator):
     type(sample_component_generator).input_x_dimension = \
         mocker.PropertyMock(return_value=1)
-    input_probabilities = [0.0] * 4
+    input_probabilities = [0.0] * 5
     input_probabilities[algo_index] = 1.0
     mutation = AGraphMutation(sample_component_generator, *input_probabilities)
 
@@ -198,10 +212,26 @@ def test_mutate_variable(single_variable_agraph, sample_component_generator):
                               command_probability=0.0,
                               node_probability=0.0,
                               parameter_probability=1.0,
-                              prune_probability=0.0)
+                              prune_probability=0.0,
+                              fork_probability=0.0)
     child = mutation(single_variable_agraph)
     p_stack = single_variable_agraph.command_array
     c_stack = child.mutable_command_array
 
     assert p_stack[-1, 1] != c_stack[-1, 1]
     assert p_stack[-1, 2] != c_stack[-1, 2]
+
+
+def test_fork_mutation(fork_agraph, sample_component_generator):
+    # np.random.seed(10)
+    mutation = AGraphMutation(sample_component_generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=0.0,
+                              prune_probability=0.0,
+                              fork_probability=1.0)
+    child = mutation(fork_agraph)
+    print("parent:", fork_agraph)
+    print("child:", child)
+
+    assert fork_agraph.get_complexity() < child.get_complexity()

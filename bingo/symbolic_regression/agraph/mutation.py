@@ -16,6 +16,7 @@ COMMAND_MUTATION = 0
 NODE_MUTATION = 1
 PARAMETER_MUTATION = 2
 PRUNE_MUTATION = 3
+FORK_MUTATION = 4
 
 
 class AGraphMutation(Mutation):
@@ -37,11 +38,13 @@ class AGraphMutation(Mutation):
     command_probability : float
         probability of command mutation. Default 0.2
     node_probability : float
-        probability of node mutation. Default 0.3
+        probability of node mutation. Default 0.2
     parameter_probability : float
-        probability of parameter mutation. Default 0.3
+        probability of parameter mutation. Default 0.2
     prune_probability : float
         probability of pruning. Default 0.2
+    fork_probability : float
+        probability of forking. Default 0.2
 
     Notes
     -----
@@ -57,20 +60,23 @@ class AGraphMutation(Mutation):
     @argument_validation(command_probability={">=": 0, "<=": 1},
                          node_probability={">=": 0, "<=": 1},
                          parameter_probability={">=": 0, "<=": 1},
-                         prune_probability={">=": 0, "<=": 1})
+                         prune_probability={">=": 0, "<=": 1},
+                         fork_probability={">=": 0, "<=": 1})
     def __init__(self, component_generator, command_probability=0.2,
-                 node_probability=0.3, parameter_probability=0.3,
-                 prune_probability=0.2):
+                 node_probability=0.2, parameter_probability=0.2,
+                 prune_probability=0.2, fork_probability=0.2):
         self._component_generator = component_generator
         self._mutation_function_pmf = \
             ProbabilityMassFunction([self._mutate_command,
                                      self._mutate_node,
                                      self._mutate_parameters,
-                                     self._prune_branch],
+                                     self._prune_branch,
+                                     self._fork_mutation],
                                     [command_probability,
                                      node_probability,
                                      parameter_probability,
-                                     prune_probability])
+                                     prune_probability,
+                                     fork_probability])
         self._last_mutation_location = None
         self._last_mutation_type = None
 
@@ -90,6 +96,14 @@ class AGraphMutation(Mutation):
         child = parent.copy()
         mutation_algorithm = self._mutation_function_pmf.draw_sample()
         mutation_algorithm(child)
+
+        for i, (command, op1, op2) in enumerate(child.command_array):
+            if not IS_TERMINAL_MAP[command]:
+                if op1 >= i or op2 >= i:
+                    print("bad!", self._last_mutation_type, self._last_mutation_location)
+                    print("parent", parent.command_array)
+                    print("child", child.command_array)
+                    raise(RuntimeError)
 
         return child
 
@@ -233,3 +247,108 @@ class AGraphMutation(Mutation):
             return None
         index = np.random.randint(len(indices))
         return indices[index]
+
+    def _fork_mutation(self, individual):
+        MAX_FORK_SIZE = 4
+
+        utilized_commands = individual.get_utilized_commands()
+        num_unusused_commands = utilized_commands.count(False)
+
+        if num_unusused_commands < 2:
+            self._last_mutation_location = None
+            self._last_mutation_type = FORK_MUTATION
+            return
+
+        indices = [n for n, x in enumerate(utilized_commands) if x]
+        mutation_location = np.random.choice(indices)
+
+        max_fork = min(num_unusused_commands, MAX_FORK_SIZE)
+        fork_size = np.random.randint(2, max_fork + 1)
+
+        fork_space, new_mut_location = self._make_space_for_fork(
+            fork_size, individual, mutation_location, utilized_commands)
+
+        fork_commands = self._generate_fork(fork_size, fork_space,
+                                            new_mut_location)
+
+        individual.command_array[fork_space] = fork_commands.copy()
+
+        # this check is needed to account for the case when an arity 1 node is
+        # mutated/shifted, then the op2 argument can get messed up
+        # TODO: this is messy
+        for i, (command, _, op2) in enumerate(individual.command_array):
+            if not IS_TERMINAL_MAP[command]:
+                if op2 >= i:
+                    individual.command_array[i, 2] = \
+                        self._component_generator.random_operator_parameter(i)
+
+        self._last_mutation_location = mutation_location
+        self._last_mutation_type = FORK_MUTATION
+
+    @staticmethod
+    def _make_space_for_fork(fork_size, individual, mutation_location,
+                             utilized_commands):
+        new_permutation = np.arange(len(utilized_commands))
+        # backwards
+        fork_space = []
+        for i in range(mutation_location, -1, -1):
+            if not utilized_commands[i]:
+                if len(fork_space) == 0:
+                    fork_space = [mutation_location]
+                else:
+                    fork_space.insert(0, fork_space[0] - 1)
+                new_permutation[i:fork_space[0] + 1] = \
+                    np.roll(new_permutation[i:fork_space[0] + 1], -1)
+                if len(fork_space) == fork_size:
+                    break
+        # forwards
+        if len(fork_space) < fork_size:
+            for i in range(mutation_location + 1, len(utilized_commands)):
+                if not utilized_commands[i]:
+                    if len(fork_space) == 0:
+                        fork_space = [mutation_location + 1]
+                    else:
+                        fork_space.append(fork_space[-1] + 1)
+                    new_permutation[fork_space[-1]:i + 1] = \
+                        np.roll(new_permutation[fork_space[-1]:i + 1], 1)
+                    if len(fork_space) == fork_size:
+                        break
+        # update parameters
+        terminals = np.vectorize(IS_TERMINAL_MAP.get)(
+                individual.command_array[:, 0])
+        used_operators = np.logical_and(~terminals, utilized_commands)
+        parameter_conversion = np.argsort(new_permutation)
+        new_mut_location = parameter_conversion[mutation_location]
+        parameter_conversion[mutation_location] = fork_space[-1]
+        individual.command_array[used_operators, 1] = \
+            parameter_conversion[individual.command_array[used_operators, 1]]
+        individual.command_array[used_operators, 2] = \
+            parameter_conversion[individual.command_array[used_operators, 2]]
+        # move commands
+        individual.command_array[:, :] = \
+            individual.command_array[new_permutation, :].copy()
+        return fork_space, new_mut_location
+
+    def _generate_fork(self, fork_size, fork_space, new_mut_location):
+        fork_commands = np.empty((fork_size, 3), dtype=int)
+        num_terminals = np.random.randint(1, fork_size // 2 + 1)
+        for i in range(num_terminals):
+            fork_commands[i] = \
+                self._component_generator.random_terminal_command(i)
+        for i in range(num_terminals, fork_size):
+            fork_commands[i] = \
+                self._component_generator.random_operator_command(i)
+            fork_commands[i, 1] = fork_space[fork_commands[i, 1]]
+            fork_commands[i, 2] = fork_space[fork_commands[i, 2]]
+        attempt_count = 0
+        while not IS_ARITY_2_MAP[fork_commands[-1, 0]]:
+            attempt_count += 1
+            fork_commands[-1] = \
+                self._component_generator.random_operator_command(
+                    fork_size - 1)
+            fork_commands[-1, 1] = fork_space[fork_commands[-1, 1]]
+            fork_commands[-1, 2] = fork_space[fork_commands[-1, 2]]
+            if attempt_count > 100:
+                break
+        fork_commands[-1, np.random.randint(1, 3)] = new_mut_location
+        return fork_commands

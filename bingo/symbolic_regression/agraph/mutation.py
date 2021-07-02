@@ -271,7 +271,7 @@ class AGraphMutation(Mutation):
         fork_commands = self._generate_fork(fork_size, fork_space,
                                             new_mut_location)
 
-        individual.command_array[fork_space] = fork_commands.copy()
+        individual.mutable_command_array[fork_space] = fork_commands.copy()
 
         # this check is needed to account for the case when an arity 1 node is
         # mutated/shifted, then the op2 argument can get messed up
@@ -279,7 +279,7 @@ class AGraphMutation(Mutation):
         for i, (command, _, op2) in enumerate(individual.command_array):
             if not IS_TERMINAL_MAP[command]:
                 if op2 >= i:
-                    individual.command_array[i, 2] = \
+                    individual.mutable_command_array[i, 2] = \
                         self._component_generator.random_operator_parameter(i)
 
         self._last_mutation_location = mutation_location
@@ -320,12 +320,12 @@ class AGraphMutation(Mutation):
         parameter_conversion = np.argsort(new_permutation)
         new_mut_location = parameter_conversion[mutation_location]
         parameter_conversion[mutation_location] = fork_space[-1]
-        individual.command_array[used_operators, 1] = \
+        individual.mutable_command_array[used_operators, 1] = \
             parameter_conversion[individual.command_array[used_operators, 1]]
-        individual.command_array[used_operators, 2] = \
+        individual.mutable_command_array[used_operators, 2] = \
             parameter_conversion[individual.command_array[used_operators, 2]]
         # move commands
-        individual.command_array[:, :] = \
+        individual.mutable_command_array[:, :] = \
             individual.command_array[new_permutation, :].copy()
         return fork_space, new_mut_location
 

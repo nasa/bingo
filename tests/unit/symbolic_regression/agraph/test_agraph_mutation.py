@@ -59,15 +59,16 @@ def single_variable_agraph(mocker):
 @pytest.fixture
 def fork_agraph():
     test_graph = AGraph()
-    test_graph.command_array = np.array([[1, -1, -1],  # sin(sin(X_0))
-                                         [0, 0, 0],
-                                         [3, 1, 1],
-                                         [3, 1, 1],
-                                         [6, 1, 1],
-                                         [6, 4, 4]], dtype=int)
+    test_graph.command_array = np.array([[CONSTANT, -1, -1],  # sin(sin(X_0))
+                                         [VARIABLE, 0, 0],
+                                         [SUBTRACTION, 1, 1],
+                                         [SUBTRACTION, 1, 1],
+                                         [SIN, 1, 1],
+                                         [SIN, 4, 4]], dtype=int)
     test_graph.genetic_age = 1
     test_graph.set_local_optimization_params([])
     return test_graph
+
 
 @pytest.fixture
 def sample_component_generator(mocker):
@@ -86,6 +87,17 @@ def sample_component_generator(mocker):
     sample.random_operator_parameter.return_value = 10
     type(sample).input_x_dimension = mocker.PropertyMock(return_value=2)
     return sample
+
+
+@pytest.fixture
+def fork_mutation_component_generator():
+    generator = ComponentGenerator(input_x_dimension=2,
+                                   num_initial_load_statements=2,
+                                   terminal_probability=0.4,
+                                   constant_probability=0.5)
+    generator.add_operator(2)
+    generator.add_operator(6)
+    return generator
 
 
 @pytest.mark.parametrize("prob,expected_error", [
@@ -222,9 +234,9 @@ def test_mutate_variable(single_variable_agraph, sample_component_generator):
     assert p_stack[-1, 2] != c_stack[-1, 2]
 
 
-def test_fork_mutation(fork_agraph, sample_component_generator):
+def test_fork_mutation(fork_agraph, fork_mutation_component_generator):
     # np.random.seed(10)
-    mutation = AGraphMutation(sample_component_generator,
+    mutation = AGraphMutation(fork_mutation_component_generator,
                               command_probability=0.0,
                               node_probability=0.0,
                               parameter_probability=0.0,

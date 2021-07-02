@@ -36,6 +36,141 @@ def _create_random_equation():
 
     return equ
 
+def _get_smcbingo_model():
+    command_array = np.array([[-1, 2, 2],
+                              [1, 0, 0],
+                              [4, 0, 1],
+                              [1, 1, 1],
+                              [0, 0, 0],
+                              [4, 3, 4],
+                              [2, 2, 5],
+                              [-1, -2, -2],
+                              [2, 7, 2],
+                              [4, 8, 4],
+                              [2, 1, 9],
+                              [1, 2, 2],
+                              [-1, -1, -1],
+                              [4, 12, 1],
+                              [4, 13, 4],
+                              [2, 12, 1],
+                              [4, 15, 4],
+                              [2, 7, 1],
+                              [2, 1, 16],
+                              [4, 4, 18],
+                              [4, 17, 19],
+                              [2, 14, 5],
+                              [2, 16, 20],
+                              [2, 21, 22],
+                              [2, 11, 23],
+                              [4, 10, 24],
+                              [4, 6, 25]])
+
+    data_x = np.array([[0.],
+                       [0.04759989],
+                       [0.09519978],
+                       [0.14279967],
+                       [0.19039955],
+                       [0.23799944],
+                       [0.28559933],
+                       [0.33319922],
+                       [0.38079911],
+                       [0.428399],
+                       [0.47599889],
+                       [0.52359878],
+                       [0.57119866],
+                       [0.61879855],
+                       [0.66639844],
+                       [0.71399833],
+                       [0.76159822],
+                       [0.80919811],
+                       [0.856798],
+                       [0.90439789],
+                       [0.95199777],
+                       [0.99959766],
+                       [1.04719755],
+                       [1.09479744],
+                       [1.14239733],
+                       [1.18999722],
+                       [1.23759711],
+                       [1.28519699],
+                       [1.33279688],
+                       [1.38039677],
+                       [1.42799666],
+                       [1.47559655],
+                       [1.52319644],
+                       [1.57079633],
+                       [1.61839622],
+                       [1.6659961],
+                       [1.71359599],
+                       [1.76119588],
+                       [1.80879577],
+                       [1.85639566],
+                       [1.90399555],
+                       [1.95159544],
+                       [1.99919533],
+                       [2.04679521],
+                       [2.0943951],
+                       [2.14199499],
+                       [2.18959488],
+                       [2.23719477],
+                       [2.28479466],
+                       [2.33239455],
+                       [2.37999443],
+                       [2.42759432],
+                       [2.47519421],
+                       [2.5227941],
+                       [2.57039399],
+                       [2.61799388],
+                       [2.66559377],
+                       [2.71319366],
+                       [2.76079354],
+                       [2.80839343],
+                       [2.85599332],
+                       [2.90359321],
+                       [2.9511931],
+                       [2.99879299],
+                       [3.04639288],
+                       [3.09399276],
+                       [3.14159265],
+                       [3.18919254],
+                       [3.23679243],
+                       [3.28439232],
+                       [3.33199221],
+                       [3.3795921],
+                       [3.42719199],
+                       [3.47479187],
+                       [3.52239176],
+                       [3.56999165],
+                       [3.61759154],
+                       [3.66519143],
+                       [3.71279132],
+                       [3.76039121],
+                       [3.8079911],
+                       [3.85559098],
+                       [3.90319087],
+                       [3.95079076],
+                       [3.99839065],
+                       [4.04599054],
+                       [4.09359043],
+                       [4.14119032],
+                       [4.1887902],
+                       [4.23639009],
+                       [4.28398998],
+                       [4.33158987],
+                       [4.37918976],
+                       [4.42678965],
+                       [4.47438954],
+                       [4.52198943],
+                       [4.56958931],
+                       [4.6171892],
+                       [4.66478909],
+                       [4.71238898]])
+
+    equ = AGraph(use_simplification=True)
+    equ.command_array = command_array
+    constants = np.random.rand((3))
+    return equ, data_x, constants
+
 def reject_outliers(data, m=2):
     return data[abs(data - np.mean(data)) < m * np.std(data)]
 
@@ -58,7 +193,7 @@ if __name__ == "__main__":
     NUM_CONSTS = 2
     """
 
-    graph = _create_random_equation()
+    graph, X_DATA, CONSTANTS = _get_smcbingo_model() # _create_random_equation()
     NUM_CONSTS = graph.get_number_local_optimization_params()
     print(get_formatted_string("console", graph._simplified_command_array, [f"C_{i}" for i in range(NUM_CONSTS)]))
 
@@ -77,10 +212,10 @@ if __name__ == "__main__":
     cpu_times = np.zeros((num_trials))
 
     for i in range(num_trials):
-        constant_data_size = int(sys.argv[1])
-        data_size = 200
-        CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
-        X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
+        #constant_data_size = int(sys.argv[1])
+        #data_size = 100
+        #CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
+        #np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 
         # this is the evaluation of the equation
         # the evaluation function is where we want to start off looking for speedup

@@ -5,8 +5,7 @@ analyses.
 """
 from abc import ABCMeta, abstractmethod
 
-import numpy as np
-
+import bingo.util.global_imports as gi
 
 class FitnessFunction(metaclass=ABCMeta):
     """Fitness evaluation metric for individuals.
@@ -101,12 +100,12 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @staticmethod
     def _mean_absolute_error(vector):
-        return np.mean(np.abs(vector))
+        return gi.num_lib.mean(gi.num_lib.abs(vector))
 
     @staticmethod
     def _root_mean_squared_error(vector):
-        return np.sqrt(np.mean(np.square(vector)))
+        return gi.num_lib.sqrt(gi.num_lib.mean(gi.num_lib.square(vector)))
 
     @staticmethod
     def _mean_squared_error(vector):
-        return np.mean(np.square(vector))
+        return gi.num_lib.mean(gi.num_lib.square(vector))

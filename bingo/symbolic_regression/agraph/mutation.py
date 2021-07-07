@@ -363,47 +363,67 @@ class AGraphMutation(Mutation):
 
         indices = [n for n, x in enumerate(utilized_commands) if x]
         mutation_location = np.random.choice(indices)
+        mutation_location, utilized_commands = self._move_unutilized_to_top(individual, utilized_commands, mutation_location)
         new_mutation_location = self._move_utilized_to_top(individual, utilized_commands, mutation_location)
         self._insert_fork(individual, mutation_location, new_mutation_location)
 
         self._last_mutation_location = mutation_location
         self._last_mutation_type = FORK_MUTATION
 
-    def _move_utilized_to_top(self, individual, utilized_commands, mutation_location):
-        stack = individual.mutable_command_array
-        indices = range(len(stack))
+    def _move_unutilized_to_top(self, individual, utilized_commands, mutation_location):
+        indices = range(len(individual.command_array))
 
-        reordered_stack = sorted(zip(stack[:mutation_location + 1],
-                                     utilized_commands[:mutation_location + 1],
-                                     indices[:mutation_location + 1]),
-                                 key=lambda x: x[1],
-                                 reverse=True)
-        index_shifts = dict(zip(np.array(reordered_stack, dtype=object)[:, 2], range(len(reordered_stack))))
+        # TODO do without sorting
+        stack, new_utilized_commands, new_indices = zip(*sorted(zip(individual.command_array,
+                                                                 utilized_commands,
+                                                                 indices),
+                                                             key=lambda x: x[1]))
+
+        # TODO figure out how to avoid this
+        stack = [list(inner) for inner in stack]
+
+        index_shifts = dict(zip(new_indices, range(len(stack))))
+        self._fix_indices(stack, new_utilized_commands, index_shifts)
+        individual.command_array = np.array(stack)
         new_mutation_location = index_shifts[mutation_location]
-        index_shifts[mutation_location] = mutation_location
-        stack = np.vstack((list(np.array(reordered_stack, dtype=object)[:, 0]), stack[mutation_location+1:]))
+        return new_mutation_location, new_utilized_commands
 
-        for i, command in enumerate(stack):
-            if not IS_TERMINAL_MAP[command[0]]:
-                for j in range(1, 3):
-                    command[j] = index_shifts.get(command[j], command[j])
+    def _move_utilized_to_top(self, individual, utilized_commands, mutation_location):
+        fork_size = 2
+        indices = range(len(individual.command_array))
+
+        # TODO do without sorting
+        stack, new_utilized_commands, new_indices = zip(*sorted(zip(individual.mutable_command_array[:mutation_location + 1],
+                                                                    utilized_commands[:mutation_location + 1],
+                                                                    indices[:mutation_location + 1]),
+                                                                key=lambda x: x[1],
+                                                                reverse=True))
+
+        index_shifts = dict(zip(new_indices, range(len(stack))))
+        new_mutation_location = index_shifts[mutation_location]
+        stack = np.vstack((stack, individual.command_array[mutation_location+1:]))
+
+        # TODO take slice of command array instead of passing in entire thing
+        self._fix_indices(stack, new_utilized_commands, index_shifts)
+        individual.command_array = stack
 
         return new_mutation_location
 
     def _insert_fork(self, individual, mutation_location, new_mutation_location):
-        stack = individual.mutable_command_array
-
         arity_2_operator = None
         while arity_2_operator is None or not IS_ARITY_2_MAP[arity_2_operator]:
             arity_2_operator = self._component_generator.random_operator()
 
-        new_command = [arity_2_operator, 0, 0]
+        param_location = mutation_location - 1
         new_param = self._component_generator.random_terminal_command()
 
-        param_location = mutation_location - 1
-        new_command[1] = new_mutation_location
-        new_command[2] = param_location
+        new_command = [arity_2_operator, new_mutation_location, param_location]
 
-        stack[mutation_location] = new_command
-        stack[param_location] = new_param
-        return stack
+        individual.mutable_command_array[mutation_location] = new_command
+        individual.mutable_command_array[param_location] = new_param
+
+    def _fix_indices(self, stack, utilized_commands, index_shifts):
+        for i, (command, utilized) in enumerate(zip(stack, utilized_commands)):
+            if utilized and not IS_TERMINAL_MAP[command[0]]:
+                for j in range(1, 3):
+                    command[j] = index_shifts.get(command[j], command[j])

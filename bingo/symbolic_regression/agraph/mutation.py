@@ -71,7 +71,7 @@ class AGraphMutation(Mutation):
                                      self._mutate_node,
                                      self._mutate_parameters,
                                      self._prune_branch,
-                                     self._fork_mutation],
+                                     self._fork_mutation_2],
                                     [command_probability,
                                      node_probability,
                                      parameter_probability,
@@ -352,3 +352,58 @@ class AGraphMutation(Mutation):
                 break
         fork_commands[-1, np.random.randint(1, 3)] = new_mut_location
         return fork_commands
+
+    def _fork_mutation_2(self, individual):
+        utilized_commands = individual.get_utilized_commands()
+
+        if utilized_commands.count(False) < 2:
+            self._last_mutation_location = None
+            self._last_mutation_type = FORK_MUTATION
+            return
+
+        indices = [n for n, x in enumerate(utilized_commands) if x]
+        mutation_location = np.random.choice(indices)
+        new_mutation_location = self._move_utilized_to_top(individual, utilized_commands, mutation_location)
+        self._insert_fork(individual, mutation_location, new_mutation_location)
+
+        self._last_mutation_location = mutation_location
+        self._last_mutation_type = FORK_MUTATION
+
+    def _move_utilized_to_top(self, individual, utilized_commands, mutation_location):
+        stack = individual.mutable_command_array
+        indices = range(len(stack))
+
+        reordered_stack = sorted(zip(stack[:mutation_location + 1],
+                                     utilized_commands[:mutation_location + 1],
+                                     indices[:mutation_location + 1]),
+                                 key=lambda x: x[1],
+                                 reverse=True)
+        index_shifts = dict(zip(np.array(reordered_stack, dtype=object)[:, 2], range(len(reordered_stack))))
+        new_mutation_location = index_shifts[mutation_location]
+        index_shifts[mutation_location] = mutation_location
+        stack = np.vstack((list(np.array(reordered_stack, dtype=object)[:, 0]), stack[mutation_location+1:]))
+
+        for i, command in enumerate(stack):
+            if not IS_TERMINAL_MAP[command[0]]:
+                for j in range(1, 3):
+                    command[j] = index_shifts.get(command[j], command[j])
+
+        return new_mutation_location
+
+    def _insert_fork(self, individual, mutation_location, new_mutation_location):
+        stack = individual.mutable_command_array
+
+        arity_2_operator = None
+        while arity_2_operator is None or not IS_ARITY_2_MAP[arity_2_operator]:
+            arity_2_operator = self._component_generator.random_operator()
+
+        new_command = [arity_2_operator, 0, 0]
+        new_param = self._component_generator.random_terminal_command()
+
+        param_location = mutation_location - 1
+        new_command[1] = new_mutation_location
+        new_command[2] = param_location
+
+        stack[mutation_location] = new_command
+        stack[param_location] = new_param
+        return stack

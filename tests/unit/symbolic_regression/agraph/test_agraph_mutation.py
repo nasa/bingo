@@ -71,6 +71,47 @@ def fork_agraph():
 
 
 @pytest.fixture
+def spaced_fork_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[CONSTANT, -1, -1],  # sin(sin(X_0))
+                                         [VARIABLE, 0, 0],
+                                         [SUBTRACTION, 1, 1],
+                                         [SIN, 1, 1],
+                                         [SIN, 3, 3]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([])
+    return test_graph
+
+
+@pytest.fixture
+def not_enough_unutil_fork_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[VARIABLE, 0, 0],  # sin(sin(X_0))
+                                         [SUBTRACTION, 0, 0],
+                                         [SIN, 0, 0],
+                                         [SIN, 2, 2]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([])
+    return test_graph
+
+
+@pytest.fixture
+def many_unutil_fork_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[VARIABLE, 0, 0],  # sin(sin(X_0))
+                                         [SUBTRACTION, 0, 0],
+                                         [SUBTRACTION, 0, 0],
+                                         [SUBTRACTION, 0, 0],
+                                         [SUBTRACTION, 0, 0],
+                                         [SUBTRACTION, 0, 0],
+                                         [SIN, 0, 0],
+                                         [SIN, 6, 6]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([])
+    return test_graph
+
+
+@pytest.fixture
 def sample_component_generator(mocker):
     sample = mocker.create_autospec(ComponentGenerator)
     random_commands = cycle([[CONSTANT, -1, -1],
@@ -234,7 +275,8 @@ def test_mutate_variable(single_variable_agraph, sample_component_generator):
     assert p_stack[-1, 2] != c_stack[-1, 2]
 
 
-def test_fork_mutation(fork_agraph, fork_mutation_component_generator):
+@pytest.mark.parametrize("repeats", range(5))
+def test_fork_mutation(fork_agraph, fork_mutation_component_generator, repeats):
     # np.random.seed(10)
     mutation = AGraphMutation(fork_mutation_component_generator,
                               command_probability=0.0,
@@ -245,5 +287,55 @@ def test_fork_mutation(fork_agraph, fork_mutation_component_generator):
     child = mutation(fork_agraph)
     print("parent:", fork_agraph)
     print("child:", child)
+    print(mutation._last_mutation_location)
 
     assert fork_agraph.get_complexity() < child.get_complexity()
+
+
+@pytest.mark.parametrize("repeats", range(5))
+def test_fork_mutation_spaced_util_commands(spaced_fork_agraph, fork_mutation_component_generator, repeats):
+    mutation = AGraphMutation(fork_mutation_component_generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=0.0,
+                              prune_probability=0.0,
+                              fork_probability=1.0)
+    child = mutation(spaced_fork_agraph)
+    print("parent:", spaced_fork_agraph)
+    print("child:", child)
+    print(mutation._last_mutation_location)
+
+    assert spaced_fork_agraph.get_complexity() < child.get_complexity()
+
+
+def test_fork_mutation_not_enough_unutilized_commands(not_enough_unutil_fork_agraph, fork_mutation_component_generator):
+    mutation = AGraphMutation(fork_mutation_component_generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=0.0,
+                              prune_probability=0.0,
+                              fork_probability=1.0)
+    child = mutation(not_enough_unutil_fork_agraph)
+    print("parent:", not_enough_unutil_fork_agraph)
+    print("child:", child)
+    print(mutation._last_mutation_location)
+
+    np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array, child.command_array)
+    
+    
+def test_fork_mutation_many_unutilized_commands(many_unutil_fork_agraph, fork_mutation_component_generator):
+    mutation = AGraphMutation(fork_mutation_component_generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=0.0,
+                              prune_probability=0.0,
+                              fork_probability=1.0)
+    child = mutation(many_unutil_fork_agraph)
+    print("parent:", many_unutil_fork_agraph)
+    print("child:", child)
+    print(mutation._last_mutation_location)
+    # mutation location = 0 -> runtime error
+    # 6 introduces subtraction?
+    # 7 gets rid of sin and introduces subtraction
+
+    assert many_unutil_fork_agraph.get_complexity() < child.get_complexity()

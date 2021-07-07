@@ -374,13 +374,10 @@ class AGraphMutation(Mutation):
         indices = range(len(individual.command_array))
 
         # TODO do without sorting
-        stack, new_utilized_commands, new_indices = zip(*sorted(zip(individual.command_array,
-                                                                 utilized_commands,
-                                                                 indices),
-                                                             key=lambda x: x[1]))
-
-        # TODO figure out how to avoid this
-        stack = [list(inner) for inner in stack]
+        stack, new_utilized_commands, new_indices = zip(*sorted(zip(individual.mutable_command_array,
+                                                                    utilized_commands,
+                                                                    indices),
+                                                                key=lambda x: x[1]))
 
         index_shifts = dict(zip(new_indices, range(len(stack))))
         self._fix_indices(stack, new_utilized_commands, index_shifts)

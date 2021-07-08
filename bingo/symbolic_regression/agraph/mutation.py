@@ -373,36 +373,29 @@ class AGraphMutation(Mutation):
     def _move_unutilized_to_top(self, individual, utilized_commands, mutation_location):
         indices = range(len(individual.command_array))
 
-        # TODO do without sorting
-        stack, new_utilized_commands, new_indices = zip(*sorted(zip(individual.mutable_command_array,
-                                                                    utilized_commands,
-                                                                    indices),
-                                                                key=lambda x: x[1]))
+        new_stack, new_utilized_commands, index_shifts = \
+            self._move_utilized_commands(individual.mutable_command_array,
+                                         utilized_commands,
+                                         to_front=True)
 
-        index_shifts = dict(zip(new_indices, range(len(stack))))
-        self._fix_indices(stack, new_utilized_commands, index_shifts)
-        individual.command_array = np.array(stack)
+        self._fix_indices(new_stack, new_utilized_commands, index_shifts)
+        individual.command_array = new_stack
         new_mutation_location = index_shifts[mutation_location]
         return new_mutation_location, new_utilized_commands
 
     def _move_utilized_to_top(self, individual, utilized_commands, mutation_location):
         fork_size = 2
-        indices = range(len(individual.command_array))
+        new_stack, new_utilized_commands, index_shifts =\
+            self._move_utilized_commands(individual.mutable_command_array[:mutation_location + 1],
+                                         utilized_commands[:mutation_location + 1],
+                                         to_front=False)
 
-        # TODO do without sorting
-        stack, new_utilized_commands, new_indices = zip(*sorted(zip(individual.mutable_command_array[:mutation_location + 1],
-                                                                    utilized_commands[:mutation_location + 1],
-                                                                    indices[:mutation_location + 1]),
-                                                                key=lambda x: x[1],
-                                                                reverse=True))
-
-        index_shifts = dict(zip(new_indices, range(len(stack))))
         new_mutation_location = index_shifts[mutation_location]
-        stack = np.vstack((stack, individual.command_array[mutation_location+1:]))
+        new_stack = np.vstack((new_stack, individual.command_array[mutation_location+1:]))
 
         # TODO take slice of command array instead of passing in entire thing
-        self._fix_indices(stack, new_utilized_commands, index_shifts)
-        individual.command_array = stack
+        self._fix_indices(new_stack, new_utilized_commands, index_shifts)
+        individual.command_array = new_stack
 
         return new_mutation_location
 
@@ -419,7 +412,30 @@ class AGraphMutation(Mutation):
         individual.mutable_command_array[mutation_location] = new_command
         individual.mutable_command_array[param_location] = new_param
 
-    def _fix_indices(self, stack, utilized_commands, index_shifts):
+    @staticmethod
+    def _move_utilized_commands(stack, utilized_commands, to_front=True):
+        indices = range(len(stack))
+        new_tuples = []
+        counter = 0
+        for stack_util_index_tuple in zip(stack, utilized_commands, indices):
+            if to_front:
+                if stack_util_index_tuple[1]:  # if utilized
+                    new_tuples.append(stack_util_index_tuple)
+                else:
+                    new_tuples.insert(counter, stack_util_index_tuple)
+                    counter += 1
+            else:
+                if not stack_util_index_tuple[1]:  # if not utilized
+                    new_tuples.append(stack_util_index_tuple)
+                else:
+                    new_tuples.insert(counter, stack_util_index_tuple)
+                    counter += 1
+        new_stack, new_utilized_commands, new_indices = zip(*new_tuples)
+        index_shifts = dict(zip(new_indices, indices))
+        return np.array(new_stack), list(new_utilized_commands), index_shifts
+
+    @staticmethod
+    def _fix_indices(stack, utilized_commands, index_shifts):
         for i, (command, utilized) in enumerate(zip(stack, utilized_commands)):
             if utilized and not IS_TERMINAL_MAP[command[0]]:
                 for j in range(1, 3):

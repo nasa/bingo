@@ -354,18 +354,25 @@ class AGraphMutation(Mutation):
         return fork_commands
 
     def _fork_mutation_2(self, individual):
-        utilized_commands = individual.get_utilized_commands()
+        MAX_FORK_SIZE = 4
 
-        if utilized_commands.count(False) < 2:
+        utilized_commands = individual.get_utilized_commands()
+        n_unutilized_commands = utilized_commands.count(False)
+
+        if n_unutilized_commands < 2:
             self._last_mutation_location = None
             self._last_mutation_type = FORK_MUTATION
             return
 
+        max_fork = min(n_unutilized_commands, MAX_FORK_SIZE)
+        fork_size = np.random.randint(2, max_fork + 1)
+
         indices = [n for n, x in enumerate(utilized_commands) if x]
         mutation_location = np.random.choice(indices)
+
         mutation_location, utilized_commands = self._move_unutilized_to_top(individual, utilized_commands, mutation_location)
         new_mutation_location = self._move_utilized_to_top(individual, utilized_commands, mutation_location)
-        self._insert_fork(individual, mutation_location, new_mutation_location)
+        self._insert_fork(individual, mutation_location, new_mutation_location, fork_size)
 
         self._last_mutation_location = mutation_location
         self._last_mutation_type = FORK_MUTATION
@@ -384,7 +391,6 @@ class AGraphMutation(Mutation):
         return new_mutation_location, new_utilized_commands
 
     def _move_utilized_to_top(self, individual, utilized_commands, mutation_location):
-        fork_size = 2
         new_stack, new_utilized_commands, index_shifts =\
             self._move_utilized_commands(individual.mutable_command_array[:mutation_location + 1],
                                          utilized_commands[:mutation_location + 1],
@@ -399,18 +405,43 @@ class AGraphMutation(Mutation):
 
         return new_mutation_location
 
-    def _insert_fork(self, individual, mutation_location, new_mutation_location):
-        arity_2_operator = None
-        while arity_2_operator is None or not IS_ARITY_2_MAP[arity_2_operator]:
-            arity_2_operator = self._component_generator.random_operator()
+    def _insert_fork(self, individual, mutation_location, new_mutation_location, fork_size):
+        # start with an arity 2 operator (to link the mutated command with another command)
+        # (starting with an arity 2 operator makes the fork_size - 1)
+        # generate operators until the fork_size reaches 3, 2, or 1
+        # where if fork_size = 3 -> ar2 operator, fork_size = 2 -> ar1 operator,
+        # fork_size = 1 -> terminal
 
-        param_location = mutation_location - 1
-        new_param = self._component_generator.random_terminal_command()
+        insertion_index = mutation_location
+        start_operator = self._get_arity_operator(2)
 
-        new_command = [arity_2_operator, new_mutation_location, param_location]
+        # add start arity 2 operator that links to mutated command
+        start_command = np.array([start_operator, new_mutation_location, insertion_index - 1], dtype=int)
+        individual.mutable_command_array[insertion_index] = start_command
+        fork_size -= 1
+        insertion_index -= 1
 
-        individual.mutable_command_array[mutation_location] = new_command
-        individual.mutable_command_array[param_location] = new_param
+        while fork_size > 3:
+            new_operator = self._component_generator.random_operator()
+            if IS_ARITY_2_MAP[new_operator]:
+                new_operator_command = np.array([new_operator, insertion_index - 1, insertion_index - 2], dtype=int)
+            else:
+                new_operator_command = np.array([new_operator, insertion_index - 1, insertion_index - 1], dtype=int)
+            individual.mutable_command_array[insertion_index] = new_operator_command
+            fork_size -= 1
+            insertion_index -= 1
+
+        if fork_size == 3:
+            new_operator_command = np.array([self._get_arity_operator(2), insertion_index - 1, insertion_index - 2])
+            individual.mutable_command_array[insertion_index] = new_operator_command
+            individual.mutable_command_array[insertion_index - 1] = self._component_generator.random_terminal_command()
+            individual.mutable_command_array[insertion_index - 2] = self._component_generator.random_terminal_command()
+        elif fork_size == 2:
+            new_operator_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1])
+            individual.mutable_command_array[insertion_index] = new_operator_command
+            individual.mutable_command_array[insertion_index - 1] = self._component_generator.random_terminal_command()
+        else:
+            individual.mutable_command_array[insertion_index] = self._component_generator.random_terminal_command()
 
     @staticmethod
     def _move_utilized_commands(stack, utilized_commands, to_front=True):
@@ -437,6 +468,18 @@ class AGraphMutation(Mutation):
     @staticmethod
     def _fix_indices(stack, utilized_commands, index_shifts):
         for i, (command, utilized) in enumerate(zip(stack, utilized_commands)):
+            # TODO fix unutilized commands?
             if utilized and not IS_TERMINAL_MAP[command[0]]:
                 for j in range(1, 3):
                     command[j] = index_shifts.get(command[j], command[j])
+
+    def _get_arity_operator(self, arity):
+        operator = None
+        # TODO add break/testing for if there is no arity_1 or arity_2 op in component generator
+        if arity == 1:
+            while operator is None or IS_ARITY_2_MAP[operator]:
+                operator = self._component_generator.random_operator()
+        else:
+            while operator is None or not IS_ARITY_2_MAP[operator]:
+                operator = self._component_generator.random_operator()
+        return operator

@@ -58,7 +58,7 @@ class PairwiseAtomicTrainingData(TrainingData):
 
     Training data of this type contains distances (r) between ataoms in several
     atomic configurations. Each configuration has an associated potential
-    energy.  The r values beloning to each configuration are bounded by
+    energy.  The r values belonging to each configuration are bounded by
     configuration limits (config_lims_r)
 
     Parameters

@@ -24,7 +24,7 @@ def is_cpp():
 def evaluate(stack, x, constants):
     """Evaluate an equation
 
-    Evauluate the equation associated with an Agraph, at the values x.
+    Evaluate the equation associated with an Agraph, at the values x.
 
     Parameters
     ----------
@@ -49,7 +49,7 @@ def evaluate(stack, x, constants):
 def simplify_and_evaluate(stack, x, constants):
     """Evaluate an equation after simplification.
 
-    Evauluate the equation associated with an Agraph, at the values x.
+    Evaluate the equation associated with an Agraph, at the values x.
     Simplification ensures that only the commands utilized in the result are
     considered.
 

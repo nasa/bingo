@@ -307,7 +307,7 @@ def test_raises_error_c_gradient_invalid_agraph(invalid_agraph,
             sample_agraph_1_values.x)
 
 # NOTE: Indexing errors are segmentation faults in c++. This tests is
-# ommitted from the bingocpp.agraph implementation.
+# omitted from the bingocpp.agraph implementation.
 
 def test_invalid_agraph_needs_optimization(invalid_agraph_list):
     assert invalid_agraph_list.needs_local_optimization()

@@ -4,6 +4,7 @@ This module defines the a basic form of the evaluation phase of bingo
 evolutionary algorithms.
 """
 
+from multiprocessing import Pool
 
 class Evaluation:
     """Base phase for calculating fitness of a population.
@@ -47,6 +48,15 @@ class Evaluation:
         population : list of chromosomes
                      population for which fitness should be calculated
         """
+
+        def eval_fitness(indv):
+            indv.fitness = self.fitness_function(indv)
+
+        with Pool(len(population)) as p:
+            p.map(eval_fitness, population)
+        
+        """
         for indv in population:
             if not indv.fit_set:
                 indv.fitness = self.fitness_function(indv)
+        """

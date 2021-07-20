@@ -56,6 +56,7 @@ class Evaluation:
             if not indv.fit_set:
                 return self.fitness_function(indv)
 
+        """
         fitnesses = Parallel(n_jobs=num_cores)(delayed(eval_fitness)(indv) for indv in population)
         print("hi")
 
@@ -67,5 +68,5 @@ class Evaluation:
         for indv in population:
             if not indv.fit_set:
                 indv.fitness = self.fitness_function(indv)
-        """
+        
 

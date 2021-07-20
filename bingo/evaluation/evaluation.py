@@ -4,7 +4,10 @@ This module defines the a basic form of the evaluation phase of bingo
 evolutionary algorithms.
 """
 
-from multiprocessing import Pool
+import multiprocessing
+from joblib import Parallel, delayed
+
+num_cores = multiprocessing.cpu_count()
 
 class Evaluation:
     """Base phase for calculating fitness of a population.
@@ -50,13 +53,19 @@ class Evaluation:
         """
 
         def eval_fitness(indv):
-            indv.fitness = self.fitness_function(indv)
+            if not indv.fit_set:
+                return self.fitness_function(indv)
 
-        with Pool(len(population)) as p:
-            p.map(eval_fitness, population)
-        
+        fitnesses = Parallel(n_jobs=num_cores)(delayed(eval_fitness)(indv) for indv in population)
+        print("hi")
+
+        for i, indv in enumerate(population):
+            if not indv.fit_set:
+                indv.fitness = fitnesses[i]
+
         """
         for indv in population:
             if not indv.fit_set:
                 indv.fitness = self.fitness_function(indv)
         """
+

@@ -12,6 +12,7 @@ USING_PARALLEL_CPU = False
 
 def set_use_parallel_cpu(flag):
     global jl
+    global USING_PARALLEL_CPU
     USING_PARALLEL_CPU = flag
     if flag:
         import joblib as jl

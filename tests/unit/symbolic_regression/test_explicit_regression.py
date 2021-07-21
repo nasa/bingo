@@ -162,6 +162,20 @@ def test_training_data_xy(explicit_training_data):
     np.testing.assert_array_equal(etd.y, np.ones((10, 1)))
 
 
+def test_training_data_xy_read_only(explicit_training_data):
+    x = np.zeros(10)
+    y = np.ones(10)
+    etd = explicit_training_data(x, y)
+    _ = etd.x
+    _ = etd.y
+
+    with pytest.raises(AttributeError):
+        etd.x = 1
+
+    with pytest.raises(AttributeError):
+        etd.y = 1
+
+
 def test_training_data_slicing(sample_training_data):
     indices = [2, 4, 6, 8]
     sliced_etd = sample_training_data[indices]

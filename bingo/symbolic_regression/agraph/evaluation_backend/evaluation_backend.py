@@ -5,7 +5,7 @@ represented by an `AGraph`.  It can also perform derivatives.
 """
 
 import numpy as np
-
+import cupy as cp
 from .operator_eval import forward_eval_function, reverse_eval_function
 import bingo.util.global_imports as gi
 
@@ -32,11 +32,16 @@ def evaluate(stack, x, constants):
     Mx1 array of numeric
         :math`f(x)`
     """
-
+    if gi.USING_GPU:
+        stack = gi.num_lib.asarray(stack)
+        return _evaluate_fused(stack, x, constants)
     forward_eval = _forward_eval(stack, x, constants)
     return _reshape_output(forward_eval[-1], constants, x)
 
-
+@cp.fuse(kernel_name="evaluate")
+def _evaluate_fused(stack, x, constants):
+    forward_eval = _forward_eval(stack, x, constants)
+    return _reshape_output(forward_eval[-1], constants, x)
 
 def _reshape_output(output, constants, x):
     x_dim = len(x)

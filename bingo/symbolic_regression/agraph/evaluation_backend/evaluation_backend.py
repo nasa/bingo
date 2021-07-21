@@ -35,13 +35,9 @@ def evaluate(stack, x, constants):
     if gi.USING_GPU:
         stack = gi.num_lib.asarray(stack)
         constants = gi.num_lib.asarray(constants)
-        return _evaluate_fused(stack, x, constants)
-    forward_eval = _forward_eval(stack, x, constants)
-    return _reshape_output(forward_eval[-1], constants, x)
-
-@cp.fuse(kernel_name="evaluate")
-def _evaluate_fused(stack, x, constants):
-    forward_eval = _forward_eval(stack, x, constants)
+        forward_eval = _forward_eval_gpu(stack, stack.shape[0], x, constants)
+    else:
+        forward_eval = _forward_eval(stack, x, constants)
     return _reshape_output(forward_eval[-1], constants, x)
 
 def _reshape_output(output, constants, x):
@@ -93,6 +89,14 @@ def _forward_eval(stack, x, constants):
 
     return forward_eval
 
+@cp.fuse(kernelname="forward_eval")
+def _forward_eval_gpu(stack, stacksize, x, constants):
+    forward_eval = [None]*stacksize # np.empty((stack.shape[0], x.shape[0]))
+    for i, (node, param1, param2) in enumerate(stack):
+        forward_eval[i] = forward_eval_function(node, param1, param2, x,
+                                                constants, forward_eval)
+
+    return forward_eval
 
 def _evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):
 

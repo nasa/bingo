@@ -107,12 +107,26 @@ def test_raises_error_on_training_data_with_high_dims(implicit_training_data,
         implicit_training_data(x, dx_dt)
 
 
-def test_training_data_xy(implicit_training_data):
+def test_training_data_x_dxdt(implicit_training_data):
     x = np.zeros(10)
     dx_dt = np.ones((10, 1))
     itd = implicit_training_data(x, dx_dt)
     np.testing.assert_array_equal(itd.x, np.zeros((10, 1)))
     np.testing.assert_array_equal(itd.dx_dt, np.ones((10, 1)))
+
+
+def test_training_data_x_dxdt_read_only(implicit_training_data):
+    x = np.zeros(10)
+    dx_dt = np.ones((10, 1))
+    itd = implicit_training_data(x, dx_dt)
+    _ = itd.x
+    _ = itd.dx_dt
+
+    with pytest.raises(AttributeError):
+        itd.x = 1
+    
+    with pytest.raises(AttributeError):
+        itd.dx_dt = 1
 
 
 def test_training_data_slicing(sample_training_data):

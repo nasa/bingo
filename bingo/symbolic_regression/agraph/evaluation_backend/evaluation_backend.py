@@ -89,7 +89,7 @@ def _forward_eval(stack, x, constants):
 
     return forward_eval
 
-@cp.fuse(kernelname="forward_eval")
+@cp.fuse(kernel_name="forward_eval")
 def _forward_eval_gpu(stack, stacksize, x, constants):
     forward_eval = [None]*stacksize # np.empty((stack.shape[0], x.shape[0]))
     for i, (node, param1, param2) in enumerate(stack):

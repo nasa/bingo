@@ -34,6 +34,7 @@ def evaluate(stack, x, constants):
     """
     if gi.USING_GPU:
         stack = gi.num_lib.asarray(stack)
+        constants = gi.num_lib.asarray(constants)
         return _evaluate_fused(stack, x, constants)
     forward_eval = _forward_eval(stack, x, constants)
     return _reshape_output(forward_eval[-1], constants, x)

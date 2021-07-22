@@ -225,7 +225,7 @@ def test_explicit_regression_get_fit_and_grad(
                                             relative=False)
     assert sample_regression.eval_count == 0
     fitness, gradient = sample_regression.get_fitness_and_gradient(
-            sample_differentiable_equation)
+        sample_differentiable_equation)
 
     assert fitness == expected_fit
     np.testing.assert_array_equal(gradient, expected_grad)

@@ -23,7 +23,8 @@ if __name__ == '__main__':
     PRINTER_LIST += fitness_benchmark.do_benchmarking()
     PRINTER_LIST += clo_benchmark.do_benchmarking(debug=False)
 
-    print('\n\n' + '*' * NUM_STARS_LEFT_SIDE + TITLE + '*' * NUM_STARS_RIGHT_SIDE)
+    print('\n\n' + '*' * NUM_STARS_LEFT_SIDE + TITLE + 
+          '*' * NUM_STARS_RIGHT_SIDE)
     print("Note: Times are in milliseconds per individual\n")
     print_stats(PRINTER_LIST)
 

@@ -106,7 +106,7 @@ def do_benchmarking(debug = False):
         [benchmark_explicit_regression_with_optimization,
          benchmark_explicit_regression_cpp_with_optimization,
          "LOCAL OPTIMIZATION (EXPLICIT REGRESSION) BENCHMARKS"],
-        [benchmark_implicit_regression_with_optimization, 
+        [benchmark_implicit_regression_with_optimization,
          benchmark_implicit_regression_cpp_with_optimization,
          "LOCAL OPTIMIZATION (IMPLICIT REGRESSION) BENCHMARKS"]]
 

@@ -9,9 +9,9 @@ Bingo is an open source package for performing symbolic regression, Though it
 can be used as a general purpose evolutionary optimization package.  
 
 ### Key Features
-  * Integrated local optimization strategies
-  * Parallel island evolution strategy implemented with mpi4py
-  * Coevolution of fitness predictors
+* Integrated local optimization strategies
+* Parallel island evolution strategy implemented with mpi4py
+* Coevolution of fitness predictors
   
 ### Note
 At this point, the API is still in a state of flux. The current release has a 
@@ -29,11 +29,11 @@ git clone --recurse-submodules ...
 ### Dependencies
 Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
 few dependencies which are relatively common for data science work in python:
-  * numpy
-  * scipy
-  * matplotlib
-  * mpi4py (if parallel implementations are to be run)
-  * pytest, pytest-mock (if the testing suite is to be run)
+* numpy
+* scipy
+* matplotlib
+* mpi4py (if parallel implementations are to be run)
+* pytest, pytest-mock (if the testing suite is to be run)
   
 A `requirements.txt` file is included for easy installation of dependencies with 
 `pip` or `conda`.
@@ -103,12 +103,12 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available,
 see the [tags on this repository](https://github.com/nasa/bingo/tags). 
 
 ## Authors
-  * Geoffrey Bomarito
-  * Tyler Townsend
-  * Jacob Hochhalter
-  * Ethan Adams
-  * Kathryn Esham
-  * Diana Vera
+* Geoffrey Bomarito
+* Tyler Townsend
+* Jacob Hochhalter
+* Ethan Adams
+* Kathryn Esham
+* Diana Vera
   
 ## License 
 Copyright 2018 United States Government as represented by the Administrator of 

@@ -9,9 +9,9 @@ Bingo is an open source package for performing symbolic regression, Though it
 can be used as a general purpose evolutionary optimization package.  
 
 ### Key Features
-* Integrated local optimization strategies
-* Parallel island evolution strategy implemented with mpi4py
-* Coevolution of fitness predictors
+*   Integrated local optimization strategies
+*   Parallel island evolution strategy implemented with mpi4py
+*   Coevolution of fitness predictors
   
 ### Note
 At this point, the API is still in a state of flux. The current release has a 

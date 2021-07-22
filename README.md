@@ -29,11 +29,11 @@ git clone --recurse-submodules ...
 ### Dependencies
 Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
 few dependencies which are relatively common for data science work in python:
-* numpy
-* scipy
-* matplotlib
-* mpi4py (if parallel implementations are to be run)
-* pytest, pytest-mock (if the testing suite is to be run)
+*   numpy
+*   scipy
+*   matplotlib
+*   mpi4py (if parallel implementations are to be run)
+*   pytest, pytest-mock (if the testing suite is to be run)
   
 A `requirements.txt` file is included for easy installation of dependencies with 
 `pip` or `conda`.
@@ -72,7 +72,6 @@ Sphynx is used for automatically generating API documentation for bingo. The
 most recent build of the documentation can be found in the repository at: 
 `doc/_build/html/index.html`
 
-
 ## Running Tests
 An extensive unit test suite is included with bingo to help ensure proper 
 installation. The tests can be run using pytest on the tests directory, e.g., 
@@ -91,24 +90,23 @@ which may act as a good base when starting to write your own custom bingo
 scripts.
 
 ## Contributing
- 1. Fork it (<https://github.com/nasa/bingo/fork>)
- 2. Create your feature branch (`git checkout -b feature/fooBar`)
- 3. Commit your changes (`git commit -am 'Add some fooBar'`)
- 4. Push to the branch (`git push origin feature/fooBar`)
- 5. Create a new Pull Request
-
+1.  Fork it (<https://github.com/nasa/bingo/fork>)
+2.  Create your feature branch (`git checkout -b feature/fooBar`)
+3.  Commit your changes (`git commit -am 'Add some fooBar'`)
+4.  Push to the branch (`git push origin feature/fooBar`)
+5.  Create a new Pull Request
 
 ## Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 see the [tags on this repository](https://github.com/nasa/bingo/tags). 
 
 ## Authors
-* Geoffrey Bomarito
-* Tyler Townsend
-* Jacob Hochhalter
-* Ethan Adams
-* Kathryn Esham
-* Diana Vera
+*   Geoffrey Bomarito
+*   Tyler Townsend
+*   Jacob Hochhalter
+*   Ethan Adams
+*   Kathryn Esham
+*   Diana Vera
   
 ## License 
 Copyright 2018 United States Government as represented by the Administrator of 

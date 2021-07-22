@@ -29,11 +29,11 @@ git clone --recurse-submodules ...
 ### Dependencies
 Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
 few dependencies which are relatively common for data science work in python:
-  - numpy
-  - scipy
-  - matplotlib
-  - mpi4py (if parallel implementations are to be run)
-  - pytest, pytest-mock (if the testing suite is to be run)
+  * numpy
+  * scipy
+  * matplotlib
+  * mpi4py (if parallel implementations are to be run)
+  * pytest, pytest-mock (if the testing suite is to be run)
   
 A `requirements.txt` file is included for easy installation of dependencies with 
 `pip` or `conda`.
@@ -90,13 +90,12 @@ step.  The [examples directory](examples/) also contains several python scripts
 which may act as a good base when starting to write your own custom bingo
 scripts.
 
-
 ## Contributing
-1. Fork it (<https://github.com/nasa/bingo/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
+ 1. Fork it (<https://github.com/nasa/bingo/fork>)
+ 2. Create your feature branch (`git checkout -b feature/fooBar`)
+ 3. Commit your changes (`git commit -am 'Add some fooBar'`)
+ 4. Push to the branch (`git push origin feature/fooBar`)
+ 5. Create a new Pull Request
 
 
 ## Versioning
@@ -125,4 +124,3 @@ Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 specific language governing permissions and limitations under the License.
- 

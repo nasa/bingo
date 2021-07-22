@@ -62,7 +62,8 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
         error = f_of_x - self.training_data.y
         if not self._relative:
             return error.flatten(), df_dc
-        return (error / self.training_data.y).flatten(), df_dc / self.training_data.y
+        return (error / self.training_data.y).flatten(), \
+            df_dc / self.training_data.y
 
 
 class ExplicitTrainingData(TrainingData):

@@ -115,7 +115,8 @@ def sample_differentiable_equation(equation, sample_constants):
             return self.constants[0]
 
         def evaluate_equation_with_local_opt_gradient_at(self, x):
-            return self.evaluate_equation_at(x), np.concatenate((x, np.ones(len(x)).reshape(-1, 1)), axis=1)
+            return self.evaluate_equation_at(x), \
+                   np.concatenate((x, np.ones(len(x)).reshape(-1, 1)), axis=1)
 
         def get_complexity(self):
             pass
@@ -137,7 +138,8 @@ def sample_differentiable_equation(equation, sample_constants):
 
 @pytest.fixture
 def expected_differentiable_equation_output(sample_constants):
-    return sample_constants[0] * np.arange(10, dtype=float) + sample_constants[1]
+    return sample_constants[0] * np.arange(10, dtype=float) \
+           + sample_constants[1]
 
 
 @pytest.mark.parametrize("three_dim", ["x", "y"])
@@ -214,12 +216,16 @@ def test_explicit_regression_relative(sample_regression_relative,
 @pytest.mark.parametrize("metric, expected_fit, expected_grad",
                          [("mae", 6.5, np.array([4.5, 1])),
                           ("mse", 50.5, 2 * np.array([37.5, 6.5])),
-                          ("rmse", np.sqrt(50.5), 1/np.sqrt(50.5) * np.array([37.5, 6.5]))])
-def test_explicit_regression_get_fit_and_grad(explicit_regression, sample_training_data, sample_differentiable_equation,
-                                              metric, expected_fit, expected_grad):
-    sample_regression = explicit_regression(sample_training_data, metric, relative=False)
+                          ("rmse", np.sqrt(50.5),
+                           1/np.sqrt(50.5) * np.array([37.5, 6.5]))])
+def test_explicit_regression_get_fit_and_grad(
+        explicit_regression, sample_training_data,
+        sample_differentiable_equation, metric, expected_fit, expected_grad):
+    sample_regression = explicit_regression(sample_training_data, metric,
+                                            relative=False)
     assert sample_regression.eval_count == 0
-    fitness, gradient = sample_regression.get_fitness_and_gradient(sample_differentiable_equation)
+    fitness, gradient = sample_regression.get_fitness_and_gradient(
+            sample_differentiable_equation)
 
     assert fitness == expected_fit
     np.testing.assert_array_equal(gradient, expected_grad)
@@ -230,56 +236,72 @@ def test_explicit_regression_get_fit_and_grad(explicit_regression, sample_traini
                          [("mae", 1.293, np.array([0.707, 0.293])),
                           ("mse", 1.741, 2 * np.array([0.845, 0.448])),
                           ("rmse", 1.319, 0.758 * np.array([0.845, 0.448]))])
-def test_explicit_regression_relative_get_fit_and_grad(explicit_regression, sample_training_data,
-                                                       sample_differentiable_equation, metric, expected_fit,
-                                                       expected_grad):
-    sample_regression_relative = explicit_regression(sample_training_data, metric, relative=True)
+def test_explicit_regression_relative_get_fit_and_grad(
+        explicit_regression, sample_training_data,
+        sample_differentiable_equation, metric, expected_fit, expected_grad):
+    sample_regression_relative = explicit_regression(sample_training_data,
+                                                     metric, relative=True)
     assert sample_regression_relative.eval_count == 0
-    fitness, gradient = sample_regression_relative.get_fitness_and_gradient(sample_differentiable_equation)
+    fitness, gradient = sample_regression_relative.get_fitness_and_gradient(
+            sample_differentiable_equation)
 
     assert fitness == pytest.approx(expected_fit, 0.001)
     np.testing.assert_array_almost_equal(gradient, expected_grad, 3)
     assert sample_regression_relative.eval_count == 1
 
 
-def test_differentiable_explicit_regression(sample_regression, sample_differentiable_equation,
-                                            expected_differentiable_equation_output):
+def test_differentiable_explicit_regression(
+        sample_regression, sample_differentiable_equation,
+        expected_differentiable_equation_output):
     assert sample_regression.eval_count == 0
-    fit_vec = sample_regression.evaluate_fitness_vector(sample_differentiable_equation)
-    expected_fit_vec = expected_differentiable_equation_output - np.arange(1, 11)
+    fit_vec = sample_regression.evaluate_fitness_vector(
+            sample_differentiable_equation)
+    expected_fit_vec = expected_differentiable_equation_output \
+        - np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
     assert sample_regression.eval_count == 1
 
 
-def test_differentiable_explicit_regression_relative(sample_regression_relative, sample_differentiable_equation,
-                                                     expected_differentiable_equation_output):
+def test_differentiable_explicit_regression_relative(
+        sample_regression_relative, sample_differentiable_equation,
+        expected_differentiable_equation_output):
     assert sample_regression_relative.eval_count == 0
-    fit_vec = sample_regression_relative.evaluate_fitness_vector(sample_differentiable_equation)
-    expected_fit_vec = (expected_differentiable_equation_output - np.arange(1, 11)) / np.arange(1, 11)
+    fit_vec = sample_regression_relative.evaluate_fitness_vector(
+            sample_differentiable_equation)
+    expected_fit_vec = (expected_differentiable_equation_output
+                        - np.arange(1, 11)) / np.arange(1, 11)
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
     assert sample_regression_relative.eval_count == 1
 
 
-def test_explicit_regression_get_fit_vec_and_jac(sample_regression, sample_differentiable_equation,
-                                                 expected_differentiable_equation_output):
+def test_explicit_regression_get_fit_vec_and_jac(
+        sample_regression, sample_differentiable_equation,
+        expected_differentiable_equation_output):
     assert sample_regression.eval_count == 0
-    fit_vec, fit_jac = sample_regression.get_fitness_vector_and_jacobian(sample_differentiable_equation)
+    fit_vec, fit_jac = sample_regression.get_fitness_vector_and_jacobian(
+            sample_differentiable_equation)
 
-    expected_fit_vec = expected_differentiable_equation_output - np.arange(1, 11)
-    expected_jac = np.vstack((np.arange(10, dtype=float), np.ones(10))).transpose()
+    expected_fit_vec = expected_differentiable_equation_output \
+                       - np.arange(1, 11)
+    expected_jac = np.vstack((np.arange(10, dtype=float), np.ones(10))).T
 
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
     np.testing.assert_array_equal(fit_jac, expected_jac)
     assert sample_regression.eval_count == 1
 
 
-def test_explicit_regression_relative_get_fit_vec_and_jac(sample_regression_relative, sample_differentiable_equation,
-                                                          expected_differentiable_equation_output):
+def test_explicit_regression_relative_get_fit_vec_and_jac(
+        sample_regression_relative, sample_differentiable_equation,
+        expected_differentiable_equation_output):
     assert sample_regression_relative.eval_count == 0
-    fit_vec, fit_jac = sample_regression_relative.get_fitness_vector_and_jacobian(sample_differentiable_equation)
+    fit_vec, fit_jac = \
+        sample_regression_relative.get_fitness_vector_and_jacobian(
+                sample_differentiable_equation)
 
-    expected_fit_vec = (expected_differentiable_equation_output - np.arange(1, 11)) / np.arange(1, 11)
-    expected_jac = np.vstack((np.arange(10, dtype=float) / np.arange(1, 11), np.ones(10) / np.arange(1, 11))).transpose()
+    expected_fit_vec = (expected_differentiable_equation_output
+                        - np.arange(1, 11)) / np.arange(1, 11)
+    expected_jac = np.vstack((np.arange(10, dtype=float) / np.arange(1, 11),
+                              np.ones(10) / np.arange(1, 11))).transpose()
 
     np.testing.assert_array_equal(fit_vec, expected_fit_vec)
     np.testing.assert_array_equal(fit_jac, expected_jac)

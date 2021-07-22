@@ -5,7 +5,8 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.symbolic_regression.agraph.operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions \
+    import VARIABLE, CONSTANT, SIN, ADDITION, SUBTRACTION
 from bingo.symbolic_regression.agraph.agraph \
     import AGraph as pyagraph, force_use_of_python_backends
 

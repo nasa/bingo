@@ -1,3 +1,7 @@
+# Ignoring some linting rules in tests
+# pylint: disable=missing-docstring
+# pylint: disable=unused-variable
+
 
 def test_cpp_agraph():
     try:

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 set -e
 
 MPI_EXEC=$(python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];print(os.path.dirname(filename)+'/mpiexec');")

@@ -101,6 +101,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
     @property
     def engine(self):
+        """Identification of the code location"""
         return "Python"
 
     @property
@@ -133,6 +134,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
     @property
     def constants(self):
+        """The numerical constants in the equation."""
         return self._simplified_constants
 
     def _notify_modification(self):
@@ -219,7 +221,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             Boolean values for whether each command is utilized.
         """
         return simplification_backend.get_utilized_commands(
-                self._command_array)
+            self._command_array)
 
     def evaluate_equation_at(self, x):
         """Evaluate the `AGraph` equation.
@@ -379,6 +381,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         return duplicate
 
     def _copy_agraph_values_to_new_graph(self, agraph_duplicate):
+        # pylint: disable=protected-access
         agraph_duplicate._genetic_age = self._genetic_age
         agraph_duplicate._fitness = self._fitness
         agraph_duplicate._fit_set = self._fit_set

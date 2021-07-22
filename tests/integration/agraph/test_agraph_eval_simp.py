@@ -127,7 +127,7 @@ def test_evaluate_gradient_overflow_exception(mocker, engine, sample_agraph,
                      side_effect=OverflowError)
 
         values = sample_agraph.evaluate_equation_with_x_gradient_at(
-                sample_agraph_values.x)
+            sample_agraph_values.x)
         assert np.isnan(values).all()
 
 

@@ -217,11 +217,11 @@ class AGraphMutation(Mutation):
                 enumerate(individual.command_array[mutation_location:]):
             if not IS_TERMINAL_MAP[node]:
                 if p_1 == mutation_location:
-                    individual.mutable_command_array[mutation_location + i, 1] = \
-                        pruned_param
+                    individual.mutable_command_array[
+                        mutation_location + i, 1] = pruned_param
                 if p_2 == mutation_location:
-                    individual.mutable_command_array[mutation_location + i, 2] = \
-                        pruned_param
+                    individual.mutable_command_array[
+                        mutation_location + i, 2] = pruned_param
 
     @staticmethod
     def _get_random_prune_location(individual):

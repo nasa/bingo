@@ -63,3 +63,18 @@ def test_cpp_explicit_regression():
         raise ModuleNotFoundError("Bingocpp explicit regression classes could"
                                   " not be loaded."
                                   " Its tests will be skipped.")
+
+
+def test_cpp_gradient_mixins():
+    try:
+        from bingocpp import GradientMixin, \
+                             VectorGradientMixin, \
+                             VectorBasedFunction
+        bingocpp = True
+    except ModuleNotFoundError:
+        bingocpp = False
+
+    if not bingocpp:
+        raise ModuleNotFoundError("Bingocpp gradient mixin classes could"
+                                  " not be loaded."
+                                  " Its tests will be skipped.")

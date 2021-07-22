@@ -65,6 +65,12 @@ except ImportError:
 LOGGER = logging.getLogger(__name__)
 
 
+def force_use_of_python_backends():
+    global evaluation_backend, simplification_backend
+    from .evaluation_backend import evaluation_backend
+    from .simplification_backend import simplification_backend
+
+
 class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     """Acyclic graph representation of an equation.
 

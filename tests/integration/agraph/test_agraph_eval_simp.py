@@ -6,12 +6,15 @@ import pytest
 import numpy as np
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
-from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
+from bingo.symbolic_regression.agraph.agraph \
+    import AGraph as pyagraph, force_use_of_python_backends
 
 try:
     from bingocpp import AGraph as cppagraph
 except ImportError:
     cppagraph = None
+
+force_use_of_python_backends()
 
 CPP_PARAM = pytest.param("c++",
                          marks=pytest.mark.skipif(not cppagraph,

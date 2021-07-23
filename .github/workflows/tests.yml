@@ -20,6 +20,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.9
+    - name: Install MPI
+        sudo apt install -y mpich libmpich-dev
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip

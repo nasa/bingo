@@ -21,6 +21,7 @@ jobs:
       with:
         python-version: 3.9
     - name: Install MPI
+      run: |
         sudo apt install -y mpich libmpich-dev
     - name: Install dependencies
       run: |

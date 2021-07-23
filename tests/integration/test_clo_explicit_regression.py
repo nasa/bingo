@@ -94,6 +94,7 @@ def opt_individual(agraph_implementation):  # (2)((X_0)(X_0)) + (3)(X_0)
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_mae(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
+    np.random.seed(1)
     fitness = explicit_regression(training_data=training_data, metric='mae')
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)
@@ -107,6 +108,7 @@ def test_explicit_regression_clo_linear_mae(explicit_regression, training_data, 
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_mse(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
+    np.random.seed(1)
     fitness = explicit_regression(training_data=training_data, metric='mse')
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)
@@ -116,6 +118,7 @@ def test_explicit_regression_clo_linear_mse(explicit_regression, training_data, 
 @pytest.mark.parametrize('algorithm', MINIMIZE_SET)
 def test_explicit_regression_clo_linear_rmse(explicit_regression, training_data, algorithm,
                                              norm_individual, opt_individual):
+    np.random.seed(1)
     fitness = explicit_regression(training_data=training_data, metric='rmse')
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)
@@ -129,6 +132,7 @@ def test_explicit_regression_clo_linear_rmse(explicit_regression, training_data,
 @pytest.mark.parametrize('algorithm', ROOT_SET)
 def test_explicit_regression_clo_linear_root(explicit_regression, training_data, algorithm,
                                             norm_individual, opt_individual):
+    np.random.seed(1)
     fitness = explicit_regression(training_data=training_data)
     optimizer = ContinuousLocalOptimization(fitness, algorithm)
     optimizer(norm_individual)

@@ -54,6 +54,7 @@ def reg_individual():
 
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
 def test_optimize_params_without_gradient(opt_individual, reg_individual, algorithm):
+    np.random.seed(0)
     fitness_function = MultipleFloatValueFitnessFunction()
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)
@@ -66,6 +67,7 @@ def test_optimize_params_without_gradient(opt_individual, reg_individual, algori
 
 @pytest.mark.parametrize("algorithm", MINIMIZE_SET)
 def test_optimize_params_with_gradient(opt_individual, reg_individual, algorithm):
+    np.random.seed(0)
     fitness_function = MultipleFloatValueFitnessFunctionWithGradient()
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)
@@ -78,6 +80,7 @@ def test_optimize_params_with_gradient(opt_individual, reg_individual, algorithm
 
 @pytest.mark.parametrize("algorithm", ROOT_SET)
 def test_optimize_fitness_vector_without_jacobian(opt_individual, reg_individual, algorithm):
+    np.random.seed(0)
     reg_list = [1. for _ in range(NUM_VALS)]
     opt_list = [1. for _ in range(NUM_VALS)]
     opt_list[:3] = [0., 0., 0.]
@@ -92,6 +95,7 @@ def test_optimize_fitness_vector_without_jacobian(opt_individual, reg_individual
 
 @pytest.mark.parametrize("algorithm", ROOT_SET)
 def test_optimize_fitness_vector_with_jacobian(opt_individual, reg_individual, algorithm):
+    np.random.seed(0)
     reg_list = [1. for _ in range(NUM_VALS)]
     opt_list = [1. for _ in range(NUM_VALS)]
     opt_list[:3] = [0., 0., 0.]

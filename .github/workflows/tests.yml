@@ -33,9 +33,8 @@ jobs:
     - name: Build bingocpp
       run: |
         ./.build_bingocpp.sh
-    - name: Update PYTHONPATH
-      run: |
-        export PYTHONPATH=$PYTHONPATH:$PWD
     - name: Test with pytest
       run: |
         tests/.run_tests.sh
+      env:
+        PYTHONPATH: "."

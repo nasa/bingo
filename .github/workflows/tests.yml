@@ -1,0 +1,38 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python Tests
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        sudo apt-get install -y -q mpich libmpich-dev
+        pip install pytest pytest-cov pytest-mock
+        pip install coveralls
+        pip install -r requirements.txt
+    - name: Build bingocpp
+      run: |
+        ./.build_bingocpp.sh
+    - name: Update PYTHONPATH
+      run: |
+        export PYTHONPATH=$PYTHONPATH:$PWD
+    - name: Test with pytest
+      run: |
+        tests/.run_tests.sh

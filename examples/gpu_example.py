@@ -1,5 +1,6 @@
 from __future__ import division
 from numba import cuda
+import cupy as cp
 import numpy
 import math
 

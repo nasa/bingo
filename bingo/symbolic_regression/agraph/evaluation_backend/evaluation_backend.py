@@ -42,7 +42,7 @@ def evaluate(stack, x, constants, use_gpu = False):
         if len(constants) > 0:
             if isinstance(constants[0], np.ndarray):
                 num_particles = constants[0].shape[0]
-            
+
         forward_eval = np.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval)
@@ -115,16 +115,16 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
             elif node == defs.VARIABLE:
                 f_eval_arr[i, data_index, constant_index] = x[data_index, param1]
             elif node == defs.CONSTANT:
-                f_eval_arr[i, data_index, constant_index] = constants[param1][constant_index]
+                f_eval_arr[i, data_index, constant_index] = constants[int(param1)][constant_index]
             elif node == defs.ADDITION:
-                f_eval_arr[i, data_index, constant_index] = f_eval_arr[param1, data_index, constant_index] + \
-                                                            f_eval_arr[param2, data_index, constant_index]
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \
+                                                            f_eval_arr[int(param2), data_index, constant_index]
             elif node == defs.SUBTRACTION:
-                f_eval_arr[i, data_index, constant_index] = f_eval_arr[param1, data_index, constant_index] - \
-                                                            f_eval_arr[param2, data_index, constant_index]
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] - \
+                                                            f_eval_arr[int(param2), data_index, constant_index]
             elif node == defs.MULTIPLICATION:
-                f_eval_arr[i, data_index, constant_index] = f_eval_arr[param1, data_index, constant_index] * \
-                                                            f_eval_arr[param2, data_index, constant_index]
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] * \
+                                                            f_eval_arr[int(param2), data_index, constant_index]
 
 
 def _evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):

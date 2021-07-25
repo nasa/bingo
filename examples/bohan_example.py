@@ -193,7 +193,7 @@ if __name__ == "__main__":
     NUM_CONSTS = 2
     """
 
-    graph, X_DATA, CONSTANTS = _get_smcbingo_model() # _create_random_equation()
+    graph = _create_random_equation() # _get_smcbingo_model() #
     NUM_CONSTS = graph.get_number_local_optimization_params()
     print(get_formatted_string("console", graph._simplified_command_array, [f"C_{i}" for i in range(NUM_CONSTS)]))
 
@@ -212,10 +212,10 @@ if __name__ == "__main__":
     cpu_times = np.zeros((num_trials))
 
     for i in range(num_trials):
-        #constant_data_size = int(sys.argv[1])
-        #data_size = 100
-        #CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
-        #np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
+        constant_data_size = int(sys.argv[1])
+        data_size = 100
+        CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
+        X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
 
         # this is the evaluation of the equation
         # the evaluation function is where we want to start off looking for speedup

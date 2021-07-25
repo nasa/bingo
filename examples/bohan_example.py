@@ -1,6 +1,6 @@
 import numpy as np
-import cupy as cp
-from cupyx.time import repeat
+#import cupy as cp
+#from cupyx.time import repeat
 from bingo.symbolic_regression import ComponentGenerator, AGraphGenerator, AGraph
 from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
     import evaluate
@@ -225,22 +225,22 @@ if __name__ == "__main__":
         start = time()
         Y_PREDICTION = evaluate(graph._simplified_command_array, X_DATA, CONSTANTS)
         mid = time()
-        gi.set_use_gpu(True)
+        #gi.set_use_gpu(True)
 
-        start_gpu = cp.cuda.Event()
-        end_gpu = cp.cuda.Event()
-        start_gpu.record()
+        #start_gpu = cp.cuda.Event()
+        #nd_gpu = cp.cuda.Event()
+        #start_gpu.record()
         start_cpu = time()
 
-        Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
-
+        #Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
+        Y_PREDICTION_GPU = evaluate(graph._simplified_command_array, X_DATA, CONSTANTS, use_gpu=True)
         end_cpu = time()
-        end_gpu.record()
-        end_gpu.synchronize()
+        #end_gpu.record()
+        #end_gpu.synchronize()
 
         np_times[i] = mid - start
         cpu_times[i] = end_cpu - start_cpu
-        gpu_times[i] = cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
+        #gpu_times[i] = cp.cuda.get_elapsed_time(start_gpu, end_gpu) / 1000
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)

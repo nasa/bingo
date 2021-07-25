@@ -43,6 +43,8 @@ def evaluate(stack, x, constants, use_gpu = False):
             if isinstance(constants[0], np.ndarray):
                 num_particles = constants[0].shape[0]
 
+        print(num_particles)
+        print(constants)
         forward_eval = np.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval)
@@ -119,7 +121,6 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
                     f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
                 else:
                     val = constants[int(param1)]
-                    print(val)
                     f_eval_arr[i, data_index, constant_index] = val[constant_index]
             elif node == defs.ADDITION:
                 f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \

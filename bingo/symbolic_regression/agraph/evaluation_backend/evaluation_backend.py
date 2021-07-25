@@ -45,7 +45,6 @@ def evaluate(stack, x, constants, use_gpu = False):
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         forward_eval_arr = cuda.device_array((len(stack), x.shape[0], num_particles))
         _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval_arr)
-        output = forward_eval_arr[-1].copy_to_host()
     else:
         forward_eval = _forward_eval(stack, x, constants)
         output = forward_eval[-1]
@@ -109,22 +108,22 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, forward_eval_ar
     if index < data_size * num_particles:
         data_index, constant_index = divmod(index, num_particles)
 
+        forward_eval = [0.0] * len(stack)
         for i, (node, param1, param2) in enumerate(stack):
             if node == defs.INTEGER:
-                forward_eval_arr[i, data_index, constant_index] = float(param1)
+                forward_eval[i] = float(param1)
             elif node == defs.VARIABLE:
-                forward_eval_arr[i, data_index, constant_index] = x[data_index, param1]
+                forward_eval[i] = x[data_index, param1]
             elif node == defs.CONSTANT:
-                forward_eval_arr[i, data_index, constant_index] = constants[param1][constant_index]
+                forward_eval[i] = constants[param1][constant_index]
             elif node == defs.ADDITION:
-                forward_eval_arr[i, data_index, constant_index] = forward_eval_arr[param1, data_index, constant_index] + \
-                                                                  forward_eval_arr[param2, data_index, constant_index]
+                forward_eval[i] = forward_eval[param1] + forward_eval[param2]
             elif node == defs.SUBTRACTION:
-                forward_eval_arr[i, data_index, constant_index] = forward_eval_arr[param1, data_index, constant_index] - \
-                                                                  forward_eval_arr[param2, data_index, constant_index]
+                forward_eval[i] = forward_eval[param1] - forward_eval[param2]
             elif node == defs.MULTIPLICATION:
-                forward_eval_arr[i, data_index, constant_index] = forward_eval_arr[param1, data_index, constant_index] * \
-                                                                  forward_eval_arr[param2, data_index, constant_index]
+                forward_eval[i] = forward_eval[param1] * forward_eval[param2]
+
+        f_eval_result[data_index, constant_index] = forward_eval[-1]
 
 
 def _evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):

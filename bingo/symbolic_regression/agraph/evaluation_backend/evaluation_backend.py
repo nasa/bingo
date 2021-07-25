@@ -47,7 +47,7 @@ def evaluate(stack, x, constants, use_gpu = False):
         print(constants)
         forward_eval = np.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
-        _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval)
+        _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, [num_particles], forward_eval)
     else:
         forward_eval = _forward_eval(stack, x, constants)
 
@@ -108,8 +108,8 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
     index = cuda.grid(1)
 
     data_size = x.shape[0]
-    if index < data_size * num_particles:
-        data_index, constant_index = divmod(index, num_particles)
+    if index < data_size * num_particles[0]:
+        data_index, constant_index = divmod(index, num_particles[0])
 
         for i, (node, param1, param2) in enumerate(stack):
             if node == defs.INTEGER:
@@ -117,11 +117,10 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
             elif node == defs.VARIABLE:
                 f_eval_arr[i, data_index, constant_index] = x[data_index, param1]
             elif node == defs.CONSTANT:
-                #if num_particles < 2:
-                f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
-                #else:
-                #    val = constants[int(param1)]
-                #    f_eval_arr[i, data_index, constant_index] = val[constant_index]
+                if num_particles[0] < 2:
+                    f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
+                else:
+                    f_eval_arr[i, data_index, constant_index] = constants[int(param1)][constant_index]
             elif node == defs.ADDITION:
                 f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \
                                                             f_eval_arr[int(param2), data_index, constant_index]

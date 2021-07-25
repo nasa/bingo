@@ -42,9 +42,9 @@ def evaluate(stack, x, constants, use_gpu = False):
         if len(constants) > 0:
             num_particles = constants[0].shape[0]
 
+        output = np.ones((x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
-        forward_eval_arr = cuda.device_array((len(stack), x.shape[0], num_particles))
-        _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval_arr)
+        _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, output)
     else:
         forward_eval = _forward_eval(stack, x, constants)
         output = forward_eval[-1]
@@ -101,7 +101,7 @@ def _forward_eval(stack, x, constants):
 
 
 @cuda.jit
-def _forward_eval_gpu_kernel(stack, x, constants, num_particles, forward_eval_arr):
+def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_result):
     index = cuda.grid(1)
 
     data_size = x.shape[0]

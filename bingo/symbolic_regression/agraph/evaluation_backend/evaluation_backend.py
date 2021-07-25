@@ -6,7 +6,7 @@ represented by an `AGraph`.  It can also perform derivatives.
 
 import numpy as np
 from numba import cuda
-from numba import float32
+from numba import float64
 import math
 
 from .operator_eval import forward_eval_function, reverse_eval_function
@@ -108,7 +108,7 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_result):
     if index < data_size * num_particles:
         data_index, constant_index = divmod(index, num_particles)
 
-        forward_eval = [0.0] * len(stack)
+        forward_eval = cuda.shared.array(len(stack), float64)
         for i, (node, param1, param2) in enumerate(stack):
             if node == defs.INTEGER:
                 forward_eval[i] = float(param1)

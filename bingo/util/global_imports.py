@@ -1,7 +1,10 @@
 import numpy as num_lib
+from collections import namedtuple
 
 USING_PARALLEL_CPU = False
 USING_GPU = False
+
+GPU_THREADS_PER_BLOCK = 256
 
 def set_use_gpu(use_gpu):
     global num_lib

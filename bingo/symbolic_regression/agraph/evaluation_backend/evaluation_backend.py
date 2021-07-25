@@ -5,13 +5,18 @@ represented by an `AGraph`.  It can also perform derivatives.
 """
 
 import numpy as np
-import cupy as cp
+from numba import cuda
+from numba import float64
+import math
+
 from .operator_eval import forward_eval_function, reverse_eval_function
 import bingo.util.global_imports as gi
+import bingo.symbolic_regression.agraph.operator_definitions as defs
+
 
 ENGINE = "Python"
 
-def evaluate(stack, x, constants):
+def evaluate(stack, x, constants, use_gpu = False):
     """Evaluate an equation
 
     Evaluate the equation associated with an Agraph, at the values x.
@@ -32,13 +37,18 @@ def evaluate(stack, x, constants):
     Mx1 array of numeric
         :math`f(x)`
     """
-    if gi.USING_GPU:
-        stack = gi.num_lib.asarray(stack)
-        constants = gi.num_lib.asarray(constants)
-        forward_eval = _forward_eval_gpu(stack, stack.shape[0], x, constants)
+    if use_gpu:
+        num_particles = 1
+        if len(constants) > 0:
+            num_particles = constants[0].shape[0]
+
+        output = np.ones((x.shape[0], num_particles)) * np.inf
+        blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
+        _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, output)
     else:
         forward_eval = _forward_eval(stack, x, constants)
-    return _reshape_output(forward_eval[-1], constants, x)
+        output = forward_eval[-1]
+    return _reshape_output(output, constants, x)
 
 def _reshape_output(output, constants, x):
     x_dim = len(x)
@@ -89,14 +99,32 @@ def _forward_eval(stack, x, constants):
 
     return forward_eval
 
-@cp.fuse(kernel_name="forward_eval")
-def _forward_eval_gpu(stack, stacksize, x, constants):
-    forward_eval = [None]*stacksize # np.empty((stack.shape[0], x.shape[0]))
-    for i, (node, param1, param2) in enumerate(stack):
-        forward_eval[i] = forward_eval_function(node, param1, param2, x,
-                                                constants, forward_eval)
 
-    return forward_eval
+@cuda.jit
+def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_result):
+    index = cuda.grid(1)
+
+    data_size = x.shape[0]
+    if index < data_size * num_particles:
+        data_index, constant_index = divmod(index, num_particles)
+
+        forward_eval = cuda.local.array((len(stack)), float64)
+        for i, (node, param1, param2) in enumerate(stack):
+            if node == defs.INTEGER:
+                forward_eval[i] = float(param1)
+            elif node == defs.VARIABLE:
+                forward_eval[i] = x[data_index, param1]
+            elif node == defs.CONSTANT:
+                forward_eval[i] = constants[param1][constant_index]
+            elif node == defs.ADDITION:
+                forward_eval[i] = forward_eval[param1] + forward_eval[param2]
+            elif node == defs.SUBTRACTION:
+                forward_eval[i] = forward_eval[param1] - forward_eval[param2]
+            elif node == defs.MULTIPLICATION:
+                forward_eval[i] = forward_eval[param1] * forward_eval[param2]
+
+        f_eval_result[data_index, constant_index] = forward_eval[-1]
+
 
 def _evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):
 

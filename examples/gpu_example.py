@@ -1,6 +1,5 @@
 from __future__ import division
 from numba import cuda
-import cupy as cp
 import numpy
 import math
 
@@ -15,5 +14,5 @@ def my_kernel(io_array):
 data = numpy.ones(256)
 threadsperblock = 256
 blockspergrid = math.ceil(data.shape[0] / threadsperblock)
-my_kernel[blockspergrid, threadsperblock](data)
+my_kernel[blockspergrid, threadsperblock](cuda.to_device(data))
 print(data)

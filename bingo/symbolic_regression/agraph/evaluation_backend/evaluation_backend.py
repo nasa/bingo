@@ -108,7 +108,7 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_result):
     if index < data_size * num_particles:
         data_index, constant_index = divmod(index, num_particles)
 
-        forward_eval = cuda.local.array((len(stack)), float64)
+        forward_eval = cuda.local.array(len(stack), float64)
         for i, (node, param1, param2) in enumerate(stack):
             if node == defs.INTEGER:
                 forward_eval[i] = float(param1)

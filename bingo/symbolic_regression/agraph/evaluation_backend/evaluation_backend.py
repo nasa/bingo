@@ -118,8 +118,9 @@ def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
                 if num_particles == 1:
                     f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
                 else:
-                    val = constants[int(param1)][constant_index]
-                    f_eval_arr[i, data_index, constant_index] = val
+                    val = constants[int(param1)]
+                    print(val)
+                    f_eval_arr[i, data_index, constant_index] = val[constant_index]
             elif node == defs.ADDITION:
                 f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \
                                                             f_eval_arr[int(param2), data_index, constant_index]

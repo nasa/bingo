@@ -260,8 +260,8 @@ if __name__ == "__main__":
     print(describe(reject_outliers(np_times)))
     print("-----------------cpu stats-----------------")
     print(describe(reject_outliers(cpu_times)))
-    print("-----------------gpu stats-----------------")
-    print(describe(reject_outliers(gpu_times)))
+#    print("-----------------gpu stats-----------------")
+#    print(describe(reject_outliers(gpu_times)))
 
     #results = repeat(evaluate, (COMMAND_ARRAY, X_DATA_GPU, CONSTANTS_GPU), kwargs = {'use_gpu': True}, n_repeat = 1)
     #print(results)

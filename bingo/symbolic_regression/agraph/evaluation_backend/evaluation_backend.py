@@ -42,7 +42,7 @@ def evaluate(stack, x, constants, use_gpu = False):
         if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]
 
-        forward_eval = cp.ones((len(stack), x.shape[0], num_particles)) * np.inf
+        forward_eval = cp.ones((len(stack), x.shape[0], num_particles), dtype=np.double) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)
         output = forward_eval[-1]

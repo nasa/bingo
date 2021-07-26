@@ -1,6 +1,6 @@
 import numpy as np
-#import cupy as cp
-#from cupyx.time import repeat
+import cupy as cp
+from cupyx.time import repeat
 from bingo.symbolic_regression import ComponentGenerator, AGraphGenerator, AGraph
 from bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend \
     import evaluate
@@ -217,10 +217,8 @@ if __name__ == "__main__":
         data_size = 100
         CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
         X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
-
-        # this is the evaluation of the equation
-        # the evaluation function is where we want to start off looking for speedup
-        # we may end up moving more work to the GPU but lets start with this
+        X_DATA_GPU = cp.asarray(X_DATA)
+        CONSTANTS_GPU = cp.asarray(CONSTANTS_GPU)
 
         gi.set_use_gpu(False)
         start = time()
@@ -231,10 +229,10 @@ if __name__ == "__main__":
         #start_gpu = cp.cuda.Event()
         #nd_gpu = cp.cuda.Event()
         #start_gpu.record()
+        COMMAND_ARRAY_GPU = cp.asarray(graph._simplified_command_array)
         start_cpu = time()
-
         #Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
-        Y_PREDICTION_GPU = evaluate(graph._simplified_command_array, X_DATA, CONSTANTS, use_gpu=True)
+        Y_PREDICTION_GPU = evaluate(graph._simplified_command_array, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
         end_cpu = time()
         #end_gpu.record()
         #end_gpu.synchronize()

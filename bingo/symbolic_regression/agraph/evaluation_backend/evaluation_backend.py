@@ -8,6 +8,8 @@ import numpy as np
 from numba import cuda
 from numba import float64
 import math
+from cupyx import jit
+import cupy as cp
 
 from .operator_eval import forward_eval_function, reverse_eval_function
 import bingo.util.global_imports as gi
@@ -43,13 +45,14 @@ def evaluate(stack, x, constants, use_gpu = False):
             if isinstance(constants[0], np.ndarray):
                 num_particles = constants[0].shape[0]
 
-        forward_eval = np.ones((len(stack), x.shape[0], num_particles)) * np.inf
+        forward_eval = cp.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
-        _forward_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval)
+        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, forward_eval)
+        output = forward_eval[-1].get()
     else:
         forward_eval = _forward_eval(stack, x, constants)
-
-    return _reshape_output(forward_eval[-1], constants, x)
+        output = forward_eval[-1]
+    return _reshape_output(output, constants, x)
 
 def _reshape_output(output, constants, x):
     x_dim = len(x)
@@ -99,6 +102,35 @@ def _forward_eval(stack, x, constants):
                                                 constants, forward_eval)
 
     return forward_eval
+
+
+@jit.rawkernel()
+def _f_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
+    index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
+
+    data_size = x.shape[0]
+    if index < data_size * num_particles:
+        data_index, constant_index = divmod(index, num_particles)
+
+        for i, (node, param1, param2) in enumerate(stack):
+            if node == defs.INTEGER:
+                f_eval_arr[i, data_index, constant_index] = float(param1)
+            elif node == defs.VARIABLE:
+                f_eval_arr[i, data_index, constant_index] = x[data_index, param1]
+            elif node == defs.CONSTANT:
+                #if num_particles < 2: # case doesn't work for some reason
+                #    f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
+                f_eval_arr[i, data_index, constant_index] = constants[int(param1)][constant_index]
+            elif node == defs.ADDITION:
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \
+                                                            f_eval_arr[int(param2), data_index, constant_index]
+            elif node == defs.SUBTRACTION:
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] - \
+                                                            f_eval_arr[int(param2), data_index, constant_index]
+            elif node == defs.MULTIPLICATION:
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] * \
+                                                            f_eval_arr[int(param2), data_index, constant_index]
+
 
 
 @cuda.jit

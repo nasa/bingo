@@ -109,8 +109,9 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, f_eval_arr
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
 
     if index < data_size * num_particles:
-        data_index, constant_index = divmod(index, num_particles)
-
+        data_index = index // num_particles
+        constant_index = index % num_particles
+        
         for i, (node, param1, param2) in enumerate(stack):
             if node == defs.INTEGER:
                 f_eval_arr[i, data_index, constant_index] = float(param1)

@@ -47,7 +47,7 @@ def evaluate(stack, x, constants, use_gpu = False):
         forward_eval = cp.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)
-        output = forward_eval[-1].get()
+        output = forward_eval[-1]
     else:
         forward_eval = _forward_eval(stack, x, constants)
         output = forward_eval[-1]

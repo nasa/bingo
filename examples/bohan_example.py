@@ -224,7 +224,7 @@ if __name__ == "__main__":
         start = time()
         Y_PREDICTION = evaluate(graph._simplified_command_array, X_DATA, CONSTANTS)
         mid = time()
-        #gi.set_use_gpu(True)
+        gi.set_use_gpu(True)
 
         #start_gpu = cp.cuda.Event()
         #nd_gpu = cp.cuda.Event()
@@ -243,7 +243,7 @@ if __name__ == "__main__":
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
-        np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)
+        np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
 
     avg_np_time = sum(np_times) / num_trials
     avg_gpu_time = sum(gpu_times) / num_trials

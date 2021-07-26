@@ -45,6 +45,7 @@ def evaluate(stack, x, constants, use_gpu = False):
             if isinstance(constants[0], np.ndarray):
                 num_particles = constants[0].shape[1]
 
+        print(f"particle count {num_particles}")
         forward_eval = cp.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)

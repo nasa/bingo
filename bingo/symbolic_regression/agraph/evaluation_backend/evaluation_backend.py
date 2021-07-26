@@ -116,7 +116,7 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
             node = stack[i, 0]
             param1 = stack[i, 1]
             param2 = stack[i, 2]
-            
+
             if node == defs.INTEGER:
                 f_eval_arr[i, data_index, constant_index] = float(param1)
             elif node == defs.VARIABLE:
@@ -124,7 +124,7 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
             elif node == defs.CONSTANT:
                 #if num_particles < 2: # case doesn't work for some reason
                 #    f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
-                f_eval_arr[i, data_index, constant_index] = constants[int(param1)][constant_index]
+                f_eval_arr[i, data_index, constant_index] = constants[int(param1), constant_index]
             elif node == defs.ADDITION:
                 f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \
                                                             f_eval_arr[int(param2), data_index, constant_index]

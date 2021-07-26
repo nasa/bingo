@@ -5,8 +5,6 @@ represented by an `AGraph`.  It can also perform derivatives.
 """
 
 import numpy as np
-from numba import cuda
-from numba import float64
 import math
 from cupyx import jit
 import cupy as cp
@@ -133,35 +131,23 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
             elif node == defs.MULTIPLICATION:
                 f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] * \
                                                             f_eval_arr[int(param2), data_index, constant_index]
-
-
-
-@cuda.jit
-def _forward_eval_gpu_kernel(stack, x, constants, num_particles, f_eval_arr):
-    index = cuda.grid(1)
-
-    data_size = x.shape[0]
-    if index < data_size * num_particles:
-        data_index, constant_index = divmod(index, num_particles)
-
-        for i, (node, param1, param2) in enumerate(stack):
-            if node == defs.INTEGER:
-                f_eval_arr[i, data_index, constant_index] = float(param1)
-            elif node == defs.VARIABLE:
-                f_eval_arr[i, data_index, constant_index] = x[data_index, param1]
-            elif node == defs.CONSTANT:
-                #if num_particles < 2: # case doesn't work for some reason
-                #    f_eval_arr[i, data_index, constant_index] = constants[int(param1)]
-                f_eval_arr[i, data_index, constant_index] = constants[int(param1)][constant_index]
-            elif node == defs.ADDITION:
-                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] + \
+            elif node == defs.DIVISION:
+                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] / \
                                                             f_eval_arr[int(param2), data_index, constant_index]
-            elif node == defs.SUBTRACTION:
-                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] - \
-                                                            f_eval_arr[int(param2), data_index, constant_index]
-            elif node == defs.MULTIPLICATION:
-                f_eval_arr[i, data_index, constant_index] = f_eval_arr[int(param1), data_index, constant_index] * \
-                                                            f_eval_arr[int(param2), data_index, constant_index]
+            elif node == defs.SIN:
+                f_eval_arr[i, data_index, constant_index] = math.sin(f_eval_arr[int(param1), data_index, constant_index])
+            elif node == defs.COS:
+                f_eval_arr[i, data_index, constant_index] = math.cos(f_eval_arr[int(param1), data_index, constant_index])
+            elif node == defs.EXPONENTIAL:
+                f_eval_arr[i, data_index, constant_index] = math.exp(f_eval_arr[int(param1), data_index, constant_index])
+            elif node == defs.LOGARITHM:
+                f_eval_arr[i, data_index, constant_index] = math.log(math.fabs(f_eval_arr[int(param1), data_index, constant_index]))
+            elif node == defs.POWER:
+                f_eval_arr[i, data_index, constant_index] = math.pow(f_eval_arr[int(param1), data_index, constant_index])
+            elif node == defs.ABS:
+                f_eval_arr[i, data_index, constant_index] = math.fabs(f_eval_arr[int(param1), data_index, constant_index])
+            elif node == defs.SQRT:
+                f_eval_arr[i, data_index, constant_index] = math.sqrt(f_eval_arr[int(param1), data_index, constant_index])
 
 
 def _evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):

@@ -218,7 +218,7 @@ if __name__ == "__main__":
         CONSTANTS = np.random.rand(NUM_CONSTS, constant_data_size)
         X_DATA = np.linspace(-10, 10, data_size * 2).reshape(data_size, 2)
         X_DATA_GPU = cp.asarray(X_DATA)
-        CONSTANTS_GPU = cp.asarray(CONSTANTS_GPU)
+        CONSTANTS_GPU = cp.asarray(CONSTANTS)
 
         gi.set_use_gpu(False)
         start = time()
@@ -232,7 +232,7 @@ if __name__ == "__main__":
         COMMAND_ARRAY_GPU = cp.asarray(graph._simplified_command_array)
         start_cpu = time()
         #Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
-        Y_PREDICTION_GPU = evaluate(graph._simplified_command_array, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
+        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY_GPU, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
         end_cpu = time()
         #end_gpu.record()
         #end_gpu.synchronize()

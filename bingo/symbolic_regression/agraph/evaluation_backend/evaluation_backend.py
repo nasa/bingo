@@ -47,7 +47,7 @@ def evaluate(stack, x, constants, use_gpu = False):
 
         forward_eval = cp.ones((len(stack), x.shape[0], num_particles)) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
-        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], forward_eval)
+        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)
         output = forward_eval[-1].get()
     else:
         forward_eval = _forward_eval(stack, x, constants)
@@ -105,14 +105,18 @@ def _forward_eval(stack, x, constants):
 
 
 @jit.rawkernel()
-def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, f_eval_arr):
+def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size, f_eval_arr):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
 
     if index < data_size * num_particles:
         data_index = index // num_particles
         constant_index = index % num_particles
-        
-        for i, (node, param1, param2) in enumerate(stack):
+
+        for i in range(stack_size):
+            node = stack[i, 0]
+            param1 = stack[i, 1]
+            param2 = stack[i, 2]
+            
             if node == defs.INTEGER:
                 f_eval_arr[i, data_index, constant_index] = float(param1)
             elif node == defs.VARIABLE:

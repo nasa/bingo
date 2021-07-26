@@ -143,7 +143,7 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
             elif node == defs.LOGARITHM:
                 f_eval_arr[i, data_index, constant_index] = cp.log(cp.abs(f_eval_arr[int(param1), data_index, constant_index]))
             elif node == defs.POWER:
-                f_eval_arr[i, data_index, constant_index] = cp.pow(f_eval_arr[int(param1), data_index, constant_index])
+                f_eval_arr[i, data_index, constant_index] = cp.power(f_eval_arr[int(param1), data_index, constant_index])
             elif node == defs.ABS:
                 f_eval_arr[i, data_index, constant_index] = cp.abs(f_eval_arr[int(param1), data_index, constant_index])
             elif node == defs.SQRT:

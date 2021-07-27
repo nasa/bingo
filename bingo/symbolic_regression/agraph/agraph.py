@@ -241,9 +241,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
                     self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)
                 command_array = self._simplified_command_array_gpu
 
-            print("constant")
-            print([self._simplified_constants])
-            print(self._simplified_constants)
             f_of_x = \
                 evaluation_backend.evaluate(command_array, x,
                                             self._simplified_constants)

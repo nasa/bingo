@@ -38,6 +38,7 @@ def evaluate(stack, x, constants):
         :math`f(x)`
     """
     if gi.USING_GPU:
+        print(constants)
         num_particles = 1
         if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]

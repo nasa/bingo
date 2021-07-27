@@ -231,7 +231,7 @@ if __name__ == "__main__":
         COMMAND_ARRAY_GPU = cp.asarray(graph._simplified_command_array)
         start_cpu = time()
         #Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
-        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY_GPU, X_DATA_GPU, CONSTANTS_GPU, use_gpu=True)
+        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY_GPU, X_DATA_GPU, CONSTANTS_GPU)
         end_cpu = time()
         #end_gpu.record()
         #end_gpu.synchronize()

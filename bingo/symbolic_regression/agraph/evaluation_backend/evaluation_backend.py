@@ -51,6 +51,7 @@ def evaluate(stack, x, constants):
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)
         output = forward_eval[-1]
+        print(f"output class is cupy {isinstance(output, cp.ndarray)}")
     else:
         forward_eval = _forward_eval(stack, x, constants)
         output = forward_eval[-1]

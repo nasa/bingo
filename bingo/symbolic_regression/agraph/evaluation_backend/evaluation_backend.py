@@ -60,7 +60,7 @@ def _reshape_output(output, constants, x):
     if len(constants) > 0:
         if isinstance(constants[0], np.ndarray):
             c_dim = len(constants[0])
-    if isinstance(output, np.ndarray) and \
+    if isinstance(output, gi.num_lib.ndarray) and \
             output.shape == (x_dim, c_dim):
         return output
 

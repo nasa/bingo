@@ -37,6 +37,8 @@ def evaluate(stack, x, constants):
     Mx1 array of numeric
         :math`f(x)`
     """
+
+    print(f"using gpu {gi.USING_GPU}")
     if gi.USING_GPU:
         num_particles = 1
         if hasattr(constants, 'shape'):

@@ -54,6 +54,7 @@ from .string_generation import get_formatted_string
 from ..equation import Equation
 from ...local_optimizers import continuous_local_opt
 from .operator_definitions import CONSTANT
+import bingo.util.global_imports as gi
 
 try:
     from bingocpp import evaluation_backend
@@ -234,8 +235,14 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         if self._modified:
             self._update()
         try:
+            command_array = self._simplified_command_array
+            if gi.USING_GPU:
+                if not hasattr(self, '_simplified_command_array_gpu'):
+                    self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)
+                command_array = self._simplified_command_array_gpu
+
             f_of_x = \
-                evaluation_backend.evaluate(self._simplified_command_array, x,
+                evaluation_backend.evaluate(command_array, x,
                                             self._simplified_constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,

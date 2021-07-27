@@ -16,7 +16,7 @@ import bingo.symbolic_regression.agraph.operator_definitions as defs
 
 ENGINE = "Python"
 
-def evaluate(stack, x, constants, use_gpu = False):
+def evaluate(stack, x, constants):
     """Evaluate an equation
 
     Evaluate the equation associated with an Agraph, at the values x.
@@ -37,7 +37,7 @@ def evaluate(stack, x, constants, use_gpu = False):
     Mx1 array of numeric
         :math`f(x)`
     """
-    if use_gpu:
+    if gi.USING_GPU:
         num_particles = 1
         if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]

@@ -242,7 +242,9 @@ if __name__ == "__main__":
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
-        print(repr(Y_PREDICTION_GPU))
+        print(f"class is cupy {isinstance(Y_PREDICTION_GPU, cp.ndarray)}")
+        print(f"class is numpy {isinstance(Y_PREDICTION_GPU, np.ndarray)}")
+
         np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
 
     avg_np_time = sum(np_times) / num_trials

@@ -41,6 +41,9 @@ def evaluate(stack, x, constants):
         num_particles = 1
         if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]
+        elif isinstance(constants, tuple):
+            if len(constants) == 0:
+                constants = None
 
         forward_eval = cp.ones((len(stack), x.shape[0], num_particles), dtype=np.double) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)

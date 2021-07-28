@@ -9,10 +9,10 @@ from bingo.symbolic_regression.agraph.agraph import AGraph as pyAGraph
 from bingo.evaluation.training_data import TrainingData as pyTrainingData
 
 try:
-    from bingocpp import AGraph as cppAGraph
-    from bingocpp import FitnessFunction as cppFitnessFunction,\
-        VectorBasedFunction as cppVectorBasedFunction
-    from bingocpp import TrainingData as cppTrainingData
+    from bingocpp import AGraph as cppAGraph, \
+        FitnessFunction as cppFitnessFunction, \
+        VectorBasedFunction as cppVectorBasedFunction, \
+        TrainingData as cppTrainingData
     bingocpp = True
 except ImportError:
     bingocpp = False

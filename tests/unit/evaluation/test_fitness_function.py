@@ -84,8 +84,11 @@ def test_fitness_function_has_eval_count_and_data(engine, mocker, fitness_functi
 
 
 @pytest.mark.parametrize("metric, expected_fit", [("mae", 1.2),
+                                                  ("mean absolute error", 1.2),
                                                   ("mse", 2.0),
-                                                  ("rmse", np.sqrt(2.0))])
+                                                  ("mean squared error", 2.0),
+                                                  ("rmse", np.sqrt(2.0)),
+                                                  ("root mean squared error", np.sqrt(2.0))])
 def test_vector_based_function_metrics(engine, mocker, vector_based_function, metric, expected_fit, dummy_individual):
     if engine == "Python":
         mocker.patch.object(vector_based_function, "__abstractmethods__",
@@ -108,7 +111,10 @@ def test_vector_based_function_invalid_metric(engine, mocker, vector_based_funct
         _ = vector_based_function(metric="invalid metric")
 
 
-@pytest.mark.parametrize("metric", ["mae", "mse", "rmse"])
+@pytest.mark.parametrize("metric", ["mae", "mse", "rmse",
+                                    "mean absolute error",
+                                    "mean squared error",
+                                    "root mean squared error"])
 def test_vector_based_function_with_nan(engine, mocker, vector_based_function, agraph, metric, dummy_individual):
     if engine == "Python":
         mocker.patch.object(vector_based_function, "__abstractmethods__",

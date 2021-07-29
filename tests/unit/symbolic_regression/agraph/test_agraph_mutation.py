@@ -125,6 +125,18 @@ def unutil_after_mutation_location_agraph():
 
 
 @pytest.fixture
+def arity_one_op_with_two_different_params_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[VARIABLE, 0, 0],  # sin(X_0)
+                                         [SUBTRACTION, 0, 0],
+                                         [SUBTRACTION, 0, 0],
+                                         [SIN, 0, 2]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([])
+    return test_graph
+
+
+@pytest.fixture
 def sample_component_generator(mocker):
     sample = mocker.create_autospec(ComponentGenerator)
     random_commands = cycle([[CONSTANT, -1, -1],
@@ -299,6 +311,14 @@ def test_mutate_variable(single_variable_agraph, sample_component_generator):
     assert p_stack[-1, 2] != c_stack[-1, 2]
 
 
+def command_array_is_valid(individual):
+    for i, (command, op1, op2) in enumerate(individual.command_array):
+        if not IS_TERMINAL_MAP[command]:
+            if op1 >= i or op2 >= i:
+                return False
+    return True
+
+
 @pytest.mark.parametrize("repeats", range(5))
 def test_fork_mutation(fork_agraph, fork_mutation, repeats):
     # np.random.seed(10)
@@ -308,16 +328,19 @@ def test_fork_mutation(fork_agraph, fork_mutation, repeats):
     print("child:", child)
 
     assert parent.get_complexity() < child.get_complexity()
+    assert command_array_is_valid(child)
 
 
-@pytest.mark.parametrize("repeats", range(5))
-def test_fork_mutation_spaced_util_commands(spaced_fork_agraph, fork_mutation, repeats):
+@pytest.mark.parametrize("mutation_location", [1, 3, 4])
+def test_fork_mutation_spaced_util_commands(mocker, spaced_fork_agraph, fork_mutation, mutation_location):
+    mocker.patch.object(np.random, "choice", return_value=mutation_location)
     parent = spaced_fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
     print("child:", child)
 
     assert parent.get_complexity() < child.get_complexity()
+    assert command_array_is_valid(child)
 
 
 def test_fork_mutation_not_enough_unutilized_commands(not_enough_unutil_fork_agraph, fork_mutation):
@@ -329,21 +352,39 @@ def test_fork_mutation_not_enough_unutilized_commands(not_enough_unutil_fork_agr
     np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array, child.command_array)
 
 
-@pytest.mark.parametrize("repeats", range(5))
-def test_fork_mutation_many_unutilized_commands(many_unutil_fork_agraph, fork_mutation, repeats):
+@pytest.mark.parametrize("fork_size", [2, 3, 4])
+def test_fork_mutation_many_unutilized_commands(
+        mocker, many_unutil_fork_agraph, fork_mutation, fork_size):
+    mocker.patch.object(np.random, "randint", return_value=fork_size)
     parent = many_unutil_fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
     print("child:", child)
 
-    assert parent.get_complexity() < child.get_complexity()
+    assert parent.get_complexity() == child.get_complexity() - fork_size
+    assert command_array_is_valid(child)
 
 
-@pytest.mark.parametrize("repeats", range(5))
-def test_fork_mutation_unutil_after_mutation_location(unutil_after_mutation_location_agraph, fork_mutation, repeats):
+@pytest.mark.parametrize("mutation_location", [0, 2])
+def test_fork_mutation_unutil_after_mutation_location(
+        mocker, unutil_after_mutation_location_agraph, fork_mutation, mutation_location):
+    mocker.patch.object(np.random, "choice", return_value=mutation_location)
     parent = unutil_after_mutation_location_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
     print("child:", child)
 
     assert parent.get_complexity() < child.get_complexity()
+    assert command_array_is_valid(child)
+
+
+def test_fork_mutation_arity_one_operator_linked_to_unutilized_command(
+        mocker, arity_one_op_with_two_different_params_agraph, fork_mutation):
+    mocker.patch.object(np.random, "choice", return_value=3)
+    parent = arity_one_op_with_two_different_params_agraph
+    child = fork_mutation(parent)
+    print("parent:", parent)
+    print("child:", child)
+
+    assert parent.get_complexity() < child.get_complexity()
+    assert command_array_is_valid(child)

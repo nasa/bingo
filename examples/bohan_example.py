@@ -211,6 +211,7 @@ if __name__ == "__main__":
     gpu_times = np.zeros((num_trials))
     cpu_times = np.zeros((num_trials))
 
+    np.random.seed(0)
     for i in range(num_trials):
         constant_data_size = int(sys.argv[1])
         data_size = 100
@@ -242,8 +243,6 @@ if __name__ == "__main__":
 
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
-        print(f"class is cupy {isinstance(Y_PREDICTION_GPU, cp.ndarray)}")
-        print(f"class is numpy {isinstance(Y_PREDICTION_GPU, np.ndarray)}")
 
         np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
 

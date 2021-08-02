@@ -193,6 +193,8 @@ if __name__ == "__main__":
     NUM_CONSTS = 2
     """
 
+    np.random.seed(0)
+    
     graph = _create_random_equation() # _get_smcbingo_model() #
     NUM_CONSTS = graph.get_number_local_optimization_params()
     print(get_formatted_string("console", graph._simplified_command_array, [f"C_{i}" for i in range(NUM_CONSTS)]))
@@ -211,7 +213,6 @@ if __name__ == "__main__":
     gpu_times = np.zeros((num_trials))
     cpu_times = np.zeros((num_trials))
 
-    np.random.seed(0)
     for i in range(num_trials):
         constant_data_size = int(sys.argv[1])
         data_size = 100

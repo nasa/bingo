@@ -254,10 +254,14 @@ if __name__ == "__main__":
 
     print("Average time elapsed for original example (seconds): ", avg_np_time)
 
+    np_stats = describe(reject_outliers(np_times))
+    cpu_stats = describe(reject_outliers(cpu_times))
     print("-----------------np stats-----------------")
-    print(describe(reject_outliers(np_times)))
+    print(np_stats)
     print("-----------------cpu stats-----------------")
-    print(describe(reject_outliers(cpu_times)))
+    print(cpu_stats)
+
+    print(f"Average speedup: {np_stats.mean / cpu_stats.mean}")
 #    print("-----------------gpu stats-----------------")
 #    print(describe(reject_outliers(gpu_times)))
 

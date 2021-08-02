@@ -228,7 +228,7 @@ if __name__ == "__main__":
         #start_gpu = cp.cuda.Event()
         #nd_gpu = cp.cuda.Event()
         #start_gpu.record()
-        COMMAND_ARRAY_GPU = cp.asarray(graph._simplified_command_array)
+        COMMAND_ARRAY_GPU = graph._simplified_command_array # cp.asarray(graph._simplified_command_array)
         start_cpu = time()
         #Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
         Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY_GPU, X_DATA_GPU, CONSTANTS_GPU)

@@ -231,7 +231,7 @@ if __name__ == "__main__":
         COMMAND_ARRAY_GPU = cp.asarray(graph._simplified_command_array)
         start_cpu = time()
         #Y_PREDICTION_GPU = _evaluate_from_np(graph, X_DATA, CONSTANTS)
-        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY_GPU, X_DATA_GPU, CONSTANTS_GPU)
+        Y_PREDICTION_GPU = evaluate(COMMAND_ARRAY_GPU, X_DATA_GPU, CONSTANTS_GPU).get()
         end_cpu = time()
         #end_gpu.record()
         #end_gpu.synchronize()
@@ -243,7 +243,7 @@ if __name__ == "__main__":
         #print(Y_PREDICTION_GPU)
         #print(Y_PREDICTION)
 
-        np.testing.assert_allclose(Y_PREDICTION_GPU.get(), Y_PREDICTION)
+        np.testing.assert_allclose(Y_PREDICTION_GPU, Y_PREDICTION)
 
     avg_np_time = sum(np_times) / num_trials
     avg_gpu_time = sum(gpu_times) / num_trials

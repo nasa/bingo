@@ -59,7 +59,6 @@ class Evaluation:
 
         if gi.USING_PARALLEL_CPU:
             fitnesses = gi.jl.Parallel(n_jobs=num_cores)(gi.jl.delayed(eval_fitness)(indv) for indv in population)
-            print("hi")
 
             for i, indv in enumerate(population):
                 if not indv.fit_set:

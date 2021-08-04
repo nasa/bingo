@@ -137,6 +137,22 @@ def arity_one_op_with_two_different_params_agraph():
 
 
 @pytest.fixture
+def unused_op_invalid_after_fork_mutation_agraph():
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[VARIABLE, 0, 0],  # sin(sin(sin(X_0)))
+                                         [SUBTRACTION, 0, 0],
+                                         [SIN, 0, 0],
+                                         [SIN, 2, 2],
+                                         [SUBTRACTION, 2, 3],
+                                         [SUBTRACTION, 3, 4],
+                                         [SUBTRACTION, 4, 5],
+                                         [SIN, 3, 3]], dtype=int)
+    test_graph.genetic_age = 1
+    test_graph.set_local_optimization_params([])
+    return test_graph
+
+
+@pytest.fixture
 def sample_component_generator(mocker):
     sample = mocker.create_autospec(ComponentGenerator)
     random_commands = cycle([[CONSTANT, -1, -1],
@@ -161,8 +177,8 @@ def fork_mutation_component_generator():
                                    num_initial_load_statements=2,
                                    terminal_probability=0.4,
                                    constant_probability=0.5)
-    generator.add_operator(2)
-    generator.add_operator(6)
+    generator.add_operator(ADDITION)
+    generator.add_operator(SIN)
     return generator
 
 
@@ -187,7 +203,7 @@ def test_raises_error_invalid_mutation_probability(mocker, prob,
                                                    expected_error,
                                                    prob_index):
     mocked_component_generator = mocker.Mock()
-    input_probabilities = [0.20]*5
+    input_probabilities = [0.20] * 5
     input_probabilities[prob_index] = prob
     with pytest.raises(expected_error):
         _ = AGraphMutation(mocked_component_generator, *input_probabilities)
@@ -352,10 +368,27 @@ def test_fork_mutation_not_enough_unutilized_commands(not_enough_unutil_fork_agr
     np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array, child.command_array)
 
 
+class MockedRandInt:
+    def __init__(self, first_value):
+        self.first_value = first_value
+        self.call_count = 0
+
+    def get_next(self, low, high=None):
+        if self.call_count == 0:
+            self.call_count += 1
+            return self.first_value
+        else:
+            self.call_count += 1
+            if high is not None:
+                high -= 1  # to account for exclusive -> inclusive from randint -> random_integers
+            return np.random.random_integers(low, high)  # using random_integers to avoid infinite recursion
+            # when mocking np.random.randint
+
+
 @pytest.mark.parametrize("fork_size", [2, 3, 4])
 def test_fork_mutation_many_unutilized_commands(
         mocker, many_unutil_fork_agraph, fork_mutation, fork_size):
-    mocker.patch.object(np.random, "randint", return_value=fork_size)
+    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
     parent = many_unutil_fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
@@ -388,3 +421,66 @@ def test_fork_mutation_arity_one_operator_linked_to_unutilized_command(
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+
+
+def test_fork_mutation_unused_op_invalid_after_mutation(
+        mocker, unused_op_invalid_after_fork_mutation_agraph, fork_mutation):
+    mocker.patch.object(np.random, "choice", return_value=0)
+    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(2).get_next)
+
+    parent = unused_op_invalid_after_fork_mutation_agraph
+    child = fork_mutation(parent)
+    print("parent:", parent)
+    print("child:", child)
+
+    assert parent.get_complexity() < child.get_complexity()
+    assert command_array_is_valid(child)
+
+
+@pytest.mark.timeout(1)
+@pytest.mark.parametrize("fork_size", [2, 3, 4])
+def test_fork_mutation_generator_has_no_ar1_op(mocker, many_unutil_fork_agraph, fork_size):
+    generator = ComponentGenerator(input_x_dimension=2,
+                                   num_initial_load_statements=2,
+                                   terminal_probability=0.4,
+                                   constant_probability=0.5)
+    generator.add_operator(ADDITION)
+
+    mutation = AGraphMutation(generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=0.0,
+                              prune_probability=0.0,
+                              fork_probability=1.0)
+
+    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
+    parent = many_unutil_fork_agraph
+    child = mutation(parent)
+    print("parent:", parent)
+    print("child:", child)
+
+    assert parent.get_complexity() < child.get_complexity()
+    assert command_array_is_valid(child)
+
+
+@pytest.mark.timeout(1)
+@pytest.mark.parametrize("fork_size", [2, 3, 4])
+def test_fork_mutation_generator_has_no_ar2_op(mocker, many_unutil_fork_agraph, fork_size):
+    generator = ComponentGenerator(input_x_dimension=2,
+                                   num_initial_load_statements=2,
+                                   terminal_probability=0.4,
+                                   constant_probability=0.5)
+    generator.add_operator(SIN)
+
+    mutation = AGraphMutation(generator,
+                              command_probability=0.0,
+                              node_probability=0.0,
+                              parameter_probability=0.0,
+                              prune_probability=0.0,
+                              fork_probability=1.0)
+
+    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
+    parent = many_unutil_fork_agraph
+
+    with pytest.raises(RuntimeError):
+        _ = mutation(parent)

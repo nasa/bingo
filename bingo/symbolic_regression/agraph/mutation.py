@@ -368,13 +368,22 @@ class AGraphMutation(Mutation):
         fork_size = np.random.randint(2, max_fork + 1)
 
         indices = [n for n, x in enumerate(utilized_commands) if x]
-        mutation_location = np.random.choice(indices)
+        original_mutation_location = mutation_location = np.random.choice(indices)
 
         mutation_location, utilized_commands = self._move_unutilized_to_top(individual, utilized_commands, mutation_location)
         new_mutation_location = self._move_utilized_to_top(individual, utilized_commands, mutation_location)
         self._insert_fork(individual, mutation_location, new_mutation_location, fork_size)
 
-        self._last_mutation_location = mutation_location
+        # this check is needed to account for the case when an arity 1 node is
+        # mutated/shifted, then the op2 argument can get messed up
+        # TODO: this is messy
+        for i, (command, _, op2) in enumerate(individual.command_array):
+            if not IS_TERMINAL_MAP[command]:
+                if op2 >= i:
+                    individual.mutable_command_array[i, 2] = \
+                        self._component_generator.random_operator_parameter(i)
+
+        self._last_mutation_location = original_mutation_location
         self._last_mutation_type = FORK_MUTATION
 
     def _move_unutilized_to_top(self, individual, utilized_commands, mutation_location):
@@ -465,21 +474,33 @@ class AGraphMutation(Mutation):
         index_shifts = dict(zip(new_indices, indices))
         return np.array(new_stack), list(new_utilized_commands), index_shifts
 
-    @staticmethod
-    def _fix_indices(stack, utilized_commands, index_shifts):
+    def _fix_indices(self, stack, utilized_commands, index_shifts):
         for i, (command, utilized) in enumerate(zip(stack, utilized_commands)):
-            # TODO fix unutilized commands?
-            if utilized and not IS_TERMINAL_MAP[command[0]]:
-                for j in range(1, 3):
-                    command[j] = index_shifts.get(command[j], command[j])
+            if not IS_TERMINAL_MAP[command[0]]:
+                if utilized:
+                    for j in range(1, 3):
+                        command[j] = index_shifts.get(command[j], command[j])
+                else:
+                    for j in range(1, 3):
+                        if command[j] >= i:
+                            if i == 0:
+                                command[j] = 0
+                            else:
+                                command[j] = self._component_generator.random_operator_parameter(i)
 
     def _get_arity_operator(self, arity):
+        attempts = 0
         operator = None
-        # TODO add break/testing for if there is no arity_1 or arity_2 op in component generator
         if arity == 1:
             while operator is None or IS_ARITY_2_MAP[operator]:
+                if attempts >= 100:
+                    raise RuntimeError("Could not generate arity {} operator".format(arity))
                 operator = self._component_generator.random_operator()
+                attempts += 1
         else:
             while operator is None or not IS_ARITY_2_MAP[operator]:
+                if attempts >= 100:
+                    raise RuntimeError("Could not generate arity {} operator".format(arity))
                 operator = self._component_generator.random_operator()
+                attempts += 1
         return operator

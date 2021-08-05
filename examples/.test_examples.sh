@@ -7,7 +7,7 @@ python -c "from bingo import symbolic_regression; print('Using %s Backend' % ('c
 for i in examples/*.ipynb
 do
   echo "Running Notebook: $i"
-  jupyter nbconvert --stdout --execute $i > /dev/null
+  jupyter nbconvert --stdout --execute --to python $i > /dev/null
   echo "Success"
   echo ""
 done

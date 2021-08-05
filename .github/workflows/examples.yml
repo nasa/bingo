@@ -34,7 +34,7 @@ jobs:
     - name: Build bingocpp
       run: |
         ./.build_bingocpp.sh
-    - name: Run xxamples
+    - name: Run examples
       run: |
         examples/.test_examples.sh
       env:

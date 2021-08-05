@@ -31,6 +31,11 @@ jobs:
         pip install nbconvert
         pip install matplotlib
         pip install -r requirements.txt
+    - name: Debug
+      run: |
+        echo $PYTHONPATH
+        pwd
+        ls
     - name: Build bingocpp
       run: |
         ./.build_bingocpp.sh

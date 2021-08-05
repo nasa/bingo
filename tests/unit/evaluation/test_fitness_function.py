@@ -103,7 +103,7 @@ def test_vector_based_function_invalid_metric(engine, mocker, vector_based_funct
                             new_callable=set)
     mocker.patch.object(vector_based_function, "evaluate_fitness_vector",
                         return_value=[-2, -1, 0, 1, 2])
-    with pytest.raises((KeyError, ValueError)):  # KeyError in Python, ValueError in Cpp
+    with pytest.raises(ValueError):
         _ = vector_based_function(metric="invalid metric")
 
 

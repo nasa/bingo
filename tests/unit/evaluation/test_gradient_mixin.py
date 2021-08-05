@@ -87,7 +87,7 @@ def test_vector_gradient_mixin_invalid_metric(vector_gradient_mixin):
         def get_fitness_vector_and_jacobian(self, individual):
             pass
 
-    with pytest.raises((KeyError, ValueError)):  # KeyError in Python, ValueError in Cpp
+    with pytest.raises(ValueError):  # KeyError in Python, ValueError in Cpp
         _ = VectorGradientMixinWithNewParent(training_data=None, metric="invalid metric")
 
 

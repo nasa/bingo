@@ -45,5 +45,3 @@ jobs:
     - name: Run examples
       run: |
         examples/.test_examples.sh
-      env:
-        PYTHONPATH: "."

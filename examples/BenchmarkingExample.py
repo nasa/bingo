@@ -28,7 +28,7 @@ def training_function(training_data, ea_choice):
     agraph_generator = AGraphGenerator(agraph_size=32,
                                        component_generator=component_generator)
 
-    crossover = AGraphCrossover(component_generator)
+    crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)

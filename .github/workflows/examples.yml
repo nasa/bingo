@@ -31,6 +31,9 @@ jobs:
         pip install nbconvert
         pip install matplotlib
         pip install -r requirements.txt
+    - name: Set pythonpath
+      run: |
+        echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
     - name: Debug
       run: |
         echo $PYTHONPATH

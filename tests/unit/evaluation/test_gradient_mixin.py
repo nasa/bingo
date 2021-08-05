@@ -64,21 +64,13 @@ def test_gradient_mixin_cant_be_instanced(gradient_mixin):
         _ = gradient_mixin()
 
 
-def test_vector_gradient_mixin_cant_be_instanced(engine, vector_gradient_mixin):
-    if engine == "Cpp":  # pybinded objects make this test not valid
-        assert True
-        return
-
+def test_vector_gradient_mixin_cant_be_instanced():
     with pytest.raises(TypeError):
-        _ = vector_gradient_mixin()
+        _ = pyVectorGradientMixin()
 
 
-def test_vector_gradient_mixin_cant_be_instanced_without_base_class(engine, vector_gradient_mixin):
-    if engine == "Cpp":  # pybinded objects make this test not valid
-        assert True
-        return
-
-    class MixinWithoutVectorBasedFunction(vector_gradient_mixin):
+def test_vector_gradient_mixin_cant_be_instanced_without_base_class():
+    class MixinWithoutVectorBasedFunction(pyVectorGradientMixin):
         def get_fitness_vector_and_jacobian(self, individual):
             pass
 
@@ -99,25 +91,16 @@ def test_vector_gradient_mixin_invalid_metric(vector_gradient_mixin):
         _ = VectorGradientMixinWithNewParent(training_data=None, metric="invalid metric")
 
 
-def test_gradient_mixin_get_gradient_raises_not_implemented_error(engine, mocker, gradient_mixin, dummy_individual):
-    if engine == "Cpp":  # pybinded objects make this test not valid
-        assert True
-        return
+def test_gradient_mixin_get_gradient_raises_not_implemented_error(mocker):
+    mocker.patch.object(pyGradientMixin, "__abstractmethods__", new_callable=set)
 
-    mocker.patch.object(gradient_mixin, "__abstractmethods__", new_callable=set)
-
-    gradient_mixin = gradient_mixin()
+    gradient_mixin = pyGradientMixin()
     with pytest.raises(NotImplementedError):
-        gradient_mixin.get_fitness_and_gradient(dummy_individual)
+        gradient_mixin.get_fitness_and_gradient(None)
 
 
-def test_vector_gradient_mixin_get_jacobian_raises_not_implemented_error(engine, mocker, vector_gradient_mixin,
-                                                                         vector_based_function):
-    if engine == "Cpp":  # pybinded objects make this test not valid
-        assert True
-        return
-
-    class VectorFitnessFunction(vector_gradient_mixin, vector_based_function):
+def test_vector_gradient_mixin_get_jacobian_raises_not_implemented_error(mocker):
+    class VectorFitnessFunction(pyVectorGradientMixin, pyVectorBasedFunction):
         pass
 
     mocker.patch.object(VectorFitnessFunction, "__abstractmethods__", new_callable=set)

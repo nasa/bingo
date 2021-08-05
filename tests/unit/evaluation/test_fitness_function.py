@@ -61,13 +61,9 @@ def dummy_individual(agraph):
     return agraph()
 
 
-def test_fitness_function_cant_be_instanced(engine, fitness_function):
-    if engine == "Cpp":  # pybinded objects make this test not valid
-        assert True
-        return
-
+def test_fitness_function_cant_be_instanced():
     with pytest.raises(TypeError):
-        _ = fitness_function()
+        _ = pyFitnessFunction()
 
 
 def test_fitness_function_has_eval_count_and_data(engine, mocker, fitness_function, training_data):

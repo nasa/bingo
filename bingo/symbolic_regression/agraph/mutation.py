@@ -392,14 +392,15 @@ class AGraphMutation(Mutation):
         index_shifts = dict(sorted(index_shifts.items(), key=lambda pair: pair[0]))
         index_values = np.array(list(index_shifts.values()))
 
-        for j in range(1, 3):
-            stack[utilized_operators, j] = index_values[stack[utilized_operators, j]]
+        for i in range(1, 3):
+            stack[utilized_operators, i] = index_values[stack[utilized_operators, i]]
 
-        for i, command in enumerate(stack):
-            if non_terminals[i]:
-                for j in range(1, 3):
-                    if command[j] >= i:
-                        stack[i][j] = self._component_generator.random_operator_parameter(i)
+        indices = np.array(range(len(stack)))[non_terminals]
+        for i in range(1, 3):
+            indices_to_fix = indices[np.where(stack[non_terminals][:, i] >= indices)[0]]
+            if len(indices_to_fix) > 0:
+                stack[:, i][indices_to_fix] =\
+                    np.vectorize(self._component_generator.random_operator_parameter)(indices_to_fix)
 
     def _get_arity_operator(self, arity):
         attempts = 0

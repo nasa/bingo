@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 import dill
 
+from copy import copy
+
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitTrainingData as pyExplicitTrainingData, \
            ExplicitRegression as pyExplicitRegression
@@ -310,3 +312,10 @@ def test_explicit_regression_relative_get_fit_vec_and_jac(
 
 def test_can_pickle(sample_regression):
     _ = dill.loads(dill.dumps(sample_regression))
+
+
+def test_can_copy(sample_regression):
+    copied = copy(sample_regression)
+
+    np.testing.assert_array_equal(copied.training_data.x, sample_regression.training_data.x)
+    assert copied.eval_count == sample_regression.eval_count

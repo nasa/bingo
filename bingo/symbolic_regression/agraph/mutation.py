@@ -379,19 +379,10 @@ class AGraphMutation(Mutation):
             self._move_utilized_to_top(new_stack, utilized_commands, mutation_location)
         combined_index_shifts =\
             dict(zip(first_index_shifts.keys(), itemgetter(*first_index_shifts.values())(second_index_shifts)))
-        self._fix_indices(new_stack, utilized_commands, combined_index_shifts, new_mutation_location)
+        self._fix_indices(new_stack, utilized_commands, combined_index_shifts)
 
         new_stack = self._insert_fork(new_stack, mutation_location, new_mutation_location, fork_size)
         individual.command_array = new_stack
-
-        # this check is needed to account for the case when an arity 1 node is
-        # mutated/shifted, then the op2 argument can get messed up
-        # TODO: this is messy
-        for i, (command, _, op2) in enumerate(individual.command_array):
-            if not IS_TERMINAL_MAP[command]:
-                if op2 >= i:
-                    individual.mutable_command_array[i, 2] = \
-                        self._component_generator.random_operator_parameter(i)
 
         self._last_mutation_location = original_mutation_location
         self._last_mutation_type = FORK_MUTATION
@@ -500,7 +491,7 @@ class AGraphMutation(Mutation):
         index_shifts = dict(zip(new_indices, indices))
         return np.array(new_stack), list(new_utilized_commands), index_shifts
 
-    def _fix_indices(self, stack, utilized_commands, index_shifts, new_mutation_location):
+    def _fix_indices(self, stack, utilized_commands, index_shifts):
         non_terminals = ~np.vectorize(IS_TERMINAL_MAP.get)(stack[:, 0])
         utilized_operators = np.logical_and(non_terminals, utilized_commands)
         index_shifts = dict(sorted(index_shifts.items(), key=lambda pair: pair[0]))
@@ -509,8 +500,7 @@ class AGraphMutation(Mutation):
         for j in range(1, 3):
             stack[utilized_operators, j] = index_values[stack[utilized_operators, j]]
 
-        i = utilized_commands.index(False)
-        for command in stack[~np.array(utilized_commands)]:
+        for i, command in enumerate(stack):
             if non_terminals[i]:
                 for j in range(1, 3):
                     if command[j] >= i:

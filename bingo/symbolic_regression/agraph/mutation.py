@@ -4,6 +4,8 @@ This module contains the implementation of mutation for acyclic graph
 individuals, which is composed of 4 possible mutation strategies: command
 mutation, node mutation, parameter mutation and pruning.
 """
+from operator import itemgetter
+
 import numpy as np
 
 from .operator_definitions import IS_ARITY_2_MAP, IS_TERMINAL_MAP, \
@@ -370,8 +372,8 @@ class AGraphMutation(Mutation):
         indices = [n for n, x in enumerate(utilized_commands) if x]
         original_mutation_location = mutation_location = np.random.choice(indices)
 
-        mutation_location, utilized_commands = self._move_unutilized_to_top(individual, utilized_commands, mutation_location)
-        new_mutation_location = self._move_utilized_to_top(individual, utilized_commands, mutation_location)
+        mutation_location, utilized_commands, index_shifts = self._move_unutilized_to_top(individual, utilized_commands, mutation_location)
+        new_mutation_location = self._move_utilized_to_top(individual, utilized_commands, mutation_location, index_shifts)
         self._insert_fork(individual, mutation_location, new_mutation_location, fork_size)
 
         # this check is needed to account for the case when an arity 1 node is
@@ -387,19 +389,15 @@ class AGraphMutation(Mutation):
         self._last_mutation_type = FORK_MUTATION
 
     def _move_unutilized_to_top(self, individual, utilized_commands, mutation_location):
-        indices = range(len(individual.command_array))
-
         new_stack, new_utilized_commands, index_shifts = \
             self._move_utilized_commands(individual.mutable_command_array,
                                          utilized_commands,
                                          to_front=True)
-
-        self._fix_indices(new_stack, new_utilized_commands, index_shifts)
         individual.command_array = new_stack
         new_mutation_location = index_shifts[mutation_location]
-        return new_mutation_location, new_utilized_commands
+        return new_mutation_location, new_utilized_commands, index_shifts
 
-    def _move_utilized_to_top(self, individual, utilized_commands, mutation_location):
+    def _move_utilized_to_top(self, individual, utilized_commands, mutation_location, old_index_shifts):
         new_stack, new_utilized_commands, index_shifts =\
             self._move_utilized_commands(individual.mutable_command_array[:mutation_location + 1],
                                          utilized_commands[:mutation_location + 1],
@@ -408,8 +406,16 @@ class AGraphMutation(Mutation):
         new_mutation_location = index_shifts[mutation_location]
         new_stack = np.vstack((new_stack, individual.command_array[mutation_location+1:]))
 
-        # TODO take slice of command array instead of passing in entire thing
-        self._fix_indices(new_stack, new_utilized_commands, index_shifts)
+        new_utilized_commands.extend(utilized_commands[mutation_location + 1:])
+
+        # update index shifts with the indices that didn't change
+        no_change_indices = dict(zip(range(len(individual.mutable_command_array))[mutation_location:],
+                                     range(len(individual.mutable_command_array))[mutation_location:]))
+        index_shifts.update(no_change_indices)
+
+        combined_index_shifts = dict(zip(old_index_shifts.keys(), itemgetter(*old_index_shifts.values())(index_shifts)))
+
+        self._fix_indices(new_stack, new_utilized_commands, combined_index_shifts, new_mutation_location)
         individual.command_array = new_stack
 
         return new_mutation_location
@@ -474,19 +480,22 @@ class AGraphMutation(Mutation):
         index_shifts = dict(zip(new_indices, indices))
         return np.array(new_stack), list(new_utilized_commands), index_shifts
 
-    def _fix_indices(self, stack, utilized_commands, index_shifts):
-        for i, (command, utilized) in enumerate(zip(stack, utilized_commands)):
-            if not IS_TERMINAL_MAP[command[0]]:
-                if utilized:
-                    for j in range(1, 3):
-                        command[j] = index_shifts.get(command[j], command[j])
-                else:
-                    for j in range(1, 3):
-                        if command[j] >= i:
-                            if i == 0:
-                                command[j] = 0
-                            else:
-                                command[j] = self._component_generator.random_operator_parameter(i)
+    def _fix_indices(self, stack, utilized_commands, index_shifts, new_mutation_location):
+        non_terminals = ~np.vectorize(IS_TERMINAL_MAP.get)(stack[:, 0])
+        utilized_operators = np.logical_and(non_terminals, utilized_commands)
+        index_shifts = dict(sorted(index_shifts.items(), key=lambda pair: pair[0]))
+        index_values = np.array(list(index_shifts.values()))
+
+        for j in range(1, 3):
+            stack[utilized_operators, j] = index_values[stack[utilized_operators, j]]
+
+        i = utilized_commands.index(False)
+        for command in stack[~np.array(utilized_commands)]:
+            if non_terminals[i]:
+                for j in range(1, 3):
+                    if command[j] >= i:
+                        stack[i][j] = self._component_generator.random_operator_parameter(i)
+            i += 1
 
     def _get_arity_operator(self, arity):
         attempts = 0

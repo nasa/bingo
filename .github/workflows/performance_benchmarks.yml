@@ -37,7 +37,9 @@ jobs:
     - name: Build bingocpp
       run: |
         ./.build_bingocpp.sh
-    - name: Run examples
+    - name: Evaluation Benchmark
       run: |
         python tests/performance_benchmarking/performance_benchmarks.py
+    - name: Evolution Benchmark
+      run: |
         python tests/performance_benchmarking/island_benchmarks.py

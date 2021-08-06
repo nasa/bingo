@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 import dill
 
+from copy import copy
+
 from bingo.symbolic_regression.implicit_regression \
     import ImplicitTrainingData as pyImplicitTrainingData, \
            ImplicitRegression as pyImplicitRegression
@@ -107,12 +109,26 @@ def test_raises_error_on_training_data_with_high_dims(implicit_training_data,
         implicit_training_data(x, dx_dt)
 
 
-def test_training_data_xy(implicit_training_data):
+def test_training_data_x_dxdt(implicit_training_data):
     x = np.zeros(10)
     dx_dt = np.ones((10, 1))
     itd = implicit_training_data(x, dx_dt)
     np.testing.assert_array_equal(itd.x, np.zeros((10, 1)))
     np.testing.assert_array_equal(itd.dx_dt, np.ones((10, 1)))
+
+
+def test_training_data_x_dxdt_read_only(implicit_training_data):
+    x = np.zeros(10)
+    dx_dt = np.ones((10, 1))
+    itd = implicit_training_data(x, dx_dt)
+    _ = itd.x
+    _ = itd.dx_dt
+
+    with pytest.raises(AttributeError):
+        itd.x = 1
+    
+    with pytest.raises(AttributeError):
+        itd.dx_dt = 1
 
 
 def test_training_data_slicing(sample_training_data):
@@ -171,3 +187,11 @@ def test_implicit_regression(implicit_regression, sample_training_data,
 
 def test_can_pickle(sample_implicit_regression):
     _ = dill.loads(dill.dumps(sample_implicit_regression))
+
+
+def test_can_copy(sample_implicit_regression):
+    copied = copy(sample_implicit_regression)
+
+    np.testing.assert_array_equal(copied.training_data.x, sample_implicit_regression.training_data.x)
+    np.testing.assert_array_equal(copied.training_data.dx_dt, sample_implicit_regression.training_data.dx_dt)
+    assert copied.eval_count == sample_implicit_regression.eval_count

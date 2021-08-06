@@ -1,5 +1,6 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
+
 import pytest
 import numpy as np
 from bingo.chromosomes.chromosome import Chromosome

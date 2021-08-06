@@ -104,8 +104,16 @@ class ImplicitTrainingData(TrainingData):
             if dx_dt.ndim != 2:
                 raise TypeError('Implicit training dx_dt must be 2 dim array')
 
-        self.x = x
-        self.dx_dt = dx_dt
+        self._x = x
+        self._dx_dt = dx_dt
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def dx_dt(self):
+        return self._dx_dt
 
     def __getitem__(self, items):
         """gets a subset of the ExplicitTrainingData
@@ -120,7 +128,7 @@ class ImplicitTrainingData(TrainingData):
          ExplicitTrainingData :
                                 a subset
         """
-        temp = ImplicitTrainingData(self.x[items, :], self.dx_dt[items, :])
+        temp = ImplicitTrainingData(self._x[items, :], self._dx_dt[items, :])
         return temp
 
     def __len__(self):
@@ -131,7 +139,7 @@ class ImplicitTrainingData(TrainingData):
          int :
                 index-able size
         """
-        return self.x.shape[0]
+        return self._x.shape[0]
 
 
 def _calculate_partials(X):

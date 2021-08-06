@@ -6,5 +6,5 @@ numpy>=1.14.3
 pytest>=3.6
 pytest-mock>=1.10.0
 pytest-timeout>=1.4.2
-scipy>=1.2.0
+scipy>=1.6.2
 dill>=0.2.9

@@ -5,13 +5,17 @@ from collections import namedtuple
 import pytest
 import numpy as np
 
-from bingo.symbolic_regression.agraph.operator_definitions import *
-from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
+from bingo.symbolic_regression.agraph.operator_definitions \
+    import VARIABLE, CONSTANT, SIN, ADDITION, SUBTRACTION
+from bingo.symbolic_regression.agraph.agraph \
+    import AGraph as pyagraph, force_use_of_python_backends
 
 try:
     from bingocpp import AGraph as cppagraph
 except ImportError:
     cppagraph = None
+
+force_use_of_python_backends()
 
 CPP_PARAM = pytest.param("c++",
                          marks=pytest.mark.skipif(not cppagraph,
@@ -124,7 +128,7 @@ def test_evaluate_gradient_overflow_exception(mocker, engine, sample_agraph,
                      side_effect=OverflowError)
 
         values = sample_agraph.evaluate_equation_with_x_gradient_at(
-                sample_agraph_values.x)
+            sample_agraph_values.x)
         assert np.isnan(values).all()
 
 

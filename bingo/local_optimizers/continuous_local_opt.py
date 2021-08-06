@@ -63,8 +63,8 @@ JACOBIAN_SET = {
 class ContinuousLocalOptimization(FitnessFunction):
     """Fitness evaluation metric for individuals.
 
-    A class for the fitness evaluation metric of genetic individuals that may or
-    may not need local optimization before evaluation.
+    A class for the fitness evaluation metric of genetic individuals that may
+    or may not need local optimization before evaluation.
 
     Parameters
     ----------
@@ -192,24 +192,28 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     def _run_algorithm_for_optimization(self, sub_routine, individual, params):
         if self._algorithm in ROOT_SET:
-            if isinstance(self._fitness_function, VectorGradientMixin) and self._algorithm in JACOBIAN_SET:
-                optimize_result = optimize.root(sub_routine, params,
-                                                args=(individual),
-                                                jac=lambda x, individual: self._fitness_function.get_fitness_vector_and_jacobian(individual)[1],
-                                                method=self._algorithm,
-                                                tol=1e-6)
+            if isinstance(self._fitness_function, VectorGradientMixin) \
+                    and self._algorithm in JACOBIAN_SET:
+                optimize_result = optimize.root(
+                        sub_routine, params,
+                        args=(individual),
+                        jac=lambda x, individual: self._fitness_function.get_fitness_vector_and_jacobian(individual)[1],
+                        method=self._algorithm,
+                        tol=1e-6)
             else:
                 optimize_result = optimize.root(sub_routine, params,
                                                 args=(individual),
                                                 method=self._algorithm,
                                                 tol=1e-6)
         else:
-            if isinstance(self._fitness_function, GradientMixin) and self._algorithm in JACOBIAN_SET:
-                optimize_result = optimize.minimize(sub_routine, params,
-                                                    args=(individual),
-                                                    jac=lambda x, individual: self._fitness_function.get_fitness_and_gradient(individual)[1],
-                                                    method=self._algorithm,
-                                                    tol=1e-6)
+            if isinstance(self._fitness_function, GradientMixin) \
+                    and self._algorithm in JACOBIAN_SET:
+                optimize_result = optimize.minimize(
+                        sub_routine, params,
+                        args=(individual),
+                        jac=lambda x, individual: self._fitness_function.get_fitness_and_gradient(individual)[1],
+                        method=self._algorithm,
+                        tol=1e-6)
             else:
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual),

@@ -1,5 +1,6 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
+# pylint: disable=redefined-outer-name
 from bingo.evolutionary_algorithms.deterministic_crowding \
     import DeterministicCrowdingEA
 from bingo.evolutionary_algorithms import deterministic_crowding

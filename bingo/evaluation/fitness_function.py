@@ -87,7 +87,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = root_mean_squared_error
         else:
-            raise KeyError("Invalid metric for Fitness Function")
+            raise ValueError("Invalid metric for Fitness Function")
 
     def __call__(self, individual):
         """Vector based fitness evaluation

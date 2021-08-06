@@ -62,7 +62,8 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
         error = f_of_x - self.training_data.y
         if not self._relative:
             return error.flatten(), df_dc
-        return (error / self.training_data.y).flatten(), df_dc / self.training_data.y
+        return (error / self.training_data.y).flatten(), \
+            df_dc / self.training_data.y
 
 
 class ExplicitTrainingData(TrainingData):
@@ -93,8 +94,16 @@ class ExplicitTrainingData(TrainingData):
         if y.ndim > 2:
             raise TypeError('Explicit training y should be 2 dim array')
 
-        self.x = x
-        self.y = y
+        self._x = x
+        self._y = y
+
+    @property
+    def x(self):
+        return self._x
+
+    @property
+    def y(self):
+        return self._y
 
     def __getitem__(self, items):
         """gets a subset of the `ExplicitTrainingData`
@@ -109,7 +118,7 @@ class ExplicitTrainingData(TrainingData):
         `ExplicitTrainingData` :
             a Subset
         """
-        temp = ExplicitTrainingData(self.x[items, :], self.y[items, :])
+        temp = ExplicitTrainingData(self._x[items, :], self._y[items, :])
         return temp
 
     def __len__(self):
@@ -120,4 +129,4 @@ class ExplicitTrainingData(TrainingData):
         int :
             index-able size
         """
-        return self.x.shape[0]
+        return self._x.shape[0]

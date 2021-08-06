@@ -428,7 +428,21 @@ class AGraphMutation(Mutation):
         # fork_size = 1 -> terminal
 
         insertion_index = mutation_location
-        start_operator = self._get_arity_operator(2)
+        try:
+            start_operator = self._get_arity_operator(2)
+        except RuntimeError:
+            # case where we only have ar1 operators, different in that we have to
+            # keep adding ar1 operators above the forked command and then link
+            # to the forked command at the end of the chain unlike in the ar2
+            # case where we link to the forked command on the first new command
+            while fork_size > 1:
+                start_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1], dtype=int)
+                individual.mutable_command_array[insertion_index] = start_command
+                fork_size -= 1
+                insertion_index -= 1
+            final_command = np.array([self._get_arity_operator(1), new_mutation_location, new_mutation_location], dtype=int)
+            individual.mutable_command_array[insertion_index] = final_command
+            return
 
         # add start arity 2 operator that links to mutated command
         start_command = np.array([start_operator, new_mutation_location, insertion_index - 1], dtype=int)
@@ -452,9 +466,13 @@ class AGraphMutation(Mutation):
             individual.mutable_command_array[insertion_index - 1] = self._component_generator.random_terminal_command()
             individual.mutable_command_array[insertion_index - 2] = self._component_generator.random_terminal_command()
         elif fork_size == 2:
-            new_operator_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1])
-            individual.mutable_command_array[insertion_index] = new_operator_command
-            individual.mutable_command_array[insertion_index - 1] = self._component_generator.random_terminal_command()
+            next_operator = self._component_generator.random_operator()
+            if IS_ARITY_2_MAP[next_operator]:
+                individual.mutable_command_array[insertion_index] = self._component_generator.random_terminal_command()
+            else:
+                new_operator_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1])
+                individual.mutable_command_array[insertion_index] = new_operator_command
+                individual.mutable_command_array[insertion_index - 1] = self._component_generator.random_terminal_command()
         else:
             individual.mutable_command_array[insertion_index] = self._component_generator.random_terminal_command()
 

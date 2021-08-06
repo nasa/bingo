@@ -2,6 +2,7 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 from itertools import cycle
+from random import randrange
 import numpy as np
 import pytest
 
@@ -140,12 +141,13 @@ def arity_one_op_with_two_different_params_agraph():
 def unused_op_invalid_after_fork_mutation_agraph():
     test_graph = AGraph()
     test_graph.command_array = np.array([[VARIABLE, 0, 0],  # sin(sin(sin(X_0)))
-                                         [SUBTRACTION, 0, 0],
+                                         [CONSTANT, 0, 0],
                                          [SIN, 0, 0],
                                          [SIN, 2, 2],
                                          [SUBTRACTION, 2, 3],
-                                         [SUBTRACTION, 3, 4],
+                                         [SUBTRACTION, 0, 0],
                                          [SUBTRACTION, 4, 5],
+                                         [SUBTRACTION, 5, 6],
                                          [SIN, 3, 3]], dtype=int)
     test_graph.genetic_age = 1
     test_graph.set_local_optimization_params([])
@@ -379,9 +381,7 @@ class MockedRandInt:
             return self.first_value
         else:
             self.call_count += 1
-            if high is not None:
-                high -= 1  # to account for exclusive -> inclusive from randint -> random_integers
-            return np.random.random_integers(low, high)  # using random_integers to avoid infinite recursion
+            return randrange(low, high)  # using randrange to avoid infinite recursion
             # when mocking np.random.randint
 
 
@@ -394,7 +394,10 @@ def test_fork_mutation_many_unutilized_commands(
     print("parent:", parent)
     print("child:", child)
 
-    assert parent.get_complexity() == child.get_complexity() - fork_size
+    if fork_size == 3:
+        assert parent.get_complexity() < child.get_complexity() - 1
+    else:
+        assert parent.get_complexity() == child.get_complexity() - fork_size
     assert command_array_is_valid(child)
 
 
@@ -481,6 +484,7 @@ def test_fork_mutation_generator_has_no_ar2_op(mocker, many_unutil_fork_agraph, 
 
     mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
     parent = many_unutil_fork_agraph
+    child = mutation(parent)
 
-    with pytest.raises(RuntimeError):
-        _ = mutation(parent)
+    assert parent.get_complexity() == child.get_complexity() - fork_size
+    assert command_array_is_valid(child)

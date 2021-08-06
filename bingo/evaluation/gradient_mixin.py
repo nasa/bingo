@@ -65,7 +65,7 @@ class VectorGradientMixin(GradientMixin):
             self._metric = root_mean_squared_error
             self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
         else:
-            raise KeyError("Invalid metric for vector gradient mixin")
+            raise ValueError("Invalid metric for vector gradient mixin")
 
     def get_fitness_and_gradient(self, individual):
         """Fitness evaluation and gradient of vector based fitness

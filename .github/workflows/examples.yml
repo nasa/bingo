@@ -37,11 +37,6 @@ jobs:
     - name: Set pythonpath
       run: |
         echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
-    - name: Debug
-      run: |
-        echo $PYTHONPATH
-        pwd
-        ls
     - name: Build bingocpp
       run: |
         ./.build_bingocpp.sh

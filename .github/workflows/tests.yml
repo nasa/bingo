@@ -15,7 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -30,11 +33,12 @@ jobs:
         pip install pytest pytest-cov pytest-mock
         pip install coveralls
         pip install -r requirements.txt
+    - name: Set pythonpath
+      run: |
+        echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
     - name: Build bingocpp
       run: |
         ./.build_bingocpp.sh
     - name: Test with pytest
       run: |
         tests/.run_tests.sh
-      env:
-        PYTHONPATH: "."

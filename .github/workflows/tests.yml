@@ -42,6 +42,8 @@ jobs:
     - name: Test with pytest
       run: |
         tests/.run_tests.sh
-    - name: Coveralls
+    - name: Coveralls]
       run: |
         coveralls
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

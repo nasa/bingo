@@ -102,7 +102,10 @@ def test_evaluate_agraph_c_gradient(sample_agraph, sample_agraph_values):
     np.testing.assert_allclose(df_dc, sample_agraph_values.grad_c)
 
 
-def test_using_simplification(overcomplex_agraph_with_simplification):
+def test_using_simplification(overcomplex_agraph_with_simplification, engine):
+    if engine == "c++":
+        pytest.xfail(reason="Simplification not yet implemented in c++")
+
     assert overcomplex_agraph_with_simplification.get_complexity() == 1
 
 

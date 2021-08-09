@@ -229,7 +229,7 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
        pp 570-573
     """
     n_order = order
-    m_half_filter_size = np.int((window_size - 1) / 2)  # 2m + 1 = filter size
+    m_half_filter_size = (window_size - 1) // 2  # 2m + 1 = filter size
     s_derivative_order = deriv
 
     def generalized_factorial(a, b):

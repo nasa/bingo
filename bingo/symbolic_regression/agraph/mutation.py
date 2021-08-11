@@ -280,7 +280,7 @@ class AGraphMutation(Mutation):
         self._fix_indices(new_stack, utilized_commands, combined_index_shifts)
 
         new_stack = self._insert_fork(new_stack, mutation_location, new_mutation_location, fork_size)
-        individual.mutable_command_array = new_stack
+        individual.mutable_command_array[:] = new_stack
 
         self._last_mutation_location = original_mutation_location
         self._last_mutation_type = FORK_MUTATION

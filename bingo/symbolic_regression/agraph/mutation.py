@@ -258,6 +258,7 @@ class AGraphMutation(Mutation):
         n_unutilized_commands = utilized_commands.count(False)
 
         if n_unutilized_commands < 2:
+            individual.mutable_command_array[:] = individual.command_array  # unset fitness
             self._last_mutation_location = None
             self._last_mutation_type = FORK_MUTATION
             return

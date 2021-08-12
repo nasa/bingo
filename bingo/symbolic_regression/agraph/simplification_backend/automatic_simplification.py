@@ -1,4 +1,16 @@
-from ..operator_definitions import *
+"""
+The core of the built in computer algebra simplification algorithm.
+
+This algorithm is based on the algorithm presented in chapter 3 of Joel Cohen's
+book [1].
+
+... [1] Joel S. Cohen (2003) Computer Algebra and Symbolic Computation
+"""
+
+from ..operator_definitions import CONSTANT, INTEGER, VARIABLE, POWER, \
+                                   MULTIPLICATION, ADDITION, SUBTRACTION, \
+                                   DIVISION, SIN, COS, LOGARITHM, EXPONENTIAL, \
+                                   ABS, SQRT, SAFE_POWER
 from .expression import Expression
 
 
@@ -8,6 +20,17 @@ ONE = Expression(INTEGER, [1])
 
 
 def automatic_simplify(expression):
+    """A recursive simplification of an expression
+
+    Parameters
+    ----------
+    expression: `Expression`
+        an expression to be recursively simplified
+
+    Returns
+    -------
+        a simplified `Expression`
+    """
     if expression.operator in [CONSTANT, INTEGER, VARIABLE]:
         return expression
 
@@ -18,6 +41,7 @@ def automatic_simplify(expression):
 
 
 def simplify_power(expression):
+    """simplification of power operators"""
     base, exponent = expression.operands
     if base.is_one():
         return ONE.copy()
@@ -58,6 +82,7 @@ def _simplify_constant_power(base, exponent):
 
 
 def simplify_product(expression):
+    """simplification of multiplication operators"""
     operands = expression.operands
     if ZERO in operands:
         return ZERO.copy()
@@ -82,7 +107,7 @@ def _simplify_product_rec(operands):
                 return []
             return [simpl_const_prod]
 
-        if op_1.operator != MULTIPLICATION and op_2.operator != MULTIPLICATION:
+        if MULTIPLICATION not in (op_1.operator, op_2.operator):
             if op_1.is_one():
                 return [op_2]
             if op_2.is_one():
@@ -139,6 +164,7 @@ def _merge_products(operands_1, operands_2):
 
 
 def simplify_sum(expression):
+    """simplification of addition operators"""
     operands = expression.operands
     if len(operands) == 1:
         return operands[0]
@@ -161,7 +187,7 @@ def _simplify_sum_rec(operands):
                 return []
             return [simpl_const_sum]
 
-        if op_1.operator != ADDITION and op_2.operator != ADDITION:
+        if ADDITION not in (op_1.operator, op_2.operator):
             if op_1.is_zero():
                 return [op_2]
             if op_2.is_zero():
@@ -218,6 +244,7 @@ def _merge_sums(operands_1, operands_2):
 
 
 def simplify_quotient(expression):
+    """simplification of division operators"""
     numerator, denominator = expression.operands
     denominator_inv = Expression(POWER, [denominator, NEGATIVE_ONE.copy()])
     denominator_inv = simplify_power(denominator_inv)
@@ -227,6 +254,7 @@ def simplify_quotient(expression):
 
 
 def simplify_difference(expression):
+    """simplification of subtraction operators"""
     first, second = expression.operands
     new_operands = [first]
     if second.operator == ADDITION:
@@ -243,18 +271,21 @@ def simplify_difference(expression):
 
 
 def simplify_sin(expression):
+    """simplification of sin operators"""
     if expression.operands[0].is_zero():
         return ZERO.copy()
     return expression
 
 
 def simplify_cos(expression):
+    """simplification of cos operators"""
     if expression.operands[0].is_zero():
         return ONE.copy()
     return expression
 
 
 def simplify_logarithm(expression):
+    """simplification of log operators"""
     operand = expression.operands[0]
     if operand.is_one():
         return ZERO.copy()
@@ -264,12 +295,14 @@ def simplify_logarithm(expression):
 
 
 def simplify_exponential(expression):
+    """simplification of exp operators"""
     if expression.operands[0].is_zero():
         return ONE.copy()
     return expression
 
 
 def no_simplification(expression):
+    """no simplification performed"""
     return expression
 
 

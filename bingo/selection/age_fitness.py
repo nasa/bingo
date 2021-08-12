@@ -59,23 +59,23 @@ class AgeFitness(Selection):
             raise ValueError("Target population size should\
                               be less than initial population")
 
-        num_removed = 0
+        n_removed = 0
         start_pop_size = len(population)
         target_removal = start_pop_size - target_population_size
 
         selection_attempts = 0
-        while num_removed < target_removal and \
+        while n_removed < target_removal and \
                 selection_attempts < start_pop_size * self.WORST_CASE_FACTOR:
 
-            inds = self._get_unique_rand_indices(start_pop_size - num_removed)
+            inds = self._get_unique_rand_indices(start_pop_size - n_removed)
             to_remove = self._find_inds_for_removal(inds, population,
-                                                    target_removal - num_removed)
-            self._swap_removals_to_end(population, to_remove, num_removed)
+                                                    target_removal - n_removed)
+            self._swap_removals_to_end(population, to_remove, n_removed)
 
-            num_removed += len(to_remove)
+            n_removed += len(to_remove)
             selection_attempts += 1
 
-        new_pop_size = start_pop_size - num_removed
+        new_pop_size = start_pop_size - n_removed
         return population[:new_pop_size]
 
     def _get_unique_rand_indices(self, max_int):
@@ -113,11 +113,11 @@ class AgeFitness(Selection):
 
         if np.isnan(indv_1.fitness):
             return [indv_index_1]
-        elif np.isnan(indv_2.fitness):
+        if np.isnan(indv_2.fitness):
             return [indv_index_2]
-        elif self._first_not_dominated(indv_1, indv_2):
+        if self._first_not_dominated(indv_1, indv_2):
             return [indv_index_2]
-        elif self._first_not_dominated(indv_2, indv_1):
+        if self._first_not_dominated(indv_2, indv_1):
             return [indv_index_1]
         return []
 

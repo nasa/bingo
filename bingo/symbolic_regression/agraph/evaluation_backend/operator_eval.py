@@ -11,9 +11,14 @@ REVERSE_EVAL_MAP : dictionary {int: function}
 """
 
 import numpy as np
-np.seterr(divide='ignore', invalid='ignore')
 
-from bingo.symbolic_regression.agraph.operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions \
+    import INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION, MULTIPLICATION, \
+           DIVISION, SIN, COS, SINH, COSH, EXPONENTIAL, LOGARITHM, POWER, ABS, \
+           SQRT, SAFE_POWER
+
+
+np.seterr(divide='ignore', invalid='ignore')
 
 
 # Integer value
@@ -113,7 +118,7 @@ def _cos_reverse_eval(reverse_index, param1, _param2, forward_eval,
         reverse_eval[reverse_index] * np.sin(forward_eval[param1])
 
 
-# Hyperbolic Sine 
+# Hyperbolic Sine
 def _sinh_forward_eval(param1, _param2, _x, _constants, forward_eval):
     return np.sinh(forward_eval[param1])
 

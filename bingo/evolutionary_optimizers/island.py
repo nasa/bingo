@@ -137,6 +137,15 @@ class Island(EvolutionaryOptimizer):
                            for _ in range(len(self.population))]
 
     def reset_fitness(self, population=None):
+        """
+        Mark each individual in the population as needing fitness evaluation
+
+        Parameters
+        ----------
+        population: list of `Chromosome`
+            (Optional) Population to be reset. Default: the island's current
+            population
+        """
         if population is None:
             population = self.population
 

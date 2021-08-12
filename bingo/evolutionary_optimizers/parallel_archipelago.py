@@ -209,7 +209,7 @@ class ParallelArchipelago(Archipelago):
 
     def _get_potential_hof_members(self):
         self.island.update_hall_of_fame()
-        potential_members = [i for i in self.island.hall_of_fame]
+        potential_members = list(self.island.hall_of_fame)
         all_potential_members = self.comm.allgather(potential_members)
         all_potential_members = [i for hof in all_potential_members
                                  for i in hof]

@@ -64,8 +64,19 @@ class EvolutionaryAlgorithm:
         return next_generation
 
     def update_diagnostics(self, population, offspring):
+        """
+        Update the evolutionary algorithms diagnostic information based on a
+        new generation of offspring
+
+        Parameters
+        ----------
+        population: list of `Chromosome`
+            The original population fo the generation
+        offspring: list of `Chromosome`
+            The potential new members of the population
+
+        """
         self.diagnostics.update(population, offspring,
                                 self.variation.offspring_parents,
                                 self.variation.crossover_offspring,
                                 self.variation.mutation_offspring)
-

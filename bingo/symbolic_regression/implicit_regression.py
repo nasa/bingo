@@ -109,10 +109,12 @@ class ImplicitTrainingData(TrainingData):
 
     @property
     def x(self):
+        """x data"""
         return self._x
 
     @property
     def dx_dt(self):
+        """derivative of x data"""
         return self._dx_dt
 
     def __getitem__(self, items):
@@ -232,10 +234,11 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
     m_half_filter_size = (window_size - 1) // 2  # 2m + 1 = filter size
     s_derivative_order = deriv
 
-    def generalized_factorial(a, b):
+    def generalized_factorial(gf_a, gf_b):
         """Generalized factorial"""
+
         g_f = 1
-        for j in range(a - b + 1, a + 1):
+        for j in range(gf_a - gf_b + 1, gf_a + 1):
             g_f *= j
         return g_f
 
@@ -277,14 +280,14 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
     # fill weights
     weights = np.empty((2 * m_half_filter_size + 1, 2 * m_half_filter_size + 1))
     for i in range(-m_half_filter_size, m_half_filter_size + 1):
-        for t in range(-m_half_filter_size, m_half_filter_size + 1):
-            weights[i + m_half_filter_size, t + m_half_filter_size] = \
-                gram_weight(i, t, m_half_filter_size, n_order,
+        for j in range(-m_half_filter_size, m_half_filter_size + 1):
+            weights[i + m_half_filter_size, j + m_half_filter_size] = \
+                gram_weight(i, j, m_half_filter_size, n_order,
                             s_derivative_order)
 
     # do convolution
     y_len = len(y)
-    f = np.empty(y_len)
+    con_f = np.empty(y_len)
     for i in range(y_len):
         if i < m_half_filter_size:
             y_center = m_half_filter_size
@@ -295,8 +298,8 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
         else:
             y_center = i
             w_ind = m_half_filter_size
-        f[i] = 0
+        con_f[i] = 0
         for k in range(-m_half_filter_size, m_half_filter_size + 1):
-            f[i] += y[y_center + k] * weights[k + m_half_filter_size, w_ind]
+            con_f[i] += y[y_center + k] * weights[k + m_half_filter_size, w_ind]
 
-    return f
+    return con_f

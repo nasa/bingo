@@ -50,6 +50,7 @@ class Chromosome(metaclass=ABCMeta):
 
     @property
     def genetic_age(self):
+        """The age of the oldest components of the individual"""
         return self._genetic_age
 
     @genetic_age.setter
@@ -58,6 +59,7 @@ class Chromosome(metaclass=ABCMeta):
 
     @property
     def fit_set(self):
+        """Indication of whether the fitness has been set"""
         return self._fit_set
 
     @fit_set.setter

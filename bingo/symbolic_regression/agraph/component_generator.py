@@ -110,6 +110,19 @@ class ComponentGenerator:
         return self._random_command_function_pmf.draw_sample()(stack_location)
 
     def random_operator_command(self, stack_location):
+        """Get a random operator (non-terminal) command
+
+        Parameters
+        ----------
+        stack_location : int
+            location in the stack for the command
+
+        Returns
+        -------
+        array of int
+            a random command in the form [node, parameter 1, parameter 2]
+
+        """
         return np.array([self.random_operator(),
                          self.random_operator_parameter(stack_location),
                          self.random_operator_parameter(stack_location)],
@@ -150,6 +163,14 @@ class ComponentGenerator:
         return np.random.randint(stack_location)
 
     def random_terminal_command(self, _=None):
+        """Get a random terminal (non-operator) command
+
+        Returns
+        -------
+        array of int
+            a random command in the form [node, parameter 1, parameter 2]
+
+        """
         terminal = self.random_terminal()
         param = self.random_terminal_parameter(terminal)
         return np.array([terminal, param, param], dtype=int)

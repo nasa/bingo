@@ -9,6 +9,7 @@ import multiprocessing
 import bingo.util.global_imports as gi
 
 num_cores = multiprocessing.cpu_count()
+print(f"number of cores: {num_cores}")
 
 class Evaluation:
     """Base phase for calculating fitness of a population.

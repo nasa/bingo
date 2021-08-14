@@ -280,29 +280,54 @@ class AGraphMutation(Mutation):
         self._last_mutation_type = FORK_MUTATION
 
     def _insert_fork(self, stack, fork_size, mutated_command_location, start_i, end_i):
-        try:
+        """
+        Inserts commands/a fork of size fork_size in the stack's
+        unutilized command section
+
+        start_i and end_i represent the starting and ending indices
+        of the stack's unutilized command section
+        """
+        try:  # normal case
             arity_2_op = self._get_arity_operator(2)
             n_terminals = randint(1, fork_size // 2)
 
             for i in range(start_i, start_i + fork_size):
                 if i < start_i + n_terminals:
                     stack[i] = self._component_generator.random_terminal_command()
-                elif i == start_i + fork_size - 1:
+                    # insert terminals
+                elif i == start_i + fork_size - 1: # make sure the end of the stack is always a utilized command
                     stack[end_i] = np.array([arity_2_op, mutated_command_location, randrange(start_i, i)], dtype=int)
+                    # insert an arity2 operator that links to the mutated_command
                 else:
                     stack[i] = np.array([self._component_generator.random_operator(), randrange(start_i, i), randrange(start_i, i)], dtype=int)
-        except RuntimeError:
+                    # insert a random operator that connects to previously generated commands in the fork
+        except RuntimeError:  # case where we only have ar1 ops
             for i in range(start_i, start_i + fork_size):
                 if i == start_i:
                     stack[i] = np.array([self._component_generator.random_operator(), mutated_command_location, mutated_command_location], dtype=int)
-                elif i == start_i + fork_size - 1:
+                    # insert a random operator that links to the mutated command
+                elif i == start_i + fork_size - 1: # make sure the end of the stack is always a utilized command
                     stack[end_i] = np.array([self._component_generator.random_operator(), i - 1, i - 1], dtype=int)
                 else:
                     stack[i] = np.array([self._component_generator.random_operator(), i - 1, i - 1], dtype=int)
+                    # insert a random operator that connects to the previous command in the fork
         return stack
 
     @staticmethod
     def _move_utilized_commands(stack, utilized_commands, mutation_location):
+        """
+        Prepares a stack for fork mutation by moving
+        utilized commands that occur before/at the mutation_location
+        to the front of the stack, unutilized commands to the middle
+        of the stack, and utilized commands that occur after the
+        mutation_location to the end of the stack
+
+        Returns the prepared stack, an updated list of utilized commands,
+        a dictionary that shows how command indices changed/shifted during
+        the method, the new location of the mutated command, and
+        the beginning and ending indices of where the unutilized commands
+        occur in the stack
+        """
         indices = range(len(stack))
         before_mutation_location = []
         unutilized = []
@@ -319,10 +344,12 @@ class AGraphMutation(Mutation):
 
         final_tuples = before_mutation_location + unutilized + after_mutation_location
         new_stack, new_utilized_commands, new_indices = zip(*final_tuples)
-        index_shifts = dict(zip(new_indices, indices))
 
+        index_shifts = dict(zip(new_indices, indices))  # dictionary that shows how to translate old
+        # indices to new indices
         mutated_command_location = index_shifts[mutation_location]
-        index_shifts[mutation_location] = len(before_mutation_location) + len(unutilized) - 1
+        index_shifts[mutation_location] = len(before_mutation_location) + len(unutilized) - 1  # change
+        # the mutation location to be at the end of the unutilized commands
 
         return np.array(new_stack), list(new_utilized_commands), index_shifts, mutated_command_location, \
                [len(before_mutation_location), len(before_mutation_location) + len(unutilized) - 1]

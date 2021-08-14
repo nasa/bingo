@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from bingo.symbolic_regression.agraph.operator_definitions \
-    import VARIABLE, CONSTANT, COS, MULTIPLICATION, ADDITION, SIN, SUBTRACTION
+    import VARIABLE, CONSTANT, COS, MULTIPLICATION, ADDITION, SIN, SUBTRACTION, IS_TERMINAL_MAP
 from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression.agraph.component_generator \
@@ -396,8 +396,8 @@ def test_fork_mutation_many_unutilized_commands(
     print("parent:", parent)
     print("child:", child)
 
-    if fork_size == 3:
-        assert parent.get_complexity() < child.get_complexity() - 1
+    if fork_size == 3 or fork_size == 4:
+        assert parent.get_complexity() < child.get_complexity() - fork_size + 2
     else:
         assert parent.get_complexity() == child.get_complexity() - fork_size
     assert command_array_is_valid(child)

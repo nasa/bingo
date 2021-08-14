@@ -4,7 +4,7 @@ This module contains the implementation of mutation for acyclic graph
 individuals, which is composed of 4 possible mutation strategies: command
 mutation, node mutation, parameter mutation and pruning.
 """
-from operator import itemgetter
+from random import randint, randrange
 
 import numpy as np
 
@@ -269,83 +269,36 @@ class AGraphMutation(Mutation):
         original_mutation_location = mutation_location = np.random.choice(indices)
         stack = individual.mutable_command_array
 
-        new_stack, new_utilized_commands, index_shifts, mutated_command_location, new_mutation_location =\
+        new_stack, new_utilized_commands, index_shifts, mutated_command_location, unutilized_range =\
             self._move_utilized_commands(stack, utilized_commands, mutation_location)
         self._fix_indices(new_stack, new_utilized_commands, index_shifts)
 
-        new_stack = self._insert_fork(new_stack, new_mutation_location, mutated_command_location, fork_size)
+        new_stack = self._insert_fork(new_stack, fork_size, mutated_command_location, *unutilized_range)
         individual.command_array = new_stack
 
         self._last_mutation_location = original_mutation_location
         self._last_mutation_type = FORK_MUTATION
 
-    def _insert_fork(self, stack, mutation_location, mutated_command_location, fork_size):
-        """
-        Inserts a fork at the mutation location with
-        fork_size or less commands
-        """
-        # start with an arity 2 operator (to link the mutated command with another command)
-        # (starting with an arity 2 operator makes the fork_size - 1)
-        # generate operators until the fork_size reaches 3, 2, or 1
-        # where if fork_size = 3 -> ar2 operator, fork_size = 2 -> ar1 operator,
-        # fork_size = 1 -> terminal
-        insertion_index = mutation_location
+    def _insert_fork(self, stack, fork_size, mutated_command_location, start_i, end_i):
         try:
-            start_operator = self._get_arity_operator(2)
+            arity_2_op = self._get_arity_operator(2)
+            n_terminals = randint(1, fork_size // 2)
+
+            for i in range(start_i, start_i + fork_size):
+                if i < start_i + n_terminals:
+                    stack[i] = self._component_generator.random_terminal_command()
+                elif i == start_i + fork_size - 1:
+                    stack[end_i] = np.array([arity_2_op, mutated_command_location, randrange(start_i, i)], dtype=int)
+                else:
+                    stack[i] = np.array([self._component_generator.random_operator(), randrange(start_i, i), randrange(start_i, i)], dtype=int)
         except RuntimeError:
-            # case where we only have ar1 operators, different in that we have to
-            # keep adding ar1 operators above the forked command and then link
-            # to the forked command at the end of the chain unlike in the ar2
-            # case where we link to the forked command on the first new command
-            while fork_size > 1:
-                start_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1], dtype=int)
-                stack[insertion_index] = start_command
-                fork_size -= 1
-                insertion_index -= 1
-            final_command = np.array([self._get_arity_operator(1), mutated_command_location, mutated_command_location], dtype=int)
-            stack[insertion_index] = final_command
-            return stack
-
-        # add start arity 2 operator that links to mutated command
-        start_command = np.array([start_operator, mutated_command_location, insertion_index - 1], dtype=int)
-        stack[insertion_index] = start_command
-        fork_size -= 1
-        insertion_index -= 1
-
-        # randomly generate and insert operators until we get to a base case (fork_size <= 3)
-        while fork_size > 3:
-            new_operator = self._component_generator.random_operator()
-            if IS_ARITY_2_MAP[new_operator]:
-                new_operator_command = np.array([new_operator, insertion_index - 1, insertion_index - 2], dtype=int)
-            else:
-                new_operator_command = np.array([new_operator, insertion_index - 1, insertion_index - 1], dtype=int)
-            stack[insertion_index] = new_operator_command
-            fork_size -= 1
-            insertion_index -= 1
-
-        if fork_size == 3:
-            next_operator = self._component_generator.random_operator()
-            if IS_ARITY_2_MAP[next_operator]:
-                new_operator_command = np.array([self._get_arity_operator(2), insertion_index - 1, insertion_index - 2])
-                stack[insertion_index] = new_operator_command
-                stack[insertion_index - 1] = self._component_generator.random_terminal_command()
-                stack[insertion_index - 2] = self._component_generator.random_terminal_command()
-            else:
-                new_operator_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1])
-                stack[insertion_index] = new_operator_command
-                stack[insertion_index - 1] = self._component_generator.random_terminal_command()
-        elif fork_size == 2:
-            next_operator = self._component_generator.random_operator()
-            if IS_ARITY_2_MAP[next_operator]:  # since we can't accommodate for another ar2 operator
-                # (would generate more commands than the fork size), we just generate a terminal instead
-                stack[insertion_index] = self._component_generator.random_terminal_command()
-            else:
-                new_operator_command = np.array([self._get_arity_operator(1), insertion_index - 1, insertion_index - 1])
-                stack[insertion_index] = new_operator_command
-                stack[insertion_index - 1] = self._component_generator.random_terminal_command()
-        else:
-            stack[insertion_index] = self._component_generator.random_terminal_command()
-
+            for i in range(start_i, start_i + fork_size):
+                if i == start_i:
+                    stack[i] = np.array([self._component_generator.random_operator(), mutated_command_location, mutated_command_location], dtype=int)
+                elif i == start_i + fork_size - 1:
+                    stack[end_i] = np.array([self._component_generator.random_operator(), i - 1, i - 1], dtype=int)
+                else:
+                    stack[i] = np.array([self._component_generator.random_operator(), i - 1, i - 1], dtype=int)
         return stack
 
     @staticmethod
@@ -369,10 +322,10 @@ class AGraphMutation(Mutation):
         index_shifts = dict(zip(new_indices, indices))
 
         mutated_command_location = index_shifts[mutation_location]
-        new_mutation_location = len(before_mutation_location) + len(unutilized) - 1
-        index_shifts[mutation_location] = new_mutation_location
+        index_shifts[mutation_location] = len(before_mutation_location) + len(unutilized) - 1
 
-        return np.array(new_stack), list(new_utilized_commands), index_shifts, mutated_command_location, new_mutation_location
+        return np.array(new_stack), list(new_utilized_commands), index_shifts, mutated_command_location, \
+               [len(before_mutation_location), len(before_mutation_location) + len(unutilized) - 1]
 
     def _fix_indices(self, stack, utilized_commands, index_shifts):
         """

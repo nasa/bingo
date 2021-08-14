@@ -397,7 +397,7 @@ def test_fork_mutation_many_unutilized_commands(
     print("child:", child)
 
     if fork_size == 3 or fork_size == 4:
-        assert parent.get_complexity() < child.get_complexity() - fork_size + 2
+        assert parent.get_complexity() < child.get_complexity() - 1
     else:
         assert parent.get_complexity() == child.get_complexity() - fork_size
     assert command_array_is_valid(child)

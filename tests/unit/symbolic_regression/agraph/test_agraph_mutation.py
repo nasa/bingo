@@ -339,9 +339,9 @@ def command_array_is_valid(individual):
     return True
 
 
-@pytest.mark.parametrize("repeats", range(5))
-def test_fork_mutation(fork_agraph, fork_mutation, repeats):
-    # np.random.seed(10)
+@pytest.mark.parametrize("mutation_location", [1, 4, 5])
+def test_fork_mutation(mocker, fork_agraph, fork_mutation, mutation_location):
+    mocker.patch.object(np.random, "choice", return_value=mutation_location)
     parent = fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)

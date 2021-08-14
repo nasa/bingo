@@ -5,9 +5,10 @@ This module defines the basis of gradient and jacobian partial derivatives
 of fitness functions used in bingo evolutionary analyses.
 """
 from abc import ABCMeta, abstractmethod
-from .fitness_function import mean_absolute_error, mean_squared_error, root_mean_squared_error
-
 import numpy as np
+
+from .fitness_function \
+    import mean_absolute_error, mean_squared_error, root_mean_squared_error
 
 
 class GradientMixin(metaclass=ABCMeta):
@@ -38,7 +39,7 @@ class GradientMixin(metaclass=ABCMeta):
 
 
 class VectorGradientMixin(GradientMixin):
-    """Mixin for using gradients and jacobians for vector based fitness functions
+    """Mixin for using gradients and jacobians in vector based fitness functions
 
     An abstract base class/mixin used to implement the gradients and jacobians
     of vector based fitness functions.
@@ -57,13 +58,16 @@ class VectorGradientMixin(GradientMixin):
 
         if metric in ["mean absolute error", "mae"]:
             self._metric = mean_absolute_error
-            self._metric_derivative = VectorGradientMixin._mean_absolute_error_derivative
+            self._metric_derivative = \
+                VectorGradientMixin._mean_absolute_error_derivative
         elif metric in ["mean squared error", "mse"]:
             self._metric = mean_squared_error
-            self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
+            self._metric_derivative = \
+                VectorGradientMixin._mean_squared_error_derivative
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = root_mean_squared_error
-            self._metric_derivative = VectorGradientMixin._root_mean_squared_error_derivative
+            self._metric_derivative = \
+                VectorGradientMixin._root_mean_squared_error_derivative
         else:
             raise ValueError("Invalid metric for vector gradient mixin")
 
@@ -86,8 +90,10 @@ class VectorGradientMixin(GradientMixin):
             fitness of the individual and the gradient of this function
             with respect to the individual's constants
         """
-        fitness_vector, jacobian = self.get_fitness_vector_and_jacobian(individual)
-        return self._metric(fitness_vector), self._metric_derivative(fitness_vector, jacobian.transpose())
+        fitness_vector, jacobian = \
+            self.get_fitness_vector_and_jacobian(individual)
+        return self._metric(fitness_vector), \
+               self._metric_derivative(fitness_vector, jacobian.transpose())
 
     @abstractmethod
     def get_fitness_vector_and_jacobian(self, individual):
@@ -127,4 +133,5 @@ class VectorGradientMixin(GradientMixin):
 
     @staticmethod
     def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
-        return 1/np.sqrt(np.mean(np.square(fitness_vector))) * np.mean(fitness_vector * fitness_partials, axis=1)
+        return 1/np.sqrt(np.mean(np.square(fitness_vector))) \
+               * np.mean(fitness_vector * fitness_partials, axis=1)

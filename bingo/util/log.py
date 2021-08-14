@@ -40,17 +40,17 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
 
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
-    
+
     root_logger.handlers=[] # remove current handlers
 
     console_handler = _make_console_handler(level, module, timestamp)
     root_logger.addHandler(console_handler)
 
     if logfile is not None:
-        logfile_handler = _make_logfile_handler(logfile, level, module, 
+        logfile_handler = _make_logfile_handler(logfile, level, module,
                                                 timestamp)
         root_logger.addHandler(logfile_handler)
-    
+
     if stats_file is not None:
         stats_file_handler = _make_stats_file_handler(stats_file)
         root_logger.addHandler(stats_file_handler)

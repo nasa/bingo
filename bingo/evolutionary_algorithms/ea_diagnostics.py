@@ -37,6 +37,7 @@ class EaDiagnostics:
 
     @property
     def summary(self):
+        """Summary statistics of the diagnostic data"""
         return EaDiagnosticsSummary(
                 self._crossover_stats[1] / self._crossover_stats[0],
                 self._crossover_stats[2] / self._crossover_stats[0],

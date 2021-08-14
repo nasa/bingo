@@ -251,9 +251,9 @@ class AGraphMutation(Mutation):
         individual : `AGraph`
             individual to mutate on
         """
-
-        MAX_FORK_SIZE = 4  # NOTE (David Randall): Increasing past 4 should work
-        # but hasn't been tested
+        # NOTE (David Randall): Increasing past 4 should work but has not been
+        # tested
+        MAX_FORK_SIZE = 4
 
         utilized_commands = individual.get_utilized_commands()
         n_unutilized_commands = utilized_commands.count(False)
@@ -268,8 +268,8 @@ class AGraphMutation(Mutation):
         max_fork = min(n_unutilized_commands, MAX_FORK_SIZE)
         fork_size = np.random.randint(2, max_fork + 1)
 
-        indices = [n for n, x in enumerate(utilized_commands) if x]
-        mutation_location = np.random.choice(indices)
+        inds = [n for n, x in enumerate(utilized_commands) if x]
+        mutation_location = np.random.choice(inds)
         stack = individual.mutable_command_array
 
         new_stack, new_utilized_commands, index_shifts, \
@@ -416,8 +416,7 @@ class AGraphMutation(Mutation):
             indices_to_fix = \
                 indices[np.where(stack[non_terminals][:, i] >= indices)[0]]
             if len(indices_to_fix) > 0:
-                stack[:, i][indices_to_fix] = \
-                    np.vectorize(
+                stack[:, i][indices_to_fix] = np.vectorize(
                         self._component_generator.random_operator_parameter)(
                         indices_to_fix)
 
@@ -431,15 +430,15 @@ class AGraphMutation(Mutation):
         if arity == 1:
             while operator is None or IS_ARITY_2_MAP[operator]:
                 if attempts >= 100:
-                    raise RuntimeError(
-                        "Could not generate arity {} operator".format(arity))
+                    raise RuntimeError("Could not generate arity "
+                                       "{} operator".format(arity))
                 operator = self._component_generator.random_operator()
                 attempts += 1
         else:
             while operator is None or not IS_ARITY_2_MAP[operator]:
                 if attempts >= 100:
-                    raise RuntimeError(
-                        "Could not generate arity {} operator".format(arity))
+                    raise RuntimeError("Could not generate arity "
+                                       "{} operator".format(arity))
                 operator = self._component_generator.random_operator()
                 attempts += 1
         return operator

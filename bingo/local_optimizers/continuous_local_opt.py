@@ -8,7 +8,7 @@ to use the functionality.
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-import scipy.optimize as optimize
+from scipy import optimize
 
 from ..evaluation.fitness_function import FitnessFunction
 from ..evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
@@ -196,8 +196,8 @@ class ContinuousLocalOptimization(FitnessFunction):
                     and self._algorithm in JACOBIAN_SET:
                 optimize_result = optimize.root(
                         sub_routine, params,
-                        args=(individual),
-                        jac=lambda x, individual: self._fitness_function.get_fitness_vector_and_jacobian(individual)[1],
+                        args=(individual, ),
+                        jac=lambda x, indv: self._fitness_function.get_fitness_vector_and_jacobian(indv)[1],  # pylint: disable=line-too-long
                         method=self._algorithm,
                         tol=1e-6)
             else:
@@ -210,13 +210,13 @@ class ContinuousLocalOptimization(FitnessFunction):
                     and self._algorithm in JACOBIAN_SET:
                 optimize_result = optimize.minimize(
                         sub_routine, params,
-                        args=(individual),
-                        jac=lambda x, individual: self._fitness_function.get_fitness_and_gradient(individual)[1],
+                        args=(individual, ),
+                        jac=lambda x, indv: self._fitness_function.get_fitness_and_gradient(indv)[1],  # pylint: disable=line-too-long
                         method=self._algorithm,
                         tol=1e-6)
             else:
                 optimize_result = optimize.minimize(sub_routine, params,
-                                                    args=(individual),
+                                                    args=(individual, ),
                                                     method=self._algorithm,
                                                     tol=1e-6)
         return optimize_result.x

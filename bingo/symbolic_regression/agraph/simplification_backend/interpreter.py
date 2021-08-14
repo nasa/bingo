@@ -1,10 +1,29 @@
+"""
+This module contains encapsulates the ability to translate equations in the
+form of AGraphs (specified by a command array) to/from computer algebra system
+`Expressions` which are used in the simplification process.
+"""
+
 import numpy as np
 
-from ..operator_definitions import *
+from ..operator_definitions \
+    import IS_TERMINAL_MAP, IS_ARITY_2_MAP, CONSTANT, INTEGER, VARIABLE
 from .expression import Expression
 
 
 def build_cas_expression(agraph_stack):
+    """Translate a command array into computer algebra system (CAS) expression
+
+    Parameters
+    ----------
+    agraph_stack: AGraph command array
+        The command array that encodes an equation
+
+    Returns
+    -------
+        CAS Expression
+
+    """
     return _build_expresion_recursive(agraph_stack, len(agraph_stack) - 1)
 
 
@@ -25,6 +44,18 @@ def _build_expresion_recursive(stack, location):
 
 
 def build_agraph_stack(expression):
+    """Translate computer algebra system (CAS) expression into a command array
+
+    Parameters
+    ----------
+    agraph_stack: `Expression`
+        A computer algebra system expression
+
+    Returns
+    -------
+        A command array
+
+    """
     stack_dict = {}
     _build_stack_recursive(expression, stack_dict)
     stack = np.empty((len(stack_dict), 3), dtype=int)
@@ -88,4 +119,3 @@ def _add_associative_operators_to_stack(operator, operand_locs, stack_dict):
                                                 stack_dict)
     command = (operator, loc_1, loc_2)
     return _add_command_to_stack_dict(command, stack_dict)
-

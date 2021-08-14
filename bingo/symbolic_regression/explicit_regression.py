@@ -58,7 +58,9 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
 
     def get_fitness_vector_and_jacobian(self, individual):
         self.eval_count += 1
-        f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(self.training_data.x)
+        f_of_x, df_dc = \
+            individual.evaluate_equation_with_local_opt_gradient_at(
+                    self.training_data.x)
         error = f_of_x - self.training_data.y
         if not self._relative:
             return error.flatten(), df_dc
@@ -99,10 +101,12 @@ class ExplicitTrainingData(TrainingData):
 
     @property
     def x(self):
+        """independent x data"""
         return self._x
 
     @property
     def y(self):
+        """dependent y data"""
         return self._y
 
     def __getitem__(self, items):

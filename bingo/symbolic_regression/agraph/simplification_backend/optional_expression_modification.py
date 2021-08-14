@@ -1,4 +1,20 @@
-from ..operator_definitions import *
+"""
+Simplification operations that are not strictly necessary, but could be
+performed to maintain a specific cannonical structure.
+
+The module constants below control this behavior:
+
+INSERT_SUBTRACTION: Default True.
+    a + (-1)*b is converted to a - b
+
+REPLACE_INTEGER_POWERS: Default True.
+    a^5 is converted to (a*a)*(a*a)*a
+
+REPLACE_INTEGERS_WITH_CONSTANTS: Default False
+    x+x is simplified to 2*x and is converted to c*x
+"""
+from ..operator_definitions import INTEGER, CONSTANT, VARIABLE, ADDITION, \
+                                   MULTIPLICATION, SUBTRACTION, POWER
 from .expression import Expression
 
 INSERT_SUBTRACTION = True
@@ -10,6 +26,26 @@ SOME_BIG_INT = 1000000
 
 
 def optional_modifications(expression):
+    """Modification of expression using non-essential heuristics
+
+    INSERT_SUBTRACTION: Default on
+        a + (-1)*b is converted to a - b
+
+    REPLACE_INTEGER_POWERS: Default on
+        a^5 is converted to (a*a)*(a*a)*a
+
+    REPLACE_INTEGERS_WITH_CONSTANTS: Default off
+        x+x is simplified to 2*x and is converted to c*x
+
+    Parameters
+    ----------
+    expression: `Expression`
+        The expression to modify
+
+    Returns
+    -------
+        expression with designated simplifications made
+    """
     if INSERT_SUBTRACTION:
         expression = _insert_subtraction(expression)
     if REPLACE_INTEGER_POWERS:
@@ -88,5 +124,3 @@ def _replace_integers_with_constants(expression):
     operands_w_replaced = [_replace_integers_with_constants(operand)
                            for operand in expression.operands]
     return Expression(operator, operands_w_replaced)
-
-

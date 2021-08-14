@@ -53,6 +53,9 @@ def _sample_agraph_1(test_graph):  # sin(X_0 + 2.0) + 2.0
                                          [ADDITION, 0, 1],
                                          [SIN, 2, 2],
                                          [ADDITION, 0, 1],
+                                         [ADDITION, 0, 1],  # unused
+                                         [ADDITION, 0, 1],  # unused
+                                         [ADDITION, 0, 1],  # unused
                                          [ADDITION, 3, 1]], dtype=int)
     test_graph.genetic_age = 10
     _ = test_graph.needs_local_optimization()
@@ -67,6 +70,9 @@ def _sample_agraph_2(test_graph):  # sin((c_1-c_1)*X_1)
                                          [SUBTRACTION, 1, 1],
                                          [MULTIPLICATION, 0, 2],
                                          [ADDITION, 0, 1],
+                                         [ADDITION, 0, 1],  # unused
+                                         [ADDITION, 0, 1],  # unused
+                                         [ADDITION, 0, 1],  # unused
                                          [SIN, 3, 0]], dtype=int)
     test_graph.genetic_age = 20
     _ = test_graph.needs_local_optimization()

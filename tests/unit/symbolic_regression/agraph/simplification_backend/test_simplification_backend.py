@@ -13,7 +13,7 @@ try:
 except ImportError:
     cpp_simp_backend = None
 
-CPP_PARAM = pytest.param("Cpp",
+CPP_PARAM = pytest.param("c++",
                          marks=pytest.mark.skipif(not cpp_simp_backend,
                                                   reason='BingoCpp import '
                                                          'failure'))
@@ -58,7 +58,10 @@ def test_reduce_stack(simp_backend, sample_command_array):
     np.testing.assert_array_equal(reduction, expected_reduction)
 
 
-def test_simplification_1(simp_backend):
+def test_simplification_1(simp_backend, engine):
+    if engine == "c++":
+        pytest.xfail(reason="Simplification not yet implemented in c++")
+
     stack = np.array([[CONSTANT, -1, -1],
                       [MULTIPLICATION, 0, 0],
                       [ADDITION, 1, 0],
@@ -78,7 +81,10 @@ def test_simplification_1(simp_backend):
     np.testing.assert_array_equal(simp_stack, expected_simp)
 
 
-def test_simplification_2(simp_backend):
+def test_simplification_2(simp_backend, engine):
+    if engine == "c++":
+        pytest.xfail(reason="Simplification not yet implemented in c++")
+
     stack = np.array([[CONSTANT, -1, -1],
                       [VARIABLE, 0, 0],
                       [CONSTANT, -1, -1],
@@ -93,7 +99,10 @@ def test_simplification_2(simp_backend):
     np.testing.assert_array_equal(simp_stack, expected_simp)
 
 
-def test_simplification_3(simp_backend):
+def test_simplification_3(simp_backend, engine):
+    if engine == "c++":
+        pytest.xfail(reason="Simplification not yet implemented in c++")
+
     stack = np.array([[CONSTANT, -1, -1],
                       [VARIABLE, 0, 0],
                       [SUBTRACTION, 0, 0],

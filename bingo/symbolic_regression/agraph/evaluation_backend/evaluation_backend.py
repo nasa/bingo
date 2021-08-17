@@ -57,6 +57,7 @@ def evaluate(stack, x, constants):
         ctest = constants.get()
         gi.set_use_gpu(False)
         ftest = _forward_eval(stest, xtest, ctest)
+        print(constants.shape)
         print(f"num_particles: {num_particles}")
         print(f"constants: {ctest}")
         print(f"stack: {stest}")

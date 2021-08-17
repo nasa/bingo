@@ -57,7 +57,7 @@ def evaluate(stack, x, constants):
         ctest = constants.get()
         gi.set_use_gpu(False)
         ftest = _forward_eval(stest, xtest, ctest)
-        np.testing.assert_allclose(output, ftest[-1])
+        np.testing.assert_allclose(output.get(), ftest[-1])
         gi.set_use_gpu(True)
     else:
         forward_eval = _forward_eval(stack, x, constants)

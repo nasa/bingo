@@ -42,6 +42,7 @@ def evaluate(stack, x, constants):
         num_particles = 1
         if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]
+            print("entered")
         elif isinstance(constants, tuple):
             if len(constants) == 0:
                 constants = cp.asarray([[]])

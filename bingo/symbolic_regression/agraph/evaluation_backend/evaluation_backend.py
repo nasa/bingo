@@ -40,10 +40,8 @@ def evaluate(stack, x, constants):
 
     if gi.USING_GPU:
         num_particles = 1
-        print(hasattr(constants, 'shape'))
         if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]
-            print("entered")
         elif isinstance(constants, tuple):
             if len(constants) == 0:
                 constants = cp.asarray([[]])
@@ -54,19 +52,6 @@ def evaluate(stack, x, constants):
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)
         output = forward_eval[-1]
-
-        stest = stack.get()
-        xtest = x.get()
-        ctest = constants.get()
-        gi.set_use_gpu(False)
-        ftest = _forward_eval(stest, xtest, ctest)
-        print(constants.shape)
-        print(f"num_particles: {num_particles}")
-        print(f"constants: {ctest}")
-        print(f"stack: {stest}")
-        print(f"data: {xtest}")
-        np.testing.assert_allclose(output.get(), ftest[-1])
-        gi.set_use_gpu(True)
     else:
         forward_eval = _forward_eval(stack, x, constants)
         output = forward_eval[-1]

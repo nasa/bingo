@@ -40,8 +40,8 @@ def evaluate(stack, x, constants):
 
     if gi.USING_GPU:
         num_particles = 1
-        print(hasattr(constants, 'shape'))
-        if hasattr(constants, 'shape'):
+
+        if constants.shape is not None:
             num_particles = constants.shape[1]
             print("entered")
         elif isinstance(constants, tuple):

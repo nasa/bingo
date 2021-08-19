@@ -236,6 +236,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._update()
         try:
             command_array = self._simplified_command_array
+            if command_array == np.array([[1, 0, 0]]):
+                print(self._simplified_constants.shape)
+                print(self._simplified_constants)
 
             if gi.USING_GPU:
                 if not hasattr(self, '_simplified_command_array_gpu'):

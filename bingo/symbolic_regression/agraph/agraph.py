@@ -236,7 +236,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._update()
         try:
             command_array = self._simplified_command_array
-            if command_array == np.array([[1, 0, 0]]):
+            if np.allclose(command_array, np.array([[1, 0, 0]])):
                 print(self._simplified_constants.shape)
                 print(self._simplified_constants)
 
@@ -252,7 +252,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
             LOGGER.warning("%s in stack evaluation", err)
-            return np.full(x.shape, np.nan)
+            return gi.num_lib.full(x.shape, np.nan)
 
     def evaluate_equation_with_x_gradient_at(self, x):
         """Evaluate `AGraph` and get its derivatives.

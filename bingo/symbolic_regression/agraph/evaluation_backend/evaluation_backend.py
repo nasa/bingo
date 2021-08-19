@@ -48,9 +48,14 @@ def evaluate(stack, x, constants):
             else:
                 constants = cp.stack(constants, axis=0)
                 num_particles = constants.shape[1]
-        forward_eval = cp.ones((len(stack), x.shape[0], num_particles), dtype=np.double) * np.inf
+
+        num_data_points = x.shape[0]
+        if constants == cp.asarray([[1, 0, 0]]):
+            print("checked")
+            num_data_points = 1
+        forward_eval = cp.ones((len(stack), num_data_points, num_particles), dtype=np.double) * np.inf
         blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
-        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0], stack.shape[0], forward_eval)
+        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, num_data_points, stack.shape[0], forward_eval)
         output = forward_eval[-1]
     else:
         forward_eval = _forward_eval(stack, x, constants)

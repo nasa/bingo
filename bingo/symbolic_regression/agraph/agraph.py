@@ -236,6 +236,14 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._update()
         try:
             command_array = self._simplified_command_array
+            if command_array == np.array([[1, 0, 0]]):
+                print("entered at all")
+                use_gpu = gi.USING_GPU
+                gi.set_use_gpu(False)
+                f_of_x = evaluation_backend.evaluate(command_array, x, self._simplified_constants)
+                gi.set_use_gpu(use_gpu)
+                return f_of_x
+
             if gi.USING_GPU:
                 if not hasattr(self, '_simplified_command_array_gpu'):
                     self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)

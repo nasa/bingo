@@ -35,7 +35,7 @@ def evaluate(stack, x, constants):
         :math`f(x)`
     """
 
-    if False and gi.USING_GPU:
+    if gi.USING_GPU:
         forward_eval = gi.gpu_eval.f_eval_gpu_with_kernel(stack, x, constants)
     else:
         forward_eval = _forward_eval(stack, x, constants)

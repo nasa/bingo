@@ -101,7 +101,7 @@ if __name__ == '__main__':
         bingo_gi.set_use_parallel_cpu(True)
 
     # ISLAND PARAMS
-    POPULATION_SIZE = 128
+    POPULATION_SIZE = 256
 
     # AGRAPH PARAMS
     STACK_SIZE = 64

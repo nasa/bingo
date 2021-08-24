@@ -2,7 +2,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 import sys
-#import cupy as cp
+import cupy as cp
 
 from tqdm import tqdm
 

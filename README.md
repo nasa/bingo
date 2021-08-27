@@ -1,127 +1,57 @@
-![Bingo Logo](media/logo.png)
+GPU/CPU Acceleration of Bingo and SMCPy
+---------------------------------------
 
-master: [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=master)](https://travis-ci.com/nasa/bingo) [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=master)](https://coveralls.io/github/nasa/bingo?branch=master)
+Code is located in two repositories:
+* https://gitlab.larc.nasa.gov/bli6/bingo_gpu
+* https://gitlab.larc.nasa.gov/bli6/smc_gpu
 
-develop: [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=develop)](https://travis-ci.com/nasa/bingo) [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=develop)](https://coveralls.io/github/nasa/bingo?branch=develop) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9fe09cffafe64032962a82f7f1588e9f)](https://www.codacy.com/app/bingo_developers/bingo?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nasa/bingo&amp;utm_campaign=Badge_Grade)
+This project was aimed at speeding up Bingo and SMCPy using any means possible using GPU and CPU tools on the k-cluster. The `master` branch for both repos contains the code where both SMCPy and Bingo are on GPU. The `final-best-benchmarking` branch in SMCPy and the `current-best` branch in Bingo represent the fastest code throughout the project.
 
-## General
-Bingo is an open source package for performing symbolic regression, Though it 
-can be used as a general purpose evolutionary optimization package.  
+## Summary of Changes
+Within both the current best and `master` branches, SMCBingo code to run examples was placed inside the Bingo repository. The example used for basic development and testing of SMCBingo code is located at `examples/longer_example.py`.
 
-### Key Features
-  * Integrated local optimization strategies
-  * Parallel island evolution strategy implemented with mpi4py
-  * Coevolution of fitness predictors
-  
-### Note
-At this point, the API is still in a state of flux. The current release has a 
-much more stable API but still lacks some of the features of older releases.
+For the `master` branch, the goal was to put Bingo's evaluation code on GPU as well as any calls to SMCPy in SMCBingo, which involved putting the SMCSampler on the GPU. Data and the initial proposal are transferred onto GPU inside the BayesFitnessFunction in SMCBingo. All of SMCSampler performs the computation, and only the nmll value is transferred back to host. In the current best branches, the Bingo evaluation code and only the log-likelihood step in SMCPy are on GPU. This resulted in around a 30% speedup compared to vanilla SMCBingo, whereas the `master` branch code resulted in a slowdown.
 
-## Getting Started
+In addition to the GPU additions, it was also possible to implement CPU parallelization of individual evaluation at the GP level in Bingo. This resulted in a factor of 20 speedup, and is included in both branches. There were also small optimizations done through small sections of SMCPy, such as removing calls to Python's default `any` and `sum` functions, which helped speed things up.
 
-### Cloning with git
-The Bingo repository uses git submodules so make sure to clone all the
-submodules when cloning.  Git has an easy way to do this with:
-```shell
-git clone --recurse-submodules ...
+### Implementation Specifics
+#### Bingo
+* Bingo's evaluation was implemented by creating a custom kernel that bundles the entire evaluation. In doing so, we assume that the output dimensions are # of particles x # of data points. 
+* A `global_imports` file was created to manage GPU imports so that any machine can still run Bingo without a GPU or the GPU libraries installed.
+* The CPU parallelized evaluation does not update parameter values for each individual. This means that it cannot be used whenever such updates are necessary in the fitness computation.
+* Data transfer was done initially in the BayesFitnessFunction in SMCBingo, which is now included as a part of Bingo
+#### SMCPy
+* Similar to Bingo, contains a `global_imports` file to manage GPU libraries
+* GPU calls were implemented by replacing all NumPy calls with those of CuPy
+
+## Attempted Changes
+* Initially, Bingo's GPU evaluation was also implemented by replacing NumPy calls with CuPy. This was sucessfully implemented, but was found to be slower than using a custom kernel for the entire evaluation, likely due to synchronization issues.
+* Naively putting GPU evaluation alone on GPU resulted in relatively insignificant speedup when considering the data transfer of results back to host. This was the motivation for putting the log-likelihood step in SMCPy on GPU.
+
+## Profiling Tools
+#### NVIDIA Tools
+These tools are included with any of the Cuda modules available on K.
+* `nvprof` - command line function useful for producing GPU function summaries and visual profiler outputs.
 ```
-
-### Dependencies
-Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
-few dependencies which are relatively common for data science work in python:
-  - numpy
-  - scipy
-  - matplotlib
-  - mpi4py (if parallel implementations are to be run)
-  - pytest, pytest-mock (if the testing suite is to be run)
-  
-A `requirements.txt` file is included for easy installation of dependencies with 
-`pip` or `conda`.
-
-Installation with pip:
-```shell
-pip install -r requirements.txt
+==128290== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   16.07%  128.67ms     62812  2.0480us  1.9200us  13.344us  cupy_scan_naive
+                    6.46%  51.705ms     31439  1.6440us  1.5680us  12.768us  cupy_bsum_shfl
+                    6.11%  48.903ms     32384  1.5100us  1.4720us  2.7520us  [CUDA memcpy DtoH]
+                    6.06%  48.498ms     15313  3.1670us  1.6960us  12.416us  cupy_sum
+                    4.70%  37.661ms      7315  5.1480us  1.5680us  49.280us  cupy_any
+                    4.63%  37.102ms     24821  1.4940us  1.2160us  12.704us  cupy_copy__float64_float64
+                    4.24%  33.910ms     11161  3.0380us  1.2160us  44.096us  cupy_multiply__float64_float_float64
+                    4.13%  33.086ms      3503  9.4450us  2.2080us  38.560us  _f_eval_gpu_kernel
 ```
+* `nvvp` - opens up NVIDIA's visual profiler. Throughout the project, I used FastX on my local machine to open up the GUI using the installation on K. This is useful for identifying points of GPU usage, and potentially identifying where unexpected implicit data transfers occur.
+![nvvp](media/nvvp.png)
 
-Installation with conda:
-```shell
-conda install --yes --file requirements.txt
-```
+#### CPU Tools
+* `cProfile` - Python CPU profiling library, useful for generating call trees that illustrate where computation is taking place.
+![cprof](media/cprof.png)
+* QCacheGrind and `pyprof2calltree` - QCacheGrind is a GUI on Windows machines that views cProfile outputs. `pyprof2calltree` is a program that converts the output of cProfile into a readable format by QCacheGrind
 
-### BingoCpp
-A section of bingo is written in c++ for increased performance.  In order to 
-take advantage of this capability, the code must be compiled.  See the 
-documentation in the bingocpp submodule for more information.
-
-Note that bingo can be run without the bingocpp portion, it will just have lower 
-performance.
-
-If bingocpp has been properly installed, the following command should run 
-without error.
-```shell
-python -c "from bingocpp"
-```
-
-A common error in the installation of bingocpp is that it must be built with 
-the same version of python that will run your bingo scripts.  The easiest way 
-to ensure consistent python versioning is to build and run in a Python 3 
-virtual environment.
-
-### Documentation
-Sphynx is used for automatically generating API documentation for bingo. The 
-most recent build of the documentation can be found in the repository at: 
-`doc/_build/html/index.html`
-
-
-## Running Tests
-An extensive unit test suite is included with bingo to help ensure proper 
-installation. The tests can be run using pytest on the tests directory, e.g., 
-by running:
-```shell
-python -m pytest tests 
-```
-from the root directory of the repository.
-
-## Usage Examples
-The best place to get started in bingo is by going through the jupyter notebook
-tutorials in the [examples directory](examples/). They step through several of
-the most important aspects of running bingo with detailed explanations at each
-step.  The [examples directory](examples/) also contains several python scripts
-which may act as a good base when starting to write your own custom bingo
-scripts.
-
-
-## Contributing
-1. Fork it (<https://github.com/nasa/bingo/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
-
-
-## Versioning
-We use [SemVer](http://semver.org/) for versioning. For the versions available, 
-see the [tags on this repository](https://github.com/nasa/bingo/tags). 
-
-## Authors
-  * Geoffrey Bomarito
-  * Tyler Townsend
-  * Ethan Adams
-  * Kathryn Esham
-  * Diana Vera
-  
-## License 
-Copyright 2018 United States Government as represented by the Administrator of 
-the National Aeronautics and Space Administration. No copyright is claimed in 
-the United States under Title 17, U.S. Code. All Other Rights Reserved.
-
-The Bingo Mini-app framework is licensed under the Apache License, Version 2.0 
-(the "License"); you may not use this application except in compliance with the 
-License. You may obtain a copy of the License at 
-http://www.apache.org/licenses/LICENSE-2.0 .
-
-Unless required by applicable law or agreed to in writing, software distributed 
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
-CONDITIONS OF ANY KIND, either express or implied. See the License for the 
-specific language governing permissions and limitations under the License.
- 
+## Notes for the Future
+* Developing in three different repositories was somewhat cumbersome, it may have been best to create an overhead repository with all three (Bingo, SMCPy, SMCBingo) at the very beginning to better organize the code.
+* Even with using the GPU flags provided by the code, if the user wants to use GPU, they must explicitly `import cupy` in their main function. Not doing this results in a CUDADriverError on the K-cluster.

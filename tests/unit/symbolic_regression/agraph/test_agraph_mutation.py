@@ -8,7 +8,8 @@ import numpy as np
 import pytest
 
 from bingo.symbolic_regression.agraph.operator_definitions \
-    import VARIABLE, CONSTANT, COS, MULTIPLICATION, ADDITION, SIN, SUBTRACTION, IS_TERMINAL_MAP
+    import VARIABLE, CONSTANT, COS, MULTIPLICATION, ADDITION, SIN, \
+    SUBTRACTION, IS_TERMINAL_MAP
 from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression.agraph.component_generator \
@@ -339,9 +340,9 @@ def command_array_is_valid(individual):
     return True
 
 
-@pytest.mark.parametrize("repeats", range(5))
-def test_fork_mutation(fork_agraph, fork_mutation, repeats):
-    # np.random.seed(10)
+@pytest.mark.parametrize("mutation_location", [1, 4, 5])
+def test_fork_mutation(mocker, fork_agraph, fork_mutation, mutation_location):
+    mocker.patch.object(np.random, "choice", return_value=mutation_location)
     parent = fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
@@ -352,7 +353,8 @@ def test_fork_mutation(fork_agraph, fork_mutation, repeats):
 
 
 @pytest.mark.parametrize("mutation_location", [1, 3, 4])
-def test_fork_mutation_spaced_util_commands(mocker, spaced_fork_agraph, fork_mutation, mutation_location):
+def test_fork_mutation_spaced_util_commands(mocker, spaced_fork_agraph,
+                                            fork_mutation, mutation_location):
     mocker.patch.object(np.random, "choice", return_value=mutation_location)
     parent = spaced_fork_agraph
     child = fork_mutation(parent)
@@ -363,13 +365,15 @@ def test_fork_mutation_spaced_util_commands(mocker, spaced_fork_agraph, fork_mut
     assert command_array_is_valid(child)
 
 
-def test_fork_mutation_not_enough_unutilized_commands(not_enough_unutil_fork_agraph, fork_mutation):
+def test_fork_mutation_not_enough_unutilized_commands(
+        not_enough_unutil_fork_agraph, fork_mutation):
     parent = not_enough_unutil_fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
     print("child:", child)
 
-    np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array, child.command_array)
+    np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array,
+                                  child.command_array)
 
 
 class MockedRandInt:
@@ -383,21 +387,23 @@ class MockedRandInt:
             return self.first_value
         else:
             self.call_count += 1
-            return randrange(low, high)  # using randrange to avoid infinite recursion
+            return randrange(low, high)
+            # using randrange to avoid infinite recursion
             # when mocking np.random.randint
 
 
 @pytest.mark.parametrize("fork_size", [2, 3, 4])
 def test_fork_mutation_many_unutilized_commands(
         mocker, many_unutil_fork_agraph, fork_mutation, fork_size):
-    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
+    mocker.patch.object(np.random, "randint",
+                        side_effect=MockedRandInt(fork_size).get_next)
     parent = many_unutil_fork_agraph
     child = fork_mutation(parent)
     print("parent:", parent)
     print("child:", child)
 
     if fork_size == 3 or fork_size == 4:
-        assert parent.get_complexity() < child.get_complexity() - fork_size + 2
+        assert parent.get_complexity() < child.get_complexity() - 1
     else:
         assert parent.get_complexity() == child.get_complexity() - fork_size
     assert command_array_is_valid(child)
@@ -405,7 +411,8 @@ def test_fork_mutation_many_unutilized_commands(
 
 @pytest.mark.parametrize("mutation_location", [0, 2])
 def test_fork_mutation_unutil_after_mutation_location(
-        mocker, unutil_after_mutation_location_agraph, fork_mutation, mutation_location):
+        mocker, unutil_after_mutation_location_agraph, fork_mutation,
+        mutation_location):
     mocker.patch.object(np.random, "choice", return_value=mutation_location)
     parent = unutil_after_mutation_location_agraph
     child = fork_mutation(parent)
@@ -431,7 +438,8 @@ def test_fork_mutation_arity_one_operator_linked_to_unutilized_command(
 def test_fork_mutation_unused_op_invalid_after_mutation(
         mocker, unused_op_invalid_after_fork_mutation_agraph, fork_mutation):
     mocker.patch.object(np.random, "choice", return_value=0)
-    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(2).get_next)
+    mocker.patch.object(np.random, "randint",
+                        side_effect=MockedRandInt(2).get_next)
 
     parent = unused_op_invalid_after_fork_mutation_agraph
     child = fork_mutation(parent)
@@ -444,7 +452,8 @@ def test_fork_mutation_unused_op_invalid_after_mutation(
 
 @pytest.mark.timeout(1)
 @pytest.mark.parametrize("fork_size", [2, 3, 4])
-def test_fork_mutation_generator_has_no_ar1_op(mocker, many_unutil_fork_agraph, fork_size):
+def test_fork_mutation_generator_has_no_ar1_op(mocker, many_unutil_fork_agraph,
+                                               fork_size):
     generator = ComponentGenerator(input_x_dimension=2,
                                    num_initial_load_statements=2,
                                    terminal_probability=0.4,
@@ -458,7 +467,8 @@ def test_fork_mutation_generator_has_no_ar1_op(mocker, many_unutil_fork_agraph, 
                               prune_probability=0.0,
                               fork_probability=1.0)
 
-    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
+    mocker.patch.object(np.random, "randint",
+                        side_effect=MockedRandInt(fork_size).get_next)
     parent = many_unutil_fork_agraph
     child = mutation(parent)
     print("parent:", parent)
@@ -470,7 +480,8 @@ def test_fork_mutation_generator_has_no_ar1_op(mocker, many_unutil_fork_agraph, 
 
 @pytest.mark.timeout(1)
 @pytest.mark.parametrize("fork_size", [2, 3, 4])
-def test_fork_mutation_generator_has_no_ar2_op(mocker, many_unutil_fork_agraph, fork_size):
+def test_fork_mutation_generator_has_no_ar2_op(mocker, many_unutil_fork_agraph,
+                                               fork_size):
     generator = ComponentGenerator(input_x_dimension=2,
                                    num_initial_load_statements=2,
                                    terminal_probability=0.4,
@@ -484,7 +495,8 @@ def test_fork_mutation_generator_has_no_ar2_op(mocker, many_unutil_fork_agraph, 
                               prune_probability=0.0,
                               fork_probability=1.0)
 
-    mocker.patch.object(np.random, "randint", side_effect=MockedRandInt(fork_size).get_next)
+    mocker.patch.object(np.random, "randint",
+                        side_effect=MockedRandInt(fork_size).get_next)
     parent = many_unutil_fork_agraph
     child = mutation(parent)
 

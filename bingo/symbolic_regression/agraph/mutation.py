@@ -4,12 +4,12 @@ This module contains the implementation of mutation for acyclic graph
 individuals, which is composed of 4 possible mutation strategies: command
 mutation, node mutation, parameter mutation and pruning.
 """
-from operator import itemgetter
+from random import randint, randrange
 
 import numpy as np
 
 from .operator_definitions import IS_ARITY_2_MAP, IS_TERMINAL_MAP, \
-                                  CONSTANT, VARIABLE, INTEGER
+    CONSTANT, VARIABLE, INTEGER
 from ...chromosomes.mutation import Mutation
 from ...util.argument_validation import argument_validation
 from ...util.probability_mass_function import ProbabilityMassFunction
@@ -267,194 +267,125 @@ class AGraphMutation(Mutation):
         fork_size = np.random.randint(2, max_fork + 1)
 
         inds = [n for n, x in enumerate(utilized_commands) if x]
-        original_mutation_location = mutation_location = np.random.choice(inds)
+        mutation_location = np.random.choice(inds)
         stack = individual.mutable_command_array
 
-        new_stack, mutation_location, utilized_commands, first_index_shifts = \
-            self._move_unutilized_to_front(stack, utilized_commands,
-                                           mutation_location)
-        new_stack, new_mutation_location, utilized_commands, second_index_shifts =\
-            self._move_utilized_to_front(new_stack, utilized_commands,
+        new_stack, new_utilized_commands, index_shifts, \
+        mutated_command_location, unutilized_range = \
+            self._move_utilized_commands(stack, utilized_commands,
                                          mutation_location)
-        combined_index_shifts =\
-            dict(zip(first_index_shifts.keys(),
-                     itemgetter(*first_index_shifts.values())(second_index_shifts)))
-        # combine index shift dictionaries such that we get the shifts
-        # from the original indices to where they are now
-        self._fix_indices(new_stack, utilized_commands, combined_index_shifts)
+        self._fix_indices(new_stack, new_utilized_commands, index_shifts)
 
-        new_stack = self._insert_fork(new_stack, mutation_location,
-                                      new_mutation_location, fork_size)
+        new_stack = self._insert_fork(new_stack, fork_size,
+                                      mutated_command_location,
+                                      *unutilized_range)
         individual.mutable_command_array[:] = new_stack
 
-        self._last_mutation_location = original_mutation_location
+        self._last_mutation_location = mutation_location
         self._last_mutation_type = FORK_MUTATION
 
-    def _move_unutilized_to_front(self, stack, utilized_commands,
-                                  mutation_location):
+    def _insert_fork(self, stack, fork_size, mutated_command_location, start_i,
+                     end_i):
         """
-        Moves all unutilized commands to the front/start of the
-        command stack and all utilized commands to the end/back
-        of the command stack, preserving the relative order
-        among the unutilized and utilized commands
+        Inserts commands/a fork of size fork_size in the stack's
+        unutilized command section
+
+        start_i and end_i represent the starting and ending indices
+        of the stack's unutilized command section
         """
-        new_stack, new_utilized_commands, index_shifts = \
-            self._move_utilized_commands(stack,
-                                         utilized_commands,
-                                         to_front=True)
-        new_mutation_location = index_shifts[mutation_location]
-        return new_stack, new_mutation_location, new_utilized_commands, \
-               index_shifts
+        try:  # normal case
+            arity_2_op = self._get_arity_operator(2)
+            n_terminals = randint(1, fork_size // 2)
 
-    def _move_utilized_to_front(self, stack, utilized_commands,
-                                mutation_location):
-        """
-        Move the mutated command and any commands that rely on it
-        to the front/start of the command stack
-        """
-        new_stack, new_utilized_commands, index_shifts =\
-            self._move_utilized_commands(
-                    stack[:mutation_location + 1],
-                    utilized_commands[:mutation_location + 1], to_front=False)
-        new_mutation_location = index_shifts[mutation_location]
-        new_stack = np.vstack((new_stack, stack[mutation_location + 1:]))
-        new_utilized_commands.extend(utilized_commands[mutation_location + 1:])
-
-        # update index shifts with the indices that didn't change
-        no_change_indices = dict(zip(range(len(stack))[mutation_location:],
-                                     range(len(stack))[mutation_location:]))
-        index_shifts.update(no_change_indices)
-
-        return new_stack, new_mutation_location, new_utilized_commands, \
-               index_shifts
-
-    def _insert_fork(self, stack, mutation_location, new_mutation_location,
-                     fork_size):
-        """
-        Inserts a fork at the mutation location with
-        fork_size or less commands
-        """
-        # start with an arity 2 operator (to link the mutated command with
-        # another command)
-        # (starting with an arity 2 operator makes the fork_size - 1)
-        # generate operators until the fork_size reaches 3, 2, or 1
-        # where if fork_size = 3 -> ar2 operator, fork_size = 2 -> ar1 operator,
-        # fork_size = 1 -> terminal
-        insertion_index = mutation_location
-        try:
-            start_operator = self._get_arity_operator(2)
-        except RuntimeError:
-            # case where we only have ar1 operators, different in that we have
-            # to keep adding ar1 operators above the forked command and then
-            # link to the forked command at the end of the chain unlike in the
-            # ar2 case where we link to the forked command on the first new
-            # command
-            while fork_size > 1:
-                start_command = np.array([self._get_arity_operator(1),
-                                          insertion_index - 1,
-                                          insertion_index - 1], dtype=int)
-                stack[insertion_index] = start_command
-                fork_size -= 1
-                insertion_index -= 1
-            final_command = np.array([self._get_arity_operator(1),
-                                      new_mutation_location,
-                                      new_mutation_location], dtype=int)
-            stack[insertion_index] = final_command
-            return stack
-
-        # add start arity 2 operator that links to mutated command
-        start_command = np.array([start_operator, new_mutation_location,
-                                  insertion_index - 1], dtype=int)
-        stack[insertion_index] = start_command
-        fork_size -= 1
-        insertion_index -= 1
-
-        # randomly generate and insert operators until we get to a base case
-        # (fork_size <= 3)
-        while fork_size > 3:
-            new_operator = self._component_generator.random_operator()
-            if IS_ARITY_2_MAP[new_operator]:
-                new_operator_command = np.array([new_operator,
-                                                 insertion_index - 1,
-                                                 insertion_index - 2],
-                                                dtype=int)
-            else:
-                new_operator_command = np.array([new_operator,
-                                                 insertion_index - 1,
-                                                 insertion_index - 1],
-                                                dtype=int)
-            stack[insertion_index] = new_operator_command
-            fork_size -= 1
-            insertion_index -= 1
-
-        if fork_size == 3:
-            next_operator = self._component_generator.random_operator()
-            if IS_ARITY_2_MAP[next_operator]:
-                new_operator_command = np.array([self._get_arity_operator(2),
-                                                 insertion_index - 1,
-                                                 insertion_index - 2])
-                stack[insertion_index] = new_operator_command
-                stack[insertion_index - 1] = \
-                    self._component_generator.random_terminal_command()
-                stack[insertion_index - 2] = \
-                    self._component_generator.random_terminal_command()
-            else:
-                new_operator_command = np.array([self._get_arity_operator(1),
-                                                 insertion_index - 1,
-                                                 insertion_index - 1])
-                stack[insertion_index] = new_operator_command
-                stack[insertion_index - 1] = \
-                    self._component_generator.random_terminal_command()
-        elif fork_size == 2:
-            next_operator = self._component_generator.random_operator()
-            # since we can't accommodate for another ar2 operator
-            if IS_ARITY_2_MAP[next_operator]:
-                # (would generate more commands than the fork size),
-                # we just generate a terminal instead
-                stack[insertion_index] = \
-                    self._component_generator.random_terminal_command()
-            else:
-                new_operator_command = np.array([self._get_arity_operator(1),
-                                                 insertion_index - 1,
-                                                 insertion_index - 1])
-                stack[insertion_index] = new_operator_command
-                stack[insertion_index - 1] = \
-                    self._component_generator.random_terminal_command()
-        else:
-            stack[insertion_index] = \
-                self._component_generator.random_terminal_command()
-
+            for i in range(start_i, start_i + fork_size):
+                if i < start_i + n_terminals:
+                    stack[i] = \
+                        self._component_generator.random_terminal_command()
+                    # insert terminals
+                elif i == start_i + fork_size - 1:
+                    # make sure end of the stack is always a utilized command
+                    stack[end_i] = \
+                        np.array([arity_2_op, mutated_command_location,
+                                  randrange(start_i, i)], dtype=int)
+                    # insert an arity 2 operator that
+                    # links to the mutated_command
+                else:
+                    stack[i] = \
+                        np.array([self._component_generator.random_operator(),
+                                  randrange(start_i, i), randrange(start_i, i)],
+                                 dtype=int)
+                    # insert a random operator that connects
+                    # to previously generated commands in the fork
+        except RuntimeError:  # case where we only have ar1 ops
+            for i in range(start_i, start_i + fork_size):
+                if i == start_i:
+                    stack[i] = \
+                        np.array([self._component_generator.random_operator(),
+                                  mutated_command_location,
+                                  mutated_command_location],
+                                 dtype=int)
+                    # insert a random operator that links to the mutated command
+                elif i == start_i + fork_size - 1:
+                    # make sure end of the stack is always a utilized command
+                    stack[end_i] = \
+                        np.array([self._component_generator.random_operator(),
+                                  i - 1,
+                                  i - 1], dtype=int)
+                else:
+                    stack[i] = \
+                        np.array([self._component_generator.random_operator(),
+                                  i - 1,
+                                  i - 1], dtype=int)
+                    # insert a random operator that connects
+                    # to the previous command in the fork
         return stack
 
     @staticmethod
-    def _move_utilized_commands(stack, utilized_commands, to_front=True):
+    def _move_utilized_commands(stack, utilized_commands, mutation_location):
         """
-        Helper function to move utilized commands to front/start
-        or back/end of stack
+        Prepares a stack for fork mutation by moving
+        utilized commands that occur before/at the mutation_location
+        to the front of the stack, unutilized commands to the middle
+        of the stack, and utilized commands that occur after the
+        mutation_location to the end of the stack
 
-        Returns the stack after the commands have been moved along
-        with an updated list of utilized commands
-        and a dictionary to keep track of how indices have changes
+        Returns the prepared stack, an updated list of utilized commands,
+        a dictionary that shows how command indices changed/shifted during
+        the method, the new location of the mutated command, and
+        the beginning and ending indices of where the unutilized commands
+        occur in the stack
         """
         indices = range(len(stack))
-        new_tuples = []
-        counter = 0
-        for stack_util_index_tuple in zip(stack, utilized_commands, indices):
-            if to_front:
-                if stack_util_index_tuple[1]:  # if utilized
-                    new_tuples.append(stack_util_index_tuple)
+        before_mutation_location = []
+        unutilized = []
+        after_mutation_location = []
+
+        for i, stack_util_index_tuple in \
+                enumerate(zip(stack, utilized_commands, indices)):
+            if stack_util_index_tuple[1]:  # if utilized
+                if i <= mutation_location:
+                    before_mutation_location.append(stack_util_index_tuple)
                 else:
-                    new_tuples.insert(counter, stack_util_index_tuple)
-                    counter += 1
+                    after_mutation_location.append(stack_util_index_tuple)
             else:
-                if not stack_util_index_tuple[1]:  # if not utilized
-                    new_tuples.append(stack_util_index_tuple)
-                else:
-                    new_tuples.insert(counter, stack_util_index_tuple)
-                    counter += 1
-        new_stack, new_utilized_commands, new_indices = zip(*new_tuples)
-        index_shifts = dict(zip(new_indices, indices))
-        return np.array(new_stack), list(new_utilized_commands), index_shifts
+                unutilized.append(stack_util_index_tuple)
+
+        final_tuples = before_mutation_location + unutilized + \
+                       after_mutation_location
+        new_stack, new_utilized_commands, new_indices = zip(*final_tuples)
+
+        index_shifts = dict(zip(new_indices, indices))  # dictionary that shows
+        # how to translate old indices to new indices
+        mutated_command_location = index_shifts[mutation_location]
+        index_shifts[mutation_location] = \
+            len(before_mutation_location) + len(unutilized) - 1
+        # change the mutation location
+        # to be at the end of the unutilized commands
+
+        return np.array(new_stack), list(new_utilized_commands), \
+               index_shifts, mutated_command_location, \
+               [len(before_mutation_location),
+                len(before_mutation_location) + len(unutilized) - 1]
 
     def _fix_indices(self, stack, utilized_commands, index_shifts):
         """
@@ -464,8 +395,8 @@ class AGraphMutation(Mutation):
         """
         non_terminals = ~np.vectorize(IS_TERMINAL_MAP.get)(stack[:, 0])
         utilized_operators = np.logical_and(non_terminals, utilized_commands)
-        index_shifts = dict(sorted(index_shifts.items(),
-                                   key=lambda pair: pair[0]))
+        index_shifts = \
+            dict(sorted(index_shifts.items(), key=lambda pair: pair[0]))
         index_values = np.array(list(index_shifts.values()))
         # convert index_shifts to an array corresponding to how each index
         # has changed e.g. [0, 2, 1] means that index 0 stayed the same
@@ -480,8 +411,8 @@ class AGraphMutation(Mutation):
         # by generating new ones
         indices = np.array(range(len(stack)))[non_terminals]
         for i in range(1, 3):
-            indices_to_fix = indices[np.where(
-                    stack[non_terminals][:, i] >= indices)[0]]
+            indices_to_fix = \
+                indices[np.where(stack[non_terminals][:, i] >= indices)[0]]
             if len(indices_to_fix) > 0:
                 stack[:, i][indices_to_fix] = np.vectorize(
                         self._component_generator.random_operator_parameter)(

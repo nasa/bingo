@@ -8,7 +8,10 @@ LATEX_PRINT_MAP : dict {int: str}
 CONSOLE_PRINT_MAP : dict {int: str}
                   A map of node number to a format string for console output
 """
-from .operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions \
+    import INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION, MULTIPLICATION, \
+           DIVISION, SIN, COS, SINH, COSH, EXPONENTIAL, LOGARITHM, POWER, ABS, \
+           SQRT, SAFE_POWER
 
 STACK_PRINT_MAP = {ADDITION: "({}) + ({})",
                    SUBTRACTION: "({}) - ({})",

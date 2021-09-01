@@ -100,8 +100,8 @@ class SerialArchipelago(Archipelago):
         return sum(all_diagnostics)
 
     @staticmethod
-    def _generate_islands(isl, num_islands):
-        island_list = [copy.deepcopy(isl)
+    def _generate_islands(island, num_islands):
+        island_list = [copy.deepcopy(island)
                        for _ in range(num_islands)]
         for isl in island_list:
             isl.regenerate_population()

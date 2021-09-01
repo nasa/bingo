@@ -101,6 +101,7 @@ class FitnessPredictorIsland(Island):
         self._predictor_population_size = predictor_population_size
         self._predictor_size = int(predictor_size_ratio * self._full_data_size)
         self._predictor_update_frequency = predictor_update_frequency
+        # pylint: disable=C0103
         self._target_predictor_computation_ratio = predictor_computation_ratio
 
         self._trainer_population_size = trainer_population_size
@@ -114,6 +115,7 @@ class FitnessPredictorIsland(Island):
 
     @property
     def hall_of_fame(self):
+        """The hall of fame object which is updated during evolution"""
         return self._hof_w_true_fitness
 
     @hall_of_fame.setter
@@ -122,7 +124,7 @@ class FitnessPredictorIsland(Island):
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
 
     def _execute_generational_step(self):
-        LOGGER.debug("I> " + str(self.generational_age + 1))
+        LOGGER.debug("I> %d", self.generational_age + 1)
         super()._execute_generational_step()
 
         self._step_predictor_island_to_maintain_ratio()
@@ -159,8 +161,7 @@ class FitnessPredictorIsland(Island):
     def _step_predictor_island_to_maintain_ratio(self):
         while (self._get_predictor_computation_ratio()
                < self._target_predictor_computation_ratio):
-            LOGGER.debug("P> " +
-                         str(self._predictor_island.generational_age + 1))
+            LOGGER.debug("P> %d", self._predictor_island.generational_age + 1)
             self._predictor_island.evolve(1, suppress_logging=True)
 
     def _update_predictor_if_needed(self):

@@ -15,7 +15,7 @@ from bingo.evolutionary_optimizers.island import Island
 from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
 from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
-from bingo.evaluation.fitness_function import FitnessFunction
+# from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evolutionary_optimizers.parallel_archipelago \
     import ParallelArchipelago, load_parallel_archipelago_from_file
 
@@ -30,7 +30,11 @@ COMM_RANK = COMM.Get_rank()
 COMM_SIZE = COMM.Get_size()
 
 
-class MultipleValueFitnessFunction(FitnessFunction):
+class MultipleValueFitnessFunction():
+    def __init__(self, training_data=None):
+        self.eval_count = 0
+        self.training_data = training_data
+
     def __call__(self, individual):
         fitness = np.count_nonzero(individual.values)
         self.eval_count += 1

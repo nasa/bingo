@@ -1,11 +1,31 @@
+"""
+Simplification code for reducing the number of constants in a mathematical
+expression
+"""
+
 from collections import defaultdict
 from itertools import combinations
 
-from ..operator_definitions import *
+from ..operator_definitions \
+    import CONSTANT, INTEGER, VARIABLE, MULTIPLICATION, ADDITION
 from .expression import Expression
 
 
 def fold_constants(expression):
+    """
+    The goal of this function is to combine the constants (and derivative
+    functions from only constant values) in an expression into as few constants
+    as possible.
+
+    Parameters
+    ----------
+    expression: `Expression`
+        The expression in which the constants will be folded
+
+    Returns
+    -------
+        A new expression containing potentially fewer constants
+    """
     expression = _group_constants(expression)
 
     check_for_folding = True
@@ -87,8 +107,8 @@ def _get_constants(expression):
 
 def _subsets(constants):
     for i in range(1, len(constants) + 1):
-        for c in combinations(constants, i):
-            yield set(c)
+        for comb in combinations(constants, i):
+            yield set(comb)
 
 
 def _find_insertion_points(expression, constants):
@@ -122,7 +142,7 @@ def _recursive_insertion_point_search(expression, constants, insertion_points,
                        if len(operand.depends_on - constants - {"i"}) == 0])
         insertion_points[expression].add((expression, constant_operands))
 
-    return False
+    return
 
 
 def _is_insertion_point_for_constants(expression, constants):

@@ -1,3 +1,7 @@
+# Ignoring some linting rules in tests
+# pylint: disable=missing-docstring
+# pylint: disable=redefined-outer-name
+
 import pytest
 
 from bingo.symbolic_regression.agraph.operator_definitions import *

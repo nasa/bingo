@@ -18,7 +18,7 @@ from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
-from performance_benchmarks import StatsPrinter
+from benchmark_data import StatsPrinter
 
 
 POP_SIZE = 128

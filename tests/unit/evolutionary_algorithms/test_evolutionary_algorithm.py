@@ -1,5 +1,6 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
+# pylint: disable=redefined-outer-name
 from bingo.evolutionary_algorithms.evolutionary_algorithm \
     import EvolutionaryAlgorithm
 
@@ -23,6 +24,7 @@ def test_all_phases_occur_in_ea(mocker):
     mocked_selection.assert_called_once()
 
     assert mocked_variation.call_args[0][0] == dummy_population
-    assert mocked_evaluation.call_args[0][0] == dummy_offspring
+    assert mocked_evaluation.call_args[0][0] \
+           == dummy_offspring + dummy_population
     assert mocked_selection.call_args[0][0] == dummy_offspring
     assert new_pop == dummy_next_gen

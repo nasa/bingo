@@ -123,3 +123,20 @@ def test_default_string_is_console_string(addition_agraph):
 
 def test_can_pickle(addition_agraph):
     _ = dill.loads(dill.dumps(addition_agraph))
+
+
+def test_can_get_and_set_fitness(addition_agraph):
+    addition_agraph.fitness = 0.5
+    assert addition_agraph.fitness == 0.5
+
+
+def test_can_get_and_set_fit_set(addition_agraph):
+    addition_agraph.fit_set = True
+    assert addition_agraph.fit_set is True
+    addition_agraph.fit_set = False
+    assert addition_agraph.fit_set is False
+
+
+def test_can_get_and_set_genetic_age(addition_agraph):
+    addition_agraph.genetic_age = 10
+    assert addition_agraph.genetic_age == 10

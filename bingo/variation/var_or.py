@@ -1,6 +1,5 @@
 """variation where crossover, mutation, or replication may occur
 
-
 var_or.py allows for definition of a variation by crossover, replication, and
 mutation probabilities. Offspring may be the result of either crossover,
 replication :or: mutation, hence the name. Only one may occur at a time.
@@ -20,24 +19,25 @@ class VarOr(Variation):
     Parameters
     ----------
     crossover : Crossover
-                Crossover function class used in variation
+        Crossover function class used in variation
     mutation : Mutation
-               Mutation function class used in variation
+        Mutation function class used in variation
     crossover_probability : float
-                            Probability that crossover will occur on an
-                            individual
+        Probability that crossover will occur on an individual
     mutation_probability : float
-                           Probability that mutation will occur on an
-                           individual
+        Probability that mutation will occur on an individual
 
     Attributes
     ----------
     crossover_offspring : array of bool
-                          list indicating whether the corresponding member of
-                          the last offspring was a result of crossover
+        list indicating whether the corresponding member of the last offspring
+        was a result of crossover
     mutation_offspring : array of bool
-                         list indicating whether the corresponding member of
-                         the last offspring was a result of mutation
+        list indicating whether the corresponding member of the last offspring
+        was a result of mutation
+    offspring_parents : list of list of int
+        list indicating the parents (by index in the population) of the
+        corresponding member of the last offspring
 
 
     """
@@ -62,9 +62,9 @@ class VarOr(Variation):
         Parameters
         ----------
         population : list of chromosomes
-                     The population on which to perform selection
+            The population on which to perform selection
         number_offspring : int
-                           number of offspring to produce
+            number of offspring to produce
 
         Returns
         -------
@@ -74,6 +74,7 @@ class VarOr(Variation):
         offspring = []
         self.crossover_offspring = np.zeros(number_offspring, bool)
         self.mutation_offspring = np.zeros(number_offspring, bool)
+        self.offspring_parents = [[]] * number_offspring
         for i in range(number_offspring):
             choice = np.random.rand()
             if choice <= self._mutation_probability:
@@ -84,26 +85,30 @@ class VarOr(Variation):
                 self._do_crossover(population, offspring, i)
 
             else:
-                self._do_replication(population, offspring)
+                self._do_replication(population, offspring, i)
 
         return offspring
 
     def _do_mutation(self, population, offspring, i):
-        parent = self._get_random_parent(population)
+        parent, parent_ind = self._get_random_parent(population)
         mutant = self._mutation(parent)
         self._append_new_individual_to_offspring(mutant, offspring)
         self.mutation_offspring[i] = True
+        self.offspring_parents[i] = [parent_ind]
 
     def _do_crossover(self, population, offspring, i):
-        parent_1 = self._get_random_parent(population)
-        parent_2 = self._get_random_parent(population)
+        parent_1, parent_ind_1 = self._get_random_parent(population)
+        parent_2, parent_ind_2 = self._get_random_parent(population)
         child_1, _ = self._crossover(parent_1, parent_2)
         self._append_new_individual_to_offspring(child_1, offspring)
         self.crossover_offspring[i] = True
+        self.offspring_parents[i] = [parent_ind_1, parent_ind_2]
 
-    def _do_replication(self, population, offspring):
-        child = self._get_random_parent(population).copy()
+    def _do_replication(self, population, offspring, i):
+        parent, parent_ind = self._get_random_parent(population)
+        child = parent.copy()
         self._append_new_individual_to_offspring(child, offspring)
+        self.offspring_parents[i] = [parent_ind]
 
     @staticmethod
     def _append_new_individual_to_offspring(child, offspring):
@@ -112,4 +117,5 @@ class VarOr(Variation):
 
     @staticmethod
     def _get_random_parent(population):
-        return population[np.random.randint(len(population))]
+        random_index = np.random.randint(len(population))
+        return population[random_index], random_index

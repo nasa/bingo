@@ -9,10 +9,12 @@ from distutils.version import LooseVersion
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
+
 def get_property(prop, project):
     result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), 
                        open(project + '/__init__.py').read())
     return result.group(1)
+
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -86,13 +88,23 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/nasa/bingo",
     packages=["bingo",
-              "bingo.Base",
+              "bingo.chromosomes",
+              "bingo.evaluation",
+              "bingo.evolutionary_algorithms",
+              "bingo.evolutionary_optimizers",
+              "bingo.local_optimizers",
+              "bingo.selection",
+              "bingo.stats",
               "bingo.symbolic_regression",
               "bingo.symbolic_regression.agraph",
+              "bingo.symbolic_regression.benchmarking",
               "bingo.util",
+              "bingo.variation",
               "bingocpp"],
-    install_requires=['numpy', 
-                      'scipy'],
+    install_requires=['mpi4py',
+                      'numpy',
+                      'scipy',
+                      'dill'],
     python_requires='~=3.4',
     classifiers=[
         "Programming Language :: Python :: 3.4",

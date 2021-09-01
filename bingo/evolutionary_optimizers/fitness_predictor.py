@@ -29,16 +29,15 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
     Parameters
     ----------
-    training_data : list-like
-                    Training data used in full/true fitness evaluation
+    training_data : `TrainingData`
+        Training data used in full/true fitness evaluation
     full_fitness_function : FitnessFunction
-                            The fitness function to be used in prediction
-                            (based on the training data)
-    potential_trainers : list of chromosomes
-                         a list of individuals that could potentially be used
-                         as trainers
+        The fitness function to be used in prediction (based on the training
+        data)
+    potential_trainers : list of `Chromosome`
+        a list of individuals that could potentially be used as trainers
     num_trainers : int
-                   number of trainers to use
+        number of trainers to use
     """
     @argument_validation(num_trainers={">": 0})
     def __init__(self, training_data, full_fitness_function,
@@ -59,13 +58,13 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
         Parameters
         ----------
-        individual : MultipleValueChromosome
-                     A subset fitness predictor
+        individual : `MultipleValueChromosome`
+            A subset fitness predictor
 
         Returns
         -------
         float :
-                fitness of the predictor
+            fitness of the predictor
         """
         self.eval_count += 1
         error_in_fitness_predictions = 0.0
@@ -84,8 +83,8 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
         Parameters
         ----------
-        trainer : chromosomes
-                  individual to add to the training population
+        trainer : `Chromosome`
+            individual to add to the training population
         """
         self._trainers[self._next_trainer_to_update] = trainer.copy()
         self._true_fitness_for_trainers[self._next_trainer_to_update] = \
@@ -97,16 +96,15 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
         Parameters
         ----------
-        individual : MultipleValueChromosome
-                     subset fitness predictor to use in calculating predicted
-                     fitness
-        trainer : chromosomes
-                  the trainer of which to calculate fitness
+        individual : `MultipleValueChromosome`
+            subset fitness predictor to use in calculating predicted fitness
+        trainer : `Chromosome`
+            the trainer of which to calculate fitness
 
         Returns
         -------
         float :
-                predicted fitness
+            predicted fitness
         """
         subset_training_data = \
             self.training_data[individual.values]

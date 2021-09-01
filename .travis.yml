@@ -17,7 +17,7 @@ jobs:
         - export PYTHONPATH=$PYTHONPATH:$PWD
       script:
         - python -c "import bingo"
-        - tests/run_tests.sh
+        - tests/.run_tests.sh
       after_script:
         - coveralls
 
@@ -30,8 +30,8 @@ jobs:
       before_script:
         - export PYTHONPATH=$PYTHONPATH:$PWD
       script:
-        - python tests/performance_benchmarks.py
-        - python tests/island_benchmarks.py
+        - python tests/performance_benchmarking/performance_benchmarks.py
+        - python tests/performance_benchmarking/island_benchmarks.py
 
     - name: "examples"
       before_install:

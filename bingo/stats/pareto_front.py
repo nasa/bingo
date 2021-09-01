@@ -20,15 +20,15 @@ class ParetoFront(HallOfFame):
     secondary_key : function
         Function used to specify the second key to be used in domination
         calculations in the Pareto front. The signature of the function should
-        be `func(chromosomes)`
+        be `func(chromosome)`
     primary_key : function (optional)
         Function used to specify the second key to be used in domination
         calculations in the Pareto front. Default is the use of an individual's
         fitness attribute. The signature of the function should be
-        `func(chromosomes)`
+        `func(chromosome)`
     similarity_function : function (optional)
         The function used to identify similar individuals. The signature of the
-        function should be`func(chromosomes, chromosomes)`
+        function should be`func(chromosome, chromosome)`
     """
 
     def __init__(self, secondary_key, primary_key=None,
@@ -43,7 +43,7 @@ class ParetoFront(HallOfFame):
 
         Parameters
         ----------
-        population : list of chromosomes
+        population : list of `Chromosome`
             The list of individuals to be considered for induction into the
             Pareto front
         """

@@ -9,7 +9,6 @@ that are unique to implicit symbolic regression. Namely, these classes are
 appropriate fitness evaluators, a corresponding training data container, and
 two helper functions.
 """
-import warnings
 import logging
 
 import numpy as np
@@ -31,26 +30,21 @@ class ImplicitRegression(VectorBasedFunction):
 
     Parameters
     ----------
-    training_data :
-                   data that is used in fitness evaluation.  Must have
-                   attributes x and dx_dt.
+    training_data : `ImplicitTrainingData`
+        data that is used in fitness evaluation.
     required_params : int
-                      (optional) minimum number of nonzero components of dot
-    normalize_dot : bool
-                    normalize the terms in the dot product (default = False)
+        (optional) minimum number of nonzero components of dot
     """
-    def __init__(self, training_data, required_params=None,
-                 normalize_dot=False):
+    def __init__(self, training_data, required_params=None):
         super().__init__(training_data)
         self._required_params = required_params
-        self._normalize_dot = normalize_dot
 
     def evaluate_fitness_vector(self, individual):
         self.eval_count += 1
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)
 
-        dot_product = self._do_dfdx_dot_dxdt(df_dx)
+        dot_product = df_dx * self.training_data.dx_dt
 
         if self._required_params is not None:
             if not self._enough_parameters_used(dot_product):
@@ -66,64 +60,6 @@ class ImplicitRegression(VectorBasedFunction):
         enough_params_used = np.any(n_params_used >= self._required_params)
         return enough_params_used
 
-    def _do_dfdx_dot_dxdt(self, df_dx):
-        left_dot = df_dx
-        right_dot = self.training_data.dx_dt
-        if self._normalize_dot:
-            left_dot = self._normalize_by_row(left_dot)
-            right_dot = self._normalize_by_row(right_dot)
-        return left_dot * right_dot
-
-    @staticmethod
-    def _normalize_by_row(array):
-        return array / np.linalg.norm(array, axis=1).reshape((-1, 1))
-
-
-class ImplicitRegressionSchmidt(VectorBasedFunction):
-    """ Implicit Regression, Adapted from Schmidt and Lipson papers
-
-    Fitness in this method is the difference of partial derivatives pairs
-    calculated with the data and the input Equation individual.
-
-    Parameters
-    ----------
-    training_data :
-                   data that is used in fitness evaluation.  Must have
-                   attributes x and dx_dt.
-
-    Notes
-    -----
-    This may not be a correct implementation of this algorithm.  Importantly,
-    it couldn't reproduce the  results in the papers.
-    """
-    def evaluate_fitness_vector(self, individual):
-        _, df_dx = individual.evaluate_equation_with_x_gradient_at(
-            x=self.training_data.x)
-
-        num_parameters = self.training_data.x.shape[1]
-        worst_fitness = 0
-        diff_worst = np.full((num_parameters, ), np.inf)
-        for i in range(num_parameters):
-            for j in range(num_parameters):
-                if i != j:
-                    df_dxi = np.copy(df_dx[:, i])
-                    df_dxj = np.copy(df_dx[:, j])
-                    dxi_dxj_2 = (self.training_data.dx_dt[:, i] /
-                                 self.training_data.dx_dt[:, j])
-                    for k in range(num_parameters):
-                        if k not in (i, j):
-                            df_dxj += df_dx[:, k] * \
-                                      self.training_data.dx_dt[:, k] / \
-                                      self.training_data.dx_dt[:, j]
-
-                    dxi_dxj_1 = df_dxj / df_dxi
-                    diff = np.log(1. + np.abs(dxi_dxj_1 + dxi_dxj_2))
-                    fit = np.mean(diff)
-                    if np.isfinite(fit) and fit > worst_fitness:
-                        diff_worst = np.copy(diff)
-                        worst_fitness = fit
-        return diff_worst
-
 
 class ImplicitTrainingData(TrainingData):
     """
@@ -136,22 +72,37 @@ class ImplicitTrainingData(TrainingData):
      x : 2D numpy array
          independent variable
      dx_dt : 2D numpy array
-             (optional) time derivative of x.  If not is provided dx_dt is
-             calculated from x.
+        (optional) time derivative of x.  If not provided dx_dt is calculated
+        from x.
+
+    Attributes
+    ----------
+     x : 2D numpy array
+        independent variable
+     dx_dt : 2D numpy array
+        time derivative of x
+
+    Notes
+    -----
+    If dx_dt partials are calculated, smoothing of the data will occur.
+    Because accuracy of the derivatives degrades near the boundaries, the
+    first 3 and last 4 points are removed from the dataset.
+
+    If the dataset is broken into multiple trajectories (i.e., there are break
+    points where is doesnt make sense to calculate partial derivatives), they
+    should be split in the input `x` by a row of np.nan.
     """
     def __init__(self, x, dx_dt=None):
         if x.ndim == 1:
-            warnings.warn("Explicit training x should be 2 dim array, " +
-                          "reshaping array")
             x = x.reshape([-1, 1])
         if x.ndim > 2:
-            raise ValueError('Explicit training x should be 2 dim array')
+            raise TypeError('Explicit training x should be 2 dim array')
 
         if dx_dt is None:
-            x, dx_dt, _ = calculate_partials(x)
+            x, dx_dt, _ = _calculate_partials(x)
         else:
             if dx_dt.ndim != 2:
-                raise ValueError('Implicit training dx_dt must be 2 dim array')
+                raise TypeError('Implicit training dx_dt must be 2 dim array')
 
         self.x = x
         self.dx_dt = dx_dt
@@ -183,15 +134,15 @@ class ImplicitTrainingData(TrainingData):
         return self.x.shape[0]
 
 
-def calculate_partials(X):
+def _calculate_partials(X):
     """Calculate derivatves with respect to time (first dimension).
 
     Parameters
     ----------
      X : 2d numpy array
-         array for which derivatives will be calculated in the first diminsion.
-         Distinct trajectories can be specified by separating the datasets
-         within X by rows of np.nan
+        array for which derivatives will be calculated in the first diminsion.
+        Distinct trajectories can be specified by separating the datasets
+        within X by rows of np.nan
 
     Returns
     -------
@@ -208,7 +159,7 @@ def calculate_partials(X):
         # calculate time derivs using filter
         time_deriv = np.empty(x_seg.shape)
         for i in range(x_seg.shape[1]):
-            time_deriv[:, i] = savitzky_golay_gram(x_seg[:, i], 7, 3, 1)
+            time_deriv[:, i] = _savitzky_golay_gram(x_seg[:, i], 7, 3, 1)
         # remove edge effects
         time_deriv = time_deriv[3:-4, :]
         x_seg = x_seg[3:-4, :]
@@ -229,19 +180,18 @@ def calculate_partials(X):
     return x_all, time_deriv_all, inds_all
 
 
-def savitzky_golay_gram(y, window_size, order, deriv=0):
+def _savitzky_golay_gram(y, window_size, order, deriv=0):
     """
     Smooth (and optionally differentiate) data with a Savitzky-Golay filter
-    The Savitzky-Golay filter removes high frequency noise from data.
-    It has the advantage of preserving the original shape and
-    features of the signal better than other types of filtering
-    approaches, such as moving averages techniques.
+    The Savitzky-Golay filter removes high frequency noise from data. It has
+    the advantage of preserving the original shape and features of the signal
+    better than other types of filtering approaches, such as moving averages
+    techniques.
 
-    The Savitzky-Golay is a type of low-pass filter, particularly
-    suited for smoothing noisy data. The main idea behind this
-    approach is to make for each point a least-square fit with a
-    polynomial of high order over a odd-sized window centered a
-    the point.
+    The Savitzky-Golay is a type of low-pass filter, particularly suited for
+    smoothing noisy data. The main idea behind this approach is to make for
+    each point a least-square fit with a polynomial of high order over a
+    odd-sized window centered a the point.
 
     A Gram polynomial version of this is used to have better estimates near the
     boundaries of the data.
@@ -249,20 +199,20 @@ def savitzky_golay_gram(y, window_size, order, deriv=0):
     Parameters
     ----------
      y : array_like, shape (N,)
-         the values of the time history of the signal.
+        the values of the time history of the signal.
      window_size : int
-                   the length of the window. Must be an odd integer number.
+        the length of the window. Must be an odd integer number.
      order : int
-             the order of the polynomial used in the filtering.
-             Must be less then `window_size` - 1.
+        the order of the polynomial used in the filtering. Must be less then
+        `window_size` - 1.
      deriv : int
-             the order of the derivative to compute (default = 0 means only
-             smoothing)
+        (optional) the order of the derivative to compute (default = 0 means
+        only smoothing)
 
     Returns
     -------
      ys : ndarray, shape (N)
-          the smoothed signal (or it's n-th derivative).
+        the smoothed signal (or it's n-th derivative).
 
     References
     ----------

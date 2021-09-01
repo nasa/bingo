@@ -31,10 +31,10 @@ class HallOfFame:
     key_function : function (optional)
         Function used to quantify "best" individuals. Default is the use of an
         individual's fitness attribute. The signature of the function should be
-        `func(chromosomes)`
+        `func(chromosome)`
     similarity_function : function (optional)
         The function used to identify similar individuals. The signature of the
-        function should be`func(chromosomes, chromosomes)`
+        function should be`func(chromosome, chromosome)`
     """
 
     def __init__(self, max_size, key_function=None, similarity_function=None):
@@ -53,7 +53,7 @@ class HallOfFame:
 
         Parameters
         ----------
-        item : chromosomes
+        item : `Chromosome`
             The individual to be added to the hall of fame
         """
         item = deepcopy(item)
@@ -67,7 +67,7 @@ class HallOfFame:
 
         Parameters
         ----------
-        population : list of chromosomes
+        population : list of `Chromosome`
             The list of individuals to be considered for induction into the
             hall of fame
         """

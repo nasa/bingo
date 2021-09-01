@@ -19,9 +19,9 @@ class Selection(metaclass=ABCMeta):
         Parameters
         ----------
         population : list of chromosomes
-                     The population on which to perform selection
+            The population on which to perform selection
         target_population_size : int
-                                 Target size of the population after selection
+            Target size of the population after selection
 
         Returns
         -------

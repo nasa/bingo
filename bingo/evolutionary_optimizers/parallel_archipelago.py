@@ -34,22 +34,24 @@ class ParallelArchipelago(Archipelago):
     island which has two effects:
      1) scaling to more islands requires use of more processes
      2) scripts written for the Parallel Archipelago should be independent of
-        the number of processors: i.e., scripts dont need to be changed in
+        the number of processors: i.e., scripts don't need to be changed in
         order to run with more processors. Simply run the same script with more
         mpi processes.
 
     Parameters
     ----------
-    island : Island
-        The island from which other islands will be copied
-    non_blocking : boolean, default = True
-        Specifies whether to use blocking or non-blocking execution.
-        Default is non-blocking.
-    sync_frequency : int, default = 10
-        How frequently to update the average age for each island
+    island : `Island`
+        The island that the processor will evolve
+    non_blocking : bool
+        Specifies whether to use blocking or non-blocking execution. Default
+        is non-blocking (True).
+    sync_frequency : int
+        How frequently to update the average age for each island. Default 10
 
     Attributes
     ----------
+    island : `Island`
+        The island where the current processor's evolution occurs
     generational_age: int
         The number of generations the archipelago has been evolved
     hall_of_fame: HallOfFame
@@ -60,11 +62,12 @@ class ParallelArchipelago(Archipelago):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
-        super().__init__(island, self.comm_size, hall_of_fame)
+        super().__init__(self.comm_size, hall_of_fame)
+        self.island = island
         self._non_blocking = non_blocking
         self._sync_frequency = sync_frequency
-        if self._island.hall_of_fame is None:
-            self._island.hall_of_fame = deepcopy(self.hall_of_fame)
+        if self.island.hall_of_fame is None:
+            self.island.hall_of_fame = deepcopy(self.hall_of_fame)
 
     def get_best_fitness(self):
         """Gets the fitness of most fit member
@@ -74,7 +77,7 @@ class ParallelArchipelago(Archipelago):
          :
             Fitness of best individual in the archipelago
         """
-        best_on_proc = self._island.get_best_fitness()
+        best_on_proc = self.island.get_best_fitness()
         best_fitness = self.comm.allreduce(best_on_proc, op=MPI.MIN)
         return best_fitness
 
@@ -86,7 +89,7 @@ class ParallelArchipelago(Archipelago):
         chromosomes :
             The individual with lowest fitness
         """
-        best_on_proc = self._island.get_best_individual()
+        best_on_proc = self.island.get_best_individual()
         all_best_indvs = self.comm.allgather(best_on_proc)
         best_indv = min(all_best_indvs, key=lambda x: x.fitness)
         return best_indv
@@ -95,9 +98,9 @@ class ParallelArchipelago(Archipelago):
         if self._non_blocking:
             self._non_blocking_execution(num_steps)
         else:
-            self._island.evolve(num_steps,
-                                hall_of_fame_update=False,
-                                suppress_logging=True)
+            self.island.evolve(num_steps,
+                               hall_of_fame_update=False,
+                               suppress_logging=True)
 
     def _non_blocking_execution(self, num_steps):
         if self.comm_rank == 0:
@@ -111,9 +114,9 @@ class ParallelArchipelago(Archipelago):
         target_age = average_age + num_steps
 
         while average_age < target_age:
-            self._island.evolve(self._sync_frequency,
-                                hall_of_fame_update=False,
-                                suppress_logging=True)
+            self.island.evolve(self._sync_frequency,
+                               hall_of_fame_update=False,
+                               suppress_logging=True)
             self._gather_updated_ages(total_age)
             average_age = (sum(total_age.values())) / self.comm.size
 
@@ -122,7 +125,7 @@ class ParallelArchipelago(Archipelago):
         self._gather_updated_ages(total_age)
 
     def _gather_updated_ages(self, total_age):
-        total_age.update({0: self._island.generational_age})
+        total_age.update({0: self.island.generational_age})
         status = MPI.Status()
         while self.comm.iprobe(source=MPI.ANY_SOURCE,
                                tag=AGE_UPDATE,
@@ -140,9 +143,9 @@ class ParallelArchipelago(Archipelago):
     def _non_blocking_execution_slave(self):
         self._send_updated_age()
         while not self._has_exit_notification():
-            self._island.evolve(self._sync_frequency,
-                                hall_of_fame_update=False,
-                                suppress_logging=True)
+            self.island.evolve(self._sync_frequency,
+                               hall_of_fame_update=False,
+                               suppress_logging=True)
             self._send_updated_age()
         self.comm.Barrier()
 
@@ -153,7 +156,7 @@ class ParallelArchipelago(Archipelago):
         return False
 
     def _send_updated_age(self):
-        data = {self.comm_rank: self._island.generational_age}
+        data = {self.comm_rank: self.island.generational_age}
         req = self.comm.isend(data, dest=0, tag=AGE_UPDATE)
         req.Wait()
 
@@ -163,6 +166,7 @@ class ParallelArchipelago(Archipelago):
         partner = self._get_migration_partner()
         if partner is not None:
             self._population_exchange_program(partner)
+            self.island.reset_fitness()
 
     def _get_migration_partner(self):
         if self.comm_rank == 0:
@@ -189,23 +193,23 @@ class ParallelArchipelago(Archipelago):
         return indices
 
     def _population_exchange_program(self, partner):
-        population_to_send = self._island.dump_fraction_of_population(0.5)
+        population_to_send = self.island.dump_fraction_of_population(0.5)
         received_population = self.comm.sendrecv(population_to_send,
                                                  dest=partner,
                                                  sendtag=MIGRATION,
                                                  source=partner,
                                                  recvtag=MIGRATION)
-        self._island.load_population(received_population, replace=False)
+        self.island.population += received_population
 
     def _log_evolution(self, start_time):
         elapsed_time = datetime.now() - start_time
         LOGGER.log(DETAILED_INFO, "Evolution time %s\t age %d\t fitness %.3le",
-                   elapsed_time, self._island.generational_age,
+                   elapsed_time, self.island.generational_age,
                    self.get_best_fitness())
 
     def _get_potential_hof_members(self):
-        self._island.update_hall_of_fame()
-        potential_members = [i for i in self._island.hall_of_fame]
+        self.island.update_hall_of_fame()
+        potential_members = [i for i in self.island.hall_of_fame]
         all_potential_members = self.comm.allgather(potential_members)
         all_potential_members = [i for hof in all_potential_members
                                  for i in hof]
@@ -219,9 +223,21 @@ class ParallelArchipelago(Archipelago):
         int :
             number of fitness evaluations
         """
-        my_eval_count = self._island.get_fitness_evaluation_count()
+        my_eval_count = self.island.get_fitness_evaluation_count()
         total_eval_count = self.comm.allreduce(my_eval_count, op=MPI.SUM)
         return total_eval_count
+
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
+
+        Returns
+        -------
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
+        """
+        my_diagnostics = self.island.get_ea_diagnostic_info()
+        all_diagnostics = self.comm.allgather(my_diagnostics)
+        return sum(all_diagnostics)
 
     def dump_to_file(self, filename):
         """ Dump the ParallelArchipelago object to a pickle file

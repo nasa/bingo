@@ -7,7 +7,7 @@ operators, terminals, and their associated parameters.
 import logging
 import numpy as np
 
-from .maps import OPERATOR_NAMES
+from .operator_definitions import OPERATOR_NAMES
 from ...util.probability_mass_function import ProbabilityMassFunction
 from ...util.argument_validation import argument_validation
 
@@ -23,27 +23,16 @@ class ComponentGenerator:
         number of independent variables
     num_initial_load_statements : int
         number of commands at the beginning of stack which are required to be
-        "load" commands. Default 1
+        terminals. Default 1
     terminal_probability : float [0.0-1.0]
         probability that a new node will be a terminal. Default 0.1
     constant_probability : float [0.0-1.0] (optional)
         probability that a new terminal will be a constant
-    automatic_constant_optimization : bool
-        Whether automatic constant optimization is used. Default True
-    numerical_constant_range : float
-        maximum and -minimum value for randomly generated numerical constants.
-        Only used if automatic constant optimization is off in
-        mutation/generation/crossover. Default 100.0
-    numerical_constant_std : float
-        standard deviation of modifications of numerical constants. Default
-        numerical_constant_range / 100
 
     Attributes
     ----------
     input_x_dimension : int
         number of independent variables
-    automatic_constant_optimization : bool
-        Whether automatic constant optimization is used.
     """
     @argument_validation(input_x_dimension={">=": 0},
                          num_initial_load_statements={">=": 1},
@@ -51,10 +40,7 @@ class ComponentGenerator:
                          constant_probability={">=": 0.0, "<=": 1.0})
     def __init__(self, input_x_dimension, num_initial_load_statements=1,
                  terminal_probability=0.1,
-                 constant_probability=None,
-                 automatic_constant_optimization=True,
-                 numerical_constant_range=100,
-                 numerical_constant_std=None):
+                 constant_probability=None):
 
         self.input_x_dimension = input_x_dimension
         self._num_initial_load_statements = num_initial_load_statements
@@ -63,12 +49,6 @@ class ComponentGenerator:
         self._operator_pmf = ProbabilityMassFunction()
         self._random_command_function_pmf = \
             self._make_random_command_pmf(terminal_probability)
-
-        self.automatic_constant_optimization = automatic_constant_optimization
-        self._numerical_constant_range = numerical_constant_range
-        if numerical_constant_std is None:
-            numerical_constant_std = numerical_constant_range / 100
-        self._numerical_constant_std = numerical_constant_std
 
     def _make_terminal_pdf(self, constant_probability):
         if constant_probability is None:
@@ -117,7 +97,7 @@ class ComponentGenerator:
         Parameters
         ----------
         stack_location : int
-                         location in the stack for the command
+            location in the stack for the command
 
         Returns
         -------
@@ -154,7 +134,7 @@ class ComponentGenerator:
         Parameters
         ----------
         stack_location : int
-                         location of command in stack
+            location of command in stack
 
         Returns
         -------
@@ -164,27 +144,25 @@ class ComponentGenerator:
 
         Notes
         -----
-        The returned random operator parameter is guranteed to be less than
+        The returned random operator parameter is guaranteed to be less than
         stack_location.
         """
         return np.random.randint(stack_location)
 
     def _random_terminal_command(self, _=None):
         terminal = self.random_terminal()
-        return np.array([terminal,
-                         self.random_terminal_parameter(terminal),
-                         self.random_terminal_parameter(terminal)],
-                        dtype=int)
+        param = self.random_terminal_parameter(terminal)
+        return np.array([terminal, param, param], dtype=int)
 
     def random_terminal(self):
         """Get a random terminal
 
-         Get a random load-X or load-C terminal.
+         Get a random VARIABLE or CONSTANT terminal.
 
         Returns
         -------
         int
-            terminal number (0 or 1)
+            terminal number (VARIABLE or CONSTANT)
         """
         return self._terminal_pmf.draw_sample()
 
@@ -194,8 +172,7 @@ class ComponentGenerator:
         Parameters
         ----------
         terminal_number : int
-                          terminal number for which random parameter should be
-                          generated
+            terminal number for which random parameter should be generated
 
         Returns
         -------
@@ -227,22 +204,3 @@ class ComponentGenerator:
             number of operators
         """
         return len(self._operator_pmf.items)
-
-    def random_numerical_constant(self, near=None):
-        """Gets a random numerical constant
-
-        Parameters
-        ----------
-        near : float (optional)
-            Value near which to generate a new random numerical value
-
-        Returns
-        -------
-        float :
-            A random numerical constant
-        """
-        if near is not None:
-            return np.random.normal(near, self._numerical_constant_std)
-
-        return np.random.uniform(-self._numerical_constant_range,
-                                 self._numerical_constant_range)

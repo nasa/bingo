@@ -1,5 +1,7 @@
 set -e
 
+python -c "from bingo import symbolic_regression; print('Using %s Backend' % ('c++' if symbolic_regression.ISCPP else 'Python'))"
+
 for i in examples/*.ipynb
 do
   echo "Running Notebook: $i"

@@ -19,6 +19,13 @@ much more stable API but still lacks some of the features of older releases.
 
 ## Getting Started
 
+### Cloning with git
+The Bingo repository uses git submodules so make sure to clone all the
+submodules when cloning.  Git has an easy way to do this with:
+```shell
+git clone --recurse-submodules ...
+```
+
 ### Dependencies
 Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
 few dependencies which are relatively common for data science work in python:
@@ -52,7 +59,7 @@ performance.
 If bingocpp has been properly installed, the following command should run 
 without error.
 ```shell
-python -c "import bingocpp"
+python -c "from bingocpp"
 ```
 
 A common error in the installation of bingocpp is that it must be built with 
@@ -71,7 +78,7 @@ An extensive unit test suite is included with bingo to help ensure proper
 installation. The tests can be run using pytest on the tests directory, e.g., 
 by running:
 ```shell
-pytest tests 
+python -m pytest tests 
 ```
 from the root directory of the repository.
 
@@ -98,9 +105,10 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
 
 ## Authors
   * Geoffrey Bomarito
-  * Kathryn Esham
-  * Ethan Adams
   * Tyler Townsend
+  * Jacob Hochhalter
+  * Ethan Adams
+  * Kathryn Esham
   * Diana Vera
   
 ## License 
@@ -117,3 +125,4 @@ Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
 CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 specific language governing permissions and limitations under the License.
+ 

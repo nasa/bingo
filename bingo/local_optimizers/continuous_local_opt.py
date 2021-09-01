@@ -10,7 +10,7 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import scipy.optimize as optimize
 
-from ..evaluation.fitness_function import FitnessFunction, VectorBasedFunction
+from ..evaluation.fitness_function import FitnessFunction
 
 ROOT_SET = {
     # 'hybr',
@@ -89,11 +89,10 @@ class ContinuousLocalOptimization(FitnessFunction):
     Attributes
     ----------
     eval_count : int
-                 the number of evaluations that have been performed by the
-                 wrapped fitness function
+        the number of evaluations that have been performed by the wrapped
+        fitness function
     training_data :
-                   (Optional) data that can be used in the wrapped fitness
-                   function
+        (Optional) data that can be used in the wrapped fitness function
 
     Raises
     ------
@@ -155,8 +154,8 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @staticmethod
     def _check_root_alg_returns_vector(fitness_function, algorithm):
-        if algorithm in ROOT_SET and not isinstance(fitness_function,
-                                                    VectorBasedFunction):
+        if algorithm in ROOT_SET and not hasattr(fitness_function,
+                                                 'evaluate_fitness_vector'):
             raise TypeError("{} requires VectorBasedFunction\
                             as a fitness function".format(algorithm))
 

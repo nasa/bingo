@@ -7,8 +7,6 @@ The classes in this module encapsulate the parts of bingo evolutionary analysis
 that are unique to explicit symbolic regression. Namely, these classes are an
 appropriate fitness evaluator and a corresponding training data container.
 """
-
-import warnings
 import logging
 
 from ..evaluation.fitness_function import VectorBasedFunction
@@ -20,6 +18,8 @@ LOGGER = logging.getLogger(__name__)
 class ExplicitRegression(VectorBasedFunction):
     """ExplicitRegression
 
+    The traditional fitness evaluation for symbolic regression
+
     Parameters
     ----------
     training_data : ExplicitTrainingData
@@ -28,9 +28,13 @@ class ExplicitRegression(VectorBasedFunction):
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error', and
         'root mean squared error'
+    relative : bool
+        Whether to use relative, pointwise normalization of errors. Default:
+        False.
     """
-    def __init__(self, training_data, metric="mae"):
+    def __init__(self, training_data, metric="mae", relative=False):
         super().__init__(training_data, metric)
+        self._relative = relative
 
     def evaluate_fitness_vector(self, individual):
         """ Traditional fitness evaluation for symbolic regression
@@ -46,7 +50,10 @@ class ExplicitRegression(VectorBasedFunction):
         """
         self.eval_count += 1
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
-        return (f_of_x - self.training_data.y).flatten()
+        error = f_of_x - self.training_data.y
+        if not self._relative:
+            return error.flatten()
+        return (error / self.training_data.y).flatten()
 
 
 class ExplicitTrainingData(TrainingData):
@@ -64,34 +71,34 @@ class ExplicitTrainingData(TrainingData):
     """
     def __init__(self, x, y):
         if x.ndim == 1:
-            warnings.warn("Explicit training x should be 2 dim array, " +
-                          "reshaping array")
+            # warnings.warn("Explicit training x should be 2 dim array, " +
+            #               "reshaping array")
             x = x.reshape([-1, 1])
         if x.ndim > 2:
-            raise ValueError('Explicit training x should be 2 dim array')
+            raise TypeError('Explicit training x should be 2 dim array')
 
         if y.ndim == 1:
-            warnings.warn("Explicit training y should be 2 dim array, " +
-                          "reshaping array")
+            # warnings.warn("Explicit training y should be 2 dim array, " +
+            #               "reshaping array")
             y = y.reshape([-1, 1])
         if y.ndim > 2:
-            raise ValueError('Explicit training y should be 2 dim array')
+            raise TypeError('Explicit training y should be 2 dim array')
 
         self.x = x
         self.y = y
 
     def __getitem__(self, items):
-        """gets a subset of the ExplicitTrainingData
+        """gets a subset of the `ExplicitTrainingData`
 
         Parameters
         ----------
         items : list or int
-                index (or indices) of the subset
+            index (or indices) of the subset
 
         Returns
         -------
-        ExplicitTrainingData :
-                                a Subset
+        `ExplicitTrainingData` :
+            a Subset
         """
         temp = ExplicitTrainingData(self.x[items, :], self.y[items, :])
         return temp
@@ -102,6 +109,6 @@ class ExplicitTrainingData(TrainingData):
         Returns
         -------
         int :
-              index-able size
+            index-able size
         """
         return self.x.shape[0]

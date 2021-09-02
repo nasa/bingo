@@ -36,5 +36,4 @@ class BayesCrowding(GeneralizedCrowding):
             prob = prob / (prob + 1)
         else:
             prob = child.fitness / (parent.fitness + child.fitness)
-        print(np.random.random(), prob, np.random.random() < prob)
         return child if np.random.random() < prob else parent

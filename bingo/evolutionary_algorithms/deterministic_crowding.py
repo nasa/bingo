@@ -4,6 +4,7 @@ This module defines the basis of the "deterministic crowding" evolutionary
 algorithm in bingo analyses. The next generation is selected by pairing parents
 with their offspring and advancing the most fit of the two.
 """
+import numpy as np
 from .evolutionary_algorithm import EvolutionaryAlgorithm
 from ..variation.var_and import VarAnd
 from ..selection.deterministic_crowding import DeterministicCrowding
@@ -62,4 +63,6 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
         offspring = self.variation(population, len(population))
         self.evaluation(population + offspring)
         self.update_diagnostics(population, offspring)
-        return self.selection(population + offspring, len(population))
+        next_gen = self.selection(population + offspring, len(population))
+        np.random.shuffle(next_gen)
+        return next_gen

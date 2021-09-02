@@ -1,8 +1,14 @@
+"""
+A version of the generalized crowding selection that is probabilistic.
+Probability of selection is calculated using the Bayes factor between a parent
+and its nearest child
+"""
 import numpy as np
 
 from .generalized_crowding import GeneralizedCrowding
 
 
+# pylint: disable=too-few-public-methods
 class BayesCrowding(GeneralizedCrowding):
     """Crowding using Bayesian model selection
 

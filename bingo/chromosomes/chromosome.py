@@ -87,12 +87,12 @@ class Chromosome(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def distance(self, chromosome):
-        """Distance from self to chromosome
+    def distance(self, other):
+        """Distance from self to other chromosome
 
         Returns
         -------
         float
-            distance from self to chromosome
+            distance from self to other
         """
         raise NotImplementedError

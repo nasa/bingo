@@ -77,7 +77,8 @@ def evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):
 
 
 def _forward_eval(stack, x, constants):
-    forward_eval = [None]*stack.shape[0] # np.empty((stack.shape[0], x.shape[0]))
+    # np.empty((stack.shape[0], x.shape[0]))
+    forward_eval = [None]*stack.shape[0]
     for i, (node, param1, param2) in enumerate(stack):
         forward_eval[i] = forward_eval_function(node, param1, param2, x,
                                                 constants, forward_eval)

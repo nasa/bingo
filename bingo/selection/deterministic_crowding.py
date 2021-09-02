@@ -8,6 +8,7 @@ import numpy as np
 from .generalized_crowding import GeneralizedCrowding
 
 
+# pylint: disable=too-few-public-methods
 class DeterministicCrowding(GeneralizedCrowding):
     """The class that performs deterministic crowding selection on a population
     """

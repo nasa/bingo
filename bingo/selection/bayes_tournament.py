@@ -1,3 +1,10 @@
+"""
+Bayesian model selection tournament
+
+An modification of the standard tournament selection process which is
+probabilistic and weights the chances for selection by the fitness of the
+individuals in the tournament.
+"""
 import numpy as np
 
 from .selection import Selection
@@ -27,7 +34,7 @@ class BayesianModelSelectionTournament(Selection):
 
     def __call__(self, population, target_population_size):
         next_generation = []
-        for i in range(target_population_size):
+        for _ in range(target_population_size):
             tournament_members = np.random.choice(population, self._size,
                                                   replace=False)
             winner = self._bayesian_model_selection(tournament_members)

@@ -222,7 +222,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         -------
         list
         """
-        return list(self._num_constants)
+        return list(self._simplified_constants)
 
     def get_utilized_commands(self):
         """"Find which commands are utilized.
@@ -372,14 +372,14 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._update()
         return self._simplified_command_array.shape[0]
 
-    def distance(self, chromosome):
+    def distance(self, other):
         """Computes the distance to another `AGraph`
 
         Distance is a measure of similarity of the two command_arrays
 
         Parameters
         ----------
-        chromosome : `AGraph`
+        other : `AGraph`
             The individual to which distance will be calculated
 
         Returns
@@ -387,7 +387,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         int :
             distance from self to individual
         """
-        dist = np.sum(self.command_array != chromosome.command_array)
+        dist = np.sum(self.command_array != other.command_array)
         return dist
 
     def __deepcopy__(self, memodict=None):

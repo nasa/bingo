@@ -66,7 +66,7 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
         -------
         list
         """
-        return [self._values[i] for i in self._needs_opt_list]
+        return [self.values[i] for i in self._needs_opt_list]
 
 
 class MultipleFloatChromosomeGenerator(MultipleValueChromosomeGenerator):

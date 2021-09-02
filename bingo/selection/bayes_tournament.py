@@ -1,11 +1,25 @@
 import numpy as np
 
-from bingo.selection.selection import Selection
-from bingo.util.argument_validation import argument_validation
+from .selection import Selection
+from ..util.argument_validation import argument_validation
 
 
 class BayesianModelSelectionTournament(Selection):
+    """Tournament selection using bayesian model selection
 
+    Fitness of individuals are assumed to be a measure of model evidence, such
+    that a ratio between two fitness values gives the Bayes Factor.  Note that
+    these *fitnesses are assumed to be negated values* of the marginal
+    likelihood (i.e. multiplied by -1) in order to have the smallest values
+    correspond to the most likely individuals.
+
+    Parameters
+    ----------
+    tournament_size : int
+        size of the tournament
+    logscale : bool
+        Whether fitnesses of the individuals is in log space. Default True.
+    """
     @argument_validation(tournament_size={">=": 1})
     def __init__(self, tournament_size, logscale=True):
         self._size = tournament_size

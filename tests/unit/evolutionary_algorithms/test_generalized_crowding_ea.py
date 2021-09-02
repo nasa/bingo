@@ -1,9 +1,9 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
 # pylint: disable=redefined-outer-name
-from bingo.evolutionary_algorithms.deterministic_crowding \
-    import DeterministicCrowdingEA
-from bingo.evolutionary_algorithms import deterministic_crowding
+from bingo.evolutionary_algorithms.generalized_crowding \
+    import GeneralizedCrowdingEA
+from bingo.evolutionary_algorithms import generalized_crowding
 
 
 def test_all_phases_occur_in_correct_order(mocker):
@@ -19,16 +19,16 @@ def test_all_phases_occur_in_correct_order(mocker):
     mocker.patch("bingo.evolutionary_algorithms."
                  "evolutionary_algorithm.EaDiagnostics", autospec=True)
     mocker.patch("bingo.evolutionary_algorithms."
-                 "deterministic_crowding.VarAnd", autospec=True,
+                 "generalized_crowding.VarAnd", autospec=True,
                  return_value=mocked_variation)
     mocker.patch("bingo.evolutionary_algorithms."
-                 "deterministic_crowding.DeterministicCrowding", autospec=True,
+                 "generalized_crowding.DeterministicCrowding", autospec=True,
                  return_value=mocked_selection)
 
-    evo_alg = DeterministicCrowdingEA(mocked_evaluation, mocked_crossover,
-                                      mocked_mutation,
-                                      crossover_probability=0.5,
-                                      mutation_probability=0.3)
+    evo_alg = GeneralizedCrowdingEA(mocked_evaluation, mocked_crossover,
+                                    mocked_mutation,
+                                    crossover_probability=0.5,
+                                    mutation_probability=0.3)
     new_pop = evo_alg.generational_step(dummy_population)
 
     mocked_variation.assert_called_once()
@@ -48,15 +48,15 @@ def test_creates_var_or(mocker):
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()
     mocker.patch("bingo.evolutionary_algorithms."
-                 "deterministic_crowding.VarAnd", autospec=True)
+                 "generalized_crowding.VarAnd", autospec=True)
     mocker.patch("bingo.evolutionary_algorithms."
-                 "deterministic_crowding.DeterministicCrowding", autospec=True)
+                 "generalized_crowding.DeterministicCrowding", autospec=True)
 
-    _ = DeterministicCrowdingEA(mocked_evaluation, mocked_crossover,
-                                mocked_mutation, crossover_probability=0.5,
-                                mutation_probability=0.3)
+    _ = GeneralizedCrowdingEA(mocked_evaluation, mocked_crossover,
+                              mocked_mutation, crossover_probability=0.5,
+                              mutation_probability=0.3)
 
-    deterministic_crowding.VarAnd.assert_called_once_with(mocked_crossover,
-                                                          mocked_mutation,
-                                                          0.5, 0.3)
-    deterministic_crowding.DeterministicCrowding.assert_called_once()
+    generalized_crowding.VarAnd.assert_called_once_with(mocked_crossover,
+                                                        mocked_mutation,
+                                                        0.5, 0.3)
+    generalized_crowding.DeterministicCrowding.assert_called_once()

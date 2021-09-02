@@ -24,6 +24,9 @@ class DummyLocalOptIndividual(ChromosomeInterface):
             self.param = params[0]
         except IndexError:  # for issue with powell
             self.param = params
+            
+    def get_local_optimization_params(self):
+        return (self.param, )
 
 
 @pytest.mark.parametrize("fit_func_type, raises_error",

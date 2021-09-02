@@ -1,6 +1,6 @@
-"""The "Deterministic Crowding" evolutionary algorithm
+"""The generalized crowding evolutionary algorithm
 
-This module defines the basis of the "deterministic crowding" evolutionary
+This module defines the basis of the generalized crowding evolutionary
 algorithm in bingo analyses. The next generation is selected by pairing parents
 with their offspring and advancing the most fit of the two.
 """
@@ -9,10 +9,10 @@ from ..variation.var_and import VarAnd
 from ..selection.deterministic_crowding import DeterministicCrowding
 
 
-class DeterministicCrowdingEA(EvolutionaryAlgorithm):
+class GeneralizedCrowdingEA(EvolutionaryAlgorithm):
     """The algorithm used to perform generational steps.
 
-    A class for the deterministic crowding evolutionary algorithm in bingo.
+    A class for the generalized crowding evolutionary algorithm in bingo.
 
     Parameters
     ----------
@@ -26,12 +26,14 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
         Probability that crossover will occur on an individual.
     mutation_probability : float
         Probability that mutation will occur on an individual.
+    selection : CrowdingSelection
+        Selection phase. Default DeterministicCrowding.
 
     Attributes
     ----------
-    evaluation : evaluation
+    evaluation : Evaluation
         evaluation instance to perform evaluation on a population
-    selection : DeterministicCrowding
+    selection : CrowdingSelection
         Performs selection on a population via deterministic crowding
     variation : VarAnd
         Performs VarAnd variation on a population
@@ -39,12 +41,15 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
         Public to the EA diagnostics
     """
     def __init__(self, evaluation, crossover, mutation, crossover_probability,
-                 mutation_probability):
+                 mutation_probability, selection=None):
+        if selection is None:
+            selection = DeterministicCrowding()
+
         super().__init__(variation=VarAnd(crossover, mutation,
                                           crossover_probability,
                                           mutation_probability),
                          evaluation=evaluation,
-                         selection=DeterministicCrowding())
+                         selection=selection)
 
     def generational_step(self, population):
         """Performs selection on individuals.

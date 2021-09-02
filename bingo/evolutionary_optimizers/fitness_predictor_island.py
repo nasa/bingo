@@ -19,8 +19,8 @@ from copy import copy, deepcopy
 import numpy as np
 from ..util.argument_validation import argument_validation
 from ..evaluation.evaluation import Evaluation
-from ..evolutionary_algorithms.deterministic_crowding \
-    import DeterministicCrowdingEA
+from ..evolutionary_algorithms.generalized_crowding \
+    import GeneralizedCrowdingEA
 from .island import Island
 from ..chromosomes.multiple_values import MultipleValueChromosomeGenerator, \
                                          SinglePointCrossover, \
@@ -153,9 +153,9 @@ class FitnessPredictorIsland(Island):
         crossover = SinglePointCrossover()
         mutation = SinglePointMutation(index_generator)
         evaluation = Evaluation(self._predictor_fitness_function)
-        dc_ea = DeterministicCrowdingEA(evaluation, crossover, mutation,
-                                        crossover_probability=0.5,
-                                        mutation_probability=0.2)
+        dc_ea = GeneralizedCrowdingEA(evaluation, crossover, mutation,
+                                      crossover_probability=0.5,
+                                      mutation_probability=0.2)
         return dc_ea
 
     def _step_predictor_island_to_maintain_ratio(self):

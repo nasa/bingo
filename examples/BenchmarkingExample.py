@@ -13,8 +13,8 @@ from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
-from bingo.evolutionary_algorithms.deterministic_crowding \
-    import DeterministicCrowdingEA
+from bingo.evolutionary_algorithms.generalized_crowding \
+    import GeneralizedCrowdingEA
 from bingo.evolutionary_optimizers.island import Island
 
 
@@ -44,9 +44,9 @@ def training_function(training_data, ea_choice):
                           MUTATION_PROBABILITY, CROSSOVER_PROBABILITY,
                           POPULATION_SIZE)
     else:
-        ea = DeterministicCrowdingEA(evaluator, crossover, mutation,
-                                     MUTATION_PROBABILITY,
-                                     CROSSOVER_PROBABILITY)
+        ea = GeneralizedCrowdingEA(evaluator, crossover, mutation,
+                                   MUTATION_PROBABILITY,
+                                   CROSSOVER_PROBABILITY)
 
     island = Island(ea, agraph_generator, POPULATION_SIZE)
     opt_result = island.evolve_until_convergence(max_generations=MAX_GENERATIONS,

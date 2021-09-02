@@ -18,6 +18,9 @@ class Evaluation:
     fitness_function : FitnessFunction
         The function class that is used to calculate fitnesses of individuals
         in the population.
+    redundant : bool
+        Whether to re-evaluate individuals that have been evaluated previously.
+        Default False.
 
     Attributes
     ----------
@@ -27,8 +30,9 @@ class Evaluation:
     eval_count : int
         the number of fitness function evaluations that have occurred
     """
-    def __init__(self, fitness_function):
+    def __init__(self, fitness_function, redundant=False):
         self.fitness_function = fitness_function
+        self._redundant = redundant
 
     @property
     def eval_count(self):
@@ -48,5 +52,5 @@ class Evaluation:
                      population for which fitness should be calculated
         """
         for indv in population:
-            if not indv.fit_set:
+            if self._redundant or not indv.fit_set:
                 indv.fitness = self.fitness_function(indv)

@@ -34,3 +34,21 @@ def test_evaluation_finds_fitness_for_individuals_that_need_it(mocker):
             assert (indv, ) in fit_func_args
         else:
             assert (indv, ) not in fit_func_args
+
+
+def test_redundant_evaluation_finds_fitness_for_all_individuals(mocker):
+    population = [mocker.Mock() for _ in range(10)]
+    for i, indv in enumerate(population):
+        if i in [2, 4, 6, 8]:
+            indv.fit_set = False
+        else:
+            indv.fit_set = True
+
+    mocked_fit_function = mocker.Mock()
+    evaluation = Evaluation(mocked_fit_function, redundant=True)
+    evaluation(population)
+
+    fit_func_calls = mocked_fit_function.call_args_list
+    fit_func_args = [i.call_list()[0][0] for i in fit_func_calls]
+    for i, indv in enumerate(population):
+        assert (indv, ) in fit_func_args

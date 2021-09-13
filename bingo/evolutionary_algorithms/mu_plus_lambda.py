@@ -69,7 +69,8 @@ class MuPlusLambda(EvolutionaryAlgorithm):
             The next generation of the population
         """
         offspring = self.variation(population, self._number_offspring)
-        self.evaluation(population + offspring)
+        self.evaluation(population)
+        self.evaluation(offspring)
         if self._target_populations_size is None:
             new_pop_size = len(population)
         else:

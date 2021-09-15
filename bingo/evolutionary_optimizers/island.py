@@ -39,12 +39,15 @@ class Island(EvolutionaryOptimizer):
         The population that is evolving
     hall_of_fame: `HallOfFame`
         An object containing the best individuals seen in the optimization
+    test_function: `FitnessFunction`
+        (optional) A function which can judges the fitness of an individual,
+        independent of the `FitnessFunction` used in evolution
 
     """
     @argument_validation(population_size={">=": 0})
     def __init__(self, evolution_algorithm, generator, population_size,
-                 hall_of_fame=None):
-        super().__init__(hall_of_fame)
+                 hall_of_fame=None, test_function=None):
+        super().__init__(hall_of_fame, test_function)
         self._generator = generator
         self.population = [generator() for _ in range(population_size)]
         self._ea = evolution_algorithm

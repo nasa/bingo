@@ -10,11 +10,6 @@ REVERSE_EVAL_MAP : dictionary {int: function}
                    A map of node number to derivative evaluation function
 """
 
-from numba import jit, prange, cuda
-from math import prod, ceil
-
-from time import time
-
 #np.seterr(divide='ignore', invalid='ignore')
 
 

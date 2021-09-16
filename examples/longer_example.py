@@ -3,8 +3,6 @@ import time
 import sys
 import cupy as cp
 
-from tqdm import tqdm
-
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
 from bingo.symbolic_regression.explicit_regression \
@@ -24,6 +22,7 @@ from smcbingo.nondeterministic_crowding import NondeterministicCrowding
 import bingo.util.global_imports as bingo_gi
 import smcpy.utils.global_imports as smc_gi
 
+
 def print_best_individuals(island):
     norm_mlls = np.array([-i.fitness for i in island.population])
     order = np.argsort(-1*norm_mlls)
@@ -31,6 +30,7 @@ def print_best_individuals(island):
         print(f"{i + 1}\t{norm_mlls[o]}\t{island.population[o]}")
         if i >= 4:
             break
+
 
 def run_benchmark(mcmc_steps, num_generations, num_particles, phi_exponent,
                   population_size, smc_steps, stack_size):
@@ -56,12 +56,12 @@ def run_benchmark(mcmc_steps, num_generations, num_particles, phi_exponent,
                            USE_SIMPLIFICATION, TRAINING_DATA)
     # running evolution
     start_time = time.time()
-    for _ in tqdm(range(num_generations)):
+    for _ in range(num_generations):
         island.evolve(num_generations=1)
     elapsed_time = time.time() - start_time
     print_best_individuals(island)
     print(f"\nElapsed time: {elapsed_time}")
-    
+
 
 def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
                   operators, phi_exponent, population_size, selection,
@@ -107,9 +107,9 @@ def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
 if __name__ == '__main__':
 
     # BINGO PARAMS
-    POPULATION_SIZE = 128
+    POPULATION_SIZE = 64
     STACK_SIZE = 64
-    NUM_GENERATIONS = 2
+    NUM_GENERATIONS = 1
     # SMC PARAMS
     NUM_PARTICLES = 800
     SMC_STEPS = 40

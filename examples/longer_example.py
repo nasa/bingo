@@ -1,6 +1,5 @@
 import numpy as np
 import time
-import matplotlib.pyplot as plt
 import sys
 import cupy as cp
 
@@ -33,6 +32,36 @@ def print_best_individuals(island):
         if i >= 4:
             break
 
+def run_benchmark(mcmc_steps, num_generations, num_particles, phi_exponent,
+                  population_size, smc_steps, stack_size):
+    # AGRAPH PARAMS
+    USE_SIMPLIFICATION = True
+    OPERATORS = ['+', '-', '*', 'sin', 'cos']
+    # VARIATION PARAMS
+    CROSSOVER_PROB = 0.4
+    MUTATION_PROB = 0.4
+    # SELECTION PARAMS
+    SELECTION = NondeterministicCrowding()
+    # SEED
+    np.random.seed(0)
+    # DATA
+    X_DATA = np.random.uniform(1, 10, size=(150, 3))
+    Y_DATA = X_DATA[:, 0] ** 2 * np.sin(X_DATA[:, 1]) + 5 * np.random.normal(5,
+                                                                             2)
+    TRAINING_DATA = ExplicitTrainingData(X_DATA, Y_DATA)
+    # getting things set up
+    island = create_island(CROSSOVER_PROB, mcmc_steps, MUTATION_PROB,
+                           num_particles, OPERATORS, phi_exponent,
+                           population_size, SELECTION, smc_steps, stack_size,
+                           USE_SIMPLIFICATION, TRAINING_DATA)
+    # running evolution
+    start_time = time.time()
+    for _ in tqdm(range(num_generations)):
+        island.evolve(num_generations=1)
+    elapsed_time = time.time() - start_time
+    print_best_individuals(island)
+    print(f"\nElapsed time: {elapsed_time}")
+    
 
 def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
                   operators, phi_exponent, population_size, selection,
@@ -76,80 +105,28 @@ def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
 
 
 if __name__ == '__main__':
-    '''
-    Pop Size: 80 (12-160)
-    Particles: 600 (300-2000)
-    MCMC Steps: 22 (12-48) #if below 12, we consistently get an different error when finding LL
-    SMC Steps:  22 (16- 40)
-    Data points: 100/150 (50-15000) #the data isn't very noisy so 100/150 seems good enough 
-    Phi: 6 (4-8)
-    Selection: 10% - 20% of population size  is this tournament size?
-    Stack Size: 64 (40-80)
-    Components: +  -  *  /  ^  e  cos
-    Error Metric: rmse and relative=False
-    Simplification: False 
-    '''
 
-    if len(sys.argv) == 2:
-        bingo_gi.set_use_gpu(True)
-        smc_gi.set_use_gpu(True)
-    elif len(sys.argv) == 3:
-        bingo_gi.set_use_parallel_cpu(True)
-    elif len(sys.argv) == 4:
-        bingo_gi.set_use_gpu(True)
-        smc_gi.set_use_gpu(True)
-        bingo_gi.set_use_parallel_cpu(True)
-
-    # ISLAND PARAMS
-    POPULATION_SIZE = 256
-
-    # AGRAPH PARAMS
+    # BINGO PARAMS
+    POPULATION_SIZE = 128
     STACK_SIZE = 64
-    USE_SIMPLIFICATION = True
-    OPERATORS = ['+',  '-',  '*', 'sin', 'cos']
-
-    # VARIATION PARAMS
-    CROSSOVER_PROB = 0.4
-    MUTATION_PROB = 0.4
-
-    # EVOLUTION PARAMS
-    # You can adjust NUM_GENERATIONS to whatever you want.
-    # Run time should scale ~linearly wrt to this number.
-    # Target values for this would be on the order of 50k, right now this
-    # would take us ~20 days, which is why we hope to speed things up.
     NUM_GENERATIONS = 2
-
-    # SELECTION PARAMS
-    SELECTION = NondeterministicCrowding()
-
     # SMC PARAMS
     NUM_PARTICLES = 800
     SMC_STEPS = 40
     MCMC_STEPS = 10
     PHI_EXPONENT = 2
 
-    # SEED
-    np.random.seed(0)
 
-    # DATA
-    X_DATA = np.random.uniform(1, 10, size=(150, 3))
-    Y_DATA = X_DATA[:, 0]**2*np.sin(X_DATA[:, 1]) + 5*np.random.normal(5, 2)
-    TRAINING_DATA = ExplicitTrainingData(X_DATA, Y_DATA)
+    # use gpu implementation for bingo
+    # bingo_gi.set_use_gpu(True)
+
+    # use gpu implementation for smcpy
+    # smc_gi.set_use_gpu(True)
+
+    run_benchmark(MCMC_STEPS, NUM_GENERATIONS, NUM_PARTICLES, PHI_EXPONENT,
+                  POPULATION_SIZE, SMC_STEPS, STACK_SIZE)
 
 
-    # getting things set up
-    island = create_island(CROSSOVER_PROB, MCMC_STEPS, MUTATION_PROB,
-                           NUM_PARTICLES, OPERATORS, PHI_EXPONENT,
-                           POPULATION_SIZE, SELECTION, SMC_STEPS, STACK_SIZE,
-                           USE_SIMPLIFICATION, TRAINING_DATA)
 
-    # running evolution
-    start_time = time.time()
-    for _ in tqdm(range(NUM_GENERATIONS)):
-        island.evolve(num_generations=1)
-    elapsed_time = time.time() - start_time
-
-    print_best_individuals(island)
-    print(f"\nElapsed time: {elapsed_time}")
 
 

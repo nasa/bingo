@@ -57,7 +57,7 @@ def run_benchmark(mcmc_steps, num_particles, phi_exponent, smc_steps,
     start_time = time.time()
     equ.fitness = bff(equ)
     elapsed_time = time.time() - start_time
-    print_best_individuals(equ)
+    print(equ)
     print(f"\nElapsed time: {elapsed_time}")
 
 
@@ -99,10 +99,10 @@ if __name__ == '__main__':
 
 
     # use gpu implementation for bingo
-    # bingo_gi.set_use_gpu(True)
+    bingo_gi.set_use_gpu(True)
 
     # use gpu implementation for smcpy
-    # smc_gi.set_use_gpu(True)
+    smc_gi.set_use_gpu(True)
 
     run_benchmark(MCMC_STEPS, NUM_PARTICLES, PHI_EXPONENT, SMC_STEPS,
                   STACK_SIZE)

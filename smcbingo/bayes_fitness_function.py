@@ -12,9 +12,11 @@ from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
 from smcpy import SMCSampler
 from smcpy import ImproperUniform
 
+import nvtx
 
 class BayesFitnessFunction(FitnessFunction):
 
+    @nvtx.annotate()
     def __init__(self, continuous_local_opt, num_particles=150, phi_exponent=8,
                  smc_steps=15, mcmc_steps=12, ess_threshold=0.75, std=None,
                  return_nmll_only=True):
@@ -36,6 +38,12 @@ class BayesFitnessFunction(FitnessFunction):
         self._fbf_phi_idx, self._phi_seq = self._calc_phi_sequence(phi_exponent)
         self._eval_count = 0
 
+        if smc_gi.USING_GPU:
+            gi.set_use_gpu(True)
+            self.training_data_gpu = ExplicitTrainingData(gi.num_lib.asarray(self.training_data.x),
+                                                          gi.num_lib.asarray(self.training_data.y))
+
+    @nvtx.annotate()
     def __call__(self, individual):
         gi.set_use_gpu(False)
         param_names = self.get_parameter_names(individual)
@@ -52,26 +60,26 @@ class BayesFitnessFunction(FitnessFunction):
             param_names.append('std_dev')
 
         training_data_y = self.training_data.y
-        if smc_gi.USING_GPU:
-            gi.set_use_gpu(True)
-            self.training_data_gpu = ExplicitTrainingData(gi.num_lib.asarray(self.training_data.x),
-                                                          gi.num_lib.asarray(self.training_data.y))
-            training_data_y = self.training_data_gpu.y
-
-        #    self.training_data.x = gi.num_lib.asarray(self.training_data.x)
-        #    self.training_data.y = gi.num_lib.asarray(self.training_data.y)
-
-            """
-            new_proposal = [None] * len(proposal)
-            for i, prop in enumerate(proposal):
-                if type(prop) is dict:
-                    new_proposal[i] = {}
-                    for key in prop:
-                        new_proposal[i][key] = gi.num_lib.asarray(prop[key])
-                elif type(prop) is np.ndarray:
-                    new_proposal[i] = gi.num_lib.asarray(prop)
-            proposal = new_proposal
-            """
+        # if smc_gi.USING_GPU:
+        #     gi.set_use_gpu(True)
+        #     self.training_data_gpu = ExplicitTrainingData(gi.num_lib.asarray(self.training_data.x),
+        #                                                   gi.num_lib.asarray(self.training_data.y))
+        #     training_data_y = self.training_data_gpu.y
+        #
+        # #    self.training_data.x = gi.num_lib.asarray(self.training_data.x)
+        # #    self.training_data.y = gi.num_lib.asarray(self.training_data.y)
+        #
+        #     """
+        #     new_proposal = [None] * len(proposal)
+        #     for i, prop in enumerate(proposal):
+        #         if type(prop) is dict:
+        #             new_proposal[i] = {}
+        #             for key in prop:
+        #                 new_proposal[i][key] = gi.num_lib.asarray(prop[key])
+        #         elif type(prop) is np.ndarray:
+        #             new_proposal[i] = gi.num_lib.asarray(prop)
+        #     proposal = new_proposal
+        #     """
 
         evaluate_model = lambda x: self.evaluate_model(x, individual) if not smc_gi.USING_GPU else self.evaluate_model_gpu(x, individual)
         vector_mcmc = VectorMCMC(evaluate_model,
@@ -156,6 +164,7 @@ class BayesFitnessFunction(FitnessFunction):
 
         return individual.evaluate_equation_at(self.training_data.x).T
 
+    @nvtx.annotate()
     def evaluate_model_gpu(self, params, individual):
         params = gi.num_lib.asarray(params)
 

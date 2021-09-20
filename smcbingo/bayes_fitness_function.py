@@ -60,11 +60,11 @@ class BayesFitnessFunction(FitnessFunction):
             param_names.append('std_dev')
 
         training_data_y = self.training_data.y
-        # if smc_gi.USING_GPU:
-        #     gi.set_use_gpu(True)
+        if smc_gi.USING_GPU:
+            gi.set_use_gpu(True)
         #     self.training_data_gpu = ExplicitTrainingData(gi.num_lib.asarray(self.training_data.x),
         #                                                   gi.num_lib.asarray(self.training_data.y))
-        #     training_data_y = self.training_data_gpu.y
+            training_data_y = self.training_data_gpu.y
         #
         # #    self.training_data.x = gi.num_lib.asarray(self.training_data.x)
         # #    self.training_data.y = gi.num_lib.asarray(self.training_data.y)

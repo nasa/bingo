@@ -53,9 +53,10 @@ def _reshape_output(output, constants, x):
             output.shape == (x_dim, c_dim):
         return output
 
-    print(output.shape, (x_dim, c_dim))
-
-    return gi.num_lib.ones((x_dim, c_dim)) * output
+    return output
+    # print(output.shape, (x_dim, c_dim))
+    #
+    # return gi.num_lib.ones((x_dim, c_dim)) * output
 
 
 def evaluate_with_derivative(stack, x, constants, wrt_param_x_or_c):

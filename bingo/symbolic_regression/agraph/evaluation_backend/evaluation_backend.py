@@ -53,6 +53,8 @@ def _reshape_output(output, constants, x):
             output.shape == (x_dim, c_dim):
         return output
 
+    print(output.shape)
+
     return gi.num_lib.ones((x_dim, c_dim)) * output
 
 

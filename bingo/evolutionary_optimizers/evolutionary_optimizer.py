@@ -39,7 +39,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     generational_age: int
         The number of generations the optimizer has been evolved
     hall_of_fame: `HallOfFame`
-        (optional) An object containing the best individuals seen in the
+        (optional) A GPUn object containing the best individuals seen in the
         optimization
     test_function: `FitnessFunction`
         (optional) A function which can judges the fitness of an individual,

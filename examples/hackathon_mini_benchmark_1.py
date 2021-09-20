@@ -83,7 +83,7 @@ def create_graph_and_bff(mcmc_steps, num_particles, operators, phi_exponent,
                                mcmc_steps=mcmc_steps)
 
     agraph = generator()
-    while agraph.get_number_local_optimization_params() < 2:
+    while agraph.get_number_local_optimization_params() < 2 or agraph.get_complexity() > 15:
         agraph = generator()
 
     return agraph, bff

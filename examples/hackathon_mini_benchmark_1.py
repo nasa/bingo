@@ -54,9 +54,9 @@ def run_benchmark(mcmc_steps, num_particles, phi_exponent, smc_steps,
                                     phi_exponent, smc_steps, stack_size,
                                     USE_SIMPLIFICATION, TRAINING_DATA)
     # running evolution
-    # start_time = time.time()
-    # equ.fitness = bff(equ)
-    # elapsed_time = time.time() - start_time
+    start_time = time.time()
+    equ.fitness = bff(equ)
+    elapsed_time = time.time() - start_time
     print(equ)
     print(f"\nElapsed time: {elapsed_time}")
 

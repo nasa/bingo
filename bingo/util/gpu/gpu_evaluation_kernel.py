@@ -9,15 +9,17 @@ import nvtx
 
 @nvtx.annotate(message="gpu_eval_wrapper", color="orange")
 def f_eval_gpu_with_kernel(stack, x, constants):
-    num_particles = 1
-    if hasattr(constants, 'shape'):
-        num_particles = constants.shape[1]
-    elif isinstance(constants, tuple):
-        if len(constants) == 0:
-            constants = cp.asarray([[]])
-        else:
-            constants = cp.stack(constants, axis=0)
+
+    with nvtx.annotate(message="setup", color="red"):
+        num_particles = 1
+        if hasattr(constants, 'shape'):
             num_particles = constants.shape[1]
+        elif isinstance(constants, tuple):
+            if len(constants) == 0:
+                constants = cp.asarray([[]])
+            else:
+                constants = cp.stack(constants, axis=0)
+                num_particles = constants.shape[1]
 
     forward_eval = cp.full((len(stack), x.shape[0], num_particles), np.inf)
     blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)

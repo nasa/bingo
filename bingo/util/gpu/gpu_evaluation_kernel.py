@@ -29,10 +29,13 @@ def f_eval_gpu_with_kernel(stack, x, constants):
 @jit.rawkernel()
 def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size, f_eval_arr):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
+    fwd_buff = cp.empty(len(stack_size))
 
     if index < data_size * num_particles:
         data_index = index // num_particles
         constant_index = index % num_particles
+
+
 
         for i in range(stack_size):
             node = stack[i, 0]
@@ -43,6 +46,7 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
                 f_eval_arr[i, data_index, constant_index] = float(param1)
             elif node == defs.VARIABLE:
                 f_eval_arr[i, data_index, constant_index] = x[data_index, param1]
+                fwd_buff[i] = x[data_index, param1]
             elif node == defs.CONSTANT:
                 #if num_particles < 2: # case doesn't work for some reason
                 #    f_eval_arr[i, data_index, constant_index] = constants[int(param1)]

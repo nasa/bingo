@@ -26,7 +26,6 @@ def f_eval_gpu_with_kernel(stack, x, constants):
     return forward_eval
 
 
-@nvtx.annotate(message="gpu_eval", color="orange")
 @jit.rawkernel()
 def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size, f_eval_arr):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x

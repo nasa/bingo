@@ -13,13 +13,16 @@ def f_eval_gpu_with_kernel(stack, x, constants):
     with nvtx.annotate(message="setup", color="red"):
         num_particles = 1
         if hasattr(constants, 'shape'):
+            print("a")
             num_particles = constants.shape[1]
         elif isinstance(constants, tuple):
             if len(constants) == 0:
                 constants = cp.asarray([[]])
+                print("b")
             else:
                 constants = cp.stack(constants, axis=0)
                 num_particles = constants.shape[1]
+                print("c")
 
 
     with nvtx.annotate(message="setup_2", color="red"):

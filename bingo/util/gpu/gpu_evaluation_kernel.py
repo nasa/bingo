@@ -29,7 +29,7 @@ def f_eval_gpu_with_kernel(stack, x, constants):
 @jit.rawkernel()
 def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size, f_eval_arr):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
-    fwd_buff = cp.empty(stack_size)
+    fwd_buff = [1.0]*stack_size
 
     if index < data_size * num_particles:
         data_index = index // num_particles

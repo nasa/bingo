@@ -241,21 +241,19 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         if self._modified:
             self._update()
         try:
+            command_array = self._simplified_command_array
 
-            with nvtx.annotate(message="eval_equation_at", color="orange"):
-                command_array = self._simplified_command_array
+            if np.allclose(command_array, np.array([[1, 0, 0]])):
+                return gi.num_lib.asarray(self._simplified_constants[0])
 
-                if np.allclose(command_array, np.array([[1, 0, 0]])):
-                    return gi.num_lib.asarray(self._simplified_constants[0])
+            if gi.USING_GPU:
+                if not hasattr(self, '_simplified_command_array_gpu'):
+                    self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)
+                command_array = self._simplified_command_array_gpu
 
-                if gi.USING_GPU:
-                    if not hasattr(self, '_simplified_command_array_gpu'):
-                        self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)
-                    command_array = self._simplified_command_array_gpu
-
-                f_of_x = \
-                    evaluation_backend.evaluate(command_array, x,
-                                                self._simplified_constants)
+            f_of_x = \
+                evaluation_backend.evaluate(command_array, x,
+                                            self._simplified_constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:

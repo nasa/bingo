@@ -6,6 +6,8 @@ represented by an `AGraph`.  It can also perform derivatives.
 
 import numpy as np
 import math
+import nvtx
+
 
 from .operator_eval import forward_eval_function, reverse_eval_function
 import bingo.util.global_imports as gi
@@ -13,6 +15,8 @@ import bingo.util.global_imports as gi
 
 ENGINE = "Python"
 
+
+@nvtx.annotate(message="evaluation_backend.evaluate", color="green")
 def evaluate(stack, x, constants):
     """Evaluate an equation
 

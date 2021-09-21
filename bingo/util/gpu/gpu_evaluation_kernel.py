@@ -4,7 +4,10 @@ import bingo.symbolic_regression.agraph.operator_definitions as defs
 import math
 import bingo.util.global_imports as gi
 import numpy as np
+import nvtx
 
+
+@nvtx.annotate(message="gpu_eval_wrapper", color="orange")
 def f_eval_gpu_with_kernel(stack, x, constants):
     num_particles = 1
     if hasattr(constants, 'shape'):
@@ -23,6 +26,7 @@ def f_eval_gpu_with_kernel(stack, x, constants):
     return forward_eval
 
 
+@nvtx.annotate(message="gpu_eval", color="orange")
 @jit.rawkernel()
 def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size, f_eval_arr):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x

@@ -7,7 +7,7 @@ import numpy as np
 import nvtx
 
 
-@nvtx.annotate(message="gpu_eval_wrapper", color="orange")
+# @nvtx.annotate(message="gpu_eval_wrapper", color="orange")
 def f_eval_gpu_with_kernel(stack, x, constants):
 
     with nvtx.annotate(message="setup", color="red"):
@@ -21,10 +21,15 @@ def f_eval_gpu_with_kernel(stack, x, constants):
                 constants = cp.stack(constants, axis=0)
                 num_particles = constants.shape[1]
 
-    forward_eval = cp.full((len(stack), x.shape[0], num_particles), np.inf)
-    blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
-    _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0],
-                                                                stack.shape[0], forward_eval)
+
+    with nvtx.annotate(message="setup_2", color="red"):
+        forward_eval = cp.full((len(stack), x.shape[0], num_particles), np.inf)
+        blockspergrid = math.ceil(x.shape[0] * num_particles / gi.GPU_THREADS_PER_BLOCK)
+
+
+    with nvtx.annotate(message="kernel_launch", color="red"):
+        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, x, constants, num_particles, x.shape[0],
+                                                                    stack.shape[0], forward_eval)
     return forward_eval
 
 

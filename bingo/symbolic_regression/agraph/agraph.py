@@ -199,7 +199,11 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         params : list of numeric
             Values to set constants
         """
-        self._simplified_constants = tuple(params)
+
+        if gi.USING_GPU:
+            self._simplified_constants = params
+        else:
+            self._simplified_constants = tuple(params)
         self._needs_opt = False
 
     def get_utilized_commands(self):

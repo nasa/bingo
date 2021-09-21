@@ -65,6 +65,8 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
+import nvtx
+
 
 class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     """Acyclic graph representation of an equation.
@@ -135,6 +137,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._fitness = None
         self._fit_set = False
 
+    @nvtx.annotate(color="orange")
     def _update(self):
         if self._use_simplification:
             self._simplified_command_array = \
@@ -189,6 +192,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._update()
         return len(self._simplified_constants)
 
+    @nvtx.annotate(color="orange")
     def set_local_optimization_params(self, params):
         """Set the local optimization parameters.
 
@@ -220,6 +224,8 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         return simplification_backend.get_utilized_commands(
                 self._command_array)
 
+
+    @nvtx.annotate(color="orange")
     def evaluate_equation_at(self, x):
         """Evaluate the `AGraph` equation.
 

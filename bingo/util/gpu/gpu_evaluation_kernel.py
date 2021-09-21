@@ -18,9 +18,10 @@ def f_eval_gpu_with_kernel(stack, x, constants):
             if len(constants) == 0:
                 constants = cp.asarray([[]])
             else:
+                print("before", constants)
                 constants = cp.stack(constants, axis=0)
                 num_particles = constants.shape[1]
-                print(constants)
+                print("after", constants)
 
 
     with nvtx.annotate(message="setup_2", color="red"):

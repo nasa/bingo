@@ -138,30 +138,31 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._fit_set = False
 
     def _update(self):
-        if self._use_simplification:
-            self._simplified_command_array = \
-                simplification_backend.simplify_stack(self._command_array)
-        else:
-            self._simplified_command_array = \
-                simplification_backend.reduce_stack(self._command_array)
+        with nvtx.annotate(message="agraph.update", color="orange"):
+            if self._use_simplification:
+                self._simplified_command_array = \
+                    simplification_backend.simplify_stack(self._command_array)
+            else:
+                self._simplified_command_array = \
+                    simplification_backend.reduce_stack(self._command_array)
 
-        const_commands = self._simplified_command_array[:, 0] == CONSTANT
-        num_const = np.count_nonzero(const_commands)
-        self._simplified_command_array[const_commands, 1] = np.arange(num_const)
-        self._simplified_command_array[const_commands, 2] = np.arange(num_const)
+            const_commands = self._simplified_command_array[:, 0] == CONSTANT
+            num_const = np.count_nonzero(const_commands)
+            self._simplified_command_array[const_commands, 1] = np.arange(num_const)
+            self._simplified_command_array[const_commands, 2] = np.arange(num_const)
 
-        optimization_aggression = 0
-        if optimization_aggression == 0 \
-                and num_const <= len(self._simplified_constants):
-            self._simplified_constants = self._simplified_constants[:num_const]
-        elif optimization_aggression == 1 \
-                and num_const == len(self._simplified_constants):
-            self._simplified_constants = self._simplified_constants[:num_const]
-        else:
-            self._simplified_constants = (1.0,) * num_const
-            if num_const > 0:
-                self._needs_opt = True
-        self._modified = False
+            optimization_aggression = 0
+            if optimization_aggression == 0 \
+                    and num_const <= len(self._simplified_constants):
+                self._simplified_constants = self._simplified_constants[:num_const]
+            elif optimization_aggression == 1 \
+                    and num_const == len(self._simplified_constants):
+                self._simplified_constants = self._simplified_constants[:num_const]
+            else:
+                self._simplified_constants = (1.0,) * num_const
+                if num_const > 0:
+                    self._needs_opt = True
+            self._modified = False
 
     def needs_local_optimization(self):
         """The `AGraph` needs local optimization.
@@ -202,10 +203,12 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         params : list of numeric
             Values to set constants
         """
-        if gi.USING_GPU:
-            self._simplified_constants = params
-        else:
-            self._simplified_constants = tuple(params)
+
+        with nvtx.annotate(message="agraph.setting_constants", color="orange"):
+            if gi.USING_GPU:
+                self._simplified_constants = params
+            else:
+                self._simplified_constants = tuple(params)
         self._needs_opt = False
 
     def get_utilized_commands(self):
@@ -221,6 +224,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         """
         return simplification_backend.get_utilized_commands(
                 self._command_array)
+
 
     def evaluate_equation_at(self, x):
         """Evaluate the `AGraph` equation.
@@ -241,19 +245,21 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         if self._modified:
             self._update()
         try:
-            command_array = self._simplified_command_array
 
-            if np.allclose(command_array, np.array([[1, 0, 0]])):
-                return gi.num_lib.asarray(self._simplified_constants[0])
+            with nvtx.annotate(message="eval_equation_at", color="orange"):
+                command_array = self._simplified_command_array
 
-            if gi.USING_GPU:
-                if not hasattr(self, '_simplified_command_array_gpu'):
-                    self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)
-                command_array = self._simplified_command_array_gpu
+                if np.allclose(command_array, np.array([[1, 0, 0]])):
+                    return gi.num_lib.asarray(self._simplified_constants[0])
 
-            f_of_x = \
-                evaluation_backend.evaluate(command_array, x,
-                                            self._simplified_constants)
+                if gi.USING_GPU:
+                    if not hasattr(self, '_simplified_command_array_gpu'):
+                        self._simplified_command_array_gpu = gi.num_lib.asarray(self._simplified_command_array)
+                    command_array = self._simplified_command_array_gpu
+
+                f_of_x = \
+                    evaluation_backend.evaluate(command_array, x,
+                                                self._simplified_constants)
             return f_of_x
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:

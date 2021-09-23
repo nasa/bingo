@@ -11,6 +11,15 @@ def fused_some_stuff(x, y):
     sumx = cp.sum(x, axis=1)
     return sumx**2 + y / cp.sqrt(y)
 
+@cp.fuse()
+def split_fuse_1(x):
+    sumx = cp.sum(x, axis=1)
+    return sumx**2 + y / cp.sqrt(y)
+
+@cp.fuse()
+def split_fuse_2(sumx, y):
+    return sumx**2 + y / cp.sqrt(y)
+
 
 
 
@@ -38,11 +47,19 @@ with nvtx.annotate(message="not_fused_get"):
 with nvtx.annotate(message="fused_get"):
     _ = fused_some_stuff(X, Y).get()
 
+with nvtx.annotate(message="split_fuse_get"):
+    sumx = split_fuse_1(X)
+    _ = split_fuse_2(sumx, Y).get()
+
 
 with nvtx.annotate(message="not_fused_get"):
     _ = do_some_stuff(X, Y).get()
 
 with nvtx.annotate(message="fused_get"):
     _ = fused_some_stuff(X, Y).get()
+
+with nvtx.annotate(message="split_fuse_get"):
+    sumx = split_fuse_1(X)
+    _ = split_fuse_2(sumx, Y).get()
 
 

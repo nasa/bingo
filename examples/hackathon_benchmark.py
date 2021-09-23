@@ -118,10 +118,10 @@ if __name__ == '__main__':
 
 
     # use gpu implementation for bingo
-    # bingo_gi.set_use_gpu(True)
+    bingo_gi.set_use_gpu(True)
 
     # use gpu implementation for smcpy
-    # smc_gi.set_use_gpu(True)
+    smc_gi.set_use_gpu(True)
 
     run_benchmark(MCMC_STEPS, NUM_GENERATIONS, NUM_PARTICLES, PHI_EXPONENT,
                   POPULATION_SIZE, SMC_STEPS, STACK_SIZE)

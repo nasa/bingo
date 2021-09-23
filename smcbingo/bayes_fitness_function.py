@@ -166,7 +166,7 @@ class BayesFitnessFunction(FitnessFunction):
 
     @nvtx.annotate()
     def evaluate_model_gpu(self, params, individual):
-        #params = gi.num_lib.asarray(params)
+        params = gi.num_lib.asarray(params)
 
         self._eval_count += 1
         individual.set_local_optimization_params(params.T)

@@ -18,17 +18,31 @@ X = cp.ones((800, 150), dtype=np.float)
 Y = cp.full(800, 4.0)
 
 
-with nvtx.annotate(message="not_fused"):
-    _ = do_some_stuff(X, Y).asnumpy()
+with nvtx.annotate(message="not_fused_asnumpy"):
+    _ = cp.asnumpy(do_some_stuff(X, Y))
 
-with nvtx.annotate(message="fused"):
-    _ = fused_some_stuff(X, Y).asnumpy()
+with nvtx.annotate(message="fused_asnumpy"):
+    _ = cp.asnumpy(fused_some_stuff(X, Y))
 
 
-with nvtx.annotate(message="not_fused"):
-    _ = do_some_stuff(X, Y).asnumpy()
+with nvtx.annotate(message="not_fused_asnumpy"):
+    _ = cp.asnumpy(do_some_stuff(X, Y))
 
-with nvtx.annotate(message="fused"):
-    _ = fused_some_stuff(X, Y).asnumpy()
+with nvtx.annotate(message="fused_asnumpy"):
+    _ = cp.asnumpy(fused_some_stuff(X, Y))
+
+
+with nvtx.annotate(message="not_fused_get"):
+    _ = do_some_stuff(X, Y).get()
+
+with nvtx.annotate(message="fused_get"):
+    _ = fused_some_stuff(X, Y).get()
+
+
+with nvtx.annotate(message="not_fused_get"):
+    _ = do_some_stuff(X, Y).get()
+
+with nvtx.annotate(message="fused_get"):
+    _ = fused_some_stuff(X, Y).get()
 
 

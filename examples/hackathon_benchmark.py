@@ -120,6 +120,9 @@ if __name__ == '__main__':
     # use gpu implementation for bingo
     bingo_gi.set_use_gpu(True)
 
+    # use parallel cpu implementation
+    # bingo_gi.set_use_parallel_cpu(True)
+
     # use gpu implementation for smcpy
     smc_gi.set_use_gpu(True)
 

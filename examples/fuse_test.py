@@ -19,16 +19,16 @@ Y = cp.full(800, 4.0)
 
 
 with nvtx.annotate(message="not_fused"):
-    _ = do_some_stuff(X,Y).get()
+    _ = do_some_stuff(X, Y).asnumpy()
 
 with nvtx.annotate(message="fused"):
-    _ = fused_some_stuff(X,Y).get()
+    _ = fused_some_stuff(X, Y).asnumpy()
 
 
 with nvtx.annotate(message="not_fused"):
-    _ = do_some_stuff(X,Y).get()
+    _ = do_some_stuff(X, Y).asnumpy()
 
 with nvtx.annotate(message="fused"):
-    _ = fused_some_stuff(X,Y).get()
+    _ = fused_some_stuff(X, Y).asnumpy()
 
 

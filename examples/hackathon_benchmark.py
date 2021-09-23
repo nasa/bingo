@@ -90,7 +90,7 @@ def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
                                phi_exponent=phi_exponent,
                                smc_steps=smc_steps,
                                mcmc_steps=mcmc_steps)
-    evaluation_phase = Evaluation(bff)
+    evaluation_phase = Evaluation(bff, multiprocess=USE_PARALLEL_CPU)
 
     # evolutionary algorithm
     ea = MuPlusLambda(evaluation_phase, selection, crossover, mutation,
@@ -107,6 +107,7 @@ def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
 if __name__ == '__main__':
 
     # BINGO PARAMS
+    USE_PARALLEL_CPU = True
     POPULATION_SIZE = 64
     STACK_SIZE = 64
     NUM_GENERATIONS = 1
@@ -115,6 +116,7 @@ if __name__ == '__main__':
     SMC_STEPS = 40
     MCMC_STEPS = 10
     PHI_EXPONENT = 2
+
 
 
     # use gpu implementation for bingo

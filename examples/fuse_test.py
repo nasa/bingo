@@ -13,8 +13,7 @@ def fused_some_stuff(x, y):
 
 @cp.fuse()
 def split_fuse_1(x):
-    sumx = cp.sum(x, axis=1)
-    return sumx**2 + y / cp.sqrt(y)
+    return cp.sum(x, axis=1)
 
 @cp.fuse()
 def split_fuse_2(sumx, y):

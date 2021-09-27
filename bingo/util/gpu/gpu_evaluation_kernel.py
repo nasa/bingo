@@ -44,7 +44,7 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
         data_index = index // num_particles
         constant_index = index % num_particles
 
-
+        # TODO try having f_eval_arr being an local array and just return result?
 
         for i in range(stack_size):
             node = stack[i, 0]
@@ -88,3 +88,9 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
             elif node == defs.SQRT:
                 f_eval_arr[i, data_index, constant_index] = cp.sqrt(f_eval_arr[int(param1), data_index, constant_index])
 
+
+# TODO evaluating equations in parallel vs serial?
+# if we can get around memory bottleneck by using f_eval_arr as a local array
+# and only store the results, does it make sense to evaluate the equations serially?
+def _f_eval_combined_gpu_kernel(total_stack, x, constants, num_particles, data_size, stack_sizes, f_eval_arr, results):
+    pass

@@ -66,7 +66,3 @@ if __name__ == "__main__":
     #
     # test RESULTS1 == RESULTS2
 
-
-
-
-

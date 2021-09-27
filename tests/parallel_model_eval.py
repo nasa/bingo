@@ -54,13 +54,14 @@ if __name__ == "__main__":
     for i, c in enumerate(CONSTANTS_FOR_SERIAL):
         CONSTANTS_FOR_PARALLEL[i, :, :c.shape[0]] = c.T
     STACK_SIZES = cp.asarray(np.cumsum([0] + [len(s) for s in STACKS_FOR_SERIAL]))
+    NUM_STACKS = len(CONSTANTS_FOR_PARALLEL)
 
 
     RESULTS2 = cp.full((4, NUM_PARTICLES, DATA_SIZE), np.inf)
-    blockspergrid = math.ceil(DATA.shape[0] * NUM_PARTICLES * len(CONSTANTS_FOR_PARALLEL) / gi.GPU_THREADS_PER_BLOCK)
+    blockspergrid = math.ceil(DATA_SIZE * NUM_PARTICLES * NUM_STACKS / gi.GPU_THREADS_PER_BLOCK)
     _f_eval_gpu_kernel_parallel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](
             STACKS_FOR_PARALLEL, DATA, CONSTANTS_FOR_PARALLEL, NUM_PARTICLES,
-            DATA_SIZE, STACK_SIZES, BUFFER2, RESULTS2)
+            DATA_SIZE, NUM_STACKS, STACK_SIZES, BUFFER2, RESULTS2)
     #
     #
     # test RESULTS1 == RESULTS2

@@ -91,11 +91,10 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
 
 @jit.rawkernel()
 def _f_eval_gpu_kernel_parallel(stacks, x, constants, num_particles, data_size,
-                                stack_locations, f_eval_arr, results):
+                                num_stacks, stack_locations, f_eval_arr, results):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
     # fwd_buff = [1.0]*stack_size
 
-    num_stacks = len(stack_locations) - 1
     if index < data_size * num_particles * num_stacks:
         stack_index = index // (num_particles * data_size)
         data_index = (index % (num_particles * data_size)) // num_particles

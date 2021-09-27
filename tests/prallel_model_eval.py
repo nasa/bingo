@@ -9,7 +9,6 @@ from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel #, \
 
 
 if __name__ == "__main__":
-
     NUM_PARTICLES = 4
 
     STACKS = [cp.array([[0, 0, 0],
@@ -31,17 +30,15 @@ if __name__ == "__main__":
     DATA_SIZE = 5
     DATA = cp.arange(10, dtype=float).reshape(DATA_SIZE, 2)
 
-    # CHANGES: added num=, changed reshape (NUM_PARTICLES, 1) -> (1, NUM_PARTICLES)
-    # do we care if constants are column- or row-major?
+    # column-major for future implementation TODO
     CONSTANTS = [cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
                  cp.linspace(1, NUM_PARTICLES*2, num=NUM_PARTICLES*2).reshape(2, NUM_PARTICLES), #  TODO Try with different end range
                  cp.empty((0, NUM_PARTICLES)),
                  cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES)]
 
-
     # current split kernel
     BUFFER1 = cp.full((7, DATA_SIZE, NUM_PARTICLES), np.inf)
-    RESULTS1 = cp.full((4, DATA_SIZE, NUM_PARTICLES), np.inf)  # TODO DATA_SIZE, NUM_PARTICLES order different
+    RESULTS1 = cp.full((4, DATA_SIZE, NUM_PARTICLES), np.inf)  # TODO DATA_SIZE, NUM_PARTICLES order different (want design slide order)
     blockspergrid = math.ceil(DATA.shape[0] * NUM_PARTICLES / gi.GPU_THREADS_PER_BLOCK)
     for i, (stack, consts) in enumerate(zip(STACKS, CONSTANTS)):
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, DATA, consts, NUM_PARTICLES, DATA_SIZE,

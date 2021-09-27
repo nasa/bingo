@@ -89,25 +89,21 @@ def _f_eval_gpu_kernel(stack, x, constants, num_particles, data_size, stack_size
                 f_eval_arr[i, data_index, constant_index] = cp.sqrt(f_eval_arr[int(param1), data_index, constant_index])
 
 
-def _f_eval_gpu_kernel_parallel(stacks, x, constants, num_particles, data_size, stack_size, f_eval_arr):
+def _f_eval_gpu_kernel_parallel(stacks, x, constants, num_particles, data_size, stack_sizes, f_eval_arr):
     index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
     # fwd_buff = [1.0]*stack_size
 
-    # TODO figure out how to get stack index from index
-    # TODO figure out data and constant index changes
-    if index < data_size * num_particles * stack_size:
+    if index < data_size * num_particles * len(stack_sizes):
         stack_index = index // (num_particles * data_size)
-        data_index = (index // num_particles) % data_size
-        constant_index = index % num_particles
-
-        stack = stacks[stack_index]
+        data_index = (index % (num_particles * data_size)) // num_particles
+        constant_index = (index % (num_particles * data_size)) % num_particles
 
         # TODO try having f_eval_arr being an local array and just return result?
 
-        for i in range(stack_size):
-            node = stack[i, 0]
-            param1 = stack[i, 1]
-            param2 = stack[i, 2]
+        for i in range(stack_sizes[stack_index]):
+            node = stacks[stack_index, i, 0]
+            param1 = stacks[stack_index, i, 1]
+            param2 = stacks[stack_index, i, 2]
 
             if node == defs.INTEGER:
                 f_eval_arr[i, data_index, constant_index] = float(param1)

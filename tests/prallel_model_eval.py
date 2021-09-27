@@ -1,5 +1,7 @@
 import numpy as np
 import cupy as cp
+import bingo.util.global_imports as gi
+import math
 
 
 from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel #, \
@@ -29,17 +31,20 @@ if __name__ == "__main__":
     DATA_SIZE = 5
     DATA = cp.arange(10, dtype=float).reshape(DATA_SIZE, 2)
 
-    CONSTANTS = [cp.linspace(1, NUM_PARTICLES).reshape(NUM_PARTICLES, 1),
-                 cp.linspace(1, NUM_PARTICLES*2).reshape(NUM_PARTICLES, 2),
-                 cp.empty((NUM_PARTICLES, 0)),
-                 cp.linspace(1, NUM_PARTICLES).reshape(NUM_PARTICLES, 1)]
+    # CHANGES: added num=, changed reshape (NUM_PARTICLES, 1) -> (1, NUM_PARTICLES)
+    # do we care if constants are column- or row-major?
+    CONSTANTS = [cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
+                 cp.linspace(1, NUM_PARTICLES*2, num=NUM_PARTICLES*2).reshape(2, NUM_PARTICLES), #  TODO Try with different end range
+                 cp.empty((0, NUM_PARTICLES)),
+                 cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES)]
 
 
     # current split kernel
     BUFFER1 = cp.full((7, DATA_SIZE, NUM_PARTICLES), np.inf)
-    RESULTS1 = cp.full((4, NUM_PARTICLES, DATA_SIZE), np.inf)
+    RESULTS1 = cp.full((4, DATA_SIZE, NUM_PARTICLES), np.inf)  # TODO DATA_SIZE, NUM_PARTICLES order different
+    blockspergrid = math.ceil(DATA.shape[0] * NUM_PARTICLES / gi.GPU_THREADS_PER_BLOCK)
     for i, (stack, consts) in enumerate(zip(STACKS, CONSTANTS)):
-        _f_eval_gpu_kernel(stack, DATA, consts, NUM_PARTICLES, DATA_SIZE,
+        _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, DATA, consts, NUM_PARTICLES, DATA_SIZE,
                            len(stack), BUFFER1)
         RESULTS1[i, :, :] = cp.copy(BUFFER1[len(stack)-1, :, :])
 
@@ -47,9 +52,9 @@ if __name__ == "__main__":
     # joined kernel
     BUFFER2 = cp.full((7, DATA_SIZE, NUM_PARTICLES), np.inf)
     TOTAL_STACK = cp.vstack(STACKS)
-    TOTAL_CONSTANTS = cp.zeros((4, NUM_PARTICLES, 2))
-    for i, c in enumerate(CONSTANTS):
-        TOTAL_CONSTANTS[i, :, :c.shape[1]] = c
+    # TOTAL_CONSTANTS = cp.zeros((4, NUM_PARTICLES, 2))
+    # for i, c in enumerate(CONSTANTS):
+        # TOTAL_CONSTANTS[i, :, :c.shape[1]] = c
     STACK_SIZES = cp.asarray([len(s) for s in STACKS])
 
 

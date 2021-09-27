@@ -57,6 +57,7 @@ if __name__ == "__main__":
 
 
     RESULTS2 = cp.full((4, NUM_PARTICLES, DATA_SIZE), np.inf)
+    blockspergrid = math.ceil(DATA.shape[0] * NUM_PARTICLES * len(CONSTANTS_FOR_PARALLEL) / gi.GPU_THREADS_PER_BLOCK)
     _f_eval_gpu_kernel_parallel(STACKS_FOR_PARALLEL, DATA, CONSTANTS_FOR_PARALLEL,
                                 NUM_PARTICLES, DATA_SIZE, STACK_SIZES,
                                 BUFFER2, RESULTS2)

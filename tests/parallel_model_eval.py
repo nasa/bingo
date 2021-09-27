@@ -28,8 +28,10 @@ if __name__ == "__main__":
                                    [4, 0, 0]]),  # x*x
                          cp.array([[1, 0, 0],
                                    [4, 0, 0]]),  # a*a
-                         cp.array([[0, 0, 0]]),  # x
-                         cp.array([[1, 0, 0]]),  # a
+                         cp.array([[0, 0, 0],
+                                   [0, 0, 0]]),  # x
+                         cp.array([[1, 0, 0],
+                                   [1, 0, 0]]),  # a
                          ]
     NUM_STACKS = len (STACKS_FOR_SERIAL)
 

@@ -4,8 +4,8 @@ import bingo.util.global_imports as gi
 import math
 
 
-from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel #, \
-                                                 #_f_eval_combined_gpu_kernel
+from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel, \
+                                                 _f_eval_gpu_kernel_parallel
 
 
 if __name__ == "__main__":
@@ -48,18 +48,18 @@ if __name__ == "__main__":
 
 
     # joined kernel
-    BUFFER2 = cp.full((7, DATA_SIZE, NUM_PARTICLES), np.inf)
+    BUFFER2 = cp.full((7, NUM_PARTICLES, DATA_SIZE), np.inf)
     STACKS_FOR_PARALLEL = cp.vstack(STACKS_FOR_SERIAL)
     CONSTANTS_FOR_PARALLEL = cp.zeros((4, NUM_PARTICLES, 2))
     for i, c in enumerate(CONSTANTS_FOR_SERIAL):
         CONSTANTS_FOR_PARALLEL[i, :, :c.shape[0]] = c.T
-    STACK_SIZES = cp.asarray([len(s) for s in STACKS_FOR_SERIAL])
+    STACK_SIZES = cp.asarray(np.cumsum([0] + [len(s) for s in STACKS_FOR_SERIAL]))
 
 
     RESULTS2 = cp.full((4, NUM_PARTICLES, DATA_SIZE), np.inf)
-    # _f_eval_combined_gpu_kernel(TOTAL_STACK, DATA, TOTAL_CONSTANTS,
-    #                             NUM_PARTICLES, DATA_SIZE, STACK_SIZES,
-    #                             BUFFER2, RESULTS2)
+    _f_eval_gpu_kernel_parallel(STACKS_FOR_PARALLEL, DATA, CONSTANTS_FOR_PARALLEL,
+                                NUM_PARTICLES, DATA_SIZE, STACK_SIZES,
+                                BUFFER2, RESULTS2)
     #
     #
     # test RESULTS1 == RESULTS2

@@ -31,6 +31,7 @@ if __name__ == "__main__":
                          cp.array([[0, 0, 0]]),  # x
                          cp.array([[1, 0, 0]]),  # a
                          ]
+    NUM_STACKS = len (STACKS_FOR_SERIAL)
 
 
     # column-major for future implementation TODO
@@ -41,7 +42,7 @@ if __name__ == "__main__":
 
     # current split kernel
     BUFFER1 = cp.full((7, DATA_SIZE, NUM_PARTICLES), np.inf)
-    RESULTS1 = cp.full((4, NUM_PARTICLES, DATA_SIZE), np.inf)
+    RESULTS1 = cp.full((NUM_STACKS, NUM_PARTICLES, DATA_SIZE), np.inf)
     blockspergrid = math.ceil(DATA.shape[0] * NUM_PARTICLES / gi.GPU_THREADS_PER_BLOCK)
     for i, (stack, consts) in enumerate(zip(STACKS_FOR_SERIAL, CONSTANTS_FOR_SERIAL)):
         _f_eval_gpu_kernel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](stack, DATA, consts, NUM_PARTICLES, DATA_SIZE,
@@ -52,14 +53,13 @@ if __name__ == "__main__":
     # joined kernel
     BUFFER2 = cp.full((7, NUM_PARTICLES, DATA_SIZE), np.inf)
     STACKS_FOR_PARALLEL = cp.vstack(STACKS_FOR_SERIAL)
-    CONSTANTS_FOR_PARALLEL = cp.zeros((4, NUM_PARTICLES, 2))
+    CONSTANTS_FOR_PARALLEL = cp.zeros((NUM_STACKS, NUM_PARTICLES, 2))
     for i, c in enumerate(CONSTANTS_FOR_SERIAL):
         CONSTANTS_FOR_PARALLEL[i, :, :c.shape[0]] = c.T
     STACK_SIZES = cp.asarray(np.cumsum([0] + [len(s) for s in STACKS_FOR_SERIAL]))
-    NUM_STACKS = len(CONSTANTS_FOR_PARALLEL)
 
 
-    RESULTS2 = cp.full((4, NUM_PARTICLES, DATA_SIZE), np.inf)
+    RESULTS2 = cp.full((NUM_STACKS, NUM_PARTICLES, DATA_SIZE), np.inf)
     blockspergrid = math.ceil(DATA_SIZE * NUM_PARTICLES * NUM_STACKS / gi.GPU_THREADS_PER_BLOCK)
     _f_eval_gpu_kernel_parallel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](
             STACKS_FOR_PARALLEL, DATA, CONSTANTS_FOR_PARALLEL, NUM_PARTICLES,

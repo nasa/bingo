@@ -34,7 +34,6 @@ if __name__ == "__main__":
                                    [1, 0, 0]]),  # a
                          ]
 
-    # column-major for future implementation TODO
     CONSTANTS_FOR_SERIAL = [cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
                             cp.linspace(1, NUM_PARTICLES*2, num=NUM_PARTICLES*2).reshape(2, NUM_PARTICLES),  #  TODO Try with different end range
                             cp.empty((0, NUM_PARTICLES)),
@@ -43,11 +42,8 @@ if __name__ == "__main__":
                             cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
                             ]
 
-    # STACKS_FOR_SERIAL = STACKS_FOR_SERIAL[-2:]
-    # CONSTANTS_FOR_SERIAL = CONSTANTS_FOR_SERIAL[-2:]
     NUM_STACKS = len(STACKS_FOR_SERIAL)
     MAX_STACK_SIZE = max([len(c) for c in STACKS_FOR_SERIAL])
-    print("MAX STACK SIZE", MAX_STACK_SIZE)
 
 
     # current split kernel
@@ -59,8 +55,8 @@ if __name__ == "__main__":
                 stack, DATA, consts, NUM_PARTICLES, DATA_SIZE,
                 len(stack), BUFFER1)
         RESULTS1[i, :, :] = cp.copy(BUFFER1[len(stack)-1, :, :].T)
-    print("SERIEAL RESULTS")
-    print(RESULTS1)
+    # print("SERIEAL RESULTS")
+    # print(RESULTS1)
 
 
     # joined kernel
@@ -70,7 +66,6 @@ if __name__ == "__main__":
     for i, c in enumerate(CONSTANTS_FOR_SERIAL):
         CONSTANTS_FOR_PARALLEL[i, :, :c.shape[0]] = c.T
     STACK_SIZES = cp.asarray(np.cumsum([0] + [len(s) for s in STACKS_FOR_SERIAL]))
-    print("STACK SIZES", STACK_SIZES)
 
 
     RESULTS2 = cp.full((NUM_STACKS, NUM_PARTICLES, DATA_SIZE), np.inf)
@@ -78,9 +73,8 @@ if __name__ == "__main__":
     _f_eval_gpu_kernel_parallel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](
             STACKS_FOR_PARALLEL, DATA, CONSTANTS_FOR_PARALLEL, NUM_PARTICLES,
             DATA_SIZE, NUM_STACKS, STACK_SIZES, BUFFER2, RESULTS2)
-    print("PARALLEL RESULTS")
-    print(RESULTS2)
-    #
-    #
-    # test RESULTS1 == RESULTS2
+    # print("PARALLEL RESULTS")
+    # print(RESULTS2)
+
+    np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS2.get())
 

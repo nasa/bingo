@@ -130,10 +130,12 @@ if __name__ == '__main__':
                              NUM_PARTICLES, STACKS_FOR_PARALLEL,
                              STACK_SIZES)
     t3 = time.time()
+    rng = nvtx.start_range(message="parallel_kernel", color="green")
     RESULTS2 = parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
                                     MAX_STACK_SIZE, NUM_EQUATIONS,
                                     NUM_PARTICLES, STACKS_FOR_PARALLEL,
                                     STACK_SIZES)
+    nvtx.end_range(rng)
     t4 = time.time()
 
     # display

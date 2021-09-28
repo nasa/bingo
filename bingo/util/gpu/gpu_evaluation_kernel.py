@@ -143,6 +143,9 @@ def _f_eval_gpu_kernel_parallel(stacks, x, constants, num_particles, data_size,
                 f_eval_arr[i, constant_index, data_index] = cp.abs(f_eval_arr[int(param1), constant_index, data_index])
             elif node == defs.SQRT:
                 f_eval_arr[i, constant_index, data_index] = cp.sqrt(f_eval_arr[int(param1), constant_index, data_index])
+
+        print(f"{index}({stack_index},{constant_index},{data_index}): "
+              f"{f_eval_arr[:(stack_locations[stack_index + 1] - stack_start - 1), constant_index, data_index]}")
         results[stack_index, constant_index, data_index] = \
             f_eval_arr[stack_locations[stack_index + 1] - stack_start - 1,
                        constant_index, data_index]

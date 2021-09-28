@@ -40,15 +40,15 @@ if __name__ == "__main__":
                             cp.empty((0, NUM_PARTICLES)),
                             cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES)]
 
-    STACKS_FOR_SERIAL = STACKS_FOR_SERIAL[-1:]
-    CONSTANTS_FOR_SERIAL = CONSTANTS_FOR_SERIAL[-1:]
+    STACKS_FOR_SERIAL = STACKS_FOR_SERIAL[-2:]
+    CONSTANTS_FOR_SERIAL = CONSTANTS_FOR_SERIAL[-2:]
     NUM_STACKS = len(STACKS_FOR_SERIAL)
     MAX_STACK_SIZE = max([len(c) for c in STACKS_FOR_SERIAL])
     print("MAX STACK SIZE", MAX_STACK_SIZE)
 
 
     # current split kernel
-    BUFFER1 = cp.full((MAX_STACK_SIZE, DATA_SIZE, NUM_PARTICLES), np.inf)
+    BUFFER1 = cp.full((MAX_STACK_SIZE, NUM_STACKS, DATA_SIZE, NUM_PARTICLES), np.inf)
     RESULTS1 = cp.full((NUM_STACKS, NUM_PARTICLES, DATA_SIZE), np.inf)
     blockspergrid = math.ceil(DATA.shape[0] * NUM_PARTICLES / gi.GPU_THREADS_PER_BLOCK)
     for i, (stack, consts) in enumerate(zip(STACKS_FOR_SERIAL, CONSTANTS_FOR_SERIAL)):

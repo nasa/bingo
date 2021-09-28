@@ -8,7 +8,9 @@ from bingo.symbolic_regression import AGraphGenerator, ComponentGenerator
 from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel, \
                                                  _f_eval_gpu_kernel_parallel
 
+import nvtx
 
+@nvtx.annotate(color="red")
 def set_up_problem(data_dim, num_equations, num_particles, stack_size):
     stacks_for_serial, constants_for_serial = _get_random_stacks_and_constants(
             num_equations, stack_size, data_dim, num_particles)
@@ -55,31 +57,39 @@ def _make_parallel_data_structures(stacks_for_serial, constants_for_serial,
     return constants_for_parallel, stacks_for_parallel, stack_sizes
 
 
+@nvtx.annotate(color="blue")
 def serial_kernel_calls(stacks, constants, data, data_size, num_equations,
                         num_particles):
-    results = cp.full((num_equations, num_particles, data_size), np.inf)
+    with nvtx.annotate(message="result allocation", color="blue"):
+        results = cp.full((num_equations, num_particles, data_size), np.inf)
     blockspergrid = \
         math.ceil(data.shape[0] * num_particles / THREADS_PER_BLOCK)
     for i, (stack, consts) in enumerate(zip(stacks, constants)):
-        buffer = cp.full((len(stack), data_size, num_particles), np.inf)
-        _f_eval_gpu_kernel[blockspergrid, THREADS_PER_BLOCK](
-                stack, data, consts, num_particles, data_size,
-                len(stack), buffer)
-        results[i, :, :] = cp.copy(buffer[len(stack) - 1, :, :].T)
+        with nvtx.annotate(message="buffer allocation", color="blue"):
+            buffer = cp.full((len(stack), data_size, num_particles), np.inf)
+        with nvtx.annotate(message="individual kernel", color="blue"):
+            _f_eval_gpu_kernel[blockspergrid, THREADS_PER_BLOCK](
+                    stack, data, consts, num_particles, data_size,
+                    len(stack), buffer)
+            results[i, :, :] = cp.copy(buffer[len(stack) - 1, :, :].T)
     return results
 
 
+@nvtx.annotate(color="green")
 def parallel_kernel_call(constants, data, data_size,
                          max_stack_size, num_equations, num_particles,
                          stacks, stack_sizes):
-    buffer = cp.full((max_stack_size, num_equations, num_particles, data_size),
-                     np.inf)
-    results = cp.full((num_equations, num_particles, data_size), np.inf)
+    with nvtx.annotate(message="result allocation", color="green"):
+        results = cp.full((num_equations, num_particles, data_size), np.inf)
+    with nvtx.annotate(message="buffer allocation", color="green"):
+        buffer = cp.full((max_stack_size, num_equations, num_particles, data_size),
+                         np.inf)
     blockspergrid = math.ceil(
             data_size * num_particles * num_equations / THREADS_PER_BLOCK)
-    _f_eval_gpu_kernel_parallel[blockspergrid, THREADS_PER_BLOCK](
-            stacks, data, constants, num_particles,
-            data_size, num_equations, stack_sizes, buffer, results)
+    with nvtx.annotate(message="parallel kernel", color="green"):
+        _f_eval_gpu_kernel_parallel[blockspergrid, THREADS_PER_BLOCK](
+                stacks, data, constants, num_particles,
+                data_size, num_equations, stack_sizes, buffer, results)
     return results
 
 

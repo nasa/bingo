@@ -3,6 +3,8 @@ import bingo.util.global_imports as gi
 import smcpy.utils.global_imports as smc_gi
 
 import numpy as np
+import cupy as cp
+import math
 
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
@@ -12,9 +14,9 @@ from smcpy.mcmc.vector_mcmc import VectorMCMC
 from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
 from smcpy import SMCSampler
 
+from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel_parallel
 
 import nvtx
-
 
 
 class ParallelSMCEvaluation(Evaluation):
@@ -50,7 +52,6 @@ class ParallelSMCEvaluation(Evaluation):
         if not smc_gi.USING_GPU:
             raise NotImplementedError
 
-
     def __call__(self, population):
         gi.set_use_gpu(False)
         max_constants = np.max([indv.get_num_loacl_optimization_params()
@@ -60,13 +61,12 @@ class ParallelSMCEvaluation(Evaluation):
         proposals, pop_inds = self._make_proposals(population,
                                                        max_constants)
 
-        command_arrays = gi.num_lib.vstack(
-                [population[i]._simplified_command_array
-                 for i in pop_inds])
+        command_arrays = [cp.asarray(population[i]._simplified_command_array)
+                          for i in pop_inds]
 
         gi.set_use_gpu(True)
 
-        evaluate_model = lambda x: self.evaluate_model_gpu(x, command_arrays)
+        evaluate_model = self._get_simplified_eval_call(command_arrays)
         vector_mcmc = VectorMCMC(evaluate_model,
                                  self.training_data_gpu.y.flatten(),
                                  log_like_args=None)
@@ -94,8 +94,8 @@ class ParallelSMCEvaluation(Evaluation):
             individual = self.do_local_opt(individual)
             try:
                 proposal_list.append(
-                        self.generate_proposal_samples(individual,
-                                                       max_constants))
+                        self._generate_proposal_samples(individual,
+                                                        max_constants))
                 pop_inds.append(i)
             except (ValueError, np.linalg.LinAlgError):
                 individual.fitness = np.nan
@@ -107,11 +107,11 @@ class ParallelSMCEvaluation(Evaluation):
         _ = self._cont_local_opt(individual)
         return individual
 
-    def generate_proposal_samples(self, individual, max_constants):
+    def _generate_proposal_samples(self, individual, max_constants):
         num_constants = individual.get_num_local_optimization_params()
         samples = np.zeros((self._num_particles, max_constants + 1))
 
-        cov, var_ols, ssqe = self.estimate_covariance(individual)
+        cov, var_ols, ssqe = self._estimate_covariance(individual)
         if num_constants > 0:
             proposal = mvn(individual.constants, cov, allow_singular=True)
             samples[:, :num_constants] = \
@@ -124,7 +124,7 @@ class ParallelSMCEvaluation(Evaluation):
         samples[:, -1] = noise_proposal.rvs(self._num_particles).reshape(-1, 1)
         return samples
 
-    def estimate_covariance(self, individual):
+    def _estimate_covariance(self, individual):
         num_params = individual.get_number_local_optimization_params()
         x = self.training_data.x
         f, f_deriv = individual.evaluate_equation_with_local_opt_gradient_at(x)
@@ -133,10 +133,38 @@ class ParallelSMCEvaluation(Evaluation):
         cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
         return cov, var_ols, ssqe
 
-    @nvtx.annotate()
-    def evaluate_model_gpu(self, params, command_arrays):
-        # TODO connect with parallel gpu kernel
-        return
+    def _get_simplified_eval_call(self, stacks):
+        THREADS_PER_BLOCK = 256
+        data = self.training_data_gpu.x
+        data_size = len(data)
+        max_stack_size = max([len(c) for c in stacks])
+        num_equations = len(stacks)
+        stack_sizes = cp.asarray(np.cumsum([0] + [len(s) for s in stacks]))
+        combined_stacks = cp.vstack(stacks)
+        with nvtx.annotate(message="buffer allocation", color="green"):
+            buffer = cp.full((max_stack_size, num_equations,
+                              self._num_particles, data_size),
+                             np.inf)
+        with nvtx.annotate(message="result allocation", color="green"):
+            results = cp.full((num_equations, self._num_particles, data_size),
+                              np.inf)
+        blocks_per_grid = \
+            math.ceil(data_size * self._num_particles * num_equations
+                      / THREADS_PER_BLOCK)
+        return lambda constants: self._evaluate_model_gpu(
+                constants, combined_stacks, data, self._num_particles,
+                data_size, num_equations, stack_sizes, buffer, results,
+                blocks_per_grid, THREADS_PER_BLOCK)
+
+    @staticmethod
+    def _evaluate_model_gpu(constants, stacks, data, num_particles,
+                            data_size, num_equations, stack_sizes, buffer,
+                            results, blocks_per_grid, threads_per_block):
+        with nvtx.annotate(message="parallel kernel", color="green"):
+            _f_eval_gpu_kernel_parallel[blocks_per_grid, threads_per_block](
+                    stacks, data, constants, num_particles,
+                    data_size, num_equations, stack_sizes, buffer, results)
+        return results
 
     def _calc_phi_sequence(self, phi_exponent):
         x = np.linspace(0, 1, self._smc_steps - 1)

@@ -54,7 +54,7 @@ class ParallelSMCEvaluation(Evaluation):
 
     def __call__(self, population):
         gi.set_use_gpu(False)
-        max_constants = np.max([indv.get_num_loacl_optimization_params()
+        max_constants = np.max([indv.get_number_local_optimization_params()
                                 for indv in population])
         param_names = [f'p{i}' for i in range(max_constants)] + ['std_dev']
 

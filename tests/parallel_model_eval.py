@@ -77,4 +77,5 @@ if __name__ == "__main__":
     # print(RESULTS2)
 
     np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS2.get())
+    print("Test Successful")
 

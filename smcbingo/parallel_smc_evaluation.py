@@ -107,7 +107,7 @@ class ParallelSMCEvaluation(Evaluation):
         return individual
 
     def _generate_proposal_samples(self, individual, max_constants):
-        num_constants = individual.get_num_local_optimization_params()
+        num_constants = individual.get_number_local_optimization_params()
         samples = np.zeros((self._num_particles, max_constants + 1))
 
         cov, var_ols, ssqe = self._estimate_covariance(individual)

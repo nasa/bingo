@@ -73,6 +73,7 @@ def serial_kernel_calls(stacks, constants, data, data_size, num_equations,
                     stack, data, consts, num_particles, data_size,
                     len(stack), buffer)
             results[i, :, :] = cp.copy(buffer[len(stack) - 1, :, :].T)
+    cp.cuda.get_current_stream().synchronize()
     return results
 
 
@@ -91,6 +92,7 @@ def parallel_kernel_call(constants, data, data_size,
         _f_eval_gpu_kernel_parallel[blockspergrid, THREADS_PER_BLOCK](
                 stacks, data, constants, num_particles,
                 data_size, num_equations, stack_sizes, buffer, results)
+    cp.cuda.get_current_stream().synchronize()
     return results
 
 
@@ -130,10 +132,12 @@ if __name__ == '__main__':
                              NUM_PARTICLES, STACKS_FOR_PARALLEL,
                              STACK_SIZES)
     t3 = time.time()
+    rng = nvtx.start_range(message="parallel_kernel", color="green")
     RESULTS2 = parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
                                     MAX_STACK_SIZE, NUM_EQUATIONS,
                                     NUM_PARTICLES, STACKS_FOR_PARALLEL,
                                     STACK_SIZES)
+    nvtx.end_range(rng)
     t4 = time.time()
 
     # display
@@ -144,5 +148,6 @@ if __name__ == '__main__':
     print(f"Serial time: {t2-t1} seconds")
     print(f"Parallel (with compile) time: {t3-t2} seconds")
     print(f"Parallel time: {t4-t3} seconds")
+    print(f"Speedup: {(t2-t1)/(t4-t3)} [Slowdown: {(t4-t3)/(t2-t1)}]")
 
 

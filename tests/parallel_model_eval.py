@@ -38,7 +38,10 @@ if __name__ == "__main__":
     CONSTANTS_FOR_SERIAL = [cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
                             cp.linspace(1, NUM_PARTICLES*2, num=NUM_PARTICLES*2).reshape(2, NUM_PARTICLES),  #  TODO Try with different end range
                             cp.empty((0, NUM_PARTICLES)),
-                            cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES)]
+                            cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
+                            cp.empty((0, NUM_PARTICLES)),
+                            cp.linspace(1, NUM_PARTICLES, num=NUM_PARTICLES).reshape(1, NUM_PARTICLES),
+                            ]
 
     # STACKS_FOR_SERIAL = STACKS_FOR_SERIAL[-2:]
     # CONSTANTS_FOR_SERIAL = CONSTANTS_FOR_SERIAL[-2:]

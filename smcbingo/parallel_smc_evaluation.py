@@ -96,7 +96,9 @@ class ParallelSMCEvaluation(Evaluation):
                         self._generate_proposal_samples(individual,
                                                         max_constants))
                 pop_inds.append(i)
-            except (ValueError, np.linalg.LinAlgError):
+            except (ValueError, np.linalg.LinAlgError) as e:
+                print(f"excepting proposal for equ {i}")
+                print(e)
                 individual.fitness = np.nan
         return np.stack(proposal_list), pop_inds
 

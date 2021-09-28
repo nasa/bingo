@@ -37,7 +37,7 @@ def _get_random_stacks_and_constants(num_equations, max_stack_size, data_dim,
 
     for _ in range(num_equations):
         equ = generator()
-        num_consts = equ.get_num_local_optimization_params()
+        num_consts = equ.get_number_local_optimization_params()
         constants.append(cp.asarray(np.random.random((num_consts, num_particles))))
         stacks.append(cp.asarray(equ._simplified_command_array))
 

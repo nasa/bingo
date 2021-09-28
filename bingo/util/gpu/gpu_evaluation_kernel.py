@@ -111,44 +111,44 @@ def _f_eval_gpu_kernel_parallel(stacks, x, constants, num_particles, data_size,
             param2 = stacks[stack_start + i, 2]
 
             if node == defs.INTEGER:
-                f_eval_arr[i, constant_index, data_index] = float(param1)
+                f_eval_arr[i, stack_index, constant_index, data_index] = float(param1)
             elif node == defs.VARIABLE:
-                f_eval_arr[i, constant_index, data_index] = x[data_index, param1]
+                f_eval_arr[i, stack_index, constant_index, data_index] = x[data_index, param1]
             elif node == defs.CONSTANT:
-                f_eval_arr[i, constant_index, data_index] = constants[stack_index, constant_index, int(param1)]
+                f_eval_arr[i, stack_index, constant_index, data_index] = constants[stack_index, constant_index, int(param1)]
             elif node == defs.ADDITION:
-                f_eval_arr[i, constant_index, data_index] = f_eval_arr[int(param1), constant_index, data_index] + \
-                                                            f_eval_arr[int(param2), constant_index, data_index]
+                f_eval_arr[i, stack_index, constant_index, data_index] = f_eval_arr[int(param1), stack_index, constant_index, data_index] + \
+                                                            f_eval_arr[int(param2), stack_index, constant_index, data_index]
             elif node == defs.SUBTRACTION:
-                f_eval_arr[i, constant_index, data_index] = f_eval_arr[int(param1), constant_index, data_index] - \
-                                                            f_eval_arr[int(param2), constant_index, data_index]
+                f_eval_arr[i, stack_index, constant_index, data_index] = f_eval_arr[int(param1), stack_index, constant_index, data_index] - \
+                                                            f_eval_arr[int(param2), stack_index, constant_index, data_index]
             elif node == defs.MULTIPLICATION:
-                f_eval_arr[i, constant_index, data_index] = f_eval_arr[int(param1), constant_index, data_index] * \
-                                                            f_eval_arr[int(param2), constant_index, data_index]
+                f_eval_arr[i, stack_index, constant_index, data_index] = f_eval_arr[int(param1), stack_index, constant_index, data_index] * \
+                                                            f_eval_arr[int(param2), stack_index, constant_index, data_index]
             elif node == defs.DIVISION:
-                f_eval_arr[i, constant_index, data_index] = f_eval_arr[int(param1), constant_index, data_index] / \
-                                                            f_eval_arr[int(param2), constant_index, data_index]
+                f_eval_arr[i, stack_index, constant_index, data_index] = f_eval_arr[int(param1), stack_index, constant_index, data_index] / \
+                                                            f_eval_arr[int(param2), stack_index, constant_index, data_index]
             elif node == defs.SIN:
-                f_eval_arr[i, constant_index, data_index] = cp.sin(f_eval_arr[int(param1), constant_index, data_index])
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.sin(f_eval_arr[int(param1), stack_index, constant_index, data_index])
             elif node == defs.COS:
-                f_eval_arr[i, constant_index, data_index] = cp.cos(f_eval_arr[int(param1), constant_index, data_index])
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.cos(f_eval_arr[int(param1), stack_index, constant_index, data_index])
             elif node == defs.EXPONENTIAL:
-                f_eval_arr[i, constant_index, data_index] = cp.exp(f_eval_arr[int(param1), constant_index, data_index])
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.exp(f_eval_arr[int(param1), stack_index, constant_index, data_index])
             elif node == defs.LOGARITHM:
-                f_eval_arr[i, constant_index, data_index] = cp.log(cp.abs(f_eval_arr[int(param1), constant_index, data_index]))
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.log(cp.abs(f_eval_arr[int(param1), stack_index, constant_index, data_index]))
             elif node == defs.POWER:
-                f_eval_arr[i, constant_index, data_index] = cp.power(f_eval_arr[int(param1), constant_index, data_index],
-                                                                     f_eval_arr[int(param2), constant_index, data_index])
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.power(f_eval_arr[int(param1), stack_index, constant_index, data_index],
+                                                                     f_eval_arr[int(param2), stack_index, constant_index, data_index])
             elif node == defs.ABS:
-                f_eval_arr[i, constant_index, data_index] = cp.abs(f_eval_arr[int(param1), constant_index, data_index])
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.abs(f_eval_arr[int(param1), stack_index, constant_index, data_index])
             elif node == defs.SQRT:
-                f_eval_arr[i, constant_index, data_index] = cp.sqrt(f_eval_arr[int(param1), constant_index, data_index])
+                f_eval_arr[i, stack_index, constant_index, data_index] = cp.sqrt(f_eval_arr[int(param1), stack_index, constant_index, data_index])
 
         #print(index, stack_index, constant_index, data_index, ": ",
         #      f_eval_arr[:(stack_locations[stack_index + 1] - stack_start - 1), constant_index, data_index])
         results[stack_index, constant_index, data_index] = \
             f_eval_arr[stack_locations[stack_index + 1] - stack_start - 1,
-                       constant_index, data_index]
+                       stack_index, constant_index, data_index]
 
 # TODO evaluating equations in parallel vs serial?
 # if we can get around memory bottleneck by using f_eval_arr as a local array

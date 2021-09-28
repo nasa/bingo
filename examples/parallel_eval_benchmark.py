@@ -2,11 +2,13 @@ import time
 import numpy as np
 import cupy as cp
 import math
+import numba
 
 from bingo.symbolic_regression import AGraphGenerator, ComponentGenerator
 
 from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel, \
-                                                 _f_eval_gpu_kernel_parallel
+                                                 _f_eval_gpu_kernel_parallel, \
+                                                 _f_eval_gpu_kernel_parallel_numba 
 
 import nvtx
 
@@ -95,6 +97,24 @@ def parallel_kernel_call(constants, data, data_size,
     cp.cuda.get_current_stream().synchronize()
     return results
 
+@nvtx.annotate(color="green")
+def numba_parallel_kernel_call(constants, data, data_size,
+                         max_stack_size, num_equations, num_particles,
+                         stacks, stack_sizes):
+    NUMBA_THREADS_PER_BLOCK = 128
+    with nvtx.annotate(message="result allocation", color="green"):
+        results = cp.full((num_equations, num_particles, data_size), np.inf)
+    blockspergrid = math.ceil(
+            data_size * num_particles * num_equations / NUMBA_THREADS_PER_BLOCK)
+    with nvtx.annotate(message="parallel kernel", color="green"):
+        _f_eval_gpu_kernel_parallel_numba[blockspergrid, NUMBA_THREADS_PER_BLOCK](
+                stacks, data, constants, num_particles,
+                data_size, num_equations, stack_sizes, results)
+    numba.cuda.synchronize()
+    return results
+
+
+
 
 if __name__ == '__main__':
     print("current memory limit:",
@@ -139,6 +159,18 @@ if __name__ == '__main__':
                                     STACK_SIZES)
     nvtx.end_range(rng)
     t4 = time.time()
+    numba_parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                             MAX_STACK_SIZE, NUM_EQUATIONS,
+                             NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                             STACK_SIZES)
+    t5 = time.time()
+    RESULTS2 = numba_parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                                    MAX_STACK_SIZE, NUM_EQUATIONS,
+                                    NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                                    STACK_SIZES)
+    t6 = time.time()
+
+
 
     # display
     np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS2.get())
@@ -149,5 +181,7 @@ if __name__ == '__main__':
     print(f"Parallel (with compile) time: {t3-t2} seconds")
     print(f"Parallel time: {t4-t3} seconds")
     print(f"Speedup: {(t2-t1)/(t4-t3)} [Slowdown: {(t4-t3)/(t2-t1)}]")
-
+    print(f"Numba Parallel (with compile) time: {t5-t4} seconds")
+    print(f"Numba Parallel time: {t6-t5} seconds")
+    print(f"Speedup: {(t2-t1)/(t6-t5)} [Slowdown: {(t6-t5)/(t2-t1)}]")
 

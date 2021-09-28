@@ -1,4 +1,4 @@
-from bingo.evaluation import Evaluation
+from bingo.evaluation.evaluation import Evaluation
 import bingo.util.global_imports as gi
 import smcpy.utils.global_imports as smc_gi
 

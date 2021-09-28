@@ -7,14 +7,11 @@ import numpy as np
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
 
-from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.symbolic_regression import ExplicitTrainingData
 from smcpy.mcmc.vector_mcmc import VectorMCMC
 from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
 from smcpy import SMCSampler
-from smcpy import ImproperUniform
 
-from bingo.util.gpu
 
 import nvtx
 
@@ -138,13 +135,8 @@ class ParallelSMCEvaluation(Evaluation):
 
     @nvtx.annotate()
     def evaluate_model_gpu(self, params, command_arrays):
-        #params = gi.num_lib.asarray(params)
-
-        self._eval_count += 1
-        individual.set_local_optimization_params(params.T)
-
-        output = individual.evaluate_equation_at(self.training_data_gpu.x).T
-        return output
+        # TODO connect with parallel gpu kernel
+        return
 
     def _calc_phi_sequence(self, phi_exponent):
         x = np.linspace(0, 1, self._smc_steps - 1)

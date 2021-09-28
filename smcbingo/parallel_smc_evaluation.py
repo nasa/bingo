@@ -122,7 +122,7 @@ class ParallelSMCEvaluation(Evaluation):
         len_data = len(self.training_data.x)
         noise_proposal = invgamma((0.01 + len_data) / 2,
                                   scale=(0.01 * var_ols + ssqe) / 2)
-        samples[:, -1] = noise_proposal.rvs(self._num_particles).reshape(-1, 1)
+        samples[:, -1] = noise_proposal.rvs(self._num_particles)
         return samples
 
     def _estimate_covariance(self, individual):

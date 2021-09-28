@@ -103,21 +103,32 @@ if __name__ == '__main__':
 
     # kernel calls
     t0 = time.time()
+    _ = serial_kernel_calls(STACKS_FOR_SERIAL, CONSTANTS_FOR_SERIAL,
+                            DATA, DATA_SIZE, NUM_EQUATIONS,
+                            NUM_PARTICLES)
+    t1 = time.time()
+    _ = parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                             MAX_STACK_SIZE, NUM_EQUATIONS,
+                             NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                             STACK_SIZES)
+    t2 = time.time()
     RESULTS1 = serial_kernel_calls(STACKS_FOR_SERIAL, CONSTANTS_FOR_SERIAL,
                                    DATA, DATA_SIZE, NUM_EQUATIONS,
                                    NUM_PARTICLES)
-    t1 = time.time()
+    t3 = time.time()
     RESULTS2 = parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
                                     MAX_STACK_SIZE, NUM_EQUATIONS,
                                     NUM_PARTICLES, STACKS_FOR_PARALLEL,
                                     STACK_SIZES)
-    t2 = time.time()
+    t4 = time.time()
 
     # display
     np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS2.get())
     print("Results Match")
 
-    print(f"Serial time: {t1-t0} seconds")
-    print(f"Parallel time: {t2-t1} seconds")
+    print(f"Serial (with compile) time: {t1-t0} seconds")
+    print(f"Parallel (with compile) time: {t2-t1} seconds")
+    print(f"Serial time: {t3-t2} seconds")
+    print(f"Parallel time: {t4-t3} seconds")
 
 

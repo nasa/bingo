@@ -91,15 +91,15 @@ class ParallelSMCEvaluation(Evaluation):
         for i, individual in enumerate(population):
             gi.set_use_gpu(False)
             individual = self.do_local_opt(individual)
-            try:
-                proposal_list.append(
-                        self._generate_proposal_samples(individual,
-                                                        max_constants))
-                pop_inds.append(i)
-            except (ValueError, np.linalg.LinAlgError) as e:
-                print(f"excepting proposal for equ {i}")
-                print(e)
-                individual.fitness = np.nan
+            # try:
+            proposal_list.append(
+                    self._generate_proposal_samples(individual,
+                                                    max_constants))
+            pop_inds.append(i)
+            # except (ValueError, np.linalg.LinAlgError) as e:
+            #     print(f"excepting proposal for equ {i}")
+            #     print(e)
+            #     individual.fitness = np.nan
         return np.stack(proposal_list), pop_inds
 
     def do_local_opt(self, individual):

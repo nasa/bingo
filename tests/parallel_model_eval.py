@@ -44,6 +44,7 @@ if __name__ == "__main__":
     CONSTANTS_FOR_SERIAL = CONSTANTS_FOR_SERIAL[-2:]
     NUM_STACKS = len(STACKS_FOR_SERIAL)
     MAX_STACK_SIZE = max([len(c) for c in CONSTANTS_FOR_SERIAL])
+    print("MAX STACK SIZE", MAX_STACK_SIZE)
 
 
     # current split kernel

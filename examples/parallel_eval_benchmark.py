@@ -79,11 +79,11 @@ def serial_kernel_calls(stacks, constants, data, data_size, num_equations,
 def parallel_kernel_call(constants, data, data_size,
                          max_stack_size, num_equations, num_particles,
                          stacks, stack_sizes):
-    with nvtx.annotate(message="result allocation", color="green"):
-        results = cp.full((num_equations, num_particles, data_size), np.inf)
     with nvtx.annotate(message="buffer allocation", color="green"):
         buffer = cp.full((max_stack_size, num_equations, num_particles, data_size),
                          np.inf)
+    with nvtx.annotate(message="result allocation", color="green"):
+        results = cp.full((num_equations, num_particles, data_size), np.inf)
     blockspergrid = math.ceil(
             data_size * num_particles * num_equations / THREADS_PER_BLOCK)
     with nvtx.annotate(message="parallel kernel", color="green"):

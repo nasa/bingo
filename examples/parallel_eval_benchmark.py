@@ -10,6 +10,7 @@ from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel, \
 
 import nvtx
 
+
 @nvtx.annotate(color="red")
 def set_up_problem(data_dim, num_equations, num_particles, stack_size):
     stacks_for_serial, constants_for_serial = _get_random_stacks_and_constants(
@@ -94,6 +95,9 @@ def parallel_kernel_call(constants, data, data_size,
 
 
 if __name__ == '__main__':
+    print("current memory limit:",
+          cp.get_default_memory_pool().get_limit())
+
 
     THREADS_PER_BLOCK = 256
 

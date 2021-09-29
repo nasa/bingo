@@ -7,8 +7,8 @@ import numba
 from bingo.symbolic_regression import AGraphGenerator, ComponentGenerator
 
 from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel, \
-                                                 _f_eval_gpu_kernel_parallel, \
-                                                 _f_eval_gpu_kernel_parallel_numba 
+    _f_eval_gpu_kernel_parallel, \
+    _f_eval_gpu_kernel_parallel_numba, _f_eval_gpu_kernel_parallel_batch_numba
 
 import nvtx
 
@@ -114,6 +114,21 @@ def numba_parallel_kernel_call(constants, data, data_size,
     return results
 
 
+@nvtx.annotate(color="green")
+def numba_parallel_batch_kernel_call(constants, data, data_size,
+                               max_stack_size, num_equations, num_particles,
+                               stacks, stack_sizes, batch_size, num_batches):
+    NUMBA_THREADS_PER_BLOCK = 128
+    with nvtx.annotate(message="result allocation", color="green"):
+        results = cp.full((num_equations, num_particles, data_size), np.inf)
+    blockspergrid = math.ceil(
+        data_size * num_particles * num_batches / NUMBA_THREADS_PER_BLOCK)
+    with nvtx.annotate(message="parallel kernel", color="green"):
+        _f_eval_gpu_kernel_parallel_batch_numba[blockspergrid, NUMBA_THREADS_PER_BLOCK](
+            stacks, data, constants, num_particles,
+            data_size, num_equations, stack_sizes, results, batch_size, num_batches)
+    numba.cuda.synchronize()
+    return results
 
 
 if __name__ == '__main__':
@@ -129,8 +144,11 @@ if __name__ == '__main__':
     DATA_SIZE = 150
     DATA_DIM = 3
 
+    BATCH_SIZE = 128
+    NUM_BATCHES = NUM_EQUATIONS // BATCH_SIZE  # might not work if batch size doesn't equally split NUM_EQUATIONS
+
     # setup
-    np.random.seed(0)
+    np.random.seed(10)
     DATA = cp.asarray(np.random.uniform(1, 10, size=(DATA_SIZE, DATA_DIM)))
     CONSTANTS_FOR_PARALLEL, CONSTANTS_FOR_SERIAL, MAX_STACK_SIZE, \
         STACKS_FOR_PARALLEL, STACKS_FOR_SERIAL, STACK_SIZES = set_up_problem(
@@ -165,17 +183,38 @@ if __name__ == '__main__':
                              STACK_SIZES)
     t5 = time.time()
     rng = nvtx.start_range(message="Numba Parallel", color="green")
-    RESULTS2 = numba_parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+    RESULTS3 = numba_parallel_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
                                     MAX_STACK_SIZE, NUM_EQUATIONS,
                                     NUM_PARTICLES, STACKS_FOR_PARALLEL,
                                     STACK_SIZES)
     nvtx.end_range(rng)
     t6 = time.time()
 
+    BATCH_SIZES = [1, 2, 4, 8, 16, 32, 64, 128]
+    for batch_size in BATCH_SIZES:
+        n_batches = NUM_EQUATIONS // batch_size
+        t7 = time.time()
+        numba_parallel_batch_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                                         MAX_STACK_SIZE, NUM_EQUATIONS,
+                                         NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                                         STACK_SIZES, batch_size, n_batches)
+        t8 = time.time()
+        rng = nvtx.start_range(message=f"Numba Batch Parallel {batch_size}", color="green")
+        RESULTS5 = numba_parallel_batch_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                                                    MAX_STACK_SIZE, NUM_EQUATIONS,
+                                                    NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                                                    STACK_SIZES, batch_size, n_batches)
+        nvtx.end_range(rng)
+        t9 = time.time()
+        np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS5.get())
+        print(f"Numba Batch Size {batch_size} Parallel (with compile) time: {t8-t7} seconds")
+        print(f"Numba Batch Size {batch_size} Parallel time: {t9 - t8} seconds")
+        print(f"Speedup: {(t2-t1)/(t9 - t8)} [Slowdown: {(t9 - t8) / (t2 - t1)}]")
 
 
     # display
     np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS2.get())
+    np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS3.get())
     print("Results Match")
 
     print(f"Serial (with compile) time: {t1-t0} seconds")

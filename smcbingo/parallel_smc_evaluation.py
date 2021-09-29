@@ -66,24 +66,24 @@ class ParallelSMCEvaluation(Evaluation):
         gi.set_use_gpu(True)
 
         evaluate_model = self._get_simplified_eval_call(command_arrays)
-        # vector_mcmc = VectorMCMC(evaluate_model,
-        #                          self.training_data_gpu.y.flatten(),
-        #                          log_like_args=None)
-        #
-        # mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
-        # smc = SMCSampler(mcmc_kernel)
-        #
-        # marginal_log_likes = smc.sample(self._num_particles,
-        #                                 self._mcmc_steps,
-        #                                 self._phi_seq,
-        #                                 self._ess_threshold,
-        #                                 proposals)
-        #
-        # nmlls = -1 * (marginal_log_likes[:, -1] -
-        #               marginal_log_likes[:, self._fbf_phi_idx])
-        #
-        # for i, fitness in zip(pop_inds, nmlls):
-        #     population[i].fitness = fitness
+        vector_mcmc = VectorMCMC(evaluate_model,
+                                 self.training_data_gpu.y.flatten(),
+                                 log_like_args=None)
+        
+        mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
+        smc = SMCSampler(mcmc_kernel)
+
+        _, marginal_log_likes = smc.sample(self._num_particles,
+                                           self._mcmc_steps,
+                                           self._phi_seq,
+                                           self._ess_threshold,
+                                           proposals)
+        
+        nmlls = -1 * (marginal_log_likes[:, -1] -
+                      marginal_log_likes[:, self._fbf_phi_idx])
+
+        for i, fitness in zip(pop_inds, nmlls):
+            population[i].fitness = fitness
 
     def _make_proposals(self, population, max_constants):
         pop_inds = []

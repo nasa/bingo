@@ -85,12 +85,11 @@ def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
     # evaluation
     reg = ExplicitRegression(train_data)
     clo = ContinuousLocalOptimization(reg, algorithm="lm")
-    # bff = BayesFitnessFunction(clo,
-    #                            num_particles=num_particles,
-    #                            phi_exponent=phi_exponent,
-    #                            smc_steps=smc_steps,
-    #                            mcmc_steps=mcmc_steps)
-    # evaluation_phase = Evaluation(bff)
+    bff = BayesFitnessFunction(clo,
+                               num_particles=num_particles,
+                               phi_exponent=phi_exponent,
+                               smc_steps=smc_steps,
+                               mcmc_steps=mcmc_steps)
     evaluation_phase = ParallelSMCEvaluation(clo,
                                              num_particles=num_particles,
                                              phi_exponent=phi_exponent,

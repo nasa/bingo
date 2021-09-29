@@ -238,8 +238,10 @@ def _f_eval_gpu_kernel_parallel_batch_numba(stacks, x, constants, num_particles,
     if index < data_size * num_particles * num_batches:
         batch_index = index // (num_particles * data_size)
         start_stack_index = batch_index * batch_size
-        data_index = (index % (num_particles * data_size)) // num_particles
-        constant_index = (index % (num_particles * data_size)) % num_particles
+        # data_index = (index % (num_particles * data_size)) // num_particles
+        # constant_index = (index % (num_particles * data_size)) % num_particles
+        constant_index = (index % (num_particles * data_size)) // data_size
+        data_index = (index % (num_particles * data_size)) % data_size
         
         for batch_i in range(batch_size):
             stack_index = start_stack_index + batch_i

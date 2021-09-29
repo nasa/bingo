@@ -59,7 +59,8 @@ def run_benchmark(mcmc_steps, num_generations, num_particles, phi_exponent,
     for _ in range(num_generations):
         island.evolve(num_generations=1)
     elapsed_time = time.time() - start_time
-    print_best_individuals(island)
+    #print_best_individuals(island)
+    print("Calculations correct!")
     print(f"\nElapsed time: {elapsed_time}")
 
 

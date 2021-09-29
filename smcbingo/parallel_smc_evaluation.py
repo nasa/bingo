@@ -53,6 +53,7 @@ class ParallelSMCEvaluation(Evaluation):
         if not smc_gi.USING_GPU:
             raise NotImplementedError
 
+    @nvtx.annotate(message="bingo_evaluation_call", color="magenta")
     def __call__(self, population):
         gi.set_use_gpu(False)
         max_constants = np.max([indv.get_number_local_optimization_params()

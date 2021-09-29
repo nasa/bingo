@@ -62,6 +62,9 @@ class ParallelSMCEvaluation(Evaluation):
 
         proposals, pop_inds = self._make_proposals(population, max_constants)
 
+        if len(pop_inds) == 0:
+            return
+
         command_arrays = [cp.asarray(population[i]._simplified_command_array)
                           for i in pop_inds]
 
@@ -91,17 +94,18 @@ class ParallelSMCEvaluation(Evaluation):
         pop_inds = []
         proposal_list = []
         for i, individual in enumerate(population):
-            gi.set_use_gpu(False)
-            individual = self.do_local_opt(individual)
-            # try:
-            proposal_list.append(
-                    self._generate_proposal_samples(individual,
-                                                    max_constants))
-            pop_inds.append(i)
-            # except (ValueError, np.linalg.LinAlgError) as e:
-            #     print(f"excepting proposal for equ {i}")
-            #     print(e)
-            #     individual.fitness = np.nan
+            if not individual.fit_set:
+                gi.set_use_gpu(False)
+                individual = self.do_local_opt(individual)
+                # try:
+                proposal_list.append(
+                        self._generate_proposal_samples(individual,
+                                                        max_constants))
+                pop_inds.append(i)
+                # except (ValueError, np.linalg.LinAlgError) as e:
+                #     print(f"excepting proposal for equ {i}")
+                #     print(e)
+                #     individual.fitness = np.nan
         return np.stack(proposal_list), pop_inds
 
     def do_local_opt(self, individual):

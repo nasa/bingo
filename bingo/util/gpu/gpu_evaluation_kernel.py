@@ -230,62 +230,63 @@ def _f_eval_gpu_kernel_parallel_batch_numba(stacks, x, constants, num_particles,
     # f_eval_arr = cuda.shared.array(shape=(40, TPB), dtype=numba.double)
     f_eval_arr = cuda.local.array(shape=(40, TPB), dtype=numba.double)
     tx = numba.cuda.threadIdx.x
+    
+    batch_size = 128
 
     if index < data_size * num_particles * num_stacks:
         stack_index = index // (num_particles * data_size)
+        start_stack_index = stack_index // batch_size * batch_size  # same thing as floor(stack index / batch_size)
         data_index = (index % (num_particles * data_size)) // num_particles
         constant_index = (index % (num_particles * data_size)) % num_particles
-
-        stack_start = stack_locations[stack_index]
         
-        # 0 -> n * stack_sizes
+        for batch_i in range(batch_size):
+            stack_index = start_stack_index + batch_i
+            stack_start = stack_locations[stack_index]
 
-        for i in range(stack_locations[stack_index + 1]
-                       - stack_start):
-            f_eval_i = i // 40
-            
-            node = stacks[stack_start + i, 0]
-            param1 = stacks[stack_start + i, 1]
-            param2 = stacks[stack_start + i, 2]
+            for i in range(stack_locations[stack_index + 1]
+                           - stack_start):
+                node = stacks[stack_start + i, 0]
+                param1 = stacks[stack_start + i, 1]
+                param2 = stacks[stack_start + i, 2]
 
-            if node == defs.INTEGER:
-                f_eval_arr[f_eval_i, tx] = float(param1)
-            elif node == defs.VARIABLE:
-                f_eval_arr[f_eval_i, tx] = x[data_index, param1]
-            elif node == defs.CONSTANT:
-                f_eval_arr[f_eval_i, tx] = constants[stack_index, constant_index, int(param1)]
-            elif node == defs.ADDITION:
-                f_eval_arr[f_eval_i, tx] = f_eval_arr[int(param1), tx] + \
-                                    f_eval_arr[int(param2), tx]
-            elif node == defs.SUBTRACTION:
-                f_eval_arr[f_eval_i, tx] = f_eval_arr[int(param1), tx] - \
-                                    f_eval_arr[int(param2), tx]
-            elif node == defs.MULTIPLICATION:
-                f_eval_arr[f_eval_i, tx] = f_eval_arr[int(param1), tx] * \
-                                    f_eval_arr[int(param2), tx]
-            elif node == defs.DIVISION:
-                f_eval_arr[f_eval_i, tx] = f_eval_arr[int(param1), tx] / \
-                                    f_eval_arr[int(param2), tx]
-            elif node == defs.SIN:
-                f_eval_arr[f_eval_i, tx] = math.sin(f_eval_arr[int(param1), tx])
-            elif node == defs.COS:
-                f_eval_arr[f_eval_i, tx] = math.cos(f_eval_arr[int(param1), tx])
-            elif node == defs.EXPONENTIAL:
-                f_eval_arr[f_eval_i, tx] = math.exp(f_eval_arr[int(param1), tx])
-            elif node == defs.LOGARITHM:
-                f_eval_arr[f_eval_i, tx] = math.log(abs(f_eval_arr[int(param1), tx]))
-            elif node == defs.POWER:
-                f_eval_arr[f_eval_i, tx] = math.pow(f_eval_arr[int(param1), tx],
-                                             f_eval_arr[int(param2), tx])
-            elif node == defs.ABS:
-                f_eval_arr[f_eval_i, tx] = abs(f_eval_arr[int(param1), tx])
-            elif node == defs.SQRT:
-                f_eval_arr[f_eval_i, tx] = math.sqrt(f_eval_arr[int(param1), tx])
+                if node == defs.INTEGER:
+                    f_eval_arr[i, tx] = float(param1)
+                elif node == defs.VARIABLE:
+                    f_eval_arr[i, tx] = x[data_index, param1]
+                elif node == defs.CONSTANT:
+                    f_eval_arr[i, tx] = constants[stack_index, constant_index, int(param1)]
+                elif node == defs.ADDITION:
+                    f_eval_arr[i, tx] = f_eval_arr[int(param1), tx] + \
+                                        f_eval_arr[int(param2), tx]
+                elif node == defs.SUBTRACTION:
+                    f_eval_arr[i, tx] = f_eval_arr[int(param1), tx] - \
+                                        f_eval_arr[int(param2), tx]
+                elif node == defs.MULTIPLICATION:
+                    f_eval_arr[i, tx] = f_eval_arr[int(param1), tx] * \
+                                        f_eval_arr[int(param2), tx]
+                elif node == defs.DIVISION:
+                    f_eval_arr[i, tx] = f_eval_arr[int(param1), tx] / \
+                                        f_eval_arr[int(param2), tx]
+                elif node == defs.SIN:
+                    f_eval_arr[i, tx] = math.sin(f_eval_arr[int(param1), tx])
+                elif node == defs.COS:
+                    f_eval_arr[i, tx] = math.cos(f_eval_arr[int(param1), tx])
+                elif node == defs.EXPONENTIAL:
+                    f_eval_arr[i, tx] = math.exp(f_eval_arr[int(param1), tx])
+                elif node == defs.LOGARITHM:
+                    f_eval_arr[i, tx] = math.log(abs(f_eval_arr[int(param1), tx]))
+                elif node == defs.POWER:
+                    f_eval_arr[i, tx] = math.pow(f_eval_arr[int(param1), tx],
+                                                 f_eval_arr[int(param2), tx])
+                elif node == defs.ABS:
+                    f_eval_arr[i, tx] = abs(f_eval_arr[int(param1), tx])
+                elif node == defs.SQRT:
+                    f_eval_arr[i, tx] = math.sqrt(f_eval_arr[int(param1), tx])
 
-        #print(index, stack_index, constant_index, data_index, ": ",
-        #      f_eval_arr[:(stack_locations[stack_index + 1] - stack_start - 1), constant_index, data_index])
-        results[stack_index, constant_index, data_index] = \
-            f_eval_arr[stack_locations[stack_index + 1] - stack_start - 1, tx]
+            #print(index, stack_index, constant_index, data_index, ": ",
+            #      f_eval_arr[:(stack_locations[stack_index + 1] - stack_start - 1), constant_index, data_index])
+            results[stack_index, constant_index, data_index] = \
+                f_eval_arr[stack_locations[stack_index + 1] - stack_start - 1, tx]
 
 
 

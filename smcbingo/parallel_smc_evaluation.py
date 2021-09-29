@@ -14,7 +14,8 @@ from smcpy.mcmc.vector_mcmc import VectorMCMC
 from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
 from smcpy import SMCSampler
 
-from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel_parallel
+from bingo.util.gpu.gpu_evaluation_kernel import _f_eval_gpu_kernel_parallel, \
+    _f_eval_gpu_kernel_parallel_batch_numba
 
 import nvtx
 
@@ -135,36 +136,44 @@ class ParallelSMCEvaluation(Evaluation):
         return cov, var_ols, ssqe
 
     def _get_simplified_eval_call(self, stacks):
-        THREADS_PER_BLOCK = 256
+        THREADS_PER_BLOCK = 128
+        BATCH_SIZE = 16
         data = self.training_data_gpu.x
         data_size = len(data)
+
         max_stack_size = max([len(c) for c in stacks])
+        assert max_stack_size <= 40  # hard coded max stack length in GPU kernl
+
         num_equations = len(stacks)
         stack_sizes = cp.asarray(np.cumsum([0] + [len(s) for s in stacks]))
         combined_stacks = cp.vstack(stacks)
-        with nvtx.annotate(message="buffer allocation", color="green"):
-            buffer = cp.full((max_stack_size, num_equations,
-                              self._num_particles, data_size),
-                             np.inf)
         with nvtx.annotate(message="result allocation", color="green"):
             results = cp.full((num_equations, self._num_particles, data_size),
                               np.inf)
+        num_batches = math.ceil( num_equations / BATCH_SIZE)
         blocks_per_grid = \
-            math.ceil(data_size * self._num_particles * num_equations
+            math.ceil(data_size * self._num_particles * num_batches
                       / THREADS_PER_BLOCK)
+
         return lambda constants: self._evaluate_model_gpu(
                 constants, combined_stacks, data, self._num_particles,
-                data_size, num_equations, stack_sizes, buffer, results,
+                data_size, num_equations, stack_sizes, results,
+                num_batches, BATCH_SIZE,
                 blocks_per_grid, THREADS_PER_BLOCK)
 
     @staticmethod
     def _evaluate_model_gpu(constants, stacks, data, num_particles,
-                            data_size, num_equations, stack_sizes, buffer,
-                            results, blocks_per_grid, threads_per_block):
+                            data_size, num_equations, stack_sizes,
+                            results, num_batches, batch_size,
+                            blocks_per_grid, threads_per_block):
         with nvtx.annotate(message="parallel kernel", color="green"):
-            _f_eval_gpu_kernel_parallel[blocks_per_grid, threads_per_block](
-                    stacks, data, constants, num_particles,
-                    data_size, num_equations, stack_sizes, buffer, results)
+            # _f_eval_gpu_kernel_parallel[blocks_per_grid, threads_per_block](
+            #         stacks, data, constants, num_particles,
+            #         data_size, num_equations, stack_sizes, buffer, results)
+            _f_eval_gpu_kernel_parallel_batch_numba[blocks_per_grid, threads_per_block](
+                    stacks, data, constants, num_particles, data_size,
+                    num_equations, stack_sizes, results, batch_size,
+                    num_batches)
         return results
 
     def _calc_phi_sequence(self, phi_exponent):

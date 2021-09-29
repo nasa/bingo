@@ -148,7 +148,7 @@ if __name__ == '__main__':
     NUM_BATCHES = NUM_EQUATIONS // BATCH_SIZE  # might not work if batch size doesn't equally split NUM_EQUATIONS
 
     # setup
-    np.random.seed(0)
+    np.random.seed(10)
     DATA = cp.asarray(np.random.uniform(1, 10, size=(DATA_SIZE, DATA_DIM)))
     CONSTANTS_FOR_PARALLEL, CONSTANTS_FOR_SERIAL, MAX_STACK_SIZE, \
         STACKS_FOR_PARALLEL, STACKS_FOR_SERIAL, STACK_SIZES = set_up_problem(
@@ -189,23 +189,32 @@ if __name__ == '__main__':
                                     STACK_SIZES)
     nvtx.end_range(rng)
     t6 = time.time()
-    numba_parallel_batch_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
-                                     MAX_STACK_SIZE, NUM_EQUATIONS,
-                                     NUM_PARTICLES, STACKS_FOR_PARALLEL,
-                                     STACK_SIZES, BATCH_SIZE, NUM_BATCHES)
-    t7 = time.time()
-    rng = nvtx.start_range(message="Numba Batch Parallel", color="green")
-    RESULTS4 = numba_parallel_batch_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
-                                                MAX_STACK_SIZE, NUM_EQUATIONS,
-                                                NUM_PARTICLES, STACKS_FOR_PARALLEL,
-                                                STACK_SIZES, BATCH_SIZE, NUM_BATCHES)
-    nvtx.end_range(rng)
-    t8 = time.time()
+
+    BATCH_SIZES = [1, 2, 4, 8, 16, 32, 64, 128]
+    for batch_size in BATCH_SIZES:
+        n_batches = NUM_EQUATIONS // batch_size
+        t7 = time.time()
+        numba_parallel_batch_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                                         MAX_STACK_SIZE, NUM_EQUATIONS,
+                                         NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                                         STACK_SIZES, batch_size, n_batches)
+        t8 = time.time()
+        rng = nvtx.start_range(message=f"Numba Batch Parallel {batch_size}", color="green")
+        RESULTS5 = numba_parallel_batch_kernel_call(CONSTANTS_FOR_PARALLEL, DATA, DATA_SIZE,
+                                                    MAX_STACK_SIZE, NUM_EQUATIONS,
+                                                    NUM_PARTICLES, STACKS_FOR_PARALLEL,
+                                                    STACK_SIZES, batch_size, n_batches)
+        nvtx.end_range(rng)
+        t9 = time.time()
+        np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS5.get())
+        print(f"Numba Batch Size {batch_size} Parallel (with compile) time: {t8-t7} seconds")
+        print(f"Numba Batch Size {batch_size} Parallel time: {t9 - t8} seconds")
+        print(f"Speedup: {(t2-t1)/(t9 - t8)} [Slowdown: {(t9 - t8) / (t2 - t1)}]")
+
 
     # display
     np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS2.get())
     np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS3.get())
-    np.testing.assert_array_almost_equal(RESULTS1.get(), RESULTS4.get())
     print("Results Match")
 
     print(f"Serial (with compile) time: {t1-t0} seconds")
@@ -216,7 +225,4 @@ if __name__ == '__main__':
     print(f"Numba Parallel (with compile) time: {t5-t4} seconds")
     print(f"Numba Parallel time: {t6-t5} seconds")
     print(f"Speedup: {(t2-t1)/(t6-t5)} [Slowdown: {(t6-t5)/(t2-t1)}]")
-    print(f"Numba Batch Parallel (with compile) time: {t7-t6} seconds")
-    print(f"Numba Batch Parallel time: {t8 - t7} seconds")
-    print(f"Speedup: {(t2-t1)/(t8 - t7)} [Slowdown: {(t8 - t7) / (t2 - t1)}]")
 

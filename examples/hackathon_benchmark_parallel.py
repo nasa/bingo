@@ -44,6 +44,7 @@ def run_benchmark(mcmc_steps, num_generations, num_particles, phi_exponent,
     SELECTION = NondeterministicCrowding()
     # SEED
     np.random.seed(0)
+    cp.random.seed(0)
     # DATA
     X_DATA = np.random.uniform(1, 10, size=(150, 3))
     Y_DATA = X_DATA[:, 0] ** 2 * np.sin(X_DATA[:, 1]) + 5 * np.random.normal(5,

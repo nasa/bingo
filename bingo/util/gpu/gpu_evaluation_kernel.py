@@ -166,9 +166,13 @@ def _f_eval_gpu_kernel_parallel_numba(stacks, x, constants, num_particles, data_
 
 
     if index < data_size * num_particles * num_stacks:
-        stack_index = index // (num_particles * data_size)
-        data_index = (index % (num_particles * data_size)) // num_particles
-        constant_index = (index % (num_particles * data_size)) % num_particles
+        #stack_index = index // (num_particles * data_size)
+        #data_index = (index % (num_particles * data_size)) // num_particles
+        #constant_index = (index % (num_particles * data_size)) % num_particles
+        # slightly faster
+        stack_index    =  index // (num_particles * data_size)
+        data_index     = (index %  (num_particles * data_size))  % data_size
+        constant_index = (index %  (num_particles * data_size)) // data_size
 
         # TODO try having f_eval_arr being an local array and just return result?
 

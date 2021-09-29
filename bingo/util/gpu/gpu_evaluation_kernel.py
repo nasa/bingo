@@ -223,19 +223,17 @@ def _f_eval_gpu_kernel_parallel_numba(stacks, x, constants, num_particles, data_
 TPB = 128  # should be same as launching threads_per_block
 @numba.cuda.jit()
 def _f_eval_gpu_kernel_parallel_batch_numba(stacks, x, constants, num_particles, data_size,
-                                      num_stacks, stack_locations, results):
+                                      num_stacks, stack_locations, results, batch_size, num_batches):
     # index = jit.blockIdx.x * jit.blockDim.x + jit.threadIdx.x
     index = numba.cuda.blockIdx.x * numba.cuda.blockDim.x + numba.cuda.threadIdx.x
     # fwd_buff = [1.0]*stack_size
-    # f_eval_arr = cuda.shared.array(shape=(40, TPB), dtype=numba.double)
-    f_eval_arr = cuda.local.array(shape=(40, TPB), dtype=numba.double)
+    f_eval_arr = cuda.shared.array(shape=(40, TPB), dtype=numba.double)
+    # f_eval_arr = cuda.local.array(shape=(40, TPB), dtype=numba.double)
     tx = numba.cuda.threadIdx.x
     
-    batch_size = 128
-
-    if index < data_size * num_particles * num_stacks:
-        stack_index = index // (num_particles * data_size)
-        start_stack_index = stack_index // batch_size * batch_size  # same thing as floor(stack index / batch_size)
+    if index < data_size * num_particles * num_batches:
+        batch_index = index // (num_particles * data_size)
+        start_stack_index = batch_index * batch_size
         data_index = (index % (num_particles * data_size)) // num_particles
         constant_index = (index % (num_particles * data_size)) % num_particles
         

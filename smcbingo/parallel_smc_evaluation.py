@@ -106,7 +106,8 @@ class ParallelSMCEvaluation(Evaluation):
                 #     print(f"excepting proposal for equ {i}")
                 #     print(e)
                 #     individual.fitness = np.nan
-        return np.stack(proposal_list), pop_inds
+        stacked_proposals = np.stack(proposal_list) if len(pop_inds) > 0 else []
+        return stacked_proposals, pop_inds
 
     def do_local_opt(self, individual):
         individual._notify_modification()

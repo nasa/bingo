@@ -72,7 +72,7 @@ if __name__ == "__main__":
     blockspergrid = math.ceil(DATA_SIZE * NUM_PARTICLES * NUM_STACKS / gi.GPU_THREADS_PER_BLOCK)
     _f_eval_gpu_kernel_parallel[blockspergrid, gi.GPU_THREADS_PER_BLOCK](
             STACKS_FOR_PARALLEL, DATA, CONSTANTS_FOR_PARALLEL, NUM_PARTICLES,
-            DATA_SIZE, NUM_STACKS, STACK_SIZES, BUFFER2, RESULTS2, MAX_STACK_SIZE)
+            DATA_SIZE, NUM_STACKS, STACK_SIZES, BUFFER2, RESULTS2)
     # print("PARALLEL RESULTS")
     # print(RESULTS2)
 

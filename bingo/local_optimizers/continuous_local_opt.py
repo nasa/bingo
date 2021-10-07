@@ -148,7 +148,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @property
     def param_init_bounds(self):
-        """Iterable: bounds that we use to to initialize clo params
+        """Iterable: bounds that we use to initialize clo params,
            should be formatted as an iterable [low, high]
            where low will be included in the initialization range and
            high will be excluded"""

@@ -202,7 +202,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     def _optimize_params(self, individual):
         num_params = individual.get_number_local_optimization_params()
-        c_0 = np.random.uniform(self._param_init_bounds, num_params)
+        c_0 = np.random.uniform(*self._param_init_bounds, num_params)
         params = self._run_algorithm_for_optimization(
             self._sub_routine_for_fit_function, individual, c_0)
         individual.set_local_optimization_params(params)

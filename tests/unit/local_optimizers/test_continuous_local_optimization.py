@@ -53,17 +53,25 @@ def test_can_set_param_bounds_and_clo_options(mocker):
     dummy_individual = DummyLocalOptIndividual()
     clo = ContinuousLocalOptimization(mocked_fitness_function)
 
-    clo.param_init_bounds = [2, 4]
-    clo.optimization_options = {"options": {"maxiter": 0}}
-    clo(dummy_individual)
+    param_init_bounds = [2, 4]
+    clo.param_init_bounds = param_init_bounds
+    assert clo.param_init_bounds == param_init_bounds
 
+    opt_options = {"options": {"maxiter": 0}}
+    expected_options = {"tol": 1e-6}
+    expected_options.update(opt_options)
+    clo.optimization_options = opt_options
+    assert clo.optimization_options == expected_options
+
+    clo(dummy_individual)
     assert dummy_individual.param >= 2
     assert dummy_individual.param < 4
 
-    clo.optimization_options = {"tol": 1e-8,
-                                "options": {"maxiter": 1000}}
-    clo(dummy_individual)
+    opt_options = {"tol": 1e-8, "options": {"maxiter": 1000}}
+    clo.optimization_options = opt_options
+    assert clo.optimization_options == opt_options
 
+    clo(dummy_individual)
     assert dummy_individual.param <= 1e-8
 
 

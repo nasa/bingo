@@ -126,9 +126,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         self._algorithm = algorithm
 
         self._param_init_bounds = [-10000, 10000]
-        self._optimization_options = {"method": self._algorithm,
-                                      "tol": 1e-6,
-                                      "options": {}}
+        self._optimization_options = {"tol": 1e-6}
 
     @property
     def training_data(self):
@@ -225,10 +223,12 @@ class ContinuousLocalOptimization(FitnessFunction):
                         sub_routine, params,
                         args=(individual, ),
                         jac=lambda x, indv: self._fitness_function.get_fitness_vector_and_jacobian(indv)[1],  # pylint: disable=line-too-long
+                        method=self._algorithm,
                         **self._optimization_options)
             else:
                 optimize_result = optimize.root(sub_routine, params,
                                                 args=(individual),
+                                                method=self._algorithm,
                                                 **self._optimization_options)
         else:
             if isinstance(self._fitness_function, GradientMixin) \
@@ -237,10 +237,12 @@ class ContinuousLocalOptimization(FitnessFunction):
                         sub_routine, params,
                         args=(individual, ),
                         jac=lambda x, indv: self._fitness_function.get_fitness_and_gradient(indv)[1],  # pylint: disable=line-too-long
+                        method=self._algorithm,
                         **self._optimization_options)
             else:
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual, ),
+                                                    method=self._algorithm,
                                                     **self._optimization_options)  # pylint: disable=line-too-long
         return optimize_result.x
 

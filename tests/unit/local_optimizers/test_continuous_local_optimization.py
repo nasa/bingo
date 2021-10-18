@@ -48,28 +48,32 @@ def test_invalid_algorithm(mocker):
 
 
 def test_can_set_param_initialization_bounds_and_optimization_options(mocker):
-    mocked_fitness_function = mocker.Mock(side_effect=lambda x: 0)
-
+    mocked_fitness_function = mocker.Mock(side_effect=lambda individual: individual.param)
     dummy_individual = DummyLocalOptIndividual()
     clo = ContinuousLocalOptimization(mocked_fitness_function)
 
-    assert clo.param_init_bounds[0] == -10000
-    assert clo.param_init_bounds[1] == 10000
-    assert clo.optimization_options == dict()
-
-    new_bounds = [-1, 1]
-    new_options = {"maxiter": 0}
-    clo.param_init_bounds= new_bounds
-    clo.optimization_options = new_options
-
-    assert clo.param_init_bounds[0] == new_bounds[0]
-    assert clo.param_init_bounds[1] == new_bounds[1]
-    assert clo.optimization_options == new_options
-
+    clo.param_init_bounds = [2, 4]
+    clo.optimization_options = {"options": {"maxiter": 0}}
     clo(dummy_individual)
 
-    assert dummy_individual.param >= -1
-    assert dummy_individual.param < 1
+    assert dummy_individual.param >= 2
+    assert dummy_individual.param < 4
+
+    clo.optimization_options = {"tol": 1e-8,
+                                "options": {"maxiter": 1000}}
+    clo(dummy_individual)
+
+    assert dummy_individual.param <= 1e-8
+
+
+def test_can_set_algorithm_specific_options(mocker):
+    mocked_fitness_function = mocker.Mock(side_effect=lambda individual: individual.param)
+    dummy_individual = DummyLocalOptIndividual()
+    clo = ContinuousLocalOptimization(mocked_fitness_function, "Nelder-Mead")
+    clo.optimization_options = {"options": {"fatol": 1e-8, "xatol": 1e-8, "adaptive": False}}
+    clo(dummy_individual)
+
+    assert dummy_individual.param <= 1e-8
 
 
 def test_get_eval_count_pass_through(mocker):

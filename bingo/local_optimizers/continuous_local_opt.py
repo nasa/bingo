@@ -126,7 +126,9 @@ class ContinuousLocalOptimization(FitnessFunction):
         self._algorithm = algorithm
 
         self._param_init_bounds = [-10000, 10000]
-        self._optimization_options = dict()
+        self._optimization_options = {"method": self._algorithm,
+                                      "tol": 1e-6,
+                                      "options": {}}
 
     @property
     def training_data(self):
@@ -160,12 +162,13 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @property
     def optimization_options(self):
-        """Dictionary of algorithm-specific options for clo"""
+        """Dictionary of options for clo
+        e.g. {"tol": 1e-8, "options": {"maxiter": 1000}}"""
         return self._optimization_options
 
     @optimization_options.setter
     def optimization_options(self, value):
-        self._optimization_options = value
+        self._optimization_options.update(value)
 
     def __call__(self, individual):
         """Evaluates the fitness of the individual. Provides local optimization
@@ -222,15 +225,11 @@ class ContinuousLocalOptimization(FitnessFunction):
                         sub_routine, params,
                         args=(individual, ),
                         jac=lambda x, indv: self._fitness_function.get_fitness_vector_and_jacobian(indv)[1],  # pylint: disable=line-too-long
-                        method=self._algorithm,
-                        tol=1e-6,
-                        options=self._optimization_options)
+                        **self._optimization_options)
             else:
                 optimize_result = optimize.root(sub_routine, params,
                                                 args=(individual),
-                                                method=self._algorithm,
-                                                tol=1e-6,
-                                                options=self._optimization_options)  # pylint: disable=line-too-long
+                                                **self._optimization_options)
         else:
             if isinstance(self._fitness_function, GradientMixin) \
                     and self._algorithm in JACOBIAN_SET:
@@ -238,15 +237,11 @@ class ContinuousLocalOptimization(FitnessFunction):
                         sub_routine, params,
                         args=(individual, ),
                         jac=lambda x, indv: self._fitness_function.get_fitness_and_gradient(indv)[1],  # pylint: disable=line-too-long
-                        method=self._algorithm,
-                        tol=1e-6,
-                        options=self._optimization_options)
+                        **self._optimization_options)
             else:
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual, ),
-                                                    method=self._algorithm,
-                                                    tol=1e-6,
-                                                    options=self._optimization_options)  # pylint: disable=line-too-long
+                                                    **self._optimization_options)
         return optimize_result.x
 
     def _evaluate_fitness(self, individual):

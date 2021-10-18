@@ -47,8 +47,9 @@ def test_invalid_algorithm(mocker):
                                     algorithm='Dwayne - The Rock - Johnson')
 
 
-def test_can_set_param_initialization_bounds_and_optimization_options(mocker):
-    mocked_fitness_function = mocker.Mock(side_effect=lambda individual: individual.param)
+def test_can_set_param_bounds_and_clo_options(mocker):
+    mocked_fitness_function = \
+        mocker.Mock(side_effect=lambda individual: individual.param)
     dummy_individual = DummyLocalOptIndividual()
     clo = ContinuousLocalOptimization(mocked_fitness_function)
 
@@ -67,10 +68,13 @@ def test_can_set_param_initialization_bounds_and_optimization_options(mocker):
 
 
 def test_can_set_algorithm_specific_options(mocker):
-    mocked_fitness_function = mocker.Mock(side_effect=lambda individual: individual.param)
+    mocked_fitness_function = \
+        mocker.Mock(side_effect=lambda individual: individual.param)
     dummy_individual = DummyLocalOptIndividual()
     clo = ContinuousLocalOptimization(mocked_fitness_function, "Nelder-Mead")
-    clo.optimization_options = {"options": {"fatol": 1e-8, "xatol": 1e-8, "adaptive": False}}
+    clo.optimization_options = {"options": {"fatol": 1e-8,
+                                            "xatol": 1e-8,
+                                            "adaptive": False}}
     clo(dummy_individual)
 
     assert dummy_individual.param <= 1e-8
@@ -133,7 +137,8 @@ class GradientFitnessFunction(GradientMixin, FitnessFunction):
 def test_optimize_params_minimize_with_gradient(mocker, algorithm):
     fitness_function = mocker.create_autospec(GradientFitnessFunction)
     fitness_function.side_effect = lambda individual: 1 + individual.param**2
-    fitness_function.get_fitness_and_gradient = lambda individual: (1 + individual.param**2, 2 * individual.param)
+    fitness_function.get_fitness_and_gradient = \
+        lambda individual: (1 + individual.param**2, 2 * individual.param)
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)
@@ -169,7 +174,8 @@ def test_optimize_params_root_without_jacobian(mocker, algorithm):
 def test_optimize_params_root_with_jacobian(mocker, algorithm):
     fitness_function = mocker.create_autospec(JacobianVectorFitnessFunction)
     fitness_function.evaluate_fitness_vector = lambda x: 1 + np.abs([x.param])
-    fitness_function.get_fitness_vector_and_jacobian = lambda x: (1 + np.abs([x.param]), np.sign([x.param]))
+    fitness_function.get_fitness_vector_and_jacobian = \
+        lambda x: (1 + np.abs([x.param]), np.sign([x.param]))
 
     local_opt_fitness_function = ContinuousLocalOptimization(
         fitness_function, algorithm)

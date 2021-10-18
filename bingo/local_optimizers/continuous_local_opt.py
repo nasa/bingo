@@ -241,7 +241,7 @@ class ContinuousLocalOptimization(FitnessFunction):
             else:
                 optimize_result = optimize.minimize(sub_routine, params,
                                                     args=(individual, ),
-                                                    **self._optimization_options)
+                                                    **self._optimization_options)  # pylint: disable=line-too-long
         return optimize_result.x
 
     def _evaluate_fitness(self, individual):

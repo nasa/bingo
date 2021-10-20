@@ -19,6 +19,11 @@ def split_fuse_1(x):
 def split_fuse_2(sumx, y):
     return sumx**2 + y / cp.sqrt(y)
 
+@cp.fuse()
+def fused_with_reduction_at_end(x, y):
+    sumx = cp.sum(x, axis=1)
+    return sum(x**2 + y / cp.sqrt(y)
+
 
 
 

@@ -11,7 +11,7 @@ from bingo.symbolic_regression \
     import AGraphGenerator, ComponentGenerator, AGraphCrossover, AGraphMutation
 
 from bingo.variation.var_and import VarAnd
-from bingo.evaluation.evaluation import Evaluation
+from smcbingo.parallel_smc_evaluation import ParallelSMCEvaluation
 from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
 from bingo.evolutionary_optimizers.island import Island
 from bingo.stats.hall_of_fame import HallOfFame
@@ -44,6 +44,7 @@ def run_benchmark(mcmc_steps, num_generations, num_particles, phi_exponent,
     SELECTION = NondeterministicCrowding()
     # SEED
     np.random.seed(0)
+    cp.random.seed(0)
     # DATA
     X_DATA = np.random.uniform(1, 10, size=(150, 3))
     Y_DATA = X_DATA[:, 0] ** 2 * np.sin(X_DATA[:, 1]) + 5 * np.random.normal(5,
@@ -91,7 +92,11 @@ def create_island(crossover_prob, mcmc_steps, mutation_prob, num_particles,
                                phi_exponent=phi_exponent,
                                smc_steps=smc_steps,
                                mcmc_steps=mcmc_steps)
-    evaluation_phase = Evaluation(bff)
+    evaluation_phase = ParallelSMCEvaluation(clo,
+                                             num_particles=num_particles,
+                                             phi_exponent=phi_exponent,
+                                             smc_steps=smc_steps,
+                                             mcmc_steps=mcmc_steps)
 
     # evolutionary algorithm
     ea = MuPlusLambda(evaluation_phase, selection, crossover, mutation,

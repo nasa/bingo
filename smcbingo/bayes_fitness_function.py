@@ -143,14 +143,14 @@ class BayesFitnessFunction(FitnessFunction):
         if param_names != []:
             proposal = mvn(individual.constants, cov, allow_singular=True)
             samples = proposal.rvs(num_samples).reshape(num_samples, -1)
-            pdf *= proposal.pdf(samples).reshape(-1, 1)
+            # pdf *= proposal.pdf(samples).reshape(-1, 1)
 
         if self._std is None:
             len_data = len(self.training_data.x)
             noise_proposal = invgamma((0.01 + len_data) / 2,
                                       scale=(0.01 * var_ols + ssqe) / 2)
             noise_samples = noise_proposal.rvs(num_samples).reshape(-1, 1)
-            pdf *= noise_proposal.pdf(noise_samples).reshape(-1, 1)
+            # pdf *= noise_proposal.pdf(noise_samples).reshape(-1, 1)
 
             param_names.append('std_dev')
             samples = np.concatenate((samples, noise_samples), axis=1)

@@ -7,24 +7,17 @@ from bingo.evaluation.fitness_function import FitnessFunction
 
 from smcpy.mcmc.vector_mcmc import VectorMCMC
 from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
-from smcpy import SMCSampler
+from smcpy.samplers import AdaptiveSampler
 from smcpy import ImproperUniform
 
 
 class BayesFitnessFunction(FitnessFunction):
 
-    def __init__(self, continuous_local_opt, num_particles=150, phi_exponent=8,
-                 smc_steps=15, mcmc_steps=12, ess_threshold=0.75, std=None,
+    def __init__(self, continuous_local_opt, num_particles=150, mcmc_steps=12, ess_threshold=0.75, std=None,
                  return_nmll_only=True, num_multistarts=1,
                  uniformly_weighted_proposal=True):
 
-        if smc_steps <= 2:
-            raise ValueError('smc_steps must be > 2')
-        if phi_exponent <= 0:
-            raise ValueError('phi_exponent must be > 0')
-
         self._num_particles = num_particles
-        self._smc_steps = smc_steps
         self._mcmc_steps = mcmc_steps
         self._ess_threshold = ess_threshold
         self._std = std
@@ -32,9 +25,10 @@ class BayesFitnessFunction(FitnessFunction):
         self._num_multistarts = num_multistarts
         self._uniformly_weighted_proposal = uniformly_weighted_proposal
 
-        self._num_observations = len(continuous_local_opt.training_data.x)
+        num_observations = len(continuous_local_opt.training_data.x)
+        self._norm_phi = 1 / np.sqrt(num_observations)
+
         self._cont_local_opt = continuous_local_opt
-        self._fbf_phi_idx, self._phi_seq = self._calc_phi_sequence(phi_exponent)
         self._eval_count = 0
 
     def __call__(self, individual):
@@ -58,26 +52,25 @@ class BayesFitnessFunction(FitnessFunction):
                                  log_like_args=self._std)
 
         mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
-        smc = SMCSampler(mcmc_kernel)
+        smc = AdaptiveSampler(mcmc_kernel)
 
         try:
-            step_list, marginal_log_likes = smc.sample(self._num_particles,
-                                                       self._mcmc_steps,
-                                                       self._phi_seq,
-                                                       self._ess_threshold,
-                                                       proposal)
+            step_list, marginal_log_likes = \
+                smc.sample(self._num_particles, self._mcmc_steps,
+                           self._ess_threshold,
+                           proposal=proposal,
+                           specified_phi=self._norm_phi)
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError):
             if self._return_nmll_only:
                 return np.nan
             return np.nan, None, None
 
-        # means = step_list[-1].compute_mean(package=False)
         max_idx = np.argmax(step_list[-1].log_likes)
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
 
         nmll = -1 * (marginal_log_likes[-1] -
-                     marginal_log_likes[self._fbf_phi_idx])
+                     marginal_log_likes[smc.specificed_phi_idx])
 
         if self._return_nmll_only:
             return nmll
@@ -154,14 +147,6 @@ class BayesFitnessFunction(FitnessFunction):
         self._eval_count += 1
         individual.set_local_optimization_params(params.T)
         return individual.evaluate_equation_at(self.training_data.x).T
-
-    def _calc_phi_sequence(self, phi_exponent):
-        x = np.linspace(0, 1, self._smc_steps - 1)
-        phi_seq = (np.exp(x * phi_exponent) - 1) / (np.exp(phi_exponent) - 1)
-        fbf_phi = 1 / np.sqrt(self._num_observations)
-        fbf_phi_index = np.searchsorted(phi_seq, [fbf_phi])
-        phi_seq = np.insert(phi_seq, fbf_phi_index, fbf_phi)
-        return int(fbf_phi_index), phi_seq
 
     @property
     def eval_count(self):

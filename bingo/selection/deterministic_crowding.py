@@ -13,9 +13,10 @@ class DeterministicCrowding(GeneralizedCrowding):
     """The class that performs deterministic crowding selection on a population
     """
     @staticmethod
-    def _return_most_fit(child, parent):
-        if np.isnan(parent.fitness):
+    def _return_most_fit(child, parent, idx):
+        import pdb;pdb.set_trace()
+        if np.isnan(parent.fitness[idx]):
             return child
-        if np.isnan(child.fitness):
+        if np.isnan(child.fitness[idx]):
             return parent
-        return child if child.fitness < parent.fitness else parent
+        return child if child.fitness[idx] < parent.fitness[idx] else parent

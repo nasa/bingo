@@ -53,7 +53,7 @@ class GeneralizedCrowdingEA(EvolutionaryAlgorithm):
                          evaluation=evaluation,
                          selection=selection)
 
-    def generational_step(self, population):
+    def generational_step(self, population, idx):
         """Performs selection on individuals.
 
         Parameters
@@ -70,6 +70,6 @@ class GeneralizedCrowdingEA(EvolutionaryAlgorithm):
         self.evaluation(population)
         self.evaluation(offspring)
         self.update_diagnostics(population, offspring)
-        next_gen = self.selection(population + offspring, len(population))
+        next_gen = self.selection(population + offspring, len(population), idx)
         np.random.shuffle(next_gen)
         return next_gen

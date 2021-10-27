@@ -118,15 +118,24 @@ class ContinuousLocalOptimization(FitnessFunction):
     TypeError :
         `fitness_function` must Be a valid `FitnessFunction` for the specified
         algorithm
+    # TODO need documentation of param init bounds and optimization options
     """
-    def __init__(self, fitness_function, algorithm='Nelder-Mead'):
+    def __init__(self, fitness_function, algorithm='Nelder-Mead',
+                 param_init_bounds=None, optimization_options=None):
         self._check_algorithm_is_valid(algorithm)
         self._check_root_alg_returns_vector(fitness_function, algorithm)
         self._fitness_function = fitness_function
         self._algorithm = algorithm
 
-        self._param_init_bounds = [-10000, 10000]
-        self._optimization_options = {"tol": 1e-6}
+        if param_init_bounds is None:
+            self.param_init_bounds = [-10000, 10000]
+        else:
+            self.param_init_bounds = param_init_bounds
+
+        if optimization_options is None:
+            self.optimization_options = {"tol": 1e-6}
+        else:
+            self.optimization_options = optimization_options
 
     @property
     def training_data(self):
@@ -166,6 +175,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @optimization_options.setter
     def optimization_options(self, value):
+        self._optimization_options = {"tol": 1e-6}
         self._optimization_options.update(value)
 
     def __call__(self, individual):

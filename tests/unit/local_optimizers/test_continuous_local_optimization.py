@@ -50,6 +50,41 @@ def test_invalid_algorithm(mocker):
 def test_can_set_param_bounds_and_clo_options(mocker):
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)
+    clo = ContinuousLocalOptimization(mocked_fitness_function)
+
+    assert clo.param_init_bounds == [-10000, 10000]
+    assert clo.optimization_options == {"tol": 1e-6}
+
+    param_init_bounds = [2, 4]
+    opt_options = {"options": {"maxiter": 0}}
+
+    expected_options = {"tol": 1e-6}
+    expected_options.update(opt_options)
+
+    clo.param_init_bounds = param_init_bounds
+    clo.optimization_options = opt_options
+
+    assert clo.param_init_bounds == param_init_bounds
+    assert clo.optimization_options == expected_options
+
+    opt_options = {"tol": 1e-8}
+    expected_options = opt_options
+    clo.optimization_options = opt_options
+    assert clo.optimization_options == expected_options
+
+
+def test_init_param_bounds_and_clo_options(mocker):
+    mocked_fitness_function = \
+        mocker.Mock(side_effect=lambda individual: individual.param)
+    clo = ContinuousLocalOptimization(mocked_fitness_function, param_init_bounds=[2, 4], optimization_options={"options": {"maxiter": 0}})
+
+    assert clo.param_init_bounds == [2, 4]
+    assert clo.optimization_options == {"tol": 1e-6, "options": {"maxiter": 0}}
+
+
+def test_set_param_bounds_and_clo_options_affect_clo(mocker):
+    mocked_fitness_function = \
+        mocker.Mock(side_effect=lambda individual: individual.param)
     dummy_individual = DummyLocalOptIndividual()
     clo = ContinuousLocalOptimization(mocked_fitness_function)
 

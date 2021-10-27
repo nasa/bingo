@@ -82,6 +82,7 @@ def test_init_param_bounds_and_clo_options(mocker):
     assert clo.optimization_options == {"tol": 1e-6, "options": {"maxiter": 0}}
 
 
+# TODO update to use mocked scipy minimize
 def test_set_param_bounds_and_clo_options_affect_clo(mocker):
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)

@@ -110,6 +110,14 @@ class ContinuousLocalOptimization(FitnessFunction):
         fitness function
     training_data :
         (Optional) data that can be used in the wrapped fitness function
+    param_init_bounds : iterable
+        (Optional) Bounds that are used to initialize clo params,
+           should be formatted as an iterable [low, high)
+           where low will be included in the initialization range and
+           high will be excluded
+    optimization_options : dict
+        (Optional) Dictionary of options for clo
+        e.g. {"tol": 1e-8, "options": {"maxiter": 1000}}
 
     Raises
     ------
@@ -118,7 +126,6 @@ class ContinuousLocalOptimization(FitnessFunction):
     TypeError :
         `fitness_function` must Be a valid `FitnessFunction` for the specified
         algorithm
-    # TODO need documentation of param init bounds and optimization options
     """
     def __init__(self, fitness_function, algorithm='Nelder-Mead',
                  param_init_bounds=None, optimization_options=None):
@@ -157,10 +164,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @property
     def param_init_bounds(self):
-        """Iterable: bounds that we use to initialize clo params,
-           should be formatted as an iterable [low, high]
-           where low will be included in the initialization range and
-           high will be excluded"""
+        """[low, high) bounds used to initialize clo params"""
         return self._param_init_bounds
 
     @param_init_bounds.setter
@@ -169,8 +173,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @property
     def optimization_options(self):
-        """Dictionary of options for clo
-        e.g. {"tol": 1e-8, "options": {"maxiter": 1000}}"""
+        """Continuous local optimization options (e.g. tolerance)"""
         return self._optimization_options
 
     @optimization_options.setter

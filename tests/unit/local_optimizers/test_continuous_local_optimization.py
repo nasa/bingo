@@ -4,6 +4,9 @@
 import pytest
 import numpy as np
 
+from scipy import optimize
+from scipy.optimize import OptimizeResult
+
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
@@ -82,46 +85,38 @@ def test_init_param_bounds_and_clo_options(mocker):
     assert clo.optimization_options == {"tol": 1e-6, "options": {"maxiter": 0}}
 
 
-# TODO update to use mocked scipy minimize
-def test_set_param_bounds_and_clo_options_affect_clo(mocker):
+@pytest.mark.parametrize("algorithm", ["Nelder-Mead", "lm"])
+# using Nelder-Mead and lm to test minimize and root respectively
+def test_set_param_bounds_and_clo_options_affect_clo_minimize(mocker,
+                                                              algorithm):
+
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)
-    dummy_individual = DummyLocalOptIndividual()
-    clo = ContinuousLocalOptimization(mocked_fitness_function)
 
-    param_init_bounds = [2, 4]
-    clo.param_init_bounds = param_init_bounds
-    assert clo.param_init_bounds == param_init_bounds
-
-    opt_options = {"options": {"maxiter": 0}}
-    expected_options = {"tol": 1e-6}
-    expected_options.update(opt_options)
-    clo.optimization_options = opt_options
-    assert clo.optimization_options == expected_options
-
-    clo(dummy_individual)
-    assert dummy_individual.param >= 2
-    assert dummy_individual.param < 4
-
-    opt_options = {"tol": 1e-8, "options": {"maxiter": 1000}}
-    clo.optimization_options = opt_options
-    assert clo.optimization_options == opt_options
-
-    clo(dummy_individual)
-    assert dummy_individual.param <= 1e-8
-
-
-def test_can_set_algorithm_specific_options(mocker):
-    mocked_fitness_function = \
-        mocker.Mock(side_effect=lambda individual: individual.param)
-    dummy_individual = DummyLocalOptIndividual()
-    clo = ContinuousLocalOptimization(mocked_fitness_function, "Nelder-Mead")
-    clo.optimization_options = {"options": {"fatol": 1e-8,
+    opt_options = {"tol": 1e-8, "options": {"maxiter": 1000,
+                                            "fatol": 1e-8,
                                             "xatol": 1e-8,
                                             "adaptive": False}}
-    clo(dummy_individual)
 
-    assert dummy_individual.param <= 1e-8
+    def mocked_optimize(*args, **kwargs):
+        if kwargs.get("options", False) == opt_options["options"] and \
+                kwargs.get("tol", False) == opt_options["tol"]:
+            return OptimizeResult(x=[1.0])
+        return OptimizeResult(x=[0.0])
+
+    mocker.patch.object(optimize, "minimize", side_effect=mocked_optimize)
+    mocker.patch.object(optimize, "root", side_effect=mocked_optimize)
+
+    dummy_individual = DummyLocalOptIndividual()
+    clo = ContinuousLocalOptimization(mocked_fitness_function,
+                                      algorithm=algorithm)
+
+    clo(dummy_individual)
+    assert dummy_individual.param == 0.0
+
+    clo.optimization_options = opt_options
+    clo(dummy_individual)
+    assert dummy_individual.param == 1.0
 
 
 def test_get_eval_count_pass_through(mocker):

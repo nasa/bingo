@@ -91,7 +91,6 @@ def test_init_param_bounds_and_clo_options(mocker):
 @pytest.mark.parametrize("algorithm", ["Nelder-Mead", "lm"])
 # using Nelder-Mead and lm to test minimize and root respectively
 def test_set_param_bounds_and_clo_options_affect_clo(mocker, algorithm):
-
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)
 

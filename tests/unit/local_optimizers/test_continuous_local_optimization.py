@@ -79,7 +79,10 @@ def test_can_set_param_bounds_and_clo_options(mocker):
 def test_init_param_bounds_and_clo_options(mocker):
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)
-    clo = ContinuousLocalOptimization(mocked_fitness_function, param_init_bounds=[2, 4], optimization_options={"options": {"maxiter": 0}})
+    clo = ContinuousLocalOptimization(mocked_fitness_function,
+                                      param_init_bounds=[2, 4],
+                                      optimization_options={
+                                          "options": {"maxiter": 0}})
 
     assert clo.param_init_bounds == [2, 4]
     assert clo.optimization_options == {"tol": 1e-6, "options": {"maxiter": 0}}
@@ -87,8 +90,7 @@ def test_init_param_bounds_and_clo_options(mocker):
 
 @pytest.mark.parametrize("algorithm", ["Nelder-Mead", "lm"])
 # using Nelder-Mead and lm to test minimize and root respectively
-def test_set_param_bounds_and_clo_options_affect_clo_minimize(mocker,
-                                                              algorithm):
+def test_set_param_bounds_and_clo_options_affect_clo(mocker, algorithm):
 
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)
@@ -98,7 +100,7 @@ def test_set_param_bounds_and_clo_options_affect_clo_minimize(mocker,
                                             "xatol": 1e-8,
                                             "adaptive": False}}
 
-    def mocked_optimize(*args, **kwargs):
+    def mocked_optimize(*_, **kwargs):
         if kwargs.get("options", False) == opt_options["options"] and \
                 kwargs.get("tol", False) == opt_options["tol"]:
             return OptimizeResult(x=[1.0])

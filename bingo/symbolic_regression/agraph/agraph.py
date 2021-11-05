@@ -64,6 +64,8 @@ except ImportError:
 
 LOGGER = logging.getLogger(__name__)
 
+using_python_simplification = False
+
 
 def force_use_of_python_backends():
     """When c++ backends are available, this can be used to force the use of
@@ -73,6 +75,19 @@ def force_use_of_python_backends():
     global evaluation_backend, simplification_backend
     from .evaluation_backend import evaluation_backend
     from .simplification_backend import simplification_backend
+
+
+# TODO test and potentially merge with force_use_of_python_backends()
+def force_use_of_python_simplification():
+    """When c++ simplification is available, this can be used to force the use
+    of python simplification"""
+    # pylint: disable=redefined-outer-name, global-statement, invalid-name
+    # pylint: disable=import-outside-toplevel
+    global simplification_backend
+    from .simplification_backend import simplification_backend
+
+    global using_python_simplification
+    using_python_simplification = True
 
 
 class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
@@ -102,6 +117,9 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._needs_opt = False
         self._modified = False
         self._use_simplification = use_simplification
+
+        if use_simplification and not using_python_simplification:
+            force_use_of_python_simplification()
 
     @property
     def engine(self):

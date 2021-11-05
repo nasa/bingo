@@ -12,6 +12,7 @@ except (ImportError, KeyError, ModuleNotFoundError) as e:
     from .agraph import AGraph
     BINGOCPP = False
 from .agraph import AGraph as pyAGraph
+from .agraph import force_use_of_python_simplification
 from ...chromosomes.generator import Generator
 from ...util.argument_validation import argument_validation
 
@@ -36,6 +37,9 @@ class AGraphGenerator(Generator):
             self._backend_generator_function = self._python_generator_function
         else:
             self._backend_generator_function = self._generator_function
+
+        if use_simplification:
+            force_use_of_python_simplification()
 
     def __call__(self):
         """Generates random agraph individual.

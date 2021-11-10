@@ -115,9 +115,11 @@ class ContinuousLocalOptimization(FitnessFunction):
            should be formatted as an iterable [low, high)
            where low will be included in the initialization range and
            high will be excluded
-    optimization_options : dict
-        (Optional) Dictionary of options for clo
-        e.g. {"tol": 1e-8, "options": {"maxiter": 1000}}
+    optimization_options_kwargs :
+        (Optional) Keyword arguments for clo options
+        e.g. (..., tol=1e-8, options={"maxiter": 1000})
+            alternatively you can also do
+            (..., **{"tol": 1e-8, "options": {"maxiter": 1000}})
 
     Raises
     ------

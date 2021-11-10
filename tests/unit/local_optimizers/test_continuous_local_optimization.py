@@ -79,13 +79,21 @@ def test_can_set_param_bounds_and_clo_options(mocker):
 def test_init_param_bounds_and_clo_options(mocker):
     mocked_fitness_function = \
         mocker.Mock(side_effect=lambda individual: individual.param)
+    opt_options = {"options": {"maxiter": 0}}
     clo = ContinuousLocalOptimization(mocked_fitness_function,
                                       param_init_bounds=[2, 4],
-                                      optimization_options={
-                                          "options": {"maxiter": 0}})
+                                      **opt_options)
 
     assert clo.param_init_bounds == [2, 4]
     assert clo.optimization_options == {"tol": 1e-6, "options": {"maxiter": 0}}
+
+    clo = ContinuousLocalOptimization(mocked_fitness_function,
+                                      param_init_bounds=[2, 4],
+                                      tol=1e-8,
+                                      options={"maxiter": 10})
+
+    assert clo.param_init_bounds == [2, 4]
+    assert clo.optimization_options == {"tol": 1e-8, "options": {"maxiter": 10}}
 
 
 @pytest.mark.parametrize("algorithm", ["Nelder-Mead", "lm"])

@@ -128,7 +128,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         algorithm
     """
     def __init__(self, fitness_function, algorithm='Nelder-Mead',
-                 param_init_bounds=None, optimization_options=None):
+                 param_init_bounds=None, **optimization_options_kwargs):
         self._check_algorithm_is_valid(algorithm)
         self._check_root_alg_returns_vector(fitness_function, algorithm)
         self._fitness_function = fitness_function
@@ -139,10 +139,8 @@ class ContinuousLocalOptimization(FitnessFunction):
         else:
             self.param_init_bounds = param_init_bounds
 
-        if optimization_options is None:
-            self.optimization_options = {"tol": 1e-6}
-        else:
-            self.optimization_options = optimization_options
+        self.optimization_options = optimization_options_kwargs  # default case
+        # handled in setter
 
     @property
     def training_data(self):
@@ -179,7 +177,7 @@ class ContinuousLocalOptimization(FitnessFunction):
     @optimization_options.setter
     def optimization_options(self, value):
         self._optimization_options = {"tol": 1e-6}
-        self._optimization_options.update(value)
+        self._optimization_options.update(**value)
 
     def __call__(self, individual):
         """Evaluates the fitness of the individual. Provides local optimization

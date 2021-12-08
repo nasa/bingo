@@ -13,6 +13,7 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
                 "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
                 "sqrt": SQRT}
 var_or_const_pattern = re.compile(r"([XC])_(\d+)")
+integer_pattern = re.compile(r"\d+")
 
 
 def convert_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
@@ -48,7 +49,7 @@ def convert_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
     return output
 
 
-def postfix_to_agraph(postfix_tokens):
+def postfix_to_command_array(postfix_tokens):
     stack = []  # -1 = top (the data structure, not a command_array)
     command_array = []
     i = 0
@@ -60,10 +61,16 @@ def postfix_to_agraph(postfix_tokens):
             operand = stack.pop()
             command_array.append([operator_map[token], operand, operand])
         else:
-            match = var_or_const_pattern.fullmatch(token)
-            if match:
-                groups = match.groups()
+            var_or_const = var_or_const_pattern.fullmatch(token)
+            integer = integer_pattern.fullmatch(token)
+            if var_or_const:
+                groups = var_or_const.groups()
                 command_array.append([operator_map[groups[0]], int(groups[1]), int(groups[1])])
+            elif integer:
+                operand = int(integer.group(0))
+                command_array.append([INTEGER, operand, operand])
+            else:
+                raise RuntimeError("Unknown token", token)
         stack.append(i)
         i += 1
 
@@ -73,19 +80,22 @@ def postfix_to_agraph(postfix_tokens):
 
 
 if __name__ == '__main__':
-    test_graph = AGraph()
-    test_graph.command_array = np.array([[0, 0, 0], [0, 1, 1], [0, 2, 2], [0, 3, 3], [10, 2, 3], [0, 4, 4], [3, 4, 5], [0, 5, 5], [0, 6, 6], [0, 7, 7], [4, 8, 9], [2, 7, 10], [10, 6, 11], [4, 1, 12], [2, 0, 13], [0, 8, 8], [3, 14, 15]], dtype=int)
-    print(test_graph)
+    # test_graph = AGraph()
+    # test_graph.command_array = np.array([[INTEGER, 1, 1]], dtype=int)
+    # infix = test_graph.get_formatted_string("infix").split(" ")
+    # print(test_graph)
 
-    # expression = "a+b*(c^d-e)^(f+g*h)-i"
-    # expression = "X_0 + X_1 * ( X_2 ^ X_3 - X_4 ) ^ ( X_5 + X_6 * X_7 ) - X_8".split(" ")
-    # expression = "sin ( X_0 ) + X_1 + C_0 + C_1".split(" ")
-    # expression = "sin ( sin ( X_0 ) + X_0 )".split(" ")
-    # expression = "(A + B) * (C + D)".replace(" ", "")
-    # expression = "(a+b)"
-    infix = test_graph.get_formatted_string("infix").split(" ")
+    infix = "sin ( X_0 ) + X_1 + log ( C_0 )".split(" ")
+    print(infix)
+
     postfix = convert_to_postfix(infix)
-    command_array = postfix_to_agraph(postfix)
+    print(postfix)
+
+    command_array = postfix_to_command_array(postfix)
+    print(command_array)
+
     output_graph = AGraph()
     output_graph.command_array = np.array(command_array, dtype=int)
+    output_graph.set_local_optimization_params([2.0])
+    output_graph.set_local_optimization_params([])
     print(output_graph)

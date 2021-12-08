@@ -11,7 +11,7 @@ from .selection import Selection
 class GeneralizedCrowding(Selection):
     """The class that performs generalized crowding selection on a population
     """
-    def __call__(self, population, target_population_size):
+    def __call__(self, population, target_population_size, idx):
         """Performs selection on a population
 
         Parameters
@@ -48,11 +48,12 @@ class GeneralizedCrowding(Selection):
             dist_a = parent_1.distance(child_1) + parent_2.distance(child_2)
             dist_b = parent_1.distance(child_2) + parent_2.distance(child_1)
             if dist_a <= dist_b:
-                population[i*2] = self._return_most_fit(child_1, parent_1)
-                population[i*2+1] = self._return_most_fit(child_2, parent_2)
+                population[i*2] = self._return_most_fit(child_1, parent_1, idx)
+                population[i*2+1] = self._return_most_fit(child_2, parent_2, 
+                                                                            idx)
             else:
-                population[i*2] = self._return_most_fit(child_2, parent_1)
-                population[i*2+1] = self._return_most_fit(child_1, parent_2)
+                population[i*2] = self._return_most_fit(child_2, parent_1, idx)
+                population[i*2+1] = self._return_most_fit(child_1, parent_2, idx)
 
         return population
 

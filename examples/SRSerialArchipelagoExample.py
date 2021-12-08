@@ -4,7 +4,8 @@
 # pylint: disable=missing-docstring
 import numpy as np
 
-from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
+from bingo.evolutionary_algorithms.generalized_crowding import \
+                                                GeneralizedCrowdingEA
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
@@ -50,13 +51,12 @@ def execute_generational_steps():
     local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
     evaluator = Evaluation(local_opt_fitness)
 
-    ea = AgeFitnessEA(evaluator, agraph_generator, crossover,
-                      mutation, 0.4, 0.4, POP_SIZE)
+    ea = GeneralizedCrowdingEA(evaluator, crossover, mutation, 0.4, 0.4)
 
     island = Island(ea, agraph_generator, POP_SIZE)
     archipelago = SerialArchipelago(island)
 
-    opt_result = archipelago.evolve_until_convergence(max_generations=500,
+    opt_result = archipelago.evolve_until_convergence(max_generations=5,
                                                       fitness_threshold=1.0e-4)
     if opt_result.success:
         print(archipelago.get_best_individual().get_formatted_string("console"))

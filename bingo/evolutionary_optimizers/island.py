@@ -52,6 +52,7 @@ class Island(EvolutionaryOptimizer):
         self.population = [generator() for _ in range(population_size)]
         self._ea = evolution_algorithm
         self._population_size = population_size
+        self.idx = 0
 
     def _do_evolution(self, num_generations):
         for _ in range(num_generations):
@@ -59,7 +60,7 @@ class Island(EvolutionaryOptimizer):
 
     def _execute_generational_step(self):
         self.generational_age += 1
-        self.population = self._ea.generational_step(self.population)
+        self.population = self._ea.generational_step(self.population, self.idx)
         for indv in self.population:
             indv.genetic_age += 1
 

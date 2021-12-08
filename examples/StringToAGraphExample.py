@@ -73,19 +73,19 @@ def postfix_to_agraph(postfix_tokens):
 
 
 if __name__ == '__main__':
-    # TODO need stack formatting for abs
+    test_graph = AGraph()
+    test_graph.command_array = np.array([[0, 0, 0], [0, 1, 1], [0, 2, 2], [0, 3, 3], [10, 2, 3], [0, 4, 4], [3, 4, 5], [0, 5, 5], [0, 6, 6], [0, 7, 7], [4, 8, 9], [2, 7, 10], [10, 6, 11], [4, 1, 12], [2, 0, 13], [0, 8, 8], [3, 14, 15]], dtype=int)
+    print(test_graph)
+
     # expression = "a+b*(c^d-e)^(f+g*h)-i"
-    expression = "X_0 + X_1 * ( X_2 ^ X_3 - X_4 ) ^ ( X_5 + X_6 * X_7 ) - X_8".split(" ")
+    # expression = "X_0 + X_1 * ( X_2 ^ X_3 - X_4 ) ^ ( X_5 + X_6 * X_7 ) - X_8".split(" ")
     # expression = "sin ( X_0 ) + X_1 + C_0 + C_1".split(" ")
     # expression = "sin ( sin ( X_0 ) + X_0 )".split(" ")
     # expression = "(A + B) * (C + D)".replace(" ", "")
     # expression = "(a+b)"
-    infix = list(expression)
-    print(infix)
-    postfix = convert_to_postfix(expression)
-    print(postfix)
+    infix = test_graph.get_formatted_string("infix").split(" ")
+    postfix = convert_to_postfix(infix)
     command_array = postfix_to_agraph(postfix)
-    print(command_array)
-    test_graph = AGraph()
-    test_graph.command_array = np.array(command_array, dtype=int)
-    print(test_graph)
+    output_graph = AGraph()
+    output_graph.command_array = np.array(command_array, dtype=int)
+    print(output_graph)

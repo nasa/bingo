@@ -7,17 +7,24 @@ from bingo.evaluation.fitness_function import FitnessFunction
 
 from smcpy.mcmc.vector_mcmc import VectorMCMC
 from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
-from smcpy.samplers import AdaptiveSampler
+from smcpy.samplers import AdaptiveSampler #SMCSampler
 from smcpy import ImproperUniform
 
 
 class BayesFitnessFunction(FitnessFunction):
 
-    def __init__(self, continuous_local_opt, num_particles=150, mcmc_steps=12, ess_threshold=0.75, std=None,
+    def __init__(self, continuous_local_opt, num_particles=150, phi_exponent=8,
+                 smc_steps=15, mcmc_steps=12, ess_threshold=0.75, std=None,
                  return_nmll_only=True, num_multistarts=1,
                  uniformly_weighted_proposal=True):
 
+        if smc_steps <= 2:
+            raise ValueError('smc_steps must be > 2')
+        if phi_exponent <= 0:
+            raise ValueError('phi_exponent must be > 0')
+
         self._num_particles = num_particles
+        self._smc_steps = smc_steps
         self._mcmc_steps = mcmc_steps
         self._ess_threshold = ess_threshold
         self._std = std
@@ -25,12 +32,13 @@ class BayesFitnessFunction(FitnessFunction):
         self._num_multistarts = num_multistarts
         self._uniformly_weighted_proposal = uniformly_weighted_proposal
 
-        num_observations = len(continuous_local_opt.training_data.x)
-        self._norm_phi = 1 / np.sqrt(num_observations)
-
+        self._num_observations = len(continuous_local_opt.training_data.x)
         self._cont_local_opt = continuous_local_opt
+        self._fbf_phi_idx, self._phi_seq = self._calc_phi_sequence(phi_exponent)
         self._eval_count = 0
-        self.step_list = None
+        
+        self._norm_phi = 1 / \
+                np.sqrt(self._cont_local_opt.training_data.y.shape[0])
 
     def __call__(self, individual):
         param_names = self.get_parameter_names(individual)
@@ -56,26 +64,24 @@ class BayesFitnessFunction(FitnessFunction):
         smc = AdaptiveSampler(mcmc_kernel)
 
         try:
-            step_list, marginal_log_likes = \
-                smc.sample(self._num_particles, self._mcmc_steps,
-                           self._ess_threshold,
-                           proposal=proposal,
-                           specified_phi=self._norm_phi)
-            
-        except (ValueError, np.linalg.LinAlgError, ZeroDivisionError):
+            step_list, marginal_log_likes = smc.sample(self._num_particles,
+                                                       self._mcmc_steps,
+                                                       self._ess_threshold,
+                                                       proposal=proposal,
+                                                   required_phi=self._norm_phi)
+        except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
+            print(f'error: {e}')
             if self._return_nmll_only:
                 return np.nan
             return np.nan, None, None
-        
+        # means = step_list[-1].compute_mean(package=False)
         max_idx = np.argmax(step_list[-1].log_likes)
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
-        import pdb;pdb.set_trace()
         self.step_list = step_list
-        
-        nmll = -1 * (marginal_log_likes[-1] -
-                     marginal_log_likes[smc.specificed_phi_idx])
 
+        nmll = -1 * (marginal_log_likes[-1] -
+                     marginal_log_likes[smc.req_phi_index[0]])
         if self._return_nmll_only:
             return nmll
         return nmll, step_list, vector_mcmc
@@ -109,14 +115,30 @@ class BayesFitnessFunction(FitnessFunction):
         num_multistarts = self._num_multistarts
         if param_names == []:
             num_multistarts = 1
+        
+        param_dists = []
+        max_count = 10 * num_multistarts
+        count = 0
+
+        while len(param_dists) < num_multistarts and count<max_count:
+            
+            mean, cov, _, _  =  self.estimate_covariance(individual)
+
+            try:
+                param_dists.append(mvn(mean, cov+(np.eye(cov.shape[0])*1e-8), 
+                                                    allow_singular=True))
+            except:
+                pass
+            count += 1
+
+        import pdb;pdb.set_trace()
+        pdf, samples = self._get_samples_and_pdf(param_dists, num_samples)
+
+        print(f'Number of Successful restarts: {len(param_dists)}')
+
 
         cov_estimates = [self.estimate_covariance(individual)
                          for _ in range(num_multistarts)]
-
-        if param_names != []:
-            param_dists = [mvn(mean, cov, allow_singular=True)
-                           for mean, cov, _, _ in cov_estimates]
-            pdf, samples = self._get_samples_and_pdf(param_dists, num_samples)
 
         if self._std is None:
             len_data = len(self.training_data.x)
@@ -141,6 +163,12 @@ class BayesFitnessFunction(FitnessFunction):
         sub_samples = num_samples // len(distributions)
         samples = np.vstack([proposal.rvs(sub_samples).reshape(sub_samples, -1)
                              for proposal in distributions])
+        if samples.shape[0] != num_samples:
+            missed_samples = num_samples - samples.shape[0]
+            new_samples = distributions[np.random.choice(len(distributions))]\
+                              .rvs(missed_samples).reshape((missed_samples, -1))
+            samples = np.vstack([samples, new_samples]) 
+        
         pdf = np.zeros((samples.shape[0], 1))
         for dist in distributions:
             pdf += dist.pdf(samples).reshape(-1, 1)
@@ -151,6 +179,14 @@ class BayesFitnessFunction(FitnessFunction):
         self._eval_count += 1
         individual.set_local_optimization_params(params.T)
         return individual.evaluate_equation_at(self.training_data.x).T
+
+    def _calc_phi_sequence(self, phi_exponent):
+        x = np.linspace(0, 1, self._smc_steps - 1)
+        phi_seq = (np.exp(x * phi_exponent) - 1) / (np.exp(phi_exponent) - 1)
+        fbf_phi = 1 / np.sqrt(self._num_observations)
+        fbf_phi_index = np.searchsorted(phi_seq, [fbf_phi])
+        phi_seq = np.insert(phi_seq, fbf_phi_index, fbf_phi)
+        return int(fbf_phi_index), phi_seq
 
     @property
     def eval_count(self):

@@ -5,9 +5,13 @@ from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.operator_definitions import *
 
 operators = {"+", "-", "*", "/", "^"}
+functions = {"sin", "cos", "sinh", "cosh", "exp", "log", "abs", "sqrt"}
 precedence = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
 operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
-                "/": DIVISION, "^": POWER, "X": VARIABLE, "C": CONSTANT}
+                "/": DIVISION, "^": POWER, "X": VARIABLE, "C": CONSTANT,
+                "sin": SIN, "cos": COS, "sinh": SINH, "cosh": COSH,
+                "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
+                "sqrt": SQRT}
 var_or_const_pattern = re.compile(r"([XC])_(\d+)")
 
 
@@ -23,12 +27,16 @@ def convert_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
             stack.append(token)
         elif token == "(":
             stack.append(token)
+        elif token in functions:
+            stack.append(token)
         elif token == ")":
             while stack[-1] != "(":
                 if len(stack) == 0:
                     raise RuntimeError("Mismatched parenthesis")
                 output.append(stack.pop())
             stack.pop()  # get rid of "("
+            if stack[-1] in functions:
+                output.append(stack.pop())
         else:
             output.append(token)
 
@@ -48,15 +56,16 @@ def postfix_to_agraph(postfix_tokens):
         if token in operators:
             operands = stack.pop(), stack.pop()
             command_array.append([operator_map[token], operands[1], operands[0]])
-            stack.append(i)
-            i += 1
+        elif token in functions:
+            operand = stack.pop()
+            command_array.append([operator_map[token], operand, operand])
         else:
             match = var_or_const_pattern.fullmatch(token)
             if match:
                 groups = match.groups()
                 command_array.append([operator_map[groups[0]], int(groups[1]), int(groups[1])])
-            stack.append(i)
-            i += 1
+        stack.append(i)
+        i += 1
 
     if len(stack) > 1:
         raise RuntimeError("Error evaluating postfix expression")
@@ -64,11 +73,15 @@ def postfix_to_agraph(postfix_tokens):
 
 
 if __name__ == '__main__':
+    # TODO need stack formatting for abs
     # expression = "a+b*(c^d-e)^(f+g*h)-i"
-    expression = "X_0 + X_1 + C_0 + C_1".split(" ")
+    expression = "X_0 + X_1 * ( X_2 ^ X_3 - X_4 ) ^ ( X_5 + X_6 * X_7 ) - X_8".split(" ")
+    # expression = "sin ( X_0 ) + X_1 + C_0 + C_1".split(" ")
+    # expression = "sin ( sin ( X_0 ) + X_0 )".split(" ")
     # expression = "(A + B) * (C + D)".replace(" ", "")
     # expression = "(a+b)"
-    # infix = list(expression)
+    infix = list(expression)
+    print(infix)
     postfix = convert_to_postfix(expression)
     print(postfix)
     command_array = postfix_to_agraph(postfix)

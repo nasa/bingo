@@ -150,7 +150,7 @@ class BayesFitnessFunction(FitnessFunction):
                              for proposal in distributions])
         if samples.shape[0] != num_samples:
             missed_samples = num_samples - samples.shape[0]
-            new_samples = np.random.choice(len(distributions)) \
+            new_samples = np.random.choice(distributions) \
                 .rvs(missed_samples).reshape((missed_samples, -1))
             samples = np.vstack([samples, new_samples])
         pdf = np.zeros((samples.shape[0], 1))

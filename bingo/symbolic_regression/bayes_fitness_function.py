@@ -7,13 +7,14 @@ from bingo.evaluation.fitness_function import FitnessFunction
 
 from smcpy.mcmc.vector_mcmc import VectorMCMC
 from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
-from smcpy.samplers import AdaptiveSampler
+from smcpy import AdaptiveSampler
 from smcpy import ImproperUniform
 
 
 class BayesFitnessFunction(FitnessFunction):
 
-    def __init__(self, continuous_local_opt, num_particles=150, mcmc_steps=12, ess_threshold=0.75, std=None,
+    def __init__(self, continuous_local_opt, num_particles=150, mcmc_steps=12,
+                 ess_threshold=0.75, std=None,
                  return_nmll_only=True, num_multistarts=1,
                  uniformly_weighted_proposal=True):
 
@@ -37,7 +38,7 @@ class BayesFitnessFunction(FitnessFunction):
         try:
             proposal = self.generate_proposal_samples(individual,
                                                       self._num_particles)
-        except (ValueError, np.linalg.LinAlgError) as e:
+        except (ValueError, np.linalg.LinAlgError, RuntimeError) as e:
             if self._return_nmll_only:
                 return np.nan
             return np.nan, None, None
@@ -59,7 +60,7 @@ class BayesFitnessFunction(FitnessFunction):
                 smc.sample(self._num_particles, self._mcmc_steps,
                            self._ess_threshold,
                            proposal=proposal,
-                           specified_phi=self._norm_phi)
+                           required_phi=self._norm_phi)
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError):
             if self._return_nmll_only:
                 return np.nan
@@ -70,7 +71,7 @@ class BayesFitnessFunction(FitnessFunction):
         individual.set_local_optimization_params(maps[:-1])
 
         nmll = -1 * (marginal_log_likes[-1] -
-                     marginal_log_likes[smc.specificed_phi_idx])
+                     marginal_log_likes[smc.req_phi_index[0]])
 
         if self._return_nmll_only:
             return nmll
@@ -103,15 +104,25 @@ class BayesFitnessFunction(FitnessFunction):
         samples = np.ones((num_samples, len(param_names)))
 
         num_multistarts = self._num_multistarts
-        if param_names == []:
-            num_multistarts = 1
+        param_dists = []
+        cov_estimates = []
+        if not param_names:
+            cov_estimates.append(self.estimate_covariance(individual))
+        else:
+            for _ in range(8*num_multistarts):
+                mean, cov, var_ols, ssqe = self.estimate_covariance(individual)
+                try:
+                    dists = mvn(mean, cov, allow_singular=True)
+                except ValueError as e:
+                    continue
+                cov_estimates.append((mean, cov, var_ols, ssqe))
+                param_dists.append(dists)
+                if len(param_dists) == num_multistarts:
+                    break
+            if not param_dists:
+                raise RuntimeError('Could not generate any valid proposal '
+                                   'distributions')
 
-        cov_estimates = [self.estimate_covariance(individual)
-                         for _ in range(num_multistarts)]
-
-        if param_names != []:
-            param_dists = [mvn(mean, cov, allow_singular=True)
-                           for mean, cov, _, _ in cov_estimates]
             pdf, samples = self._get_samples_and_pdf(param_dists, num_samples)
 
         if self._std is None:
@@ -137,6 +148,11 @@ class BayesFitnessFunction(FitnessFunction):
         sub_samples = num_samples // len(distributions)
         samples = np.vstack([proposal.rvs(sub_samples).reshape(sub_samples, -1)
                              for proposal in distributions])
+        if samples.shape[0] != num_samples:
+            missed_samples = num_samples - samples.shape[0]
+            new_samples = np.random.choice(len(distributions)) \
+                .rvs(missed_samples).reshape((missed_samples, -1))
+            samples = np.vstack([samples, new_samples])
         pdf = np.zeros((samples.shape[0], 1))
         for dist in distributions:
             pdf += dist.pdf(samples).reshape(-1, 1)

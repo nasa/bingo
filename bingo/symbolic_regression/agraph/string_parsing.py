@@ -23,7 +23,11 @@ def infix_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
     output = []
     for token in infix_tokens:
         if token in operators:
-            while len(stack) > 0 and stack[-1] in operators and precedence[stack[-1]] >= precedence[token]:
+            while len(stack) > 0 and stack[-1] in operators and \
+                (precedence[stack[-1]] > precedence[token] or
+                 precedence[stack[-1]] == precedence[token] and token != "^"):
+                # TODO make test case to make sure left-associativity isn't used with power (e.g. 1.0 + X_0^4.0))
+                # also 3 + 4 × 2 ÷ ( 1 − 5 ) ^ 2 ^ 3
                 output.append(stack.pop())
             stack.append(token)
         elif token == "(":
@@ -36,12 +40,13 @@ def infix_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
                     raise RuntimeError("Mismatched parenthesis")
                 output.append(stack.pop())
             stack.pop()  # get rid of "("
-            if stack[-1] in functions:
+            if len(stack) > 0 and stack[-1] in functions:
                 output.append(stack.pop())
         else:
             output.append(token)
 
-    for token in stack:
+    while len(stack) > 0:
+        token = stack.pop()
         if token == "(":
             raise RuntimeError("Mismatched parenthesis")
         output.append(token)
@@ -82,19 +87,19 @@ def postfix_to_command_array_and_constants(postfix_tokens):
     return np.array(command_array, dtype=int), constants
 
 
-def infix_tokens_to_agraph(tokens):
+def infix_tokens_to_agraph(tokens, use_simplification=False):
     command_array, constants = postfix_to_command_array_and_constants(infix_to_postfix(tokens))
-    graph = AGraph()
+    graph = AGraph(use_simplification)
     graph.command_array = command_array
     graph.set_local_optimization_params(constants)
     return graph
 
 
-def sympy_string_to_agraph(sympy_string):
+def sympy_string_to_agraph(sympy_string, use_simplification=False):  # TODO change this to a constructor
     sympy_string = sympy_string.replace("**", "^")
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
     tokens = [x for x in tokens if x != ""]  # for if there was a trailing space in sympy_string after sub
-    return infix_tokens_to_agraph(tokens)
+    return infix_tokens_to_agraph(tokens, use_simplification)
 
 
 if __name__ == '__main__':

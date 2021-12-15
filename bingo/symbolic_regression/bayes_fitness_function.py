@@ -34,7 +34,6 @@ class BayesFitnessFunction(FitnessFunction):
 
     def __call__(self, individual):
         param_names = self.get_parameter_names(individual)
-        individual = self.do_local_opt(individual)
         try:
             proposal = self.generate_proposal_samples(individual,
                                                       self._num_particles)
@@ -83,7 +82,6 @@ class BayesFitnessFunction(FitnessFunction):
         return [f'p{i}' for i in range(num_params)]
 
     def do_local_opt(self, individual):
-        individual._notify_modification()
         individual._needs_opt = True
         _ = self._cont_local_opt(individual)
         return individual

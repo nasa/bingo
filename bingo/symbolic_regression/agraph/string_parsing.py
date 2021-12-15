@@ -13,6 +13,7 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
                 "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
                 "sqrt": SQRT}
 var_or_const_pattern = re.compile(r"([XC])_(\d+)")
+int_pattern = re.compile(r"\d+")
 non_unary_op_pattern = re.compile(r"([*/^()])")
 
 
@@ -68,9 +69,13 @@ def postfix_to_command_array_and_constants(postfix_tokens):
             command_array.append([operator_map[token], operand, operand])
         else:
             var_or_const = var_or_const_pattern.fullmatch(token)
+            integer = int_pattern.fullmatch(token)
             if var_or_const:
                 groups = var_or_const.groups()
                 command_array.append([operator_map[groups[0]], int(groups[1]), int(groups[1])])
+            elif integer:
+                operand = int(token)
+                command_array.append([INTEGER, operand, operand])
             else:
                 try:
                     constant = float(token)

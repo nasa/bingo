@@ -13,10 +13,10 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
                 "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
                 "sqrt": SQRT}
 var_or_const_pattern = re.compile(r"([XC])_(\d+)")
-integer_pattern = re.compile(r"\d+")
+non_unary_op_pattern = re.compile(r"([*/^()])")
 
 
-def convert_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
+def infix_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
     # can use function version on wikipedia for sin, cos, etc.
     # https://en.wikipedia.org/wiki/Shunting-yard_algorithm
     stack = []  # index -1 = top
@@ -49,9 +49,10 @@ def convert_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
     return output
 
 
-def postfix_to_command_array(postfix_tokens):
+def postfix_to_command_array_and_constants(postfix_tokens):
     stack = []  # -1 = top (the data structure, not a command_array)
     command_array = []
+    constants = []
     i = 0
     for token in postfix_tokens:
         if token in operators:
@@ -62,21 +63,38 @@ def postfix_to_command_array(postfix_tokens):
             command_array.append([operator_map[token], operand, operand])
         else:
             var_or_const = var_or_const_pattern.fullmatch(token)
-            integer = integer_pattern.fullmatch(token)
             if var_or_const:
                 groups = var_or_const.groups()
                 command_array.append([operator_map[groups[0]], int(groups[1]), int(groups[1])])
-            elif integer:
-                operand = int(integer.group(0))
-                command_array.append([INTEGER, operand, operand])
             else:
-                raise RuntimeError("Unknown token", token)
+                try:
+                    constant = float(token)
+                    c_i = len(constants)
+                    command_array.append([CONSTANT, c_i, c_i])
+                    constants.append(constant)
+                except ValueError:
+                    raise RuntimeError("Unknown token", token)
         stack.append(i)
         i += 1
 
     if len(stack) > 1:
         raise RuntimeError("Error evaluating postfix expression")
-    return command_array
+    return np.array(command_array, dtype=int), constants
+
+
+def infix_tokens_to_agraph(tokens):
+    command_array, constants = postfix_to_command_array_and_constants(infix_to_postfix(tokens))
+    graph = AGraph()
+    graph.command_array = command_array
+    graph.set_local_optimization_params(constants)
+    return graph
+
+
+def sympy_string_to_agraph(sympy_string):
+    sympy_string = sympy_string.replace("**", "^")
+    tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
+    tokens = [x for x in tokens if x != ""]  # for if there was a trailing space in sympy_string after sub
+    return infix_tokens_to_agraph(tokens)
 
 
 if __name__ == '__main__':
@@ -85,17 +103,15 @@ if __name__ == '__main__':
     # infix = test_graph.get_formatted_string("infix").split(" ")
     # print(test_graph)
 
-    infix = "sin ( X_0 ) + X_1 + log ( C_0 )".split(" ")
+    infix = "4.33 * sin ( X_0 ) + X_1 + log ( 2.554 )".split(" ")
     print(infix)
 
-    postfix = convert_to_postfix(infix)
+    postfix = infix_to_postfix(infix)
     print(postfix)
 
-    command_array = postfix_to_command_array(postfix)
+    command_array, constants = postfix_to_command_array_and_constants(postfix)
     print(command_array)
+    print(constants)
 
-    output_graph = AGraph()
-    output_graph.command_array = np.array(command_array, dtype=int)
-    output_graph.set_local_optimization_params([2.0])
-    output_graph.set_local_optimization_params([])
+    output_graph = infix_tokens_to_agraph(infix)
     print(output_graph)

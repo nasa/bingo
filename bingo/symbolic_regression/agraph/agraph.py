@@ -50,7 +50,7 @@ Node      Name                                     Math
 import logging
 import numpy as np
 from sympy.core import Expr
-from sympy import parse_expr
+from sympy import sympify
 
 from .string_parsing import sympy_string_to_command_array_and_constants
 from .string_generation import get_formatted_string
@@ -136,7 +136,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
                 self._sympy_expr = sympy_representation
                 self._sympy_str = str(sympy_representation)
             else:  # is str instance
-                self._sympy_expr = parse_expr(sympy_representation)
+                self._sympy_expr = sympify(sympy_representation)
                 self._sympy_str = str(self._sympy_expr)
                 # not using sympy_representation directly for self._sympy_str
                 # because it might not be in simplified form

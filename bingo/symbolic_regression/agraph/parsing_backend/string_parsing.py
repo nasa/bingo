@@ -1,7 +1,6 @@
 import re
 import numpy as np
 
-from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.operator_definitions import *
 
 operators = {"+", "-", "*", "/", "^"}
@@ -97,14 +96,6 @@ def postfix_to_command_array_and_constants(postfix_tokens):
     return np.array(command_array, dtype=int), constants
 
 
-def infix_tokens_to_agraph(tokens, use_simplification=False):  # TODO change to agraph constructor
-    command_array, constants = postfix_to_command_array_and_constants(infix_to_postfix(tokens))
-    graph = AGraph(use_simplification)
-    graph.command_array = command_array
-    graph.set_local_optimization_params(constants)
-    return graph
-
-
 def sympy_string_to_infix_tokens(sympy_string):
     sympy_string = sympy_string.replace("**", "^")
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
@@ -112,21 +103,7 @@ def sympy_string_to_infix_tokens(sympy_string):
     return tokens
 
 
-if __name__ == '__main__':  # TODO remove
-    # test_graph = AGraph()
-    # test_graph.command_array = np.array([[INTEGER, 1, 1]], dtype=int)
-    # infix = test_graph.get_formatted_string("infix").split(" ")
-    # print(test_graph)
-
-    infix = "4.33 * sin ( X_0 ) + X_1 + log ( 2.554 )".split(" ")
-    print(infix)
-
-    postfix = infix_to_postfix(infix)
-    print(postfix)
-
-    command_array, constants = postfix_to_command_array_and_constants(postfix)
-    print(command_array)
-    print(constants)
-
-    output_graph = infix_tokens_to_agraph(infix)
-    print(output_graph)
+def sympy_string_to_command_array_and_constants(sympy_string):
+    infix_tokens = sympy_string_to_infix_tokens(sympy_string)
+    postfix_tokens = infix_to_postfix(infix_tokens)
+    return postfix_to_command_array_and_constants(postfix_tokens)

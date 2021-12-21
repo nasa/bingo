@@ -2,7 +2,7 @@ import pytest
 
 from bingo.symbolic_regression.agraph.parsing_backend.string_parsing import \
     infix_to_postfix, postfix_to_command_array_and_constants, \
-    sympy_string_to_infix_tokens
+    sympy_string_to_infix_tokens, sympy_string_to_command_array_and_constants
 from bingo.symbolic_regression.agraph.string_generation import get_formatted_string
 
 
@@ -161,7 +161,7 @@ def test_postfix_to_command_array_and_constants_unknown_token():
     postfix_tokens = "X_0 b +".split(" ")
     with pytest.raises(RuntimeError) as exception_info:
         postfix_to_command_array_and_constants(postfix_tokens)
-        assert exception_info.value == "Unknown token b"
+    assert str(exception_info.value) == "Unknown token b"
 
 
 @pytest.mark.parametrize("postfix_str, expected_exception, exception_message",
@@ -171,7 +171,7 @@ def test_postfix_to_command_array_and_constants_invalid_postfix(postfix_str, exp
     postfix_tokens = postfix_str.split(" ")
     with pytest.raises(expected_exception) as exception_info:
         postfix_to_command_array_and_constants(postfix_tokens)
-        assert exception_info.value == exception_message
+    assert str(exception_info.value) == exception_message
 
 
 def test_sympy_string_to_infix_tokens_basic():
@@ -180,6 +180,20 @@ def test_sympy_string_to_infix_tokens_basic():
 
 
 def test_sympy_string_to_infix_tokens_complex():
-    sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3"
-    expected_infix_tokens = "X_4 ^ ( X_5 + 3 ) + 2.0 * log ( X_0 + X_1 ) + cosh ( X_2 - X_3 ) / 3".split(" ")
+    sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
+    expected_infix_tokens = "X_4 ^ ( X_5 + 3 ) + 2.0 * log ( X_0 + X_1 ) + cosh ( X_2 - X_3 ) / 3 ^ 5".split(" ")
     assert sympy_string_to_infix_tokens(sympy_string) == expected_infix_tokens
+
+
+def test_sympy_string_to_command_array_and_constants_basic():
+    sympy_string = "(X_0 + 1.0) * (3 - X_0) / 5.0"
+    expected_console_string = "((X_0 + 1.0)(3 - (X_0)))/(5.0) "
+    command_array, constants = sympy_string_to_command_array_and_constants(sympy_string)
+    assert get_formatted_string("console", command_array, constants) == expected_console_string
+
+
+def test_sympy_string_to_command_array_and_constants_complex():
+    sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
+    expected_console_string = "(X_4)^(X_5 + 3) + (2.0)(log(X_0 + X_1)) + (cosh(X_2 - (X_3)))/((3)^(5)) "
+    command_array, constants = sympy_string_to_command_array_and_constants(sympy_string)
+    assert get_formatted_string("console", command_array, constants) == expected_console_string

@@ -49,7 +49,10 @@ Node      Name                                     Math
 """
 import logging
 import numpy as np
+from sympy.core import Expr
+from sympy import parse_expr
 
+from .parsing_backend.string_parsing import sympy_string_to_command_array_and_constants
 from .string_generation import get_formatted_string
 from ..equation import Equation
 from ...local_optimizers import continuous_local_opt
@@ -105,20 +108,40 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
     constants : tuple of numeric
         numeric constants that are used in the equation
 
+    # TODO documentation
+
     """
-    def __init__(self, use_simplification=False):
+    def __init__(self, use_simplification=False, sympy_representation=None):
         super().__init__()
-        self._command_array = np.empty([0, 3], dtype=int)
 
-        self._simplified_command_array = np.empty([0, 3], dtype=int)
-        self._simplified_constants = []
-
-        self._needs_opt = False
-        self._modified = False
         self._use_simplification = use_simplification
 
         if use_simplification and not USING_PYTHON_SIMPLIFICATION:
             force_use_of_python_simplification()
+
+        if sympy_representation is None:
+            self._command_array = np.empty([0, 3], dtype=int)
+
+            self._simplified_command_array = np.empty([0, 3], dtype=int)
+            self._simplified_constants = []
+
+            self._needs_opt = False
+            self._modified = False
+        elif isinstance(sympy_representation, (Expr, str)):
+            if isinstance(sympy_representation, Expr):
+                self._sympy_expr = sympy_representation
+                self._sympy_str = str(sympy_representation)
+            else:  # is str instance
+                self._sympy_expr = parse_expr(sympy_representation)
+                self._sympy_str = str(self._sympy_expr)  # not using sympy_representation
+                # directly because it might not be in simplified form
+            command_array, constants = sympy_string_to_command_array_and_constants(self._sympy_str)
+            self.set_local_optimization_params(constants)
+            self.command_array = command_array
+            # TODO decide on setting _needs_opt or not
+            # TODO how to deal with command_array being updated after this?, what to do with sympy_expr, _str, etc.
+        else:
+            raise TypeError("sympy_representation is not a valid format")
 
     @property
     def engine(self):

@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 import dill
+import sympy
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
@@ -55,6 +56,53 @@ def sin_agraph(agraph_implementation):
     sample.command_array = np.array([[VARIABLE, 0, 0],
                                      [SIN, 0, 0]], dtype=int)
     return sample
+
+
+def test_agraph_sympy_expr_constructor(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
+
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  + cosh((X_3)^(X_4 + 3))"
+    sympy_expr = sympy.parse_expr(expected_console_string.replace(")(", ")*(").replace("^", "**"))
+    agraph = agraph_implementation(sympy_representation=sympy_expr)
+    assert agraph._sympy_expr == sympy_expr
+    assert agraph._sympy_str == str(sympy_expr)
+    assert agraph.get_formatted_string("console") == expected_console_string
+
+
+def test_agraph_sympy_str_constructor(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
+
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  + cosh((X_3)^(X_4 + 3))"
+    sympy_expr = sympy.parse_expr(expected_console_string.replace(")(", ")*(").replace("^", "**"))
+    sympy_str = str(sympy_expr)
+    agraph = agraph_implementation(sympy_representation=sympy_str)
+    assert agraph._sympy_expr == sympy_expr
+    assert agraph._sympy_str == sympy_str
+    assert agraph.get_formatted_string("console") == expected_console_string
+
+
+def test_agraph_sympy_unsimplified_str_constructor(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
+
+    unsimplified_string = "1.0 + X_0 + 2.0"
+    sympy_expr = sympy.parse_expr(unsimplified_string)
+    sympy_str = str(sympy_expr)
+    agraph = agraph_implementation(sympy_representation=unsimplified_string)
+    assert agraph._sympy_expr == sympy_expr
+    assert agraph._sympy_str == sympy_str
+    assert agraph.get_formatted_string("console") == sympy_str
+
+
+def test_agraph_sympy_constructor_invalid(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
+
+    with pytest.raises(TypeError) as exception_info:
+        agraph_implementation(sympy_representation=1)
+    assert str(exception_info.value) == "sympy_representation is not a valid format"
 
 
 def test_agraph_copy_and_distance(addition_agraph):

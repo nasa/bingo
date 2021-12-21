@@ -11,14 +11,29 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
                 "sin": SIN, "cos": COS, "sinh": SINH, "cosh": COSH,
                 "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
                 "sqrt": SQRT}
-var_or_const_pattern = re.compile(r"([XC])_(\d+)")
-int_pattern = re.compile(r"\d+")
-non_unary_op_pattern = re.compile(r"([*/^()])")
+var_or_const_pattern = re.compile(r"([XC])_(\d+)")  # matches X_### and C_###
+int_pattern = re.compile(r"\d+")  # matches ###
+non_unary_op_pattern = re.compile(r"([*/^()])")  # matches *, /, ^, (, or )
 
 
-# TODO documentation
-def infix_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
-    stack = []  # index -1 = top
+def infix_to_postfix(infix_tokens):
+    """Converts a list of infix tokens into its corresponding
+    list of postfix tokens (e.g. ["a", "+", "b"] -> ["a", "b", "+"])
+
+    Based on the Dijkstra's Shunting-yard algorithm
+
+    Parameters
+    ----------
+    infix_tokens : list of str
+        A list of infix string tokens
+
+    Returns
+    -------
+    postfix_tokens : list of str
+        A list of postfix string tokens corresponding
+        to the expression given by infix_tokens
+    """
+    stack = []  # index -1 = top (stack as in the data structure, not a command array)
     output = []
     for token in infix_tokens:
         if token in operators:
@@ -27,9 +42,7 @@ def infix_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
                  precedence[stack[-1]] == precedence[token] and token != "^"):
                 output.append(stack.pop())
             stack.append(token)
-        elif token == "(":
-            stack.append(token)
-        elif token in functions:
+        elif token == "(" or token in functions:
             stack.append(token)
         elif token == ")":
             while len(stack) > 0 and stack[-1] != "(":
@@ -51,7 +64,21 @@ def infix_to_postfix(infix_tokens):  # based on Shunting-yard algorithm
 
 
 def postfix_to_command_array_and_constants(postfix_tokens):
-    stack = []  # -1 = top (the data structure, not a command_array)
+    """Converts a list of postfix tokens to its corresponding command array
+    and list of constants
+
+    Parameters
+    ----------
+    postfix_tokens : list of str
+        A list of postfix string tokens
+
+    Returns
+    -------
+    command_array, constants : Nx3 numpy array of int, list of numeric
+        A command array and list of constants
+        corresponding to the expression given by the postfix_tokens
+    """
+    stack = []  # -1 = top (stack as in the data structure, not a command array)
     command_array = []
     i = 0
     var_const_int_to_index = {}
@@ -59,7 +86,8 @@ def postfix_to_command_array_and_constants(postfix_tokens):
     n_constants = 0
 
     for token in postfix_tokens:
-        if token in var_const_int_to_index:  # if we already have a command that sets a given variable, constant, or integer, just resuse it
+        if token in var_const_int_to_index:  # if we already have a command that sets a given variable,
+            # constant, or integer, just reuse it
             stack.append(var_const_int_to_index[token])
         else:
             if token in operators:
@@ -93,17 +121,46 @@ def postfix_to_command_array_and_constants(postfix_tokens):
 
     if len(stack) > 1:
         raise RuntimeError("Error evaluating postfix expression")
+
     return np.array(command_array, dtype=int), constants
 
 
 def sympy_string_to_infix_tokens(sympy_string):
+    """Converts a sympy-formatted string to infix_tokens
+
+    Parameters
+    ----------
+    sympy_string : str
+        A string corresponding to a sympy expression
+
+    Returns
+    -------
+    infix_tokens : list of str
+        A list of string tokens that correspond
+        to the expression given by sympy_string
+    """
     sympy_string = sympy_string.replace("**", "^")
-    tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
+    tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")  # add extra spaces around non-unary operators
+    # then split on those spaces to get the string tokens
     tokens = [x for x in tokens if x != ""]  # for if there was a trailing space in sympy_string after sub
     return tokens
 
 
 def sympy_string_to_command_array_and_constants(sympy_string):
+    """Converts a sympy-formatted string to its corresponding command
+    array and list of constants
+
+    Parameters
+    ----------
+    sympy_string : str
+        A string corresponding to a sympy expression
+
+    Returns
+    -------
+    command_array, constants : Nx3 numpy array of int, list of numeric
+        A command array and list of constants
+        corresponding to the expression given by sympy_string
+    """
     infix_tokens = sympy_string_to_infix_tokens(sympy_string)
     postfix_tokens = infix_to_postfix(infix_tokens)
     return postfix_to_command_array_and_constants(postfix_tokens)

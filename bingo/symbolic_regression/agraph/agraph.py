@@ -97,6 +97,13 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
 
     `AGraph` is initialized with with empty command array and no constants.
 
+    Parameters
+    ----------
+    use_simplification : bool, optional
+        Whether to use cas-simplification or not.
+    sympy_representation : sympy-formatted str or sympy expression, optional
+        A sympy-formatted str or sympy expression to build the AGraph from.
+
     Attributes
     ----------
     command_array : Nx3 numpy array of int.
@@ -107,9 +114,6 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         to be made.
     constants : tuple of numeric
         numeric constants that are used in the equation
-
-    # TODO documentation
-
     """
     def __init__(self, use_simplification=False, sympy_representation=None):
         super().__init__()

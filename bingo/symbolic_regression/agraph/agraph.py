@@ -52,7 +52,7 @@ import numpy as np
 from sympy.core import Expr
 from sympy import parse_expr
 
-from .parsing_backend.string_parsing import sympy_string_to_command_array_and_constants
+from .string_parsing import sympy_string_to_command_array_and_constants
 from .string_generation import get_formatted_string
 from ..equation import Equation
 from .operator_definitions import CONSTANT

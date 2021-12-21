@@ -1,6 +1,6 @@
 import pytest
 
-from bingo.symbolic_regression.agraph.parsing_backend.string_parsing import \
+from bingo.symbolic_regression.agraph.string_parsing import \
     infix_to_postfix, postfix_to_command_array_and_constants, \
     sympy_string_to_infix_tokens, sympy_string_to_command_array_and_constants
 from bingo.symbolic_regression.agraph.string_generation import get_formatted_string

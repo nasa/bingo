@@ -35,6 +35,14 @@ def test_latex_format(all_funcs_command_array):
     assert generated_string == expected_string
 
 
+def test_sympy_format(all_funcs_command_array):
+    expected_string = "sqrt(abs((log(exp(cos(sin(((2.0 - (X_0 + 5))*(X_0))/" \
+                      "(X_0))))))**(5)))"
+    generated_string = get_formatted_string("sympy", all_funcs_command_array,
+                                            constants=[2.0, ])
+    assert generated_string == expected_string
+
+
 def test_console_format(all_funcs_command_array):
     expected_string = "sqrt(|(log(exp(cos(sin(((2.0 - (X_0 + 5))(X_0))/" +\
                       "(X_0) )))))^(5)|)"
@@ -67,6 +75,14 @@ def test_latex_format_no_consts(all_funcs_command_array):
     expected_string = "\\sqrt{ |(log{ exp{ cos{ sin{ \\frac{ (? - (X_0 + " +\
                       "5))(X_0) }{ X_0 } } } } })^{ (5) }| }"
     generated_string = get_formatted_string("latex", all_funcs_command_array,
+                                            constants=[])
+    assert generated_string == expected_string
+
+
+def test_sympy_format_no_consts(all_funcs_command_array):
+    expected_string = "sqrt(abs((log(exp(cos(sin(((? - (X_0 + 5))*(X_0))" \
+                      "/(X_0))))))**(5)))"
+    generated_string = get_formatted_string("sympy", all_funcs_command_array,
                                             constants=[])
     assert generated_string == expected_string
 

@@ -5,8 +5,8 @@ STACK_PRINT_MAP : dict {int: str}
                   A map of node number to a format string for stack output
 LATEX_PRINT_MAP : dict {int: str}
                   A map of node number to a format string for latex output
-INFIX_PRINT_MAP : dict {int: str}
-                  A map of node number to a format string for infix output
+SYMPY_PRINT_MAP : dict {int: str}
+                  A map of node number to a format string for sympy output
 CONSOLE_PRINT_MAP : dict {int: str}
                   A map of node number to a format string for console output
 """
@@ -43,24 +43,24 @@ LATEX_PRINT_MAP = {ADDITION: "{} + {}",
                    ABS: "|{}|",
                    SQRT: "\\sqrt{{ {} }}",
                    SAFE_POWER: "(|{}|)^{{ ({}) }}"}
-INFIX_PRINT_MAP = {ADDITION: "{} + {}",
-                   SUBTRACTION: "{} - {}",
-                   MULTIPLICATION: "{} * {}",
-                   DIVISION: "{} / {} ",
-                   SIN: "sin ( {} )",
-                   COS: "cos ( {} )",
-                   SINH: "sinh ( {} )",
-                   COSH: "cosh ( {} )",
-                   EXPONENTIAL: "exp ( {} )",
-                   LOGARITHM: "log ( {} )",
-                   POWER: "( {} ) ^ ( {} )",
-                   ABS: "abs ( {} )",
-                   SQRT: "sqrt ( {} )",
-                   SAFE_POWER: "abs ( {} ) ^ ( {} )"}
+SYMPY_PRINT_MAP = {ADDITION: "{} + {}",
+                   SUBTRACTION: "{} - ({})",
+                   MULTIPLICATION: "({})*({})",
+                   DIVISION: "({})/({})",
+                   SIN: "sin({})",
+                   COS: "cos({})",
+                   SINH: "sinh({})",
+                   COSH: "cosh({})",
+                   EXPONENTIAL: "exp({})",
+                   LOGARITHM: "log({})",
+                   POWER: "({})**({})",
+                   ABS: "abs({})",
+                   SQRT: "sqrt({})",
+                   SAFE_POWER: "abs({})**({})"}
 CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
                      SUBTRACTION: "{} - ({})",
                      MULTIPLICATION: "({})({})",
-                     DIVISION: "({})/({}) ",
+                     DIVISION: "({})/({}) ",  # TODO extra space intentional?
                      SIN: "sin({})",
                      COS: "cos({})",
                      SINH: "sinh({})",
@@ -70,7 +70,7 @@ CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
                      POWER: "({})^({})",
                      ABS: "|{}|",
                      SQRT: "sqrt({})",
-                     SAFE_POWER: "(|{}|)^({})",}
+                     SAFE_POWER: "(|{}|)^({})"}
 
 
 def get_formatted_string(eq_format, command_array, constants):
@@ -79,7 +79,7 @@ def get_formatted_string(eq_format, command_array, constants):
     Parameters
     ----------
     eq_format : str
-        "stack", "latex", "infix", or "console"
+        "stack", "latex", "sympy", or "console"
     command_array : Nx3 array of int
         stack representation of an equation
     constants : list(float)
@@ -95,8 +95,8 @@ def get_formatted_string(eq_format, command_array, constants):
 
     if eq_format == "latex":
         format_dict = LATEX_PRINT_MAP
-    elif eq_format == "infix":
-        format_dict = INFIX_PRINT_MAP
+    elif eq_format == "sympy":
+        format_dict = SYMPY_PRINT_MAP
     else:  # "console"
         format_dict = CONSOLE_PRINT_MAP
     str_list = []

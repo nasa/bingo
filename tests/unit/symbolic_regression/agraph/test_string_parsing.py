@@ -1,9 +1,14 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
+# pylint: disable=invalid-name
 import pytest
 
 from bingo.symbolic_regression.agraph.string_parsing import \
     infix_to_postfix, postfix_to_command_array_and_constants, \
     sympy_string_to_infix_tokens, sympy_string_to_command_array_and_constants
-from bingo.symbolic_regression.agraph.string_generation import get_formatted_string
+from bingo.symbolic_regression.agraph.string_generation import \
+    get_formatted_string
 
 
 def test_infix_to_postfix_basic_order_of_operations():
@@ -20,68 +25,80 @@ def test_infix_to_postfix_parenthesis_order_of_operations():
 
 def test_infix_to_postfix_power_is_right_associative():
     normal_tokens = list("a^b^c")
-    explicit_right_associative_tokens = list("a^(b^c)")
-    expected_right_associative_postfix = list("abc^^")
-    assert infix_to_postfix(normal_tokens) == expected_right_associative_postfix
-    assert infix_to_postfix(explicit_right_associative_tokens) == expected_right_associative_postfix
+    explicit_right_assoc_tokens = list("a^(b^c)")
+    expected_right_assoc_postfix = list("abc^^")
+    assert infix_to_postfix(normal_tokens) == expected_right_assoc_postfix
+    assert infix_to_postfix(explicit_right_assoc_tokens) ==\
+           expected_right_assoc_postfix
 
-    explicit_left_associative_tokens = list("(a^b)^c")
-    expected_left_associative_postfix = list("ab^c^")
-    assert infix_to_postfix(explicit_left_associative_tokens) == expected_left_associative_postfix
+    explicit_left_assoc_tokens = list("(a^b)^c")
+    expected_left_assoc_postfix = list("ab^c^")
+    assert infix_to_postfix(explicit_left_assoc_tokens) ==\
+           expected_left_assoc_postfix
 
 
 def test_infix_to_postfix_subtraction_is_left_associative():
     normal_tokens = list("a-b-c")
-    explicit_left_associative_tokens = list("(a-b)-c")
-    expected_left_associative_postfix = list("ab-c-")
-    assert infix_to_postfix(normal_tokens) == expected_left_associative_postfix
-    assert infix_to_postfix(explicit_left_associative_tokens) == expected_left_associative_postfix
+    explicit_left_assoc_tokens = list("(a-b)-c")
+    expected_left_assoc_postfix = list("ab-c-")
+    assert infix_to_postfix(normal_tokens) == expected_left_assoc_postfix
+    assert infix_to_postfix(explicit_left_assoc_tokens) ==\
+           expected_left_assoc_postfix
 
-    explicit_right_associative_tokens = list("a-(b-c)")
-    expected_right_associative_postfix = list("abc--")
-    assert infix_to_postfix(explicit_right_associative_tokens) == expected_right_associative_postfix
+    explicit_right_assoc_tokens = list("a-(b-c)")
+    expected_right_assoc_postfix = list("abc--")
+    assert infix_to_postfix(explicit_right_assoc_tokens) ==\
+           expected_right_assoc_postfix
 
 
 def test_infix_to_postfix_division_is_left_associative():
     normal_tokens = list("a/b/c")
-    explicit_left_associative_tokens = list("(a/b)/c")
-    expected_left_associative_postfix = list("ab/c/")
-    assert infix_to_postfix(normal_tokens) == expected_left_associative_postfix
-    assert infix_to_postfix(explicit_left_associative_tokens) == expected_left_associative_postfix
+    explicit_left_assoc_tokens = list("(a/b)/c")
+    expected_left_assoc_postfix = list("ab/c/")
+    assert infix_to_postfix(normal_tokens) == expected_left_assoc_postfix
+    assert infix_to_postfix(explicit_left_assoc_tokens) ==\
+           expected_left_assoc_postfix
 
-    explicit_right_associative_tokens = list("a/(b/c)")
-    expected_right_associative_postfix = list("abc//")
-    assert infix_to_postfix(explicit_right_associative_tokens) == expected_right_associative_postfix
+    explicit_right_assoc_tokens = list("a/(b/c)")
+    expected_right_assoc_postfix = list("abc//")
+    assert infix_to_postfix(explicit_right_assoc_tokens) ==\
+           expected_right_assoc_postfix
 
 
 def test_infix_to_postfix_addition_is_left_associative():
     # technically addition is fully associative, but assuming it is left
     # associative does not affect expression evaluation
-    # (i.e. since (a + b) + c = a + (b + c), we can assume a + b + c = (a + b) + c)
+    # (i.e. since (a + b) + c = a + (b + c),
+    # we can assume a + b + c = (a + b) + c)
     normal_tokens = list("a+b+c")
-    explicit_left_associative_tokens = list("(a+b)+c")
-    expected_left_associative_postfix = list("ab+c+")
-    assert infix_to_postfix(normal_tokens) == expected_left_associative_postfix
-    assert infix_to_postfix(explicit_left_associative_tokens) == expected_left_associative_postfix
+    explicit_left_assoc_tokens = list("(a+b)+c")
+    expected_left_assoc_postfix = list("ab+c+")
+    assert infix_to_postfix(normal_tokens) == expected_left_assoc_postfix
+    assert infix_to_postfix(explicit_left_assoc_tokens) ==\
+           expected_left_assoc_postfix
 
-    explicit_right_associative_tokens = list("a+(b+c)")
-    expected_right_associative_postfix = list("abc++")
-    assert infix_to_postfix(explicit_right_associative_tokens) == expected_right_associative_postfix
+    explicit_right_assoc_tokens = list("a+(b+c)")
+    expected_right_assoc_postfix = list("abc++")
+    assert infix_to_postfix(explicit_right_assoc_tokens) ==\
+           expected_right_assoc_postfix
 
 
 def test_infix_to_postfix_multiplication_is_left_associative():
     # technically multiplication is fully associative, but assuming it is left
     # associative does not affect expression evaluation
-    # (i.e. since (a * b) * c = a * (b * c), we can assume a * b * c = (a * b) * c)
+    # (i.e. since (a * b) * c = a * (b * c),
+    # we can assume a * b * c = (a * b) * c)
     normal_tokens = list("a*b*c")
-    explicit_left_associative_tokens = list("(a*b)*c")
-    expected_left_associative_postfix = list("ab*c*")
-    assert infix_to_postfix(normal_tokens) == expected_left_associative_postfix
-    assert infix_to_postfix(explicit_left_associative_tokens) == expected_left_associative_postfix
+    explicit_left_assoc_tokens = list("(a*b)*c")
+    expected_left_assoc_postfix = list("ab*c*")
+    assert infix_to_postfix(normal_tokens) == expected_left_assoc_postfix
+    assert infix_to_postfix(explicit_left_assoc_tokens) ==\
+           expected_left_assoc_postfix
 
-    explicit_right_associative_tokens = list("a*(b*c)")
-    expected_right_associative_postfix = list("abc**")
-    assert infix_to_postfix(explicit_right_associative_tokens) == expected_right_associative_postfix
+    explicit_right_assoc_tokens = list("a*(b*c)")
+    expected_right_assoc_postfix = list("abc**")
+    assert infix_to_postfix(explicit_right_assoc_tokens) ==\
+           expected_right_assoc_postfix
 
 
 @pytest.mark.parametrize("expression", ["(a(b)", "a(b))", "a*b)"])
@@ -110,16 +127,22 @@ def test_postfix_to_command_array_and_constants_basic():
     postfix_tokens = "X_0 1.0 + sin X_0 2.0 / cos * 2.0 -".split(" ")
     # sin(X_0 + 1.0) * cos(X_0 / 2.0) - 2.0
     expected_console_string = "(sin(X_0 + 1.0))(cos((X_0)/(2.0) )) - (2.0)"
-    command_array, constants = postfix_to_command_array_and_constants(postfix_tokens)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    command_array, constants =\
+        postfix_to_command_array_and_constants(postfix_tokens)
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
 def test_postfix_to_command_array_and_constants_complex():
-    postfix_tokens = "X_0 X_1 + 2.0 * X_2 X_3 - 3 / + X_4 X_5 3 + ^ +".split(" ")
+    postfix_tokens =\
+        "X_0 X_1 + 2.0 * X_2 X_3 - 3 / + X_4 X_5 3 + ^ +".split(" ")
     # (X_0 + X_1) * 2.0 + (X_2 - X_3) / 3 + X_4^(X_5 + 3)
-    expected_console_string = "(X_0 + X_1)(2.0) + (X_2 - (X_3))/(3)  + (X_4)^(X_5 + 3)"
-    command_array, constants = postfix_to_command_array_and_constants(postfix_tokens)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    expected_console_string =\
+        "(X_0 + X_1)(2.0) + (X_2 - (X_3))/(3)  + (X_4)^(X_5 + 3)"
+    command_array, constants =\
+        postfix_to_command_array_and_constants(postfix_tokens)
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
 def test_postfix_to_command_array_and_constants_unordered_constants():
@@ -127,34 +150,45 @@ def test_postfix_to_command_array_and_constants_unordered_constants():
     constants = [1.0, 2.0]
     expected_console_string = "2.0 + 1.0"
     command_array, _ = postfix_to_command_array_and_constants(postfix_tokens)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
 def test_postfix_to_command_array_and_constants_unordered_variables():
     postfix_tokens = "X_1 X_0 +".split(" ")
     expected_console_string = "X_1 + X_0"
-    command_array, constants = postfix_to_command_array_and_constants(postfix_tokens)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    command_array, constants =\
+        postfix_to_command_array_and_constants(postfix_tokens)
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
-def test_postfix_to_command_array_and_constants_duplicated_vars_consts_and_ints():
+def test_postfix_to_command_array_and_constants_duplicated_vars_consts_and_ints():  # pylint: disable=line-too-long
     postfix_tokens = "X_0 1.0 + 2 + X_0 1.0 + 2 + +".split(" ")
     expected_console_string = "X_0 + 1.0 + 2 + X_0 + 1.0 + 2"
-    command_array, constants = postfix_to_command_array_and_constants(postfix_tokens)
-    assert len(command_array) == 8  # don't duplicate variables, constants, or integers
+    command_array, constants =\
+        postfix_to_command_array_and_constants(postfix_tokens)
+    assert len(command_array) == 8
+    # don't duplicate variables, constants, or integers
     assert len(constants) == 1  # don't duplicate constants
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
-@pytest.mark.parametrize("function_string", ["sin", "cos", "sinh", "cosh", "exp", "log", "abs", "sqrt"])
+@pytest.mark.parametrize("function_string",
+                         ["sin", "cos", "sinh", "cosh",
+                          "exp", "log", "abs", "sqrt"])
 def test_postfix_to_command_array_functions(function_string):
-    postfix_tokens = f"1.0 2.0 + {function_string}".split(" ")  # function(1.0 + 2.0)
+    postfix_tokens = f"1.0 2.0 + {function_string}".split(" ")
+    # function(1.0 + 2.0)
     if function_string == "abs":
         expected_console_string = "|1.0 + 2.0|"
     else:
         expected_console_string = f"{function_string}(1.0 + 2.0)"
-    command_array, constants = postfix_to_command_array_and_constants(postfix_tokens)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    command_array, constants =\
+        postfix_to_command_array_and_constants(postfix_tokens)
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
 def test_postfix_to_command_array_and_constants_unknown_token():
@@ -166,8 +200,11 @@ def test_postfix_to_command_array_and_constants_unknown_token():
 
 @pytest.mark.parametrize("postfix_str, expected_exception, exception_message",
                          [("X_0 +", IndexError, "pop from empty list"),
-                          ("X_0 X_1 + X_3", RuntimeError, "Error evaluating postfix expression")])
-def test_postfix_to_command_array_and_constants_invalid_postfix(postfix_str, expected_exception, exception_message):
+                          ("X_0 X_1 + X_3", RuntimeError,
+                           "Error evaluating postfix expression")])
+def test_postfix_to_command_array_and_constants_invalid_postfix(postfix_str,
+                                                                expected_exception,  # pylint: disable=line-too-long
+                                                                exception_message):  # pylint: disable=line-too-long
     postfix_tokens = postfix_str.split(" ")
     with pytest.raises(expected_exception) as exception_info:
         postfix_to_command_array_and_constants(postfix_tokens)
@@ -181,19 +218,27 @@ def test_sympy_string_to_infix_tokens_basic():
 
 def test_sympy_string_to_infix_tokens_complex():
     sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
-    expected_infix_tokens = "X_4 ^ ( X_5 + 3 ) + 2.0 * log ( X_0 + X_1 ) + cosh ( X_2 - X_3 ) / 3 ^ 5".split(" ")
+    expected_infix_tokens = "X_4 ^ ( X_5 + 3 ) " \
+                            "+ 2.0 * log ( X_0 + X_1 ) " \
+                            "+ cosh ( X_2 - X_3 ) / 3 ^ 5".split(" ")
     assert sympy_string_to_infix_tokens(sympy_string) == expected_infix_tokens
 
 
 def test_sympy_string_to_command_array_and_constants_basic():
     sympy_string = "(X_0 + 1.0) * (3 - X_0) / 5.0"
     expected_console_string = "((X_0 + 1.0)(3 - (X_0)))/(5.0) "
-    command_array, constants = sympy_string_to_command_array_and_constants(sympy_string)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    command_array, constants =\
+        sympy_string_to_command_array_and_constants(sympy_string)
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string
 
 
 def test_sympy_string_to_command_array_and_constants_complex():
     sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
-    expected_console_string = "(X_4)^(X_5 + 3) + (2.0)(log(X_0 + X_1)) + (cosh(X_2 - (X_3)))/((3)^(5)) "
-    command_array, constants = sympy_string_to_command_array_and_constants(sympy_string)
-    assert get_formatted_string("console", command_array, constants) == expected_console_string
+    expected_console_string = "(X_4)^(X_5 + 3) " \
+                              "+ (2.0)(log(X_0 + X_1)) " \
+                              "+ (cosh(X_2 - (X_3)))/((3)^(5)) "
+    command_array, constants =\
+        sympy_string_to_command_array_and_constants(sympy_string)
+    assert get_formatted_string("console", command_array, constants) ==\
+           expected_console_string

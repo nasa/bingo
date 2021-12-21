@@ -1,3 +1,4 @@
+"""Tools for parsing strings into AGraphs"""
 import re
 import numpy as np
 
@@ -33,7 +34,7 @@ def infix_to_postfix(infix_tokens):
         A list of postfix string tokens corresponding
         to the expression given by infix_tokens
     """
-    stack = []  # index -1 = top (stack as in the data structure, not a command array)
+    stack = []  # index -1 = top (the data structure, not a command array)
     output = []
     for token in infix_tokens:
         if token in operators:
@@ -78,7 +79,7 @@ def postfix_to_command_array_and_constants(postfix_tokens):
         A command array and list of constants
         corresponding to the expression given by the postfix_tokens
     """
-    stack = []  # -1 = top (stack as in the data structure, not a command array)
+    stack = []  # index -1 = top (the data structure, not a command array)
     command_array = []
     i = 0
     var_const_int_to_index = {}
@@ -86,13 +87,14 @@ def postfix_to_command_array_and_constants(postfix_tokens):
     n_constants = 0
 
     for token in postfix_tokens:
-        if token in var_const_int_to_index:  # if we already have a command that sets a given variable,
-            # constant, or integer, just reuse it
+        if token in var_const_int_to_index:  # if we already have a command
+            # that sets a given variable, constant, or integer, just reuse it
             stack.append(var_const_int_to_index[token])
         else:
             if token in operators:
                 operands = stack.pop(), stack.pop()
-                command_array.append([operator_map[token], operands[1], operands[0]])
+                command_array.append([operator_map[token],
+                                      operands[1], operands[0]])
             elif token in functions:
                 operand = stack.pop()
                 command_array.append([operator_map[token], operand, operand])
@@ -101,14 +103,16 @@ def postfix_to_command_array_and_constants(postfix_tokens):
                 integer = int_pattern.fullmatch(token)
                 if var_or_const:
                     groups = var_or_const.groups()
-                    command_array.append([operator_map[groups[0]], int(groups[1]), int(groups[1])])
+                    command_array.append([operator_map[groups[0]],
+                                          int(groups[1]), int(groups[1])])
                 elif integer:
                     operand = int(token)
                     command_array.append([INTEGER, operand, operand])
                 else:
                     try:
                         constant = float(token)
-                        command_array.append([CONSTANT, n_constants, n_constants])
+                        command_array.append([CONSTANT,
+                                              n_constants, n_constants])
                         constants.append(constant)
                         n_constants += 1
                     except ValueError:
@@ -140,9 +144,11 @@ def sympy_string_to_infix_tokens(sympy_string):
         to the expression given by sympy_string
     """
     sympy_string = sympy_string.replace("**", "^")
-    tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")  # add extra spaces around non-unary operators
-    # then split on those spaces to get the string tokens
-    tokens = [x for x in tokens if x != ""]  # for if there was a trailing space in sympy_string after sub
+    tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
+    # add extra spaces around non-unary operators then split on those spaces
+    # to get the string tokens
+    tokens = [x for x in tokens if x != ""]
+    # for if there was a trailing space in sympy_string after sub() call
     return tokens
 
 

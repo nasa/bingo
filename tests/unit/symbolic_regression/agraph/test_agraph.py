@@ -157,7 +157,7 @@ def test_setting_command_array_unsets_fitness(addition_agraph):
     assert not addition_agraph.fit_set
 
 
-@pytest.mark.parametrize("format_", ["latex", "console", "stack"])
+@pytest.mark.parametrize("format_", ["latex", "console", "sympy", "stack"])
 @pytest.mark.parametrize("raw", [True, False])
 def test_can_get_formatted_strings(format_, raw, addition_agraph):
     string = addition_agraph.get_formatted_string(format_, raw=raw)

@@ -29,6 +29,22 @@ class DummyLocalOptIndividual(ChromosomeInterface):
             self.param = params
 
 
+class BloatedOptIndividual(ChromosomeInterface):
+    def __init__(self):
+        self.param = [1, 2, 3]
+        self._fitness = None
+        self._fit_set = False
+
+    def needs_local_optimization(self):
+        return True
+
+    def get_number_local_optimization_params(self):
+        return 3
+
+    def set_local_optimization_params(self, params):
+        self.param = params
+
+
 @pytest.mark.parametrize("fit_func_type, raises_error",
                          [(FitnessFunction, True),
                           (VectorBasedFunction, False)])
@@ -232,3 +248,19 @@ def test_optimize_params_root_with_jacobian(mocker, algorithm):
     _ = local_opt_fitness_function(individual)
     opt_indv_fitness = fitness_function.evaluate_fitness_vector(individual)
     assert opt_indv_fitness[0] == pytest.approx(1, rel=0.05)
+
+
+@pytest.mark.parametrize("algorithm", ROOT_SET)
+def test_optimize_params_too_many_params(mocker, algorithm):
+    np.random.seed(7)
+    fitness_function = mocker.create_autospec(VectorBasedFunction)
+    fitness_function.evaluate_fitness_vector = lambda x: [1.0]
+
+    local_opt_fitness_function = ContinuousLocalOptimization(
+        fitness_function, algorithm, param_init_bounds=[-1, -1])
+
+    individual = BloatedOptIndividual()
+    _ = local_opt_fitness_function(individual)
+    np.testing.assert_array_equal(individual.param, [-1, -1, -1])
+    assert individual._fitness == np.inf
+    assert individual._fit_set is True

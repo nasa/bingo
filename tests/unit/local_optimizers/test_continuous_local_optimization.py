@@ -252,7 +252,6 @@ def test_optimize_params_root_with_jacobian(mocker, algorithm):
 
 @pytest.mark.parametrize("algorithm", ROOT_SET)
 def test_optimize_params_too_many_params(mocker, algorithm):
-    np.random.seed(7)
     fitness_function = mocker.create_autospec(VectorBasedFunction)
     fitness_function.evaluate_fitness_vector = lambda x: [1.0]
 

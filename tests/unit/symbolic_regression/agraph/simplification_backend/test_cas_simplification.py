@@ -222,3 +222,12 @@ def test_log_simplification(zero, one, two):
 def test_exp_simplification(zero, one):
     exp_zero = Expression(EXPONENTIAL, [zero, ])
     assert automatic_simplify(exp_zero) == one
+
+
+@pytest.mark.parametrize("operator",
+                         [ABS, SQRT, SINH, COSH])
+def test_no_simplification_ar1_operators(operator, zero, one, two):
+    operands = [zero, one, two]
+    for operand in operands:
+        exp = Expression(operator, [operand, ])
+        assert automatic_simplify(exp) == exp

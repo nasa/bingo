@@ -65,8 +65,6 @@ def test_agraph_sympy_expr_constructor(engine, agraph_implementation):
     expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  + cosh((X_3)^(X_4 + 3))"
     sympy_expr = sympy.sympify(expected_console_string.replace(")(", ")*(").replace("^", "**"))
     agraph = agraph_implementation(sympy_representation=sympy_expr)
-    assert agraph._sympy_expr == sympy_expr
-    assert agraph._sympy_str == str(sympy_expr)
     assert agraph.get_formatted_string("console") == expected_console_string
 
 
@@ -78,8 +76,6 @@ def test_agraph_sympy_str_constructor(engine, agraph_implementation):
     sympy_expr = sympy.sympify(expected_console_string.replace(")(", ")*(").replace("^", "**"))
     sympy_str = str(sympy_expr)
     agraph = agraph_implementation(sympy_representation=sympy_str)
-    assert agraph._sympy_expr == sympy_expr
-    assert agraph._sympy_str == sympy_str
     assert agraph.get_formatted_string("console") == expected_console_string
 
 
@@ -91,8 +87,6 @@ def test_agraph_sympy_unsimplified_str_constructor(engine, agraph_implementation
     sympy_expr = sympy.sympify(unsimplified_string)
     sympy_str = str(sympy_expr)
     agraph = agraph_implementation(sympy_representation=unsimplified_string)
-    assert agraph._sympy_expr == sympy_expr
-    assert agraph._sympy_str == sympy_str
     assert agraph.get_formatted_string("console") == sympy_str
 
 

@@ -133,20 +133,16 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
             self._modified = False
         elif isinstance(sympy_representation, (Expr, str)):
             if isinstance(sympy_representation, Expr):
-                self._sympy_expr = sympy_representation
-                self._sympy_str = str(sympy_representation)
+                sympy_str = str(sympy_representation)
             else:  # is str instance
-                self._sympy_expr = sympify(sympy_representation)
-                self._sympy_str = str(self._sympy_expr)
-                # not using sympy_representation directly for self._sympy_str
+                # not using sympy_representation directly
                 # because it might not be in simplified form
+                sympy_str = str(sympify(sympy_representation))
             command_array, constants = \
-                sympy_string_to_command_array_and_constants(self._sympy_str)
+                sympy_string_to_command_array_and_constants(sympy_str)
             self.set_local_optimization_params(constants)
             self.command_array = command_array
             # TODO decide on setting _needs_opt or not
-            # TODO how to deal with command_array being updated after this?
-            #  what to do with _sympy_expr, _sympy_str, etc.
         else:
             raise TypeError("sympy_representation is not a valid format")
 

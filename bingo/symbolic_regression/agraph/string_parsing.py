@@ -144,7 +144,11 @@ def sympy_string_to_infix_tokens(sympy_string):
         A list of string tokens that correspond
         to the expression given by sympy_string
     """
+    if any(bad_token in sympy_string for bad_token in ["zoo", "I", "oo",
+                                                       "nan"]):
+        raise RuntimeError("Cannot parse inf/complex")
     sympy_string = negative_pattern.sub(r"-1.0 * \1", sympy_string)
+    # replace -token with -1.0 * token if token != a number
     sympy_string = sympy_string.replace("**", "^")
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
     # add extra spaces around non-unary operators then split on those spaces
@@ -169,9 +173,6 @@ def sympy_string_to_command_array_and_constants(sympy_string):
         A command array and list of constants
         corresponding to the expression given by sympy_string
     """
-    # TODO throw error w/ zoo
-    # if "zoo" in sympy_string:
-    #     return np.array([[CONSTANT, 0, 0]], dtype=int), [0.0]
     infix_tokens = sympy_string_to_infix_tokens(sympy_string)
     postfix_tokens = infix_to_postfix(infix_tokens)
     return postfix_to_command_array_and_constants(postfix_tokens)

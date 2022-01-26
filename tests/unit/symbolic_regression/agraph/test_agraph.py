@@ -99,6 +99,18 @@ def test_agraph_sympy_constructor_invalid(engine, agraph_implementation):
     assert str(exception_info.value) == "sympy_representation is not a valid format"
 
 
+@pytest.mark.parametrize("zoo_string", ["log(log(X_0/X_0)/(X_0/X_0))",
+                                        "zoo", "I", "oo", "nan"])
+def test_agraph_sympy_constructor_zoo(engine, agraph_implementation,
+                                      zoo_string):
+    if engine == "c++":
+        pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
+
+    with pytest.raises(RuntimeError) as exception_info:
+        agraph_implementation(sympy_representation=zoo_string)
+    assert str(exception_info.value) == "Cannot parse inf/complex"
+
+
 def test_agraph_copy_and_distance(addition_agraph):
     agraph_2 = addition_agraph.copy()
     agraph_2.mutable_command_array[0, 0] = CONSTANT

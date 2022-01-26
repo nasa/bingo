@@ -231,6 +231,13 @@ def test_sympy_string_to_infix_tokens_complex():
     assert sympy_string_to_infix_tokens(sympy_string) == expected_infix_tokens
 
 
+@pytest.mark.parametrize("invalid_string", ["zoo", "I", "oo", "nan"])
+def test_sympy_string_to_infix_tokens_invalid(invalid_string):
+    with pytest.raises(RuntimeError) as exception_info:
+        _, _ = sympy_string_to_infix_tokens(invalid_string)
+    assert str(exception_info.value) == "Cannot parse inf/complex"
+
+
 def test_sympy_string_to_command_array_and_constants_basic():
     sympy_string = "(X_0 + 1.0) * (3 - X_0) / 5.0"
     expected_console_string = "((X_0 + 1.0)(3 - (X_0)))/(5.0) "
@@ -243,9 +250,16 @@ def test_sympy_string_to_command_array_and_constants_basic():
 def test_sympy_string_to_command_array_and_constants_complex():
     sympy_string = "X_4**(X_5 + 3) + 2.0*log(-X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
     expected_console_string = "(X_4)^(X_5 + 3) " \
-                              "+ (2.0)(log(-1.0 * X_0 + X_1)) " \
+                              "+ (2.0)(log((-1.0)(X_0) + X_1)) " \
                               "+ (cosh(X_2 - (X_3)))/((3)^(5)) "
     command_array, constants =\
         sympy_string_to_command_array_and_constants(sympy_string)
     assert get_formatted_string("console", command_array, constants) ==\
            expected_console_string
+
+
+@pytest.mark.parametrize("invalid_string", ["zoo", "I", "oo", "nan"])
+def test_sympy_string_to_command_array_and_constants_invalid(invalid_string):
+    with pytest.raises(RuntimeError) as excinfo:
+        _, _ = sympy_string_to_command_array_and_constants(invalid_string)
+    assert str(excinfo.value) == "Cannot parse inf/complex"

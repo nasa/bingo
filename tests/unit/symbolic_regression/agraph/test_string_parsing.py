@@ -216,6 +216,13 @@ def test_sympy_string_to_infix_tokens_basic():
     assert sympy_string_to_infix_tokens(sympy_string) == sympy_string.split(" ")
 
 
+def test_sympy_string_to_infix_tokens_negative_unary():
+    sympy_string = "-X_0 - -sin(-X_0) - -1.0"
+    expected_string = "-1.0 * X_0 - -1.0 * sin ( -1.0 * X_0 ) - -1.0"
+    assert sympy_string_to_infix_tokens(sympy_string) == \
+           expected_string.split(" ")
+
+
 def test_sympy_string_to_infix_tokens_complex():
     sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
     expected_infix_tokens = "X_4 ^ ( X_5 + 3 ) " \
@@ -234,9 +241,9 @@ def test_sympy_string_to_command_array_and_constants_basic():
 
 
 def test_sympy_string_to_command_array_and_constants_complex():
-    sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
+    sympy_string = "X_4**(X_5 + 3) + 2.0*log(-X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
     expected_console_string = "(X_4)^(X_5 + 3) " \
-                              "+ (2.0)(log(X_0 + X_1)) " \
+                              "+ (2.0)(log(-1.0 * X_0 + X_1)) " \
                               "+ (cosh(X_2 - (X_3)))/((3)^(5)) "
     command_array, constants =\
         sympy_string_to_command_array_and_constants(sympy_string)

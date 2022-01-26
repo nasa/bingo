@@ -15,7 +15,7 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
 var_or_const_pattern = re.compile(r"([XC])_(\d+)")  # matches X_### and C_###
 int_pattern = re.compile(r"\d+")  # matches ###
 non_unary_op_pattern = re.compile(r"([*/^()])")  # matches *, /, ^, (, or )
-negative_pattern = re.compile(r"-([^\s]+)")  # matches -XXXX
+negative_pattern = re.compile(r"-([^\s\d])")  # matches -N where N = non-number
 
 
 def infix_to_postfix(infix_tokens):
@@ -144,6 +144,7 @@ def sympy_string_to_infix_tokens(sympy_string):
         A list of string tokens that correspond
         to the expression given by sympy_string
     """
+    sympy_string = negative_pattern.sub(r"-1.0 * \1", sympy_string)
     sympy_string = sympy_string.replace("**", "^")
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
     # add extra spaces around non-unary operators then split on those spaces
@@ -169,10 +170,8 @@ def sympy_string_to_command_array_and_constants(sympy_string):
         corresponding to the expression given by sympy_string
     """
     # TODO throw error w/ zoo
-    # TODO test -X_0 and zoo
     # if "zoo" in sympy_string:
     #     return np.array([[CONSTANT, 0, 0]], dtype=int), [0.0]
-    sympy_string = negative_pattern.sub(r"-1.0 * \1", sympy_string)
     infix_tokens = sympy_string_to_infix_tokens(sympy_string)
     postfix_tokens = infix_to_postfix(infix_tokens)
     return postfix_to_command_array_and_constants(postfix_tokens)

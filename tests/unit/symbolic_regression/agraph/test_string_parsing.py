@@ -218,7 +218,7 @@ def test_sympy_string_to_infix_tokens_basic():
 
 def test_sympy_string_to_infix_tokens_negative_unary():
     sympy_string = "-X_0 - -sin(-X_0) - -1.0"
-    expected_string = "-1.0 * X_0 - -1.0 * sin ( -1.0 * X_0 ) - -1.0"
+    expected_string = "-1 * X_0 - -1 * sin ( -1 * X_0 ) - -1.0"
     assert sympy_string_to_infix_tokens(sympy_string) == \
            expected_string.split(" ")
 

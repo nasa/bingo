@@ -147,7 +147,7 @@ def sympy_string_to_infix_tokens(sympy_string):
     if any(bad_token in sympy_string for bad_token in ["zoo", "I", "oo",
                                                        "nan"]):
         raise RuntimeError("Cannot parse inf/complex")
-    sympy_string = negative_pattern.sub(r"-1.0 * \1", sympy_string)
+    sympy_string = negative_pattern.sub(r"-1 * \1", sympy_string)
     # replace -token with -1.0 * token if token != a number
     sympy_string = sympy_string.replace("**", "^")
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")

@@ -8,6 +8,7 @@ from bingo.evolutionary_optimizers.island import Island
 from bingo.evolutionary_optimizers.parallel_archipelago import ParallelArchipelago
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.local_optimizers.continuous_local_opt import ContinuousLocalOptimization
+from bingo.stats.hall_of_fame import HallOfFame
 from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
@@ -19,7 +20,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def __init__(self, population_size=100, stack_size=20,
                  operators=None, use_simplification=False,
                  crossover_prob=0.4, mutation_prob=0.4,
-                 metric="mse", parallel=True, clo_alg="lm",
+                 metric="mse", parallel=False, clo_alg="lm",
                  generations=10000, fitness_threshold=1.0e-6):
         self.population_size = population_size
         self.stack_size = stack_size
@@ -74,10 +75,13 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         island = Island(ea, self.generator, self.population_size)
 
+        # TODO pareto front based on complexity?
+        hof = HallOfFame(5)
+
         if self.parallel:
-            return ParallelArchipelago(island)
+            return ParallelArchipelago(island, hall_of_fame=hof)
         else:
-            return SerialArchipelago(island)
+            return SerialArchipelago(island, hall_of_fame=hof)
 
     def fit(self, X, y, sample_weight=None):
         if sample_weight is not None:
@@ -88,10 +92,11 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         opt_result = self.archipelago.evolve_until_convergence(max_generations=self.generations,
                                                                fitness_threshold=self.fitness_threshold)
         # print(opt_result.ea_diagnostics)
-        self.best_ind = self.archipelago.get_best_individual()
+        self.best_ind = self.archipelago.hall_of_fame[0]
+        # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
+        # print("\nbest individual:", self.best_ind)
 
     def predict(self, X):
-        # TODO change to HoF
         return self.best_ind.evaluate_equation_at(X)
 
 

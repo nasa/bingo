@@ -88,11 +88,10 @@ class BayesFitnessFunction(FitnessFunction):
 
     def estimate_covariance(self, individual):
         self.do_local_opt(individual)
-        num_params = individual.get_number_local_optimization_params()
         x = self.training_data.x
         f, f_deriv = individual.evaluate_equation_with_local_opt_gradient_at(x)
         ssqe = np.sum((self.training_data.y - f) ** 2)
-        var_ols = ssqe / (len(f) - num_params)
+        var_ols = ssqe / len(f)
         cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
         return individual.constants, cov, var_ols, ssqe
 

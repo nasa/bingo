@@ -3,7 +3,7 @@
 # sympy==1.0
 mpi4py>=2.0.0
 numpy>=1.14.3
-pytest>=3.6
+pytest>=3.6,<7
 pytest-mock>=1.10.0
 pytest-timeout>=1.4.2
 scipy>=1.6.2

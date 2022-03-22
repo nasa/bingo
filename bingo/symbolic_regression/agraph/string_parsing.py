@@ -15,6 +15,7 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
 var_or_const_pattern = re.compile(r"([XC])_(\d+)")  # matches X_### and C_###
 int_pattern = re.compile(r"\d+")  # matches ###
 non_unary_op_pattern = re.compile(r"([*/^()])")  # matches *, /, ^, (, or )
+negative_pattern = re.compile(r"-([^\s\d])")  # matches -N where N = non-number
 
 
 def infix_to_postfix(infix_tokens):
@@ -143,6 +144,11 @@ def sympy_string_to_infix_tokens(sympy_string):
         A list of string tokens that correspond
         to the expression given by sympy_string
     """
+    if any(bad_token in sympy_string for bad_token in ["zoo", "I", "oo",
+                                                       "nan"]):
+        raise RuntimeError("Cannot parse inf/complex")
+    sympy_string = negative_pattern.sub(r"-1 * \1", sympy_string)
+    # replace -token with -1.0 * token if token != a number
     sympy_string = sympy_string.replace("**", "^")
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
     # add extra spaces around non-unary operators then split on those spaces

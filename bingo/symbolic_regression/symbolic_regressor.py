@@ -25,7 +25,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                  metric="mse", parallel=False, clo_alg="lm",
                  generations=int(1e30), fitness_threshold=1.0e-16,
                  max_time=1800, max_evals=int(5e5), evolutionary_algorithm=AgeFitnessEA,
-                 island=Island, clo_threshold=1.0e-8):
+                 island=Island, clo_threshold=1.0e-8, scale_max_evals=False):
         self.population_size = population_size
         self.stack_size = stack_size
 
@@ -48,6 +48,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.fitness_threshold = fitness_threshold
         self.max_time = max_time
         self.max_evals = max_evals
+        self.scale_max_evals = scale_max_evals
 
         self.evolutionary_algorithm = evolutionary_algorithm
         self.island = island
@@ -125,17 +126,18 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.archipelago = self._get_archipelago(X, y)
         print(f"archipelago: {type(self.archipelago)}")
 
-        predictor_size = 1
+        max_eval_scaling = 1
         if self.island == FitnessPredictorIsland:
-            predictor_size = self.archipelago._predictor_size
-        print("n_points per predictor:", predictor_size)
-        print("max evals (scaled to predictors):", self.max_evals * predictor_size)
+            print("n_points per predictor:", self.archipelago._predictor_size)
+            if self.scale_max_evals:
+                max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
+        print("max evals:", self.max_evals * max_eval_scaling)
 
         opt_result = self.archipelago.evolve_until_convergence(
             max_generations=self.generations,
             fitness_threshold=self.fitness_threshold,
             max_time=self.max_time,
-            max_fitness_evaluations=self.max_evals * predictor_size,
+            max_fitness_evaluations=self.max_evals * max_eval_scaling,
             convergence_check_frequency=10
         )
 

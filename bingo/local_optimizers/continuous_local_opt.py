@@ -225,6 +225,8 @@ class ContinuousLocalOptimization(FitnessFunction):
         individual.set_local_optimization_params(params)
 
         if self._algorithm in ROOT_SET:
+            if self._algorithm in JACOBIAN_SET:
+                return self._fitness_function.get_fitness_vector_and_jacobian(individual)
             return self._fitness_function.evaluate_fitness_vector(individual)
         return self._fitness_function(individual)
 
@@ -236,7 +238,8 @@ class ContinuousLocalOptimization(FitnessFunction):
                     optimize_result = optimize.root(
                             sub_routine, params,
                             args=(individual, ),
-                            jac=lambda x, indv: self._fitness_function.get_fitness_vector_and_jacobian(indv)[1],  # pylint: disable=line-too-long
+                            jac=True,
+                            # jac=lambda x, indv: self._fitness_function.get_fitness_vector_and_jacobian(indv)[1],  # pylint: disable=line-too-long
                             method=self._algorithm,
                             **self._optimization_options)
                 else:

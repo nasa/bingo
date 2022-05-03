@@ -76,9 +76,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.generator = AGraphGenerator(self.stack_size, self.component_generator,
                                          use_simplification=self.use_simplification)
 
-        training_data = ExplicitTrainingData(X, y)
-        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
-        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=self.clo_threshold)
+        local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
         evaluator = Evaluation(local_opt_fitness)
 
         if self.evolutionary_algorithm == AgeFitnessEA:
@@ -100,6 +98,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             return ParallelArchipelago(island, hall_of_fame=hof)
         else:
             return island
+
+    def _get_clo(self, X, y, tol):
+        training_data = ExplicitTrainingData(X, y)
+        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
+        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
+        return local_opt_fitness
 
 
     def _force_diversity_in_island(self, island):
@@ -146,11 +150,21 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         else:
             self.best_ind = self.archipelago.hall_of_fame[0]
         print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
+
         # rerun CLO on best_ind with tighter tol
-        self.best_ind._needs_opt = True
-        self.archipelago._ea.evaluation.fitness_function.optimization_options = {"tol": 1e-6}
-        self.best_ind.fitness = self.archipelago._ea.evaluation.fitness_function(self.best_ind)
+        fit_func = self._get_clo(X, y, tol=1e-6)
+        best_fitness = fit_func(self._best_ind)
+        best_constants = tuple(self.best_ind.constants)
+        for _ in range(5):
+            self.best_ind._needs_opt = True
+            fitness = fit_func(self._best_ind)
+            if fitness < best_fitness:
+                best_fitness = fitness
+                best_constants = tuple(self.best_ind.constants)
+        self.best_ind.fitness = best_fitness
+        self.best_ind.set_local_optimization_params(best_constants)
         print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
+        
         # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
         # print("\nbest individual:", self.best_ind)
 

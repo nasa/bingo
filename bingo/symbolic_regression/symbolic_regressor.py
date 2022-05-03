@@ -14,8 +14,8 @@ from bingo.stats.hall_of_fame import HallOfFame
 from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
-from bingo.symbolic_regression import AGraphGenerator, ExplicitRegression, \
-    ExplicitTrainingData
+from bingo.symbolic_regression import AGraphGenerator #, ExplicitRegression, ExplicitTrainingData
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData # this forces use of python fit funcs
 
 
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
@@ -74,7 +74,9 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.mutation = AGraphMutation(self.component_generator)
 
         self.generator = AGraphGenerator(self.stack_size, self.component_generator,
-                                         use_simplification=self.use_simplification)
+                                         use_simplification=self.use_simplification,
+                                         use_python=True # only using c++ backend
+                                         )
 
         local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
         evaluator = Evaluation(local_opt_fitness)
@@ -113,7 +115,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         i = 0
         while len(diverse_pop) < self.population_size:
             i+=1
-            ind = self.generator
+            ind = self.generator()
             ind_str = str(ind)
             if ind_str not in pop_strings or i > 15 * self.population_size:
                 pop_strings.add(ind_str)
@@ -153,18 +155,18 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         # rerun CLO on best_ind with tighter tol
         fit_func = self._get_clo(X, y, tol=1e-6)
-        best_fitness = fit_func(self._best_ind)
+        best_fitness = fit_func(self.best_ind)
         best_constants = tuple(self.best_ind.constants)
         for _ in range(5):
             self.best_ind._needs_opt = True
-            fitness = fit_func(self._best_ind)
+            fitness = fit_func(self.best_ind)
             if fitness < best_fitness:
                 best_fitness = fitness
                 best_constants = tuple(self.best_ind.constants)
         self.best_ind.fitness = best_fitness
         self.best_ind.set_local_optimization_params(best_constants)
         print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
-        
+
         # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
         # print("\nbest individual:", self.best_ind)
 

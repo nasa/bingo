@@ -93,11 +93,29 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         hof = HallOfFame(5)
 
         island = self.island(ea, self.generator, self.population_size, hall_of_fame=hof)
+        self._force_diversity_in_island(island)
 
         if self.parallel:
             return ParallelArchipelago(island, hall_of_fame=hof)
         else:
             return island
+
+
+    def _force_diversity_in_island(self, island):
+        diverse_pop = []
+        pop_strings = set()
+
+        i = 0
+        while len(diverse_pop) < self.population_size:
+            i+=1
+            ind = self.generator
+            ind_str = str(ind)
+            if ind_str not in pop_strings or i > 15 * self.population_size:
+                pop_strings.add(ind_str)
+                diverse_pop.append(ind)
+        print(f" Generating a diverse population took {i} iterations.")
+        island.population = diverse_pop
+
 
     def fit(self, X, y, sample_weight=None):
         if sample_weight is not None:

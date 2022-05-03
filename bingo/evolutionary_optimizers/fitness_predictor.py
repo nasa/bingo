@@ -12,7 +12,7 @@ Check out the works of the works of Schmidt and Lipson for more details:
 e.g., "Coevolution of Fitness Predictors" (2008) .
 """
 import logging
-from copy import copy
+from copy import deepcopy
 import numpy as np
 from ..util.argument_validation import argument_validation
 from ..evaluation.fitness_function import FitnessFunction
@@ -45,7 +45,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         super().__init__(training_data)
         self._next_trainer_to_update = 0
         self.point_eval_count = 0
-        self._fitness_function = copy(full_fitness_function)
+        self._fitness_function = deepcopy(full_fitness_function)
         self._trainers, self._true_fitness_for_trainers = \
             self._make_initial_trainer_population(potential_trainers,
                                                   num_trainers)

@@ -225,7 +225,8 @@ class ContinuousLocalOptimization(FitnessFunction):
         individual.set_local_optimization_params(params)
 
         if self._algorithm in ROOT_SET:
-            if self._algorithm in JACOBIAN_SET:
+            if isinstance(self._fitness_function, VectorGradientMixin) \
+                    and self._algorithm in JACOBIAN_SET:
                 return self._fitness_function.get_fitness_vector_and_jacobian(individual)
             return self._fitness_function.evaluate_fitness_vector(individual)
         return self._fitness_function(individual)

@@ -17,6 +17,9 @@ from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression import AGraphGenerator #, ExplicitRegression, ExplicitTrainingData
 from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData # this forces use of python fit funcs
 
+from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
+from bingo.evolutionary_optimizers.island import Island
+
 
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def __init__(self, population_size=500, stack_size=32,
@@ -93,13 +96,20 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         # TODO pareto front based on complexity?
         hof = HallOfFame(5)
 
-        island = self.island(ea, self.generator, self.population_size, hall_of_fame=hof)
+        island = self.make_island(len(X), ea, hof)
         self._force_diversity_in_island(island)
 
         if self.parallel:
             return ParallelArchipelago(island, hall_of_fame=hof)
         else:
             return island
+
+    def make_island(self, dset_size, ea, hof):
+        if dset_size < 1200:
+            return Island(ea, self.generator, self.population_size, hall_of_fame=hof)
+        return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
+                                      predictor_size_ratio=800/dset_size)
+
 
     def _get_clo(self, X, y, tol):
         training_data = ExplicitTrainingData(X, y)

@@ -14,8 +14,8 @@ from bingo.stats.hall_of_fame import HallOfFame
 from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
-from bingo.symbolic_regression import AGraphGenerator, ExplicitRegression, \
-    ExplicitTrainingData
+from bingo.symbolic_regression import AGraphGenerator #, ExplicitRegression, ExplicitTrainingData
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData # this forces use of python fit funcs
 
 
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
@@ -25,7 +25,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                  metric="mse", parallel=False, clo_alg="lm",
                  generations=int(1e30), fitness_threshold=1.0e-16,
                  max_time=1800, max_evals=int(5e5), evolutionary_algorithm=AgeFitnessEA,
-                 island=Island, clo_threshold=1.0e-8):
+                 island=Island, clo_threshold=1.0e-8, scale_max_evals=False):
         self.population_size = population_size
         self.stack_size = stack_size
 
@@ -48,6 +48,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.fitness_threshold = fitness_threshold
         self.max_time = max_time
         self.max_evals = max_evals
+        self.scale_max_evals = scale_max_evals
 
         self.evolutionary_algorithm = evolutionary_algorithm
         self.island = island
@@ -73,11 +74,11 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.mutation = AGraphMutation(self.component_generator)
 
         self.generator = AGraphGenerator(self.stack_size, self.component_generator,
-                                         use_simplification=self.use_simplification)
+                                         use_simplification=self.use_simplification,
+                                         use_python=True # only using c++ backend
+                                         )
 
-        training_data = ExplicitTrainingData(X, y)
-        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
-        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=self.clo_threshold)
+        local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
         evaluator = Evaluation(local_opt_fitness)
 
         if self.evolutionary_algorithm == AgeFitnessEA:
@@ -93,11 +94,35 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         hof = HallOfFame(5)
 
         island = self.island(ea, self.generator, self.population_size, hall_of_fame=hof)
+        self._force_diversity_in_island(island)
 
         if self.parallel:
             return ParallelArchipelago(island, hall_of_fame=hof)
         else:
             return island
+
+    def _get_clo(self, X, y, tol):
+        training_data = ExplicitTrainingData(X, y)
+        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
+        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
+        return local_opt_fitness
+
+
+    def _force_diversity_in_island(self, island):
+        diverse_pop = []
+        pop_strings = set()
+
+        i = 0
+        while len(diverse_pop) < self.population_size:
+            i+=1
+            ind = self.generator()
+            ind_str = str(ind)
+            if ind_str not in pop_strings or i > 15 * self.population_size:
+                pop_strings.add(ind_str)
+                diverse_pop.append(ind)
+        print(f" Generating a diverse population took {i} iterations.")
+        island.population = diverse_pop
+
 
     def fit(self, X, y, sample_weight=None):
         if sample_weight is not None:
@@ -107,17 +132,18 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.archipelago = self._get_archipelago(X, y)
         print(f"archipelago: {type(self.archipelago)}")
 
-        predictor_size = 1
+        max_eval_scaling = 1
         if self.island == FitnessPredictorIsland:
-            predictor_size = self.archipelago._predictor_size
-        print("n_points per predictor:", predictor_size)
-        print("max evals (scaled to predictors):", self.max_evals * predictor_size)
+            print("n_points per predictor:", self.archipelago._predictor_size)
+            if self.scale_max_evals:
+                max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
+        print("max evals:", self.max_evals * max_eval_scaling)
 
         opt_result = self.archipelago.evolve_until_convergence(
             max_generations=self.generations,
             fitness_threshold=self.fitness_threshold,
             max_time=self.max_time,
-            max_fitness_evaluations=self.max_evals * predictor_size,
+            max_fitness_evaluations=self.max_evals * max_eval_scaling,
             convergence_check_frequency=10
         )
 
@@ -126,11 +152,21 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         else:
             self.best_ind = self.archipelago.hall_of_fame[0]
         print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
+
         # rerun CLO on best_ind with tighter tol
-        self.best_ind._needs_opt = True
-        self.archipelago._ea.evaluation.fitness_function.optimization_options = {"tol": 1e-6}
-        self.best_ind.fitness = self.archipelago._ea.evaluation.fitness_function(self.best_ind)
+        fit_func = self._get_clo(X, y, tol=1e-6)
+        best_fitness = fit_func(self.best_ind)
+        best_constants = tuple(self.best_ind.constants)
+        for _ in range(5):
+            self.best_ind._needs_opt = True
+            fitness = fit_func(self.best_ind)
+            if fitness < best_fitness:
+                best_fitness = fitness
+                best_constants = tuple(self.best_ind.constants)
+        self.best_ind.fitness = best_fitness
+        self.best_ind.set_local_optimization_params(best_constants)
         print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
+
         # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
         # print("\nbest individual:", self.best_ind)
 

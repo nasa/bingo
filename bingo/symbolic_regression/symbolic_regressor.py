@@ -26,9 +26,9 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                  operators=None, use_simplification=False,
                  crossover_prob=0.4, mutation_prob=0.4,
                  metric="mse", parallel=False, clo_alg="lm",
-                 generations=int(1e30), fitness_threshold=1.0e-16,
+                 generations=int(1e19), fitness_threshold=1.0e-16,
                  max_time=1800, max_evals=int(5e5), evolutionary_algorithm=AgeFitnessEA,
-                 island=Island, clo_threshold=1.0e-8, scale_max_evals=False):
+                 clo_threshold=1.0e-8, scale_max_evals=False):
         self.population_size = population_size
         self.stack_size = stack_size
 
@@ -54,7 +54,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.scale_max_evals = scale_max_evals
 
         self.evolutionary_algorithm = evolutionary_algorithm
-        self.island = island
 
         self.clo_threshold = clo_threshold
 
@@ -143,7 +142,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         print(f"archipelago: {type(self.archipelago)}")
 
         max_eval_scaling = 1
-        if self.island == FitnessPredictorIsland:
+        if isinstance(self.archipelago, FitnessPredictorIsland):
             print("n_points per predictor:", self.archipelago._predictor_size)
             if self.scale_max_evals:
                 max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
@@ -200,9 +199,9 @@ if __name__ == '__main__':
                              use_simplification=True,
                              crossover_prob=0.4, mutation_prob=0.4, metric="mae",
                              parallel=False, clo_alg="lm", generations=500, fitness_threshold=1.0e-4,
-                             evolutionary_algorithm=AgeFitnessEA, island=FitnessPredictorIsland,
-                             clo_threshold=1.0e-4)
+                             evolutionary_algorithm=AgeFitnessEA, clo_threshold=1.0e-4)
     print(regr.get_params())
+    print(regr)
 
     regr.fit(x, y)
     print(regr.best_ind)

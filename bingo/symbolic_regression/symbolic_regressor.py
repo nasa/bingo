@@ -28,7 +28,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                  crossover_prob=0.4, mutation_prob=0.4,
                  metric="mse", parallel=False, clo_alg="lm",
                  generations=int(1e19), fitness_threshold=1.0e-16,
-                 max_time=1800, max_evals=int(5e5), evolutionary_algorithm=AgeFitnessEA,
+                 max_time=1800, max_evals=int(1e19), evolutionary_algorithm=AgeFitnessEA,
                  clo_threshold=1.0e-8, scale_max_evals=False, random_state=None):
         self.population_size = population_size
         self.stack_size = stack_size

@@ -61,7 +61,8 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
             The next generation of the population
         """
         offspring = self.variation(population, len(population))
-        self.evaluation(population + offspring)
+        self.evaluation(population)
+        self.evaluation(offspring)
         self.update_diagnostics(population, offspring)
         next_gen = self.selection(population + offspring, len(population))
         np.random.shuffle(next_gen)

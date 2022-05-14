@@ -21,8 +21,9 @@ class Evaluation:
     redundant : bool
         Whether to re-evaluate individuals that have been evaluated previously.
         Default False.
-    multiprocess : bool
-        Whether to use multiple processes for evaluation.
+    multiprocess : int or bool
+        Number of processes to use in parallel evaluation
+        or False for serial evaluation.
         Default False.
 
     Attributes

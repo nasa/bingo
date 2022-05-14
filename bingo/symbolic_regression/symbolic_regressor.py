@@ -2,6 +2,7 @@ import numpy as np
 import os
 
 from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.model_selection import GridSearchCV
 
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
@@ -139,6 +140,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         print(f" Generating a diverse population took {i} iterations.")
         island.population = diverse_pop
 
+    def get_best_individual(self):
+        return self.best_ind
 
     def fit(self, X, y, sample_weight=None):
         if sample_weight is not None:
@@ -196,6 +199,11 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         # convert nan to 0, inf to large number, and -inf to small number
         return np.nan_to_num(output, posinf=1e100, neginf=-1e100)
+
+
+class CrossValRegressor(GridSearchCV):
+    def get_best_individual(self):
+        return self.best_estimator_.get_best_individual()
 
 
 if __name__ == '__main__':

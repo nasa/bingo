@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 from sklearn.base import BaseEstimator, RegressorMixin
 
@@ -73,7 +74,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.__init__(**new_params)
         return self
 
-    def _get_archipelago(self, X, y):
+    def _get_archipelago(self, X, y, n_processes):
         self.component_generator = ComponentGenerator(X.shape[1])
         for operator in self.operators:
             self.component_generator.add_operator(operator)
@@ -87,7 +88,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                                          )
 
         local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
-        evaluator = Evaluation(local_opt_fitness)
+        evaluator = Evaluation(local_opt_fitness, n_processes)
 
         if self.evolutionary_algorithm == AgeFitnessEA:
             ea = self.evolutionary_algorithm(evaluator, self.generator, self.crossover,
@@ -144,7 +145,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             print("sample weight not None, TODO")
             raise NotImplementedError
 
-        self.archipelago = self._get_archipelago(X, y)
+        try:
+            n_cpus = os.environ['OMP_NUM_THREADS']
+        except KeyError:
+            n_cpus = 1
+        print(f"using {n_cpus} processes")
+        self.archipelago = self._get_archipelago(X, y, n_cpus)
         print(f"archipelago: {type(self.archipelago)}")
 
         max_eval_scaling = 1

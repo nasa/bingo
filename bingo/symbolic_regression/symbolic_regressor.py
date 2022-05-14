@@ -28,7 +28,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                  metric="mse", parallel=False, clo_alg="lm",
                  generations=int(1e19), fitness_threshold=1.0e-16,
                  max_time=1800, max_evals=int(5e5), evolutionary_algorithm=AgeFitnessEA,
-                 clo_threshold=1.0e-8, scale_max_evals=False):
+                 clo_threshold=1.0e-8, scale_max_evals=False, random_state=None):
         self.population_size = population_size
         self.stack_size = stack_size
 
@@ -58,6 +58,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.clo_threshold = clo_threshold
 
         self.best_ind = None
+
+        self.random_state = random_state
+
+        if random_state is not None:
+            np.random.seed(random_state)
+            random.seed(random_state)
 
     def set_params(self, **params):
         # TODO not clean
@@ -189,8 +195,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 if __name__ == '__main__':
     # SRSerialArchipelagoExample with SymbolicRegressor
     import random
-    random.seed(7)
-    np.random.seed(7)
+    # random.seed(7)
+    # np.random.seed(7)
     x = np.linspace(-10, 10, 1000).reshape([-1, 1])
     y = x**2 + 3.5*x**3
 
@@ -199,7 +205,7 @@ if __name__ == '__main__':
                              use_simplification=True,
                              crossover_prob=0.4, mutation_prob=0.4, metric="mae",
                              parallel=False, clo_alg="lm", generations=500, fitness_threshold=1.0e-4,
-                             evolutionary_algorithm=AgeFitnessEA, clo_threshold=1.0e-4)
+                             evolutionary_algorithm=AgeFitnessEA, clo_threshold=1.0e-4, random_state=7)
     print(regr.get_params())
     print(regr)
 

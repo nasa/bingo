@@ -75,6 +75,9 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.__init__(**new_params)
         return self
 
+    def set_max_time(self, new_max_time):
+        self.max_time = new_max_time
+
     def _get_archipelago(self, X, y, n_processes):
         self.component_generator = ComponentGenerator(X.shape[1])
         for operator in self.operators:
@@ -204,6 +207,9 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 class CrossValRegressor(GridSearchCV):
     def get_best_individual(self):
         return self.best_estimator_.get_best_individual()
+
+    def set_max_time(self, new_max_time):
+        self.estimator.set_params(**{"max_time": new_max_time})
 
 
 if __name__ == '__main__':

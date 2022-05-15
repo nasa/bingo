@@ -1,7 +1,8 @@
 import numpy as np
 import os
+import signal
 
-from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.base import BaseEstimator, RegressorMixin, clone
 from sklearn.model_selection import GridSearchCV
 
 from bingo.evaluation.evaluation import Evaluation
@@ -144,6 +145,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         island.population = diverse_pop
 
     def get_best_individual(self):
+        if self.best_ind is None:
+            print("Best individual is None, setting to X_0")
+            from bingo.symbolic_regression import AGraph
+            self.best_ind = AGraph()
+            self.best_ind.command_array = np.array([[0, 0, 0]], dtype=int)  # X_0
+            self.best_ind._update()
         return self.best_ind
 
     def fit(self, X, y, sample_weight=None):
@@ -164,7 +171,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             print("n_points per predictor:", self.archipelago._predictor_size)
             if self.scale_max_evals:
                 max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
-        print("max evals:", self.max_evals * max_eval_scaling)
+        # print("max evals:", self.max_evals * max_eval_scaling)
 
         opt_result = self.archipelago.evolve_until_convergence(
             max_generations=self.generations,
@@ -204,6 +211,15 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         return np.nan_to_num(output, posinf=1e100, neginf=-1e100)
 
 
+class TimeOutException(Exception):
+    pass
+
+
+def alarm_handler(signum, frame):
+    print("raising TimeOutException")
+    raise TimeOutException
+
+
 class CrossValRegressor(GridSearchCV):
     def get_best_individual(self):
         return self.best_estimator_.get_best_individual()
@@ -211,10 +227,35 @@ class CrossValRegressor(GridSearchCV):
     def set_max_time(self, new_max_time):
         self.estimator.set_params(**{"max_time": new_max_time})
 
+    def fit(self, X, y=None, *, groups=None, **fit_params):
+        signal.signal(signal.SIGALRM, alarm_handler)
+        if len(X) <= 1000:  # probably not good to hardcode these values
+            signal.alarm(60 * 60 - 5)  # 1 hour with 5 seconds of slack
+            # signal.alarm(5)  # 1 hour with 5 seconds of slack
+        else:
+            signal.alarm(10 * 60 * 60 - 5)  # 10 hours with 5 seconds of slack
+        try:
+            super().fit(X, y, groups=groups, **fit_params)
+        except TimeOutException as e:
+            print("Got a TimeOutException")
+
+            try:
+                self.best_estimator_
+            except AttributeError:  # no self.best_estimator
+                # if we didn't get to the end of cv,
+                # set best_estimator_ to the estimator passed in with the first
+                # set of hyperparams
+                print("Setting best estimator to first set of hyperparams")
+                self.best_estimator_ = clone(self.estimator.set_params(**self.param_grid[0]))
+
+            print(self.best_estimator_)
+            return self
+
 
 if __name__ == '__main__':
     # SRSerialArchipelagoExample with SymbolicRegressor
     import random
+    from sklearn.model_selection import KFold
     # random.seed(7)
     # np.random.seed(7)
     x = np.linspace(-10, 10, 1000).reshape([-1, 1])
@@ -226,11 +267,23 @@ if __name__ == '__main__':
                              crossover_prob=0.4, mutation_prob=0.4, metric="mae",
                              parallel=False, clo_alg="lm", generations=500, fitness_threshold=1.0e-4,
                              evolutionary_algorithm=AgeFitnessEA, clo_threshold=1.0e-4, random_state=7)
-    print(regr.get_params())
-    print(regr)
 
-    regr.fit(x, y)
-    print(regr.best_ind)
+    hyper_params = [
+        {"population_size": [100], "stack_size": [24]},
+        {"population_size": [500], "stack_size": [24]},
+        {"population_size": [2500], "stack_size": [32]}
+    ]
+
+    cv = KFold(n_splits=3, shuffle=True)
+
+    cv_regr = CrossValRegressor(regr, cv=cv, param_grid=hyper_params,
+                                verbose=3, n_jobs=1, scoring="r2", error_score="raise")
+    cv_regr.set_max_time(1)
+    print(cv_regr.get_params())
+    print(cv_regr)
+
+    cv_regr.fit(x, y)
+    print(cv_regr.get_best_individual())
 
     # TODO MPI.COMM_WORLD.bcast in parallel?
     # TODO rank in MPI

@@ -150,7 +150,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             from bingo.symbolic_regression import AGraph
             self.best_ind = AGraph()
             self.best_ind.command_array = np.array([[0, 0, 0]], dtype=int)  # X_0
-            self.best_ind._update()
         return self.best_ind
 
     def fit(self, X, y, sample_weight=None):

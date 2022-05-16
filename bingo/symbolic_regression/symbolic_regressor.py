@@ -225,7 +225,8 @@ class CrossValRegressor(GridSearchCV):
     #   For the sake of time, doing this instead
     def set_params(self, **params):
         if "test" in params.keys():
-            self.set_max_time(1)
+            if params["test"] is True:
+                self.set_max_time(1)
             params.pop("test")
         super().set_params(**params)
 

@@ -220,6 +220,15 @@ def alarm_handler(signum, frame):
 
 
 class CrossValRegressor(GridSearchCV):
+    # TODO there's probably a better way to set Symbolic
+    #   Regressor's params than this and set_max_time().
+    #   For the sake of time, doing this instead
+    def set_params(self, **params):
+        if "test" in params.keys():
+            self.set_max_time(1)
+            params.pop("test")
+        super().set_params(**params)
+
     def get_best_individual(self):
         return self.best_estimator_.get_best_individual()
 
@@ -277,7 +286,7 @@ if __name__ == '__main__':
 
     cv_regr = CrossValRegressor(regr, cv=cv, param_grid=hyper_params,
                                 verbose=3, n_jobs=1, scoring="r2", error_score="raise")
-    cv_regr.set_max_time(1)
+    cv_regr.set_params(**{"test": True})
     print(cv_regr.get_params())
     print(cv_regr)
 

@@ -158,10 +158,12 @@ class ScipyOptimizer(OptimizerBase):
         if self.options["method"] in ROOT_SET:
             backend = optimize.root
             if jacobian_method and self._jacobian_capable:
-                jacobian = lambda x, indv: self.objective_fn.get_fitness_vector_and_jacobian(indv)[1]
+                jacobian = lambda x, indv: \
+                    self.objective_fn.get_fitness_vector_and_jacobian(indv)[1]
 
         else:  # MINIMIZE_SET
             if jacobian_method and self._gradient_capable:
-                jacobian = lambda x, indv: self.objective_fn.get_fitness_and_gradient(indv)[1]
+                jacobian = lambda x, indv: \
+                    self.objective_fn.get_fitness_and_gradient(indv)[1]
 
         return backend, jacobian

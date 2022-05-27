@@ -2,10 +2,6 @@ from abc import ABCMeta, abstractmethod
 
 
 class OptimizerBase(metaclass=ABCMeta):
-    @abstractmethod
-    def __init__(self, objective_fn, **options):
-        raise NotImplementedError
-
     @property
     @abstractmethod
     def objective_fn(self):

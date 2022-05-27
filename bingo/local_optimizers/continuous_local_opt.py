@@ -11,26 +11,27 @@ from ..evaluation.fitness_function import FitnessFunction
 
 
 class ContinuousLocalOptimization(FitnessFunction):
-    def __init__(self, optimizer):
+    def __init__(self, fitness_function, optimizer):
+        self._fitness_function = fitness_function
         self.optimizer = optimizer
 
     @property
     def training_data(self):
         """TrainingData : data that can be used in fitness evaluations"""
-        return self.optimizer.objective_fn.training_data
+        return self._fitness_function.training_data
 
     @training_data.setter
     def training_data(self, value):
-        self.optimizer.objective_fn.training_data = value
+        self._fitness_function.training_data = value
 
     @property
     def eval_count(self):
         """int : the number of evaluations that have been performed"""
-        return self.optimizer.objective_fn.eval_count
+        return self._fitness_function.eval_count
 
     @eval_count.setter
     def eval_count(self, value):
-        self.optimizer.objective_fn.eval_count = value
+        self._fitness_function.eval_count = value
 
     def __call__(self, individual):
         """Evaluates the fitness of the individual. Provides local optimization
@@ -51,7 +52,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         """
         if individual.needs_local_optimization():
             self.optimizer(individual)
-        return self.optimizer.objective_fn(individual)
+        return self._fitness_function(individual)
 
 
 class ChromosomeInterface(metaclass=ABCMeta):

@@ -30,7 +30,7 @@ def main():
     mutation = SinglePointMutation(get_random_float)
     selection = Tournament(10)
     fitness = ZeroMinFitnessFunction()
-    optimizer = ScipyOptimizer(fitness, method='lm')
+    optimizer = ScipyOptimizer(fitness)
     local_opt_fitness = ContinuousLocalOptimization(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)

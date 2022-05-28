@@ -129,8 +129,8 @@ class ScipyOptimizer(OptimizerBase):
     def _verify_objective_fn(objective_fn, method):
         if method in ROOT_SET and not hasattr(objective_fn,
                                               "evaluate_fitness_vector"):
-            raise TypeError("{} requires VectorBasedFunction \
-                            as a fitness function".format(method))
+            raise TypeError(f"{method} requires VectorBasedFunction \
+                            as a fitness function")
 
     @property
     def options(self):
@@ -162,7 +162,7 @@ class ScipyOptimizer(OptimizerBase):
     @staticmethod
     def _verify_method(method):
         if method not in ROOT_SET and method not in MINIMIZE_SET:
-            raise KeyError("{} is not a listed method".format(method))
+            raise KeyError(f"{method} is not a listed method")
 
     def __call__(self, individual):
         """Performs local optimization of the individual's constants

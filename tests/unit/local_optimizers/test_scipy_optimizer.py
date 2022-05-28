@@ -14,7 +14,7 @@ from bingo.evaluation.fitness_function \
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 from bingo.local_optimizers.continuous_local_opt import ChromosomeInterface
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, \
-    ROOT_SET, MINIMIZE_SET
+    ROOT_SET, MINIMIZE_SET, JACOBIAN_SET
 
 
 class DummyLocalOptIndividual(ChromosomeInterface):
@@ -207,9 +207,13 @@ class GradientFitnessFunction(GradientMixin, FitnessFunction):
 @pytest.mark.parametrize("method", MINIMIZE_SET)
 def test_optimize_params_minimize_with_gradient(mocker, method):
     fitness_function = mocker.create_autospec(GradientFitnessFunction)
-    fitness_function.side_effect = lambda individual: 1 + individual.param ** 2
-    fitness_function.get_fitness_and_gradient = \
-        lambda individual: (1 + individual.param ** 2, 2 * individual.param)
+    
+    mocked_fitness = mocker.Mock(side_effect=lambda x: 1 + x.param ** 2)
+    fitness_function.side_effect = mocked_fitness
+    
+    mocked_gradient = \
+        mocker.Mock(side_effect=lambda x: (1 + x.param ** 2, 2 * x.param))
+    fitness_function.get_fitness_and_gradient = mocked_gradient
 
     opt = ScipyOptimizer(fitness_function,
                          param_init_bounds=[5, 5],
@@ -217,6 +221,9 @@ def test_optimize_params_minimize_with_gradient(mocker, method):
 
     individual = DummyLocalOptIndividual()
     opt(individual)
+    assert mocked_fitness.called
+    if method in JACOBIAN_SET:
+        assert mocked_gradient.called
     assert fitness_function(individual) == pytest.approx(1, rel=0.05)
 
 
@@ -246,9 +253,15 @@ def test_optimize_params_root_without_jacobian(mocker, method):
 @pytest.mark.parametrize("method", ROOT_SET)
 def test_optimize_params_root_with_jacobian(mocker, method):
     fitness_function = mocker.create_autospec(JacobianVectorFitnessFunction)
-    fitness_function.evaluate_fitness_vector = lambda x: 1 + np.abs([x.param])
-    fitness_function.get_fitness_vector_and_jacobian = \
-        lambda x: (1 + np.abs([x.param]), np.sign([x.param]))
+
+    mocked_fitness_vector = \
+        mocker.Mock(side_effect=lambda x: 1 + np.abs([x.param]))
+    fitness_function.evaluate_fitness_vector = mocked_fitness_vector
+
+    mocked_jacobian = mocker.Mock(
+        side_effect=lambda x: (1 + np.abs([x.param]), np.sign([x.param])))
+    fitness_function.get_fitness_vector_and_jacobian = mocked_jacobian
+
 
     opt = ScipyOptimizer(fitness_function,
                          param_init_bounds=[5, 5],
@@ -256,14 +269,24 @@ def test_optimize_params_root_with_jacobian(mocker, method):
 
     individual = DummyLocalOptIndividual()
     opt(individual)
+    assert mocked_fitness_vector.called
+    if method in JACOBIAN_SET:
+        assert mocked_jacobian.called
     opt_indv_fitness = fitness_function.evaluate_fitness_vector(individual)
     assert opt_indv_fitness[0] == pytest.approx(1, rel=0.05)
 
 
+# easier to do this than to mock a VectorBasedFunction
+# because you can't patch __abstractmethods__ with the cpp version
+class ReductionFunction(VectorBasedFunction):
+    def evaluate_fitness_vector(self, individual):
+        return np.array([1.0 + sum(np.square(individual.param))])
+
+
 @pytest.mark.parametrize("method", ROOT_SET)
-def test_optimize_params_too_many_params(mocker, method):
-    fitness_function = mocker.create_autospec(VectorBasedFunction)
-    fitness_function.evaluate_fitness_vector = lambda x: 1 + np.square(x.param)
+def test_optimize_params_too_many_params(method):
+    # need a fitness function that has less entries than params
+    fitness_function = ReductionFunction()
 
     opt = ScipyOptimizer(fitness_function,
                          method=method,
@@ -276,9 +299,9 @@ def test_optimize_params_too_many_params(mocker, method):
     # root method will error out,
     # should revert to minimize method and optimize
     opt(individual)
-    np.testing.assert_array_equal(
+    np.testing.assert_array_almost_equal(
         fitness_function.evaluate_fitness_vector(individual),
-        np.array([1.0, 1.0, 1.0])
+        np.array([1.0])
     )
 
     # make sure method didn't stay as minimize method

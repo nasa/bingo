@@ -62,8 +62,8 @@ class ScipyOptimizer(OptimizerBase):
 
     @objective_fn.setter
     def objective_fn(self, obj_fn):
-        self._gradient_capable = isinstance(obj_fn, VectorGradientMixin)
-        self._jacobian_capable = isinstance(obj_fn, GradientMixin)
+        self._jacobian_capable = isinstance(obj_fn, VectorGradientMixin)
+        self._gradient_capable = isinstance(obj_fn, GradientMixin)
         self._objective_fn = obj_fn
         self._verify_objective_fn(obj_fn, self.options["method"])
 

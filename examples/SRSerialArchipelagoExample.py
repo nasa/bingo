@@ -8,6 +8,7 @@ from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.continuous_local_opt\
     import ContinuousLocalOptimization
 
@@ -47,7 +48,8 @@ def execute_generational_steps():
                                        )
 
     fitness = ExplicitRegression(training_data=training_data)
-    local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
+    optimizer = ScipyOptimizer(fitness, method="lm")
+    local_opt_fitness = ContinuousLocalOptimization(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     ea = AgeFitnessEA(evaluator, agraph_generator, crossover,

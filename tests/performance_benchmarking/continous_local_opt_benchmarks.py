@@ -6,6 +6,7 @@ from bingo.symbolic_regression.agraph \
     import agraph as agraph_module
 from bingo.symbolic_regression.agraph.evaluation_backend import \
     evaluation_backend as pyBackend
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.continuous_local_opt \
     import ContinuousLocalOptimization
 from bingocpp import evaluation_backend as cppBackend
@@ -25,13 +26,17 @@ import benchmark_data as benchmark_data
 
 
 TEST_EXPLICIT_REGRESSION_OPTIMIZATION \
-    = ContinuousLocalOptimization(TEST_EXPLICIT_REGRESSION)
+    = ContinuousLocalOptimization(TEST_EXPLICIT_REGRESSION,
+                                  ScipyOptimizer(TEST_EXPLICIT_REGRESSION))
 TEST_IMPLICIT_REGRESSION_OPTIMIZATION \
-    = ContinuousLocalOptimization(TEST_IMPLICIT_REGRESSION)
+    = ContinuousLocalOptimization(TEST_IMPLICIT_REGRESSION,
+                                  ScipyOptimizer(TEST_IMPLICIT_REGRESSION))
 TEST_EXPLICIT_REGRESSION_OPTIMIZATION_CPP \
-    = ContinuousLocalOptimization(TEST_EXPLICIT_REGRESSION_CPP)
+    = ContinuousLocalOptimization(TEST_EXPLICIT_REGRESSION_CPP,
+                                  ScipyOptimizer(TEST_EXPLICIT_REGRESSION_CPP))
 TEST_IMPLICIT_REGRESSION_OPTIMIZATION_CPP \
-    = ContinuousLocalOptimization(TEST_IMPLICIT_REGRESSION_CPP)
+    = ContinuousLocalOptimization(TEST_IMPLICIT_REGRESSION_CPP,
+                                  ScipyOptimizer(TEST_IMPLICIT_REGRESSION_CPP))
 
 
 TEST_ITERATION = 0

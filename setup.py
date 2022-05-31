@@ -1,7 +1,6 @@
 import os
 import re
 import sys
-import sysconfig
 import platform
 import subprocess
 
@@ -97,14 +96,19 @@ setup(
               "bingo.stats",
               "bingo.symbolic_regression",
               "bingo.symbolic_regression.agraph",
+              "bingo.symbolic_regression.agraph.evaluation_backend",
+              "bingo.symbolic_regression.agraph.simplification_backend",
               "bingo.symbolic_regression.benchmarking",
               "bingo.util",
               "bingo.variation",
-              "bingocpp"],
-    install_requires=['mpi4py',
-                      'numpy',
-                      'scipy',
-                      'dill'],
+              ],
+    install_requires=["mpi4py",
+                      "numpy",
+                      "pytest",
+                      "pytest-mock",
+                      "pytest-timeout",
+                      "scipy",
+                      "dill"],
     python_requires='~=3.4',
     classifiers=[
         "Programming Language :: Python :: 3.4",
@@ -115,7 +119,7 @@ setup(
         "Development Status :: 3 - Alpha"
     ],
     # add extension module
-    ext_modules=[CMakeExtension('bingo.bingocpp', 'bingocpp')],
+    ext_modules=[CMakeExtension('bingocpp', 'bingocpp')],
     # add custom build_ext command
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,

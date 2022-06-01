@@ -5,7 +5,7 @@ that can be used for local optimization of a `Chromosome`.
 from abc import ABCMeta, abstractmethod
 
 
-class OptimizerBase(metaclass=ABCMeta):
+class LocalOptimizer(metaclass=ABCMeta):
     """An abstract base class for optimizing a `Chromosome`.
     """
     @property

@@ -1,12 +1,12 @@
-"""This module contains the implementation of an abstract definition
-of an optimizer that can be used to optimize `Chromosome`'s constants.
+"""This module contains the abstract definition of an optimizer
+that can be used for local optimization of a `Chromosome`.
 """
 
 from abc import ABCMeta, abstractmethod
 
 
 class OptimizerBase(metaclass=ABCMeta):
-    """An abstract base class for optimizing `Chromosome`'s constants.
+    """An abstract base class for optimizing a `Chromosome`.
     """
     @property
     @abstractmethod
@@ -33,12 +33,12 @@ class OptimizerBase(metaclass=ABCMeta):
 
     @abstractmethod
     def __call__(self, individual):
-        """Performs local optimization of the individual's constants
+        """Performs local optimization of the individual
         based on minimizing this object's objective_fn.
 
         Parameters
         ----------
         individual : `Chromosome`
-            The individual whose constants will be optimized.
+            The individual who will be optimized.
         """
         raise NotImplementedError

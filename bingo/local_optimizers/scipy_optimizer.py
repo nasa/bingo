@@ -165,13 +165,13 @@ class ScipyOptimizer(OptimizerBase):
             raise KeyError(f"{method} is not a listed method")
 
     def __call__(self, individual):
-        """Performs local optimization of the individual's constants
+        """Performs local optimization of the individual
         based on minimizing this object's objective_fn.
 
         Parameters
         ----------
         individual : `Chromosome`
-            The individual whose constants will be optimized.
+            The individual who will be optimized.
         """
         num_params = individual.get_number_local_optimization_params()
         c_0 = np.random.uniform(*self.options["param_init_bounds"], num_params)

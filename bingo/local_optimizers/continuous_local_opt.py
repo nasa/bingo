@@ -1,10 +1,9 @@
-"""Fitness evaluation with local optimization of continuous,
-real-valued parameters
+"""Fitness evaluation with local optimization
 
 This module contains the implementation of a fitness function wrapper
-that will perform optimization of a `Chromosome`'s constants as necessary
-before evaluating it.  An interface, `ChromosomeInterface`, is also
-defined and must implemented by `Chromosome`s wishing to use the
+that will perform local optimization of a `Chromosome` as necessary
+using an `Optimizer` before evaluating it. An interface, `ChromosomeInterface`,
+is also defined and must implemented by `Chromosome`s wishing to use the
 optimization wrapper.
 """
 from abc import ABCMeta, abstractmethod
@@ -24,7 +23,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         A `FitnessFunction` for evaluating the fitness of a `Chromosome`.
     optimizer : `Optimizer`
         An optimizer that will perform local optimization on a
-        `Chromosome`'s constants before evaluation as needed.
+        `Chromosome` before evaluation as needed.
 
     Attributes
     ----------
@@ -63,8 +62,7 @@ class ContinuousLocalOptimization(FitnessFunction):
         Parameters
         ----------
         individual : `Chromosome`
-            Individual to calculate the fitness of. If the individual is
-            an instance of `Chromosome`, then local optimization
+            Individual to calculate the fitness of. Local optimization
             is performed if necessary before evaluation.
 
         Returns

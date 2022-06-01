@@ -181,21 +181,7 @@ class ScipyOptimizer(LocalOptimizer):
 
     def _sub_routine_for_obj_fn(self, params, individual):
         """Sets the individual's parameters to params and returns
-        the objective_fn's evaluation of the individual after doing so.
-
-        Parameters
-        ----------
-        params : iterable of float
-            Parameters to set within the individual.
-        individual : `Chromosome`
-            The individual whose constants we want to optimize.
-
-        Returns
-        -------
-        float or iterable of float
-            The objective function's evaluation of the individual
-            after its parameters are set to params
-        """
+        the objective_fn's evaluation of the individual after doing so."""
         individual.set_local_optimization_params(params)
 
         if self.options["method"] in ROOT_SET:
@@ -203,24 +189,6 @@ class ScipyOptimizer(LocalOptimizer):
         return self.objective_fn(individual)
 
     def _run_method_for_optimization(self, sub_routine, individual, params):
-        """Run scipy optimization on the provided individual using
-        this object's settings.
-
-        Parameters
-        ----------
-        sub_routine
-            The function that will be evaluated during optimization,
-            see _sub_routine_for_obj_fn for more details.
-        individual : `Chromosome`
-            The individual whose constants we want to optimize.
-        params : iterable of float
-            Initial guess of the optimal parameters.
-
-        Returns
-        -------
-        params: iterable of float
-            The best found params for the provided individual
-        """
         backend, jacobian = self._get_backend_and_jacobian()
         try:
             optimize_result = backend(
@@ -252,16 +220,7 @@ class ScipyOptimizer(LocalOptimizer):
     def _get_backend_and_jacobian(self):
         """Returns scipy.minimize or scipy.root depending on the set method
         along with a jacobian function of the objective_fn if one can be found,
-        otherwise returns False for the jacobian function.
-
-        Returns
-        -------
-        backend
-            scipy.minimize or scipy.root depending on the set method
-        jacobian
-            A function used to evaluate the jacobian of the objective_fn
-            if one can be found, otherwise False
-        """
+        otherwise returns False for the jacobian function."""
         backend = optimize.minimize
         jacobian = False
 

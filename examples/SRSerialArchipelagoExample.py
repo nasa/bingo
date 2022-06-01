@@ -48,8 +48,8 @@ def execute_generational_steps():
                                        )
 
     fitness = ExplicitRegression(training_data=training_data)
-    optimizer = ScipyOptimizer(fitness, method="lm")
-    local_opt_fitness = ContinuousLocalOptimization(fitness, optimizer)
+    optimizer = ScipyOptimizer(fitness, method='lm')
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     ea = AgeFitnessEA(evaluator, agraph_generator, crossover,

@@ -180,8 +180,6 @@ class ScipyOptimizer(LocalOptimizer):
         individual.set_local_optimization_params(params)
 
     def _sub_routine_for_obj_fn(self, params, individual):
-        """Sets the individual's parameters to params and returns
-        the objective_fn's evaluation of the individual after doing so."""
         individual.set_local_optimization_params(params)
 
         if self.options["method"] in ROOT_SET:
@@ -189,7 +187,7 @@ class ScipyOptimizer(LocalOptimizer):
         return self.objective_fn(individual)
 
     def _run_method_for_optimization(self, sub_routine, individual, params):
-        backend, jacobian = self._get_backend_and_jacobian()
+        backend, jacobian = self._get_scipy_backend_and_jacobian_fn()
         try:
             optimize_result = backend(
                 sub_routine,
@@ -205,7 +203,7 @@ class ScipyOptimizer(LocalOptimizer):
             self.options["method"] = "BFGS"  # use minimize method instead
             self._scipy_options["method"] = "BFGS"
 
-            backend, jacobian = self._get_backend_and_jacobian()
+            backend, jacobian = self._get_scipy_backend_and_jacobian_fn()
             optimize_result = backend(
                 sub_routine,
                 params,
@@ -217,10 +215,7 @@ class ScipyOptimizer(LocalOptimizer):
             self._scipy_options["method"] = old_method
             return optimize_result.x
 
-    def _get_backend_and_jacobian(self):
-        """Returns scipy.minimize or scipy.root depending on the set method
-        along with a jacobian function of the objective_fn if one can be found,
-        otherwise returns False for the jacobian function."""
+    def _get_scipy_backend_and_jacobian_fn(self):
         backend = optimize.minimize
         jacobian = False
 

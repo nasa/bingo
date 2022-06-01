@@ -12,10 +12,10 @@ bingo.Base.Chromosome module
     :undoc-members:
     :show-inheritance:
 
-bingo.Base.ContinuousLocalOptimization module
+bingo.Base.LocalOptFitnessFunction module
 ---------------------------------------------
 
-.. automodule:: bingo.Base.ContinuousLocalOptimization
+.. automodule:: bingo.Base.LocalOptFitnessFunction
     :members:
     :undoc-members:
     :show-inheritance:

@@ -11,7 +11,7 @@ from abc import ABCMeta, abstractmethod
 from ..evaluation.fitness_function import FitnessFunction
 
 
-class ContinuousLocalOptimization(FitnessFunction):
+class LocalOptFitnessFunction(FitnessFunction):
     """Fitness function wrapper for individuals that want local optimization
 
     A class for fitness evaluation of individuals that may or may

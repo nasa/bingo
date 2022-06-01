@@ -9,8 +9,8 @@ from bingo.evaluation.fitness_function \
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, \
     MINIMIZE_SET, ROOT_SET
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+from bingo.local_optimizers.local_opt \
+    import LocalOptFitnessFunction
 from bingo.chromosomes.multiple_floats import MultipleFloatChromosome
 
 NUM_VALS = 10
@@ -63,7 +63,7 @@ def test_optimize_params_without_gradient(
         opt_individual, reg_individual, method):
     np.random.seed(2)
     fitness_function = MultipleFloatValueFitnessFunction()
-    local_opt_fitness_function = ContinuousLocalOptimization(
+    local_opt_fitness_function = LocalOptFitnessFunction(
         fitness_function, ScipyOptimizer(fitness_function, method=method))
     opt_indv_fitness = local_opt_fitness_function(opt_individual)
     reg_indv_fitness = local_opt_fitness_function(reg_individual)
@@ -76,7 +76,7 @@ def test_optimize_params_without_gradient(
 def test_optimize_params_with_gradient(opt_individual, reg_individual, method):
     np.random.seed(2)
     fitness_function = MultipleFloatValueFitnessFunctionWithGradient()
-    local_opt_fitness_function = ContinuousLocalOptimization(
+    local_opt_fitness_function = LocalOptFitnessFunction(
         fitness_function, ScipyOptimizer(fitness_function, method=method))
     opt_indv_fitness = local_opt_fitness_function(opt_individual)
     reg_indv_fitness = local_opt_fitness_function(reg_individual)
@@ -92,7 +92,7 @@ def test_optimize_fitness_vector_without_jacobian(opt_individual,
     opt_list = [1. for _ in range(NUM_VALS)]
     opt_list[:3] = [0., 0., 0.]
     fitness_function = FloatVectorFitnessFunction()
-    local_opt_fitness_function = ContinuousLocalOptimization(
+    local_opt_fitness_function = LocalOptFitnessFunction(
         fitness_function, ScipyOptimizer(fitness_function, method=method))
     opt_indv_fitness = local_opt_fitness_function(opt_individual)
     reg_indv_fitness = local_opt_fitness_function(reg_individual)
@@ -108,7 +108,7 @@ def test_optimize_fitness_vector_with_jacobian(opt_individual, reg_individual,
     opt_list = [1. for _ in range(NUM_VALS)]
     opt_list[:3] = [0., 0., 0.]
     fitness_function = FloatVectorFitnessFunctionWithJacobian()
-    local_opt_fitness_function = ContinuousLocalOptimization(
+    local_opt_fitness_function = LocalOptFitnessFunction(
         fitness_function, ScipyOptimizer(fitness_function, method=method))
     opt_indv_fitness = local_opt_fitness_function(opt_individual)
     reg_indv_fitness = local_opt_fitness_function(reg_individual)

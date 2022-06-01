@@ -17,8 +17,8 @@ from bingo.evolutionary_optimizers.parallel_archipelago \
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+from bingo.local_optimizers.local_opt \
+    import LocalOptFitnessFunction
 from benchmark_data import StatsPrinter
 
 
@@ -57,7 +57,7 @@ def init_island(x, y):
 
     fitness = ExplicitRegression(training_data=training_data)
     optimizer = ScipyOptimizer(fitness, method='lm')
-    local_opt_fitness = ContinuousLocalOptimization(fitness, optimizer)
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     ea_algorithm = AgeFitnessEA(evaluator, agraph_generator, crossover,
@@ -106,7 +106,7 @@ def explicit_regression_benchmark():
 
     fitness = ExplicitRegression(training_data=training_data)
     optimizer = ScipyOptimizer(fitness, method='lm')
-    local_opt_fitness = ContinuousLocalOptimization(fitness, optimizer)
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     ea = AgeFitnessEA(evaluator, agraph_generator, crossover,

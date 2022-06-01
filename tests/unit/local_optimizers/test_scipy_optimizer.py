@@ -12,7 +12,7 @@ from scipy.optimize import OptimizeResult
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
-from bingo.local_optimizers.continuous_local_opt import ChromosomeInterface
+from bingo.local_optimizers.local_opt import ChromosomeInterface
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, \
     ROOT_SET, MINIMIZE_SET, JACOBIAN_SET
 

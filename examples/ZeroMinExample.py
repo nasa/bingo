@@ -9,8 +9,8 @@ from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+from bingo.local_optimizers.local_opt \
+    import LocalOptFitnessFunction
 from bingo.chromosomes.multiple_values \
     import SinglePointCrossover, SinglePointMutation
 from bingo.chromosomes.multiple_floats import MultipleFloatChromosomeGenerator
@@ -31,7 +31,7 @@ def main():
     selection = Tournament(10)
     fitness = ZeroMinFitnessFunction()
     optimizer = ScipyOptimizer(fitness)
-    local_opt_fitness = ContinuousLocalOptimization(fitness, optimizer)
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
     ea = MuPlusLambda(evaluator, selection, crossover, mutation, 0.4, 0.4, 20)
     generator = MultipleFloatChromosomeGenerator(get_random_float, 8)

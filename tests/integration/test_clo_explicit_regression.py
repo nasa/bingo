@@ -7,8 +7,8 @@ import numpy as np
 
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, ROOT_SET, \
     MINIMIZE_SET
-from bingo.local_optimizers.continuous_local_opt import \
-    ContinuousLocalOptimization
+from bingo.local_optimizers.local_opt import \
+    LocalOptFitnessFunction
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitTrainingData as pyExplicitTrainingData, \
     ExplicitRegression as pyExplicitRegression
@@ -107,7 +107,7 @@ def test_explicit_regression_clo_linear(
         scipy_opt.options = {'method': method,
                              'options': {'maxfun': 1000, 'xtol': 1e-16}}
 
-    optimizer = ContinuousLocalOptimization(fitness, scipy_opt)
+    optimizer = LocalOptFitnessFunction(fitness, scipy_opt)
     optimizer(norm_individual)
 
     assert fitness(norm_individual) == \
@@ -120,7 +120,7 @@ def test_explicit_regression_clo_linear_root(
         norm_individual, opt_individual):
     np.random.seed(1)
     fitness = explicit_regression(training_data=training_data)
-    optimizer = ContinuousLocalOptimization(
+    optimizer = LocalOptFitnessFunction(
         fitness, ScipyOptimizer(fitness, method=method))
     optimizer(norm_individual)
     assert fitness(norm_individual) == \

@@ -9,8 +9,8 @@ from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.continuous_local_opt\
-    import ContinuousLocalOptimization
+from bingo.local_optimizers.local_opt\
+    import LocalOptFitnessFunction
 
 from bingo.symbolic_regression import ComponentGenerator, \
                                       AGraphGenerator, \

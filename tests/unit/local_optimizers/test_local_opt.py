@@ -1,5 +1,5 @@
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization, ChromosomeInterface
+from bingo.local_optimizers.local_opt \
+    import LocalOptFitnessFunction, ChromosomeInterface
 
 
 class DummyChromosome(ChromosomeInterface):
@@ -26,7 +26,7 @@ def test_get_eval_count_pass_through(mocker):
     fitness_function.eval_count = 123
     optimizer = mocker.Mock()
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, optimizer)
+        LocalOptFitnessFunction(fitness_function, optimizer)
     assert local_opt_fitness_function.eval_count == 123
 
 
@@ -34,7 +34,7 @@ def test_set_eval_count_pass_through(mocker):
     fitness_function = mocker.Mock()
     optimizer = mocker.Mock()
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, optimizer)
+        LocalOptFitnessFunction(fitness_function, optimizer)
     local_opt_fitness_function.eval_count = 123
     assert fitness_function.eval_count == 123
 
@@ -44,7 +44,7 @@ def test_get_training_data_pass_through(mocker):
     fitness_function.training_data = 123
     optimizer = mocker.Mock()
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, optimizer)
+        LocalOptFitnessFunction(fitness_function, optimizer)
     assert local_opt_fitness_function.training_data == 123
 
 
@@ -52,7 +52,7 @@ def test_set_training_data_pass_through(mocker):
     fitness_function = mocker.Mock()
     optimizer = mocker.Mock()
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, optimizer)
+        LocalOptFitnessFunction(fitness_function, optimizer)
     local_opt_fitness_function.training_data = 123
     assert fitness_function.training_data == 123
 
@@ -62,7 +62,7 @@ def test_get_and_set_optimizer(mocker):
     opt_1 = mocker.Mock()
     opt_2 = mocker.Mock()
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, opt_1)
+        LocalOptFitnessFunction(fitness_function, opt_1)
     assert local_opt_fitness_function.optimizer == opt_1
 
     local_opt_fitness_function.optimizer = opt_2
@@ -80,7 +80,7 @@ def test_call_optimizes_when_necessary(mocker):
     individual = DummyChromosome()
 
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, optimizer)
+        LocalOptFitnessFunction(fitness_function, optimizer)
 
     returned_fitness = local_opt_fitness_function(individual)
 
@@ -106,7 +106,7 @@ def test_call_doesnt_optimize_when_not_needed(mocker):
     individual.set_local_optimization_params(initial_params)
 
     local_opt_fitness_function = \
-        ContinuousLocalOptimization(fitness_function, optimizer)
+        LocalOptFitnessFunction(fitness_function, optimizer)
 
     returned_fitness = local_opt_fitness_function(individual)
 

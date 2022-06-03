@@ -10,7 +10,7 @@ and JACOBIAN_SET, a set of methods that will use jacobian information.
 import numpy as np
 from scipy import optimize
 
-from .optimizer import LocalOptimizer
+from .local_optimizer import LocalOptimizer
 from ..evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 
 ROOT_SET = {

@@ -1,8 +1,10 @@
 from bingo.local_optimizers.local_opt \
-    import LocalOptFitnessFunction, ChromosomeInterface
+    import LocalOptFitnessFunction
+from bingo.local_optimizers.local_opt_interface import \
+    LocalOptimizationInterface
 
 
-class DummyChromosome(ChromosomeInterface):
+class DummyLocalOptimizationIndividual(LocalOptimizationInterface):
     def __init__(self):
         self._params = [1, 2, 3]
         self._needs_opt = True
@@ -77,7 +79,7 @@ def test_call_optimizes_when_necessary(mocker):
         side_effect=lambda ind: ind.set_local_optimization_params([4, 5, 6])
     )
 
-    individual = DummyChromosome()
+    individual = DummyLocalOptimizationIndividual()
 
     local_opt_fitness_function = \
         LocalOptFitnessFunction(fitness_function, optimizer)
@@ -101,7 +103,7 @@ def test_call_doesnt_optimize_when_not_needed(mocker):
         side_effect=lambda ind: ind.set_local_optimization_params([4, 5, 6])
     )
 
-    individual = DummyChromosome()
+    individual = DummyLocalOptimizationIndividual()
     initial_params = [1, 2, 3]
     individual.set_local_optimization_params(initial_params)
 

@@ -12,12 +12,13 @@ from scipy.optimize import OptimizeResult
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
-from bingo.local_optimizers.local_opt import ChromosomeInterface
+from bingo.local_optimizers.local_opt_interface import \
+    LocalOptimizationInterface
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, \
     ROOT_SET, MINIMIZE_SET, JACOBIAN_SET
 
 
-class DummyLocalOptIndividual(ChromosomeInterface):
+class DummyLocalOptIndividual(LocalOptimizationInterface):
     def needs_local_optimization(self):
         return True
 
@@ -31,7 +32,7 @@ class DummyLocalOptIndividual(ChromosomeInterface):
             self.param = params
 
 
-class BloatedOptIndividual(ChromosomeInterface):
+class BloatedOptIndividual(LocalOptimizationInterface):
     def __init__(self):
         self.param = [1, 2, 3]
         self._fitness = None

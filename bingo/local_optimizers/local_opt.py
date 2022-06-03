@@ -2,12 +2,9 @@
 
 This module contains the implementation of a fitness function wrapper
 that will perform local optimization of a `Chromosome` as necessary
-using an `Optimizer` before evaluating it. An interface, `ChromosomeInterface`,
-is also defined and must implemented by `Chromosome`s wishing to use the
-optimization wrapper.
+using a `LocalOptimizer` before evaluating it. `Chromosome`s wishing
+to use the optimization wrapper must implement `LocalOptimizationInterface`.
 """
-from abc import ABCMeta, abstractmethod
-
 from ..evaluation.fitness_function import FitnessFunction
 
 
@@ -21,7 +18,7 @@ class LocalOptFitnessFunction(FitnessFunction):
     ----------
     fitness_function : `FitnessFunction`
         A `FitnessFunction` for evaluating the fitness of a `Chromosome`.
-    optimizer : `Optimizer`
+    optimizer : `LocalOptimizer`
         An optimizer that will perform local optimization on a
         `Chromosome` before evaluation as needed.
 
@@ -73,43 +70,3 @@ class LocalOptFitnessFunction(FitnessFunction):
         if individual.needs_local_optimization():
             self.optimizer(individual)
         return self._fitness_function(individual)
-
-
-class ChromosomeInterface(metaclass=ABCMeta):
-    """For chromosomes with continuous local optimization
-
-    An interface to be used on chromosomes that will be using continuous local
-    optimization.
-    """
-    @abstractmethod
-    def needs_local_optimization(self):
-        """Does the individual need local optimization
-
-        Returns
-        -------
-        bool
-            Individual needs optimization
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_number_local_optimization_params(self):
-        """Get number of parameters in local optimization
-
-        Returns
-        -------
-        int
-            Number of parameters to be optimized
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def set_local_optimization_params(self, params):
-        """Set local optimization parameters
-
-        Parameters
-        ----------
-        params : list-like of numeric
-            Values to set the parameters to
-        """
-        raise NotImplementedError

@@ -8,8 +8,10 @@ subclasses of chromosomes.
 import copy
 from abc import ABCMeta, abstractmethod
 
+from ..local_optimizers.local_opt_interface import LocalOptimizationInterface
 
-class Chromosome(metaclass=ABCMeta):
+
+class Chromosome(LocalOptimizationInterface, metaclass=ABCMeta):
     """A genetic individual
 
     This class is the base of a genetic individual in bingo evolutionary
@@ -17,21 +19,20 @@ class Chromosome(metaclass=ABCMeta):
 
     Parameters
     ----------
-    genetic_age : int
-        age of the oldest component of the genetic material in the individual
     fitness :
         starting value of fitness
+    genetic_age : int
+        age of the oldest component of the genetic material in the individual
     fit_set : bool
-        Whether the fitness has been calculated for the individual
+        whether the fitness has been calculated for the individual
 
     Attributes
     ----------
     fitness
     genetic_age : int
-                  age of the oldest component of the genetic material in the
-                  individual
+        age of the oldest component of the genetic material in the individual
     fit_set : bool
-              Whether the fitness has been calculated for the individual
+        whether the fitness has been calculated for the individual
     """
     def __init__(self, genetic_age=0, fitness=None, fit_set=False):
         self._genetic_age = genetic_age
@@ -82,7 +83,7 @@ class Chromosome(metaclass=ABCMeta):
         Returns
         -------
         str
-            individual string form
+            Individual string form
         """
         raise NotImplementedError
 
@@ -93,6 +94,36 @@ class Chromosome(metaclass=ABCMeta):
         Returns
         -------
         float
-            distance from self to chromosome
+            Distance from self to chromosome
+        """
+        raise NotImplementedError
+
+    def needs_local_optimization(self):
+        """Does the `Chromosome` need local optimization
+
+        Returns
+        -------
+        bool
+            Whether `Chromosome` needs optimization
+        """
+        raise NotImplementedError
+
+    def get_number_local_optimization_params(self):
+        """Get number of parameters in local optimization
+
+        Returns
+        -------
+        int
+            Number of parameters to be optimized
+        """
+        raise NotImplementedError
+
+    def set_local_optimization_params(self, params):
+        """Set local optimization parameters
+
+        Parameters
+        ----------
+        params : list-like of numeric
+            Values to set the parameters to
         """
         raise NotImplementedError

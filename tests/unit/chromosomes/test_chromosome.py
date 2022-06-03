@@ -33,3 +33,16 @@ def test_genetic_age_starts_at_zero(individual):
     assert individual.genetic_age == 0
     individual.genetic_age = 10
     assert individual.genetic_age == 10
+
+
+def test_optimization_interface_methods_raise_not_implemented(mocker):
+    mocker.patch.object(Chromosome, "__abstractmethods__", new_callable=set)
+
+    with pytest.raises(NotImplementedError):
+        Chromosome().needs_local_optimization()
+
+    with pytest.raises(NotImplementedError):
+        Chromosome().get_number_local_optimization_params()
+
+    with pytest.raises(NotImplementedError):
+        Chromosome().set_local_optimization_params(mocker.Mock())

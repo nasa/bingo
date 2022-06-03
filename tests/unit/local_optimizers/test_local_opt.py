@@ -1,4 +1,4 @@
-from bingo.local_optimizers.local_opt \
+from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
 from bingo.local_optimizers.local_opt_interface import \
     LocalOptimizationInterface

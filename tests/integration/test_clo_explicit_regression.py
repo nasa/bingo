@@ -7,7 +7,7 @@ import numpy as np
 
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, ROOT_SET, \
     MINIMIZE_SET
-from bingo.local_optimizers.local_opt import \
+from bingo.local_optimizers.local_opt_fitness import \
     LocalOptFitnessFunction
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitTrainingData as pyExplicitTrainingData, \

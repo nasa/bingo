@@ -7,7 +7,7 @@ from bingo.symbolic_regression.agraph \
 from bingo.symbolic_regression.agraph.evaluation_backend import \
     evaluation_backend as pyBackend
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.local_opt \
+from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
 from bingocpp import evaluation_backend as cppBackend
 

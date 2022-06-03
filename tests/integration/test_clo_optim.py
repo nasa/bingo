@@ -9,7 +9,7 @@ from bingo.evaluation.fitness_function \
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, \
     MINIMIZE_SET, ROOT_SET
-from bingo.local_optimizers.local_opt \
+from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
 from bingo.chromosomes.multiple_floats import MultipleFloatChromosome
 

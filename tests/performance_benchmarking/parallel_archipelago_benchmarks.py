@@ -17,7 +17,7 @@ from bingo.evolutionary_optimizers.parallel_archipelago \
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.local_opt \
+from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
 from benchmark_data import StatsPrinter
 

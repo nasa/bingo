@@ -9,7 +9,7 @@ from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.local_opt \
+from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
 from bingo.chromosomes.multiple_values \
     import SinglePointCrossover, SinglePointMutation

@@ -10,7 +10,7 @@ from bingo.symbolic_regression import ComponentGenerator, \
                                       AGraphMutation, \
                                       ExplicitRegression
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.local_opt \
+from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA

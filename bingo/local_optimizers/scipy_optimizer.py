@@ -73,7 +73,7 @@ class ScipyOptimizer(LocalOptimizer):
     objective_fn
         A function to minimize which can be evaluated by passing in a
         `Chromosome`.
-    options : dict, optional
+    options
         Additional arguments for optimization.
         e.g. (..., tol=1e-8, options={"maxiter": 1000})
 
@@ -216,6 +216,12 @@ class ScipyOptimizer(LocalOptimizer):
             return optimize_result.x
 
     def _get_scipy_backend_and_jacobian_fn(self):
+        def get_just_jacobian(_, indv):
+            return self.objective_fn.get_fitness_vector_and_jacobian(indv)[1]
+
+        def get_just_gradient(_, indv):
+            return self.objective_fn.get_fitness_and_gradient(indv)[1]
+
         backend = optimize.minimize
         jacobian = False
 
@@ -224,12 +230,10 @@ class ScipyOptimizer(LocalOptimizer):
         if self.options["method"] in ROOT_SET:
             backend = optimize.root
             if jacobian_method and self._jacobian_capable:
-                jacobian = lambda x, indv: \
-                    self.objective_fn.get_fitness_vector_and_jacobian(indv)[1]
+                jacobian = get_just_jacobian
 
         else:  # MINIMIZE_SET
             if jacobian_method and self._gradient_capable:
-                jacobian = lambda x, indv: \
-                    self.objective_fn.get_fitness_and_gradient(indv)[1]
+                jacobian = get_just_gradient
 
         return backend, jacobian

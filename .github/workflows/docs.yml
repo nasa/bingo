@@ -8,9 +8,18 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install Sphinx
+        run: |
+          python -m pip install --upgrade pip
+          pip install sphinx
       - name: Build docs
-        uses: ammaraskar/sphinx-action@0.4
-      - name: Upload artifacts (attach HTML pages to github)
+        run: |
+          sphinx-build -b html docs/source/ docs/build/html
+      - name: Upload artifacts (attach HTML pages to action)
         uses: actions/upload-artifact@v1
         with:
           name: html-docs

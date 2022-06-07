@@ -20,8 +20,3 @@ jobs:
       - name: Build docs
         run: |
           sphinx-build -b html docs/source/ docs/build/html
-      - name: Upload artifacts (attach HTML pages to action)
-        uses: actions/upload-artifact@v1
-        with:
-          name: html-docs
-          path: docs/build/html/

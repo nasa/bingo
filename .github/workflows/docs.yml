@@ -1,0 +1,17 @@
+name: Docs
+on: [push, pull_request]
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Build docs
+        uses: ammaraskar/sphinx-action@0.4
+      - name: Upload artifacts (attach HTML pages to github)
+        uses: actions/upload-artifact@v1
+        with:
+          name: html-docs
+          path: docs/build/html/

@@ -2,8 +2,7 @@
 
 This module contains the implementation of a fitness function wrapper
 that will perform local optimization of a `Chromosome` as necessary
-using a `LocalOptimizer` before evaluating it. `Chromosome`s wishing
-to use the optimization wrapper must implement `LocalOptimizationInterface`.
+using a `LocalOptimizer` before evaluating it.
 """
 from ..evaluation.fitness_function import FitnessFunction
 

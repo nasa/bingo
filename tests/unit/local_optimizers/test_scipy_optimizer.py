@@ -12,13 +12,12 @@ from scipy.optimize import OptimizeResult
 from bingo.evaluation.fitness_function \
     import FitnessFunction, VectorBasedFunction
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
-from bingo.local_optimizers.local_opt_interface import \
-    LocalOptimizationInterface
+from bingo.chromosomes.chromosome import Chromosome
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer, \
     ROOT_SET, MINIMIZE_SET, JACOBIAN_SET
 
 
-class DummyLocalOptIndividual(LocalOptimizationInterface):
+class DummyLocalOptIndividual(Chromosome):
     def needs_local_optimization(self):
         return True
 
@@ -26,14 +25,18 @@ class DummyLocalOptIndividual(LocalOptimizationInterface):
         return 1
 
     def set_local_optimization_params(self, params):
-        try:
-            self.param = params[0]
-        except IndexError:  # for issue with powell
-            self.param = params
+        self.param = params[0]
+
+    def __str__(self):
+        pass
+
+    def distance(self, chromosome):
+        pass
 
 
-class BloatedOptIndividual(LocalOptimizationInterface):
+class BloatedOptIndividual(Chromosome):
     def __init__(self):
+        super().__init__()
         self.param = [1, 2, 3]
         self._fitness = None
         self._fit_set = False
@@ -46,6 +49,12 @@ class BloatedOptIndividual(LocalOptimizationInterface):
 
     def set_local_optimization_params(self, params):
         self.param = params
+
+    def __str__(self):
+        pass
+
+    def distance(self, chromosome):
+        pass
 
 
 @pytest.mark.parametrize("obj_func_type, raises_error",

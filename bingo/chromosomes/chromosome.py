@@ -8,10 +8,8 @@ subclasses of chromosomes.
 import copy
 from abc import ABCMeta, abstractmethod
 
-from ..local_optimizers.local_opt_interface import LocalOptimizationInterface
 
-
-class Chromosome(LocalOptimizationInterface, metaclass=ABCMeta):
+class Chromosome(metaclass=ABCMeta):
     """A genetic individual
 
     This class is the base of a genetic individual in bingo evolutionary
@@ -106,7 +104,9 @@ class Chromosome(LocalOptimizationInterface, metaclass=ABCMeta):
         bool
             Whether `Chromosome` needs optimization
         """
-        raise NotImplementedError
+        raise NotImplementedError("This Chromosome cannot be used in local "
+                                  "optimization until its local optimization "
+                                  "interface has been implemented")
 
     def get_number_local_optimization_params(self):
         """Get number of parameters in local optimization
@@ -116,7 +116,9 @@ class Chromosome(LocalOptimizationInterface, metaclass=ABCMeta):
         int
             Number of parameters to be optimized
         """
-        raise NotImplementedError
+        raise NotImplementedError("This Chromosome cannot be used in local "
+                                  "optimization until its local optimization "
+                                  "interface has been implemented")
 
     def set_local_optimization_params(self, params):
         """Set local optimization parameters
@@ -126,4 +128,6 @@ class Chromosome(LocalOptimizationInterface, metaclass=ABCMeta):
         params : list-like of numeric
             Values to set the parameters to
         """
-        raise NotImplementedError
+        raise NotImplementedError("This Chromosome cannot be used in local "
+                                  "optimization until its local optimization "
+                                  "interface has been implemented")

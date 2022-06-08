@@ -1,11 +1,11 @@
 from bingo.local_optimizers.local_opt_fitness \
     import LocalOptFitnessFunction
-from bingo.local_optimizers.local_opt_interface import \
-    LocalOptimizationInterface
+from bingo.chromosomes.chromosome import Chromosome
 
 
-class DummyLocalOptimizationIndividual(LocalOptimizationInterface):
+class DummyLocalOptimizationIndividual(Chromosome):
     def __init__(self):
+        super().__init__()
         self._params = [1, 2, 3]
         self._needs_opt = True
 
@@ -17,6 +17,12 @@ class DummyLocalOptimizationIndividual(LocalOptimizationInterface):
 
     def get_number_local_optimization_params(self):
         return len(self._params)
+
+    def __str__(self):
+        pass
+
+    def distance(self, chromosome):
+        pass
 
     def set_local_optimization_params(self, params):
         self._params = params

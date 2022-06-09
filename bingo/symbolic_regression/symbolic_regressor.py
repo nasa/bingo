@@ -25,13 +25,15 @@ from bingo.evolutionary_optimizers.island import Island
 
 
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
-    def __init__(self, population_size=500, stack_size=32,
+    def __init__(self, *, population_size=500, stack_size=32,
                  operators=None, use_simplification=False,
                  crossover_prob=0.4, mutation_prob=0.4,
                  metric="mse", parallel=False, clo_alg="lm",
                  generations=int(1e19), fitness_threshold=1.0e-16,
-                 max_time=1800, max_evals=int(1e19), evolutionary_algorithm=AgeFitnessEA,
-                 clo_threshold=1.0e-8, scale_max_evals=False, random_state=None):
+                 max_time=1800, max_evals=int(1e19),
+                 evolutionary_algorithm=AgeFitnessEA,
+                 clo_threshold=1.0e-8, scale_max_evals=False,
+                 random_state=None):
         self.population_size = population_size
         self.stack_size = stack_size
 
@@ -64,10 +66,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.random_state = random_state
 
-        if random_state is not None:
-            np.random.seed(random_state)
-            random.seed(random_state)
-
     def set_params(self, **params):
         # TODO not clean
         new_params = self.get_params()
@@ -75,9 +73,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         super().set_params(**new_params)
         self.__init__(**new_params)
         return self
-
-    def set_max_time(self, new_max_time):
-        self.max_time = new_max_time
 
     def _get_archipelago(self, X, y, n_processes):
         self.component_generator = ComponentGenerator(X.shape[1])
@@ -107,7 +102,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         # TODO pareto front based on complexity?
         hof = HallOfFame(5)
 
-        island = self.make_island(len(X), ea, hof)
+        island = self._make_island(len(X), ea, hof)
         self._force_diversity_in_island(island)
 
         if self.parallel:
@@ -115,7 +110,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         else:
             return island
 
-    def make_island(self, dset_size, ea, hof):
+    def _make_island(self, dset_size, ea, hof):
         if dset_size < 1200:
             return Island(ea, self.generator, self.population_size, hall_of_fame=hof)
         return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
@@ -146,13 +141,15 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
     def get_best_individual(self):
         if self.best_ind is None:
-            print("Best individual is None, setting to X_0")
-            from bingo.symbolic_regression import AGraph
-            self.best_ind = AGraph()
-            self.best_ind.command_array = np.array([[0, 0, 0]], dtype=int)  # X_0
+            raise ValueError("Best individual not set")
         return self.best_ind
 
+    # TODO should return self
     def fit(self, X, y, sample_weight=None):
+        if self.random_state is not None:
+            np.random.seed(self.random_state)
+            random.seed(self.random_state)
+
         if sample_weight is not None:
             print("sample weight not None, TODO")
             raise NotImplementedError
@@ -204,7 +201,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         # print("\nbest individual:", self.best_ind)
 
     def predict(self, X):
-        output = self.best_ind.evaluate_equation_at(X)
+        best_ind = self.get_best_individual()
+        output = best_ind.evaluate_equation_at(X)
 
         # convert nan to 0, inf to large number, and -inf to small number
         return np.nan_to_num(output, posinf=1e100, neginf=-1e100)
@@ -264,7 +262,6 @@ class CrossValRegressor(GridSearchCV):
 if __name__ == '__main__':
     # SRSerialArchipelagoExample with SymbolicRegressor
     import random
-    from sklearn.model_selection import KFold
     # random.seed(7)
     # np.random.seed(7)
     x = np.linspace(-10, 10, 1000).reshape([-1, 1])
@@ -274,7 +271,7 @@ if __name__ == '__main__':
                              operators=["+", "-", "*"],
                              use_simplification=True,
                              crossover_prob=0.4, mutation_prob=0.4, metric="mae",
-                             parallel=False, clo_alg="lm", generations=500, fitness_threshold=1.0e-4,
+                             parallel=False, clo_alg="lm", generations=500, fitness_threshold=-1,
                              evolutionary_algorithm=AgeFitnessEA, clo_threshold=1.0e-4, random_state=7)
 
     hyper_params = [
@@ -283,16 +280,12 @@ if __name__ == '__main__':
         {"population_size": [2500], "stack_size": [32]}
     ]
 
-    cv = KFold(n_splits=3, shuffle=True)
+    print(regr.get_params())
+    regr.set_params()
+    print(regr)
 
-    cv_regr = CrossValRegressor(regr, cv=cv, param_grid=hyper_params,
-                                verbose=3, n_jobs=1, scoring="r2", error_score="raise")
-    cv_regr.set_params(**{"test": True})
-    print(cv_regr.get_params())
-    print(cv_regr)
-
-    cv_regr.fit(x, y)
-    print(cv_regr.get_best_individual())
+    regr.fit(x, y)
+    print(regr.get_best_individual())
 
     # TODO MPI.COMM_WORLD.bcast in parallel?
     # TODO rank in MPI

@@ -18,7 +18,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'Bingo'
-copyright = '2022, United States Government as represented by the Administrator of the National Aeronautics and Space Administration'
+copyright = '2022, United States Government as represented by the ' \
+            'Administrator of the National Aeronautics and Space Administration'
 author = 'Geoffrey Bomarito'
 
 # The full version, including alpha/beta/rc tags
@@ -32,7 +33,8 @@ release = '1.0'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary'
+    'sphinx.ext.autosummary',
+    'sphinx_panels'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -56,7 +58,11 @@ html_theme = 'pydata_sphinx_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_logo = '../../media/logo.png'
+html_logo = '_static/transparent_logo.png'
+
+html_context = {
+    'default_mode': 'auto'
+}
 
 html_theme_options = {
     'icon_links': [

@@ -27,9 +27,9 @@ class PairwiseAtomicPotential(VectorBasedFunction):
     Pairwise atomic potential which is fit with total potential energy for a
     set of configurations. Fitness is calculated as how well total potential
     energies are matched by the summation of pairwise energies which are
-    calculated by the Equation individual
+    calculated by the `Equation` individual
 
-    fitness = sum(abs(  sum( f(r_i) ) - U_true_i  ))    for i in config
+    fitness = sum(abs(sum(:math:`f(r_i)`) - :math:`U_{{true}_i}`)) for i in config
 
     Parameters
     ----------
@@ -39,6 +39,22 @@ class PairwiseAtomicPotential(VectorBasedFunction):
     """
 
     def evaluate_fitness_vector(self, individual):
+        """Evaluates the fitness of an individual based on how well
+        `training_data`'s total potential energies are matched by the
+        summation of pairwise energies calculated by the individual.
+
+        fitness = sum(abs(sum(:math:`f(r_i)`) - :math:`U_{{true}_i}`)) for i in config
+
+        Parameters
+        ----------
+        individual : Equation
+            individual whose fitness will be evaluated
+
+        Returns
+        -------
+        float
+            the fitness of the individual
+        """
         self.eval_count += 1
         pair_energies = individual.evaluate_equation_at(
             self.training_data.r).flatten()
@@ -56,9 +72,9 @@ class PairwiseAtomicPotential(VectorBasedFunction):
 class PairwiseAtomicTrainingData(TrainingData):
     """PairwiseAtomicTrainingData:
 
-    Training data of this type contains distances (r) between ataoms in several
+    Training data of this type contains distances (r) between atoms in several
     atomic configurations. Each configuration has an associated potential
-    energy.  The r values beloning to each configuration are bounded by
+    energy.  The r values belonging to each configuration are bounded by
     configuration limits (config_lims_r)
 
     Parameters
@@ -78,7 +94,7 @@ class PairwiseAtomicTrainingData(TrainingData):
 
     Notes
     -----
-    Ininilization must be performed with either configurations or a
+    Initialization must be performed with either configurations or a
     combination of r_list and config_lims_r.
     """
     def __init__(self, potential_energy, configurations=None, r_list=None,

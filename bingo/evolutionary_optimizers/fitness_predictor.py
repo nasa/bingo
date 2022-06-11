@@ -169,4 +169,11 @@ class FitnessPredictorIndexGenerator:
         self._max = data_size
 
     def __call__(self):
+        """Generates a random int between 0 and `data_size` (non inclusive)
+
+        Returns
+        -------
+        int
+            random int between 0 and `data_size` (non inclusive)
+        """
         return np.random.randint(self._max)

@@ -114,5 +114,5 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     @abstractmethod
     def evaluate_fitness_vector(self, individual):
-        """Calaculate a vector of fitness values"""
+        """Calculate a vector of fitness values"""
         raise NotImplementedError

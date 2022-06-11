@@ -257,7 +257,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._needs_opt = False
 
     def get_utilized_commands(self):
-        """"Find which commands are utilized.
+        """Find which commands are utilized.
 
         Find the commands in the command array of the `AGraph` upon which the
         last command relies. This is inclusive of the last command.

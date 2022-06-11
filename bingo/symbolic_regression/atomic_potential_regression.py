@@ -113,7 +113,6 @@ class PairwiseAtomicTrainingData(TrainingData):
          PairwiseAtomicTrainingData :
                                        a subset
         """
-
         r_inds = []
         new_config_lims_r = [0]
         for i in items:

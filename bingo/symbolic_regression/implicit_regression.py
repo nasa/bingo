@@ -236,7 +236,6 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
 
     def generalized_factorial(gf_a, gf_b):
         """Generalized factorial"""
-
         g_f = 1
         for j in range(gf_a - gf_b + 1, gf_a + 1):
             g_f *= j

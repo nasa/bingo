@@ -62,7 +62,7 @@ html_static_path = ['_static']
 html_logo = '_static/transparent_logo.png'
 
 html_context = {
-    'default_mode': 'auto'
+    'default_mode': 'light'
 }
 
 html_theme_options = {
@@ -74,6 +74,7 @@ html_theme_options = {
             'type': 'fontawesome'
         }
     ],
+    'navbar_end' : ['navbar-icon-links'],
     'footer_items': ['copyright', 'sphinx-version']
 }
 

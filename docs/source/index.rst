@@ -13,7 +13,7 @@ symbolic regression via genetic programming.
 
 .. panels::
     :card: + intro-card text-center bg-white
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex p-2
+    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex p-3
     :header: bg-white font-weight-bold
     :body: bg-white
     :footer: bg-white

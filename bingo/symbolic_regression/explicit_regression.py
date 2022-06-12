@@ -46,8 +46,13 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
 
         Parameters
         ----------
-        individual : agraph
+        individual : Equation
             individual whose fitness is evaluated on `training_data`
+
+        Returns
+        -------
+        float
+            the fitness of the input Equation individual
         """
         self.eval_count += 1
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
@@ -72,7 +77,7 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
 
         Parameters
         ----------
-        individual : agraph
+        individual : Equation
             individual whose fitness will be evaluated on `training_data`
             and whose constants will be used for evaluating the jacobian
 

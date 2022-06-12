@@ -23,8 +23,9 @@ class ImplicitRegression(VectorBasedFunction):
     """ Implicit Regression, version 2
 
     Fitness of this metric is related to the cos of angle between between
-    df_dx(x) and dx_dt. df_dx(x) is calculated through derivatives of the input
-    Equation individual at training_data.x. dx_dt is from training_data.dx_dt.
+    :math:`df_dx(x)` and :math:`dx_dt`. :math:`df_dx(x)` is calculated
+    through derivatives of the input Equation individual at training_data.x.
+    :math:`dx_dt` is from training_data.dx_dt.
 
     Different normalization and error checking are available.
 
@@ -40,6 +41,23 @@ class ImplicitRegression(VectorBasedFunction):
         self._required_params = required_params
 
     def evaluate_fitness_vector(self, individual):
+        """Evaluates the fitness of an implicit individual
+
+        Evaluates the fitness of the input Equation individual based
+        on the cos of the angle between :math:`df_dx(x)` and :math:`dx_dt`.
+        Where :math:`df_dx` comes from the equation's output w.r.t.
+        training_data.x and :math:`dx_dt` is training_data.dx_dt.
+
+        Parameters
+        ----------
+        individual : Equation
+            individual whose fitness is evaluated on `training_data`
+
+        Returns
+        -------
+        float
+            the fitness of the input Equation individual
+        """
         self.eval_count += 1
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)

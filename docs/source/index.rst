@@ -9,7 +9,7 @@ symbolic regression via genetic programming.
     :caption: Contents:
     :hidden:
 
-    modules
+    _apidocs/modules
 
 .. panels::
     :card: + intro-card text-center bg-white
@@ -29,7 +29,7 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: modules.html
+    .. link-button:: _apidocs/bingo.html
         :text: To the Installation Guide
         :classes: btn-block btn-primary
 
@@ -45,7 +45,7 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: modules.html
+    .. link-button:: _apidocs/bingo.html
         :text: To the High-Level User Guide
         :classes: btn-block btn-primary
 
@@ -62,7 +62,7 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: modules.html
+    .. link-button:: _apidocs/bingo.html
         :text: To the Low-Level User Guide
         :classes: btn-block btn-primary
     ---
@@ -78,6 +78,6 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: modules.html
+    .. link-button:: _apidocs/bingo.html
         :text: To the API Docs
         :classes: btn-block btn-primary

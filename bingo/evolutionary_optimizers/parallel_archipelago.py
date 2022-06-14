@@ -74,7 +74,7 @@ class ParallelArchipelago(Archipelago):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual in the archipelago
         """
         best_on_proc = self.island.get_best_fitness()

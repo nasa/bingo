@@ -84,7 +84,7 @@ class Island(EvolutionaryOptimizer):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual
         """
         return self.get_best_individual().fitness

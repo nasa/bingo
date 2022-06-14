@@ -26,7 +26,7 @@ class GradientMixin(metaclass=ABCMeta):
 
         Parameters
         ----------
-        individual : chromosomes
+        individual : Chromosome
             individual for which the fitness and gradient will be calculated for
 
         Returns

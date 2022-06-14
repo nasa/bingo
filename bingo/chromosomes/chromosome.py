@@ -19,14 +19,14 @@ class Chromosome(metaclass=ABCMeta):
     ----------
     genetic_age : int
         age of the oldest component of the genetic material in the individual
-    fitness :
+    fitness : numeric
         starting value of fitness
     fit_set : bool
         Whether the fitness has been calculated for the individual
 
     Attributes
     ----------
-    fitness
+    fitness : numeric
     genetic_age : int
                   age of the oldest component of the genetic material in the
                   individual

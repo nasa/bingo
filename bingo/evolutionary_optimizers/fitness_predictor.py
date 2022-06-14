@@ -126,7 +126,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
         Returns
         -------
-         :
+        fitness : numeric
             true (full) fitness of trainer
         """
         self._fitness_function.training_data = self.training_data

@@ -32,14 +32,14 @@ class FitnessFunction(metaclass=ABCMeta):
 
     Parameters
     ----------
-    training_data :
+    training_data : TrainingData
         (Optional) data that can be used in fitness evaluation
 
     Attributes
     ----------
     eval_count : int
         the number of evaluations that have been performed
-    training_data :
+    training_data : TrainingData
         (Optional) data that can be used in fitness evaluation
     """
     def __init__(self, training_data=None):
@@ -73,7 +73,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     Parameters
     ----------
-    training_data :
+    training_data : TrainingData
         data that is used in fitness evaluation.
     metric : str
         String defining the measure of error to use. Available options are:

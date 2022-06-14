@@ -145,8 +145,8 @@ class ImplicitTrainingData(TrainingData):
 
         Returns
         -------
-         ExplicitTrainingData :
-                                a subset
+        ExplicitTrainingData :
+            a subset
         """
         temp = ImplicitTrainingData(self._x[items, :], self._dx_dt[items, :])
         return temp
@@ -156,8 +156,8 @@ class ImplicitTrainingData(TrainingData):
 
         Returns
         -------
-         int :
-                index-able size
+        int :
+            index-able size
         """
         return self._x.shape[0]
 

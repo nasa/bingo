@@ -126,8 +126,8 @@ class PairwiseAtomicTrainingData(TrainingData):
 
         Returns
         -------
-         PairwiseAtomicTrainingData :
-                                       a subset
+        PairwiseAtomicTrainingData :
+            a subset
         """
         r_inds = []
         new_config_lims_r = [0]
@@ -148,8 +148,8 @@ class PairwiseAtomicTrainingData(TrainingData):
 
         Returns
         -------
-         int :
-                index-able size
+        int :
+            index-able size
         """
         return self.potential_energy.shape[0]
 

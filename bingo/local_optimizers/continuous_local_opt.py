@@ -108,7 +108,7 @@ class ContinuousLocalOptimization(FitnessFunction):
     eval_count : int
         the number of evaluations that have been performed by the wrapped
         fitness function
-    training_data :
+    training_data : TrainingData
         (Optional) data that can be used in the wrapped fitness function
     param_init_bounds : iterable
         (Optional) Bounds that are used to initialize clo params,
@@ -123,9 +123,9 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     Raises
     ------
-    KeyError:
+    KeyError
         `algorithm` must be an algorithm provided by the interface
-    TypeError :
+    TypeError
         `fitness_function` must Be a valid `FitnessFunction` for the specified
         algorithm
     """
@@ -195,8 +195,8 @@ class ContinuousLocalOptimization(FitnessFunction):
 
         Returns
         -------
-        float :
-            The fitness of the invdividual
+        fitness : numeric
+            The fitness of the individual
         """
         if individual.needs_local_optimization():
             self._optimize_params(individual)

@@ -353,7 +353,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual
         """
         raise NotImplementedError

@@ -292,7 +292,7 @@ class ChromosomeInterface(metaclass=ABCMeta):
         Returns
         -------
         int
-            number of paramneters to be optimized
+            number of parameters to be optimized
         """
         raise NotImplementedError
 

@@ -1,4 +1,4 @@
-"""The parallel implemenation of the Archipelago
+"""The parallel implementation of the Archipelago
 
 This module defines the Archipelago data structure that runs in parallel on
 multiple processors.

@@ -245,7 +245,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         run_time = (datetime.now() - start_time).total_seconds()
         ea_diagnostics = self.get_ea_diagnostic_info().summary
         if status == 0:
-            message = "Absolte convergence occurred with best fitness < " + \
+            message = "Absolute convergence occurred with best fitness < " + \
                       "{}".format(aux_info)
             success = True
         elif status == 1:

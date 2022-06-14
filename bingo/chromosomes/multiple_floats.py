@@ -44,7 +44,7 @@ class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
         Returns
         -------
         int
-            number of paramneters to be optimized
+            number of parameters to be optimized
         """
         return len(self._needs_opt_list)
 

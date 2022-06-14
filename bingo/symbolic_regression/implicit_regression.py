@@ -163,12 +163,12 @@ class ImplicitTrainingData(TrainingData):
 
 
 def _calculate_partials(X):
-    """Calculate derivatves with respect to time (first dimension).
+    """Calculate derivatives with respect to time (first dimension).
 
     Parameters
     ----------
      X : 2d numpy array
-        array for which derivatives will be calculated in the first diminsion.
+        array for which derivatives will be calculated in the first dimension.
         Distinct trajectories can be specified by separating the datasets
         within X by rows of np.nan
 

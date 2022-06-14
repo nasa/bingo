@@ -1,4 +1,4 @@
-"""The definition of fitness evalutions for individuals.
+"""The definition of fitness evaluations for individuals.
 
 This module defines the basis of fitness evaluation in bingo evolutionary
 analyses.

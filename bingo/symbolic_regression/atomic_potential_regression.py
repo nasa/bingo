@@ -29,7 +29,8 @@ class PairwiseAtomicPotential(VectorBasedFunction):
     energies are matched by the summation of pairwise energies which are
     calculated by the `Equation` individual
 
-    fitness = sum(abs(sum(:math:`f(r_i)`) - :math:`U_{{true}_i}`)) for i in config
+    fitness = sum(abs(sum(:math:`f(r_i)`) - :math:`U_{{true}_i}`))
+              for i in config
 
     Parameters
     ----------
@@ -43,7 +44,8 @@ class PairwiseAtomicPotential(VectorBasedFunction):
         `training_data`'s total potential energies are matched by the
         summation of pairwise energies calculated by the individual.
 
-        fitness = sum(abs(sum(:math:`f(r_i)`) - :math:`U_{{true}_i}`)) for i in config
+        fitness = sum(abs(sum(:math:`f(r_i)`) - :math:`U_{{true}_i}`))
+                  for i in config
 
         Parameters
         ----------

@@ -52,8 +52,8 @@ class PairwiseAtomicPotential(VectorBasedFunction):
 
         Returns
         -------
-        float
-            the fitness of the individual
+        fitness : list of numeric
+            a vector of `individual`'s fitness values
         """
         self.eval_count += 1
         pair_energies = individual.evaluate_equation_at(

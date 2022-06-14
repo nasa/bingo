@@ -48,13 +48,13 @@ def build_agraph_stack(expression):
 
     Parameters
     ----------
-    agraph_stack: `Expression`
+    expression: `Expression`
         A computer algebra system expression
 
     Returns
     -------
-        A command array
-
+    command_array : np.array of int
+        The command array equivalent of `expression`
     """
     stack_dict = {}
     _build_stack_recursive(expression, stack_dict)

@@ -230,7 +230,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         return self._needs_opt
 
     def get_number_local_optimization_params(self):
-        """number of parameters for local optimization
+        """Number of parameters for local optimization
 
         Count constants and set up for optimization
 

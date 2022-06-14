@@ -43,6 +43,7 @@ class MultipleValueChromosome(Chromosome):
         Parameters
         ----------
         other : MultipleValueChromosome
+            The chromosome to compare to.
 
         Returns
         -------

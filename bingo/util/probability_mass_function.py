@@ -81,7 +81,7 @@ class ProbabilityMassFunction:
 
         Parameters
         ----------
-        new_item :
+        new_item
             The item to be added.
         new_weight : numeric
             (Optional) The weight associated with the item. The default is the

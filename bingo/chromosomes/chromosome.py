@@ -90,6 +90,11 @@ class Chromosome(metaclass=ABCMeta):
     def distance(self, chromosome):
         """Distance from self to chromosome
 
+        Parameters
+        ----------
+        chromosome : Chromosome
+            The chromosome to compare to.
+
         Returns
         -------
         float

@@ -163,17 +163,17 @@ class FitnessPredictorIndexGenerator:
     Parameters
     ----------
     data_size : int
-                maximum value of randomly generated int (non inclusive)
+                maximum value of randomly generated int (exclusive)
     """
     def __init__(self, data_size):
         self._max = data_size
 
     def __call__(self):
-        """Generates a random int between 0 and `data_size` (non inclusive)
+        """Generates a random int between 0 and `data_size` (exclusive)
 
         Returns
         -------
         int
-            random int between 0 and `data_size` (non inclusive)
+            random int between 0 and `data_size` (exclusive)
         """
         return np.random.randint(self._max)

@@ -29,7 +29,7 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
         integer (0 - 100) that corresponds to typical python log level.
     module : bool
         whether to show the module name on logging output. Default False
-    timestamp :
+    timestamp : bool
         whether to show a time stamp on logging output. Default False
     stats_file : str
         (optional) file name for evolution statistics to be logged to

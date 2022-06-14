@@ -164,7 +164,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @property
     def param_init_bounds(self):
-        """[low, high) bounds used to initialize clo params"""
+        """iterable : [low, high) bounds used to initialize clo params"""
         return self._param_init_bounds
 
     @param_init_bounds.setter
@@ -173,7 +173,7 @@ class ContinuousLocalOptimization(FitnessFunction):
 
     @property
     def optimization_options(self):
-        """Continuous local optimization options (e.g. tolerance)"""
+        """dict : continuous local optimization options (e.g. tolerance)"""
         return self._optimization_options
 
     @optimization_options.setter

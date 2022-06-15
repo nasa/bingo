@@ -35,7 +35,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx_panels',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinx_copybutton'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

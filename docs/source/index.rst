@@ -1,5 +1,5 @@
-Bingo's documentation
-=================================
+Bingo's Documentation
+=====================
 
 Bingo is a flexible Python library for
 symbolic regression via genetic programming.
@@ -10,6 +10,7 @@ symbolic regression via genetic programming.
     :hidden:
 
     _apidocs/modules
+    installation
 
 .. panels::
     :card: + intro-card text-center bg-white
@@ -29,7 +30,7 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: _apidocs/bingo.html
+    .. link-button:: installation.html
         :text: To the Installation Guide
         :classes: btn-block btn-primary
 

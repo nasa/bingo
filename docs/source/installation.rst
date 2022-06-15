@@ -43,6 +43,6 @@ Then build BingoCpp:
 Now you should be good to go! You can run Bingo's test suite to make sure that
 the installation process worked properly:
 
-.. code-block:: bash
+.. code-block:: console
 
     pytest tests

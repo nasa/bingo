@@ -28,13 +28,13 @@ First clone the repo and move into the directory:
         git clone --recurse-submodules git@github.com:nasa/bingo.git
         cd bingo
 
-Then make sure you have the requirements necessary to use bingo:
+Then make sure you have the requirements necessary to use Bingo:
 
 .. code-block:: console
 
     pip install -r requirements.txt
 
-Then build Bingocpp:
+Then build BingoCpp:
 
 .. code-block:: console
 

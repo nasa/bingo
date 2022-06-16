@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import random
 import signal
 
 from sklearn.base import BaseEstimator, RegressorMixin, clone
@@ -116,13 +117,11 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
                                       predictor_size_ratio=800/dset_size)
 
-
     def _get_clo(self, X, y, tol):
         training_data = ExplicitTrainingData(X, y)
         fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
         local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
         return local_opt_fitness
-
 
     def _force_diversity_in_island(self, island):
         diverse_pop = []
@@ -154,10 +153,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             print("sample weight not None, TODO")
             raise NotImplementedError
 
-        try:
-            n_cpus = os.environ['OMP_NUM_THREADS']
-        except KeyError:
-            n_cpus = 1
+        n_cpus = os.environ.get('OMP_NUM_THREADS', 1)
+
         print(f"using {n_cpus} processes")
         self.archipelago = self._get_archipelago(X, y, n_cpus)
         print(f"archipelago: {type(self.archipelago)}")

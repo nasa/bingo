@@ -3,12 +3,11 @@
 This file contains the several classes that are used for chromosomes
 that contains a list of floats for their genetic information.
 """
-from ..local_optimizers.continuous_local_opt import ChromosomeInterface
 from .multiple_values import MultipleValueChromosome, \
                             MultipleValueChromosomeGenerator
 
 
-class MultipleFloatChromosome(MultipleValueChromosome, ChromosomeInterface):
+class MultipleFloatChromosome(MultipleValueChromosome):
     """Multiple float-value individual
 
     Parameters

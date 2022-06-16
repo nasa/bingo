@@ -52,7 +52,6 @@ import numpy as np
 
 from .string_generation import get_formatted_string
 from ..equation import Equation
-from ...local_optimizers import continuous_local_opt
 from .operator_definitions import CONSTANT
 
 try:
@@ -89,7 +88,7 @@ def force_use_of_python_simplification():
     USING_PYTHON_SIMPLIFICATION = True
 
 
-class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
+class AGraph(Equation):
     """Acyclic graph representation of an equation.
 
     `AGraph` is initialized with with empty command array and no constants.

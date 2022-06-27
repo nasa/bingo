@@ -62,7 +62,7 @@ def test_agraph_sympy_expr_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
-    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  +" \
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" \
                               " cosh((X_3)^(X_4 + 3))"
     sympy_expr = sympy.sympify(expected_console_string
                                .replace(")(", ")*(").replace("^", "**"))
@@ -74,7 +74,7 @@ def test_agraph_sympy_str_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
-    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  +" \
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" \
                               " cosh((X_3)^(X_4 + 3))"
     sympy_expr = sympy.sympify(expected_console_string
                                .replace(")(", ")*(").replace("^", "**"))

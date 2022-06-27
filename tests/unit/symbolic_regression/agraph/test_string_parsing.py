@@ -126,7 +126,7 @@ def test_infix_to_postfix_with_functions(expression, expected):
 def test_postfix_to_command_array_and_constants_basic():
     postfix_tokens = "X_0 1.0 + sin X_0 2.0 / cos * 2.0 -".split(" ")
     # sin(X_0 + 1.0) * cos(X_0 / 2.0) - 2.0
-    expected_console_string = "(sin(X_0 + 1.0))(cos((X_0)/(2.0) )) - (2.0)"
+    expected_console_string = "(sin(X_0 + 1.0))(cos((X_0)/(2.0))) - (2.0)"
     command_array, constants =\
         postfix_to_command_array_and_constants(postfix_tokens)
     assert get_formatted_string("console", command_array, constants) ==\
@@ -138,7 +138,7 @@ def test_postfix_to_command_array_and_constants_complex():
         "X_0 X_1 + 2.0 * X_2 X_3 - 3 / + X_4 X_5 3 + ^ +".split(" ")
     # (X_0 + X_1) * 2.0 + (X_2 - X_3) / 3 + X_4^(X_5 + 3)
     expected_console_string =\
-        "(X_0 + X_1)(2.0) + (X_2 - (X_3))/(3)  + (X_4)^(X_5 + 3)"
+        "(X_0 + X_1)(2.0) + (X_2 - (X_3))/(3) + (X_4)^(X_5 + 3)"
     command_array, constants =\
         postfix_to_command_array_and_constants(postfix_tokens)
     assert get_formatted_string("console", command_array, constants) ==\
@@ -260,7 +260,7 @@ def test_eq_string_to_infix_tokens_invalid(invalid_string):
 
 def test_eq_string_to_command_array_and_constants_basic():
     eq_string = "(X_0 + 1.0) * (3 - X_0) / 5.0"
-    expected_console_string = "((X_0 + 1.0)(3 - (X_0)))/(5.0) "
+    expected_console_string = "((X_0 + 1.0)(3 - (X_0)))/(5.0)"
     command_array, constants =\
         eq_string_to_command_array_and_constants(eq_string)
     assert get_formatted_string("console", command_array, constants) ==\
@@ -271,7 +271,7 @@ def test_eq_string_to_command_array_and_constants_complex():
     eq_string = "X_4**(X_5 + 3) + 2.0*log(-X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
     expected_console_string = "(X_4)^(X_5 + 3) " \
                               "+ (2.0)(log((-1.0)(X_0) + X_1)) " \
-                              "+ (cosh(X_2 - (X_3)))/((3)^(5)) "
+                              "+ (cosh(X_2 - (X_3)))/((3)^(5))"
     command_array, constants =\
         eq_string_to_command_array_and_constants(eq_string)
     assert get_formatted_string("console", command_array, constants) ==\

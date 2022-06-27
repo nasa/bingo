@@ -13,7 +13,8 @@ operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
                 "sin": SIN, "cos": COS, "sinh": SINH, "cosh": COSH,
                 "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
                 "sqrt": SQRT}
-var_or_const_pattern = re.compile(r"([XC])_(\d+)", re.IGNORECASE)  # matches X_### and C_### (case-insensitive)
+# matches X_### and C_### (case-insensitive)
+var_or_const_pattern = re.compile(r"([XC])_(\d+)", re.IGNORECASE)
 int_pattern = re.compile(r"\d+")  # matches ###
 non_unary_op_pattern = re.compile(r"([*/^()])")  # matches *, /, ^, (, or )
 negative_pattern = re.compile(r"-([^\s\d])")  # matches -N where N = non-number
@@ -100,7 +101,8 @@ def postfix_to_command_array_and_constants(postfix_tokens):
             integer = int_pattern.fullmatch(token)
             if var_or_const:
                 groups = var_or_const.groups()
-                command = [operator_map[groups[0]], int(groups[1]), int(groups[1])]
+                command = [operator_map[groups[0]], int(groups[1]),
+                           int(groups[1])]
             elif integer:
                 operand = int(token)
                 command = [INTEGER, operand, operand]
@@ -111,8 +113,8 @@ def postfix_to_command_array_and_constants(postfix_tokens):
                     constant = float(token)
                     constants.append(constant)
                     n_constants += 1
-                except ValueError:
-                    raise RuntimeError(f"Unknown token {token}")
+                except ValueError as err:
+                    raise RuntimeError(f"Unknown token {token}") from err
         if tuple(command) in command_to_i:
             stack.append(command_to_i[tuple(command)])
         else:

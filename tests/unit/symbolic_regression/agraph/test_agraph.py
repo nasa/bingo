@@ -62,8 +62,10 @@ def test_agraph_sympy_expr_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
-    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  + cosh((X_3)^(X_4 + 3))"
-    sympy_expr = sympy.sympify(expected_console_string.replace(")(", ")*(").replace("^", "**"))
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  +" \
+                              " cosh((X_3)^(X_4 + 3))"
+    sympy_expr = sympy.sympify(expected_console_string
+                               .replace(")(", ")*(").replace("^", "**"))
     agraph = agraph_implementation(equation=sympy_expr)
     assert agraph.get_formatted_string("console") == expected_console_string
 
@@ -72,14 +74,17 @@ def test_agraph_sympy_str_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
-    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  + cosh((X_3)^(X_4 + 3))"
-    sympy_expr = sympy.sympify(expected_console_string.replace(")(", ")*(").replace("^", "**"))
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3)  +" \
+                              " cosh((X_3)^(X_4 + 3))"
+    sympy_expr = sympy.sympify(expected_console_string
+                               .replace(")(", ")*(").replace("^", "**"))
     sympy_str = str(sympy_expr)
     agraph = agraph_implementation(equation=sympy_str)
     assert agraph.get_formatted_string("console") == expected_console_string
 
 
-def test_agraph_sympy_unsimplified_str_constructor(engine, agraph_implementation):
+def test_agraph_sympy_unsimplified_str_constructor(
+        engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
@@ -88,7 +93,8 @@ def test_agraph_sympy_unsimplified_str_constructor(engine, agraph_implementation
     assert agraph.get_formatted_string("console") == unsimplified_string
 
 
-def test_agraph_sympy_constructor_fixes_formatting(engine, agraph_implementation):
+def test_agraph_sympy_constructor_fixes_formatting(
+        engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 

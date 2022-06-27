@@ -84,44 +84,40 @@ def postfix_to_command_array_and_constants(postfix_tokens):
     stack = []  # index -1 = top (the data structure, not a command array)
     command_array = []
     i = 0
-    var_const_int_to_index = {}
+    command_to_i = {}
     constants = []
     n_constants = 0
 
     for token in postfix_tokens:
-        if token in var_const_int_to_index:  # if we already have a command
-            # that sets a given variable, constant, or integer, just reuse it
-            stack.append(var_const_int_to_index[token])
+        if token in operators:
+            operands = stack.pop(), stack.pop()
+            command = [operator_map[token], operands[1], operands[0]]
+        elif token in functions:
+            operand = stack.pop()
+            command = [operator_map[token], operand, operand]
         else:
-            if token in operators:
-                operands = stack.pop(), stack.pop()
-                command_array.append([operator_map[token],
-                                      operands[1], operands[0]])
-            elif token in functions:
-                operand = stack.pop()
-                command_array.append([operator_map[token], operand, operand])
+            var_or_const = var_or_const_pattern.fullmatch(token)
+            integer = int_pattern.fullmatch(token)
+            if var_or_const:
+                groups = var_or_const.groups()
+                command = [operator_map[groups[0]], int(groups[1]), int(groups[1])]
+            elif integer:
+                operand = int(token)
+                command = [INTEGER, operand, operand]
             else:
-                var_or_const = var_or_const_pattern.fullmatch(token)
-                integer = int_pattern.fullmatch(token)
-                if var_or_const:
-                    groups = var_or_const.groups()
-                    command_array.append([operator_map[groups[0]],
-                                          int(groups[1]), int(groups[1])])
-                elif integer:
-                    operand = int(token)
-                    command_array.append([INTEGER, operand, operand])
-                else:
-                    try:
-                        constant = float(token)
-                        command_array.append([CONSTANT,
-                                              n_constants, n_constants])
-                        constants.append(constant)
-                        n_constants += 1
-                    except ValueError:
-                        raise RuntimeError(f"Unknown token {token}")
-                var_const_int_to_index[token] = i
-                # if we have a valid variable, constant, or integer,
-                # mark the index of the command that we set/loaded its value
+                try:
+                    command = [CONSTANT, n_constants, n_constants]
+
+                    constant = float(token)
+                    constants.append(constant)
+                    n_constants += 1
+                except ValueError:
+                    raise RuntimeError(f"Unknown token {token}")
+        if tuple(command) in command_to_i:
+            stack.append(command_to_i[tuple(command)])
+        else:
+            command_to_i[tuple(command)] = i
+            command_array.append(command)
             stack.append(i)
             i += 1
 

@@ -164,13 +164,12 @@ def test_postfix_to_command_array_and_constants_unordered_variables():
 
 
 def test_postfix_to_command_array_and_constants_duplicated_vars_consts_and_ints():  # pylint: disable=line-too-long
-    postfix_tokens = "X_0 1.0 + 2 + X_0 1.0 + 2 + +".split(" ")
-    expected_console_string = "X_0 + 1.0 + 2 + X_0 + 1.0 + 2"
+    postfix_tokens = "X_0 X_1 + 2 + X_0 X_1 + 2 + +".split(" ")
+    expected_console_string = "X_0 + X_1 + 2 + X_0 + X_1 + 2"
     command_array, constants =\
         postfix_to_command_array_and_constants(postfix_tokens)
-    assert len(command_array) == 8
+    assert len(command_array) == 6
     # don't duplicate variables, constants, or integers
-    assert len(constants) == 1  # don't duplicate constants
     assert get_formatted_string("console", command_array, constants) ==\
            expected_console_string
 
@@ -263,6 +262,16 @@ def test_sympy_string_to_command_array_and_constants_complex():
         sympy_string_to_command_array_and_constants(sympy_string)
     assert get_formatted_string("console", command_array, constants) ==\
            expected_console_string
+
+
+def test_sympy_string_to_command_array_duplicated_vars():
+    sympy_string = "(X_1 + X_0) + (X_1 + X_0)"
+    expected_console_string = "X_1 + X_0 + X_1 + X_0"
+    command_array, constants = \
+        sympy_string_to_command_array_and_constants(sympy_string)
+    assert get_formatted_string("console", command_array, constants) == \
+           expected_console_string
+    assert len(command_array) == 4
 
 
 @pytest.mark.parametrize("invalid_string", ["zoo", "I", "oo", "nan"])

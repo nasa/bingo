@@ -213,21 +213,28 @@ def test_postfix_to_command_array_and_constants_invalid_postfix(postfix_str,
 
 def test_sympy_string_to_infix_tokens_basic():
     sympy_string = "-1.0 + X_0 + 2.0"
-    assert sympy_string_to_infix_tokens(sympy_string) == sympy_string.split(" ")
+    assert sympy_string_to_infix_tokens(sympy_string) == sympy_string.lower().split(" ")
 
 
 def test_sympy_string_to_infix_tokens_negative_unary():
     sympy_string = "-X_0 - -sin(-X_0) - -1.0"
-    expected_string = "-1 * X_0 - -1 * sin ( -1 * X_0 ) - -1.0"
+    expected_string = "-1 * x_0 - -1 * sin ( -1 * x_0 ) - -1.0"
+    assert sympy_string_to_infix_tokens(sympy_string) == \
+           expected_string.split(" ")
+
+
+def test_sympy_string_to_infix_tokens_case_insensitive():
+    sympy_string = "X_0 + SiN(x_0) + aBS(1.0) + C_0 + x_0 + c_0"
+    expected_string = "x_0 + sin ( x_0 ) + abs ( 1.0 ) + c_0 + x_0 + c_0"
     assert sympy_string_to_infix_tokens(sympy_string) == \
            expected_string.split(" ")
 
 
 def test_sympy_string_to_infix_tokens_complex():
     sympy_string = "X_4**(X_5 + 3) + 2.0*log(X_0 + X_1) + cosh(X_2 - X_3)/3 ^ 5"
-    expected_infix_tokens = "X_4 ^ ( X_5 + 3 ) " \
-                            "+ 2.0 * log ( X_0 + X_1 ) " \
-                            "+ cosh ( X_2 - X_3 ) / 3 ^ 5".split(" ")
+    expected_infix_tokens = "x_4 ^ ( x_5 + 3 ) " \
+                            "+ 2.0 * log ( x_0 + x_1 ) " \
+                            "+ cosh ( x_2 - x_3 ) / 3 ^ 5".split(" ")
     assert sympy_string_to_infix_tokens(sympy_string) == expected_infix_tokens
 
 

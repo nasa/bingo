@@ -8,11 +8,12 @@ operators = {"+", "-", "*", "/", "^"}
 functions = {"sin", "cos", "sinh", "cosh", "exp", "log", "abs", "sqrt"}
 precedence = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
 operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
-                "/": DIVISION, "^": POWER, "X": VARIABLE, "C": CONSTANT,
+                "/": DIVISION, "^": POWER, "X": VARIABLE, "x": VARIABLE,
+                "C": CONSTANT, "c": CONSTANT,
                 "sin": SIN, "cos": COS, "sinh": SINH, "cosh": COSH,
                 "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
                 "sqrt": SQRT}
-var_or_const_pattern = re.compile(r"([XC])_(\d+)")  # matches X_### and C_###
+var_or_const_pattern = re.compile(r"([XC])_(\d+)", re.IGNORECASE)  # matches X_### and C_### (case-insensitive)
 int_pattern = re.compile(r"\d+")  # matches ###
 non_unary_op_pattern = re.compile(r"([*/^()])")  # matches *, /, ^, (, or )
 negative_pattern = re.compile(r"-([^\s\d])")  # matches -N where N = non-number
@@ -153,8 +154,7 @@ def sympy_string_to_infix_tokens(sympy_string):
     tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
     # add extra spaces around non-unary operators then split on those spaces
     # to get the string tokens
-    tokens = [x for x in tokens if x != ""]
-    # for if there was a trailing space in sympy_string after sub() call
+    tokens = [x.lower() for x in tokens if x != ""]
     return tokens
 
 

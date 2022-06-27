@@ -122,6 +122,9 @@ class AGraph(Equation):
         if use_simplification and not USING_PYTHON_SIMPLIFICATION:
             force_use_of_python_simplification()
 
+        self._init_command_array_and_const(sympy_representation)
+
+    def _init_command_array_and_const(self, sympy_representation):
         if sympy_representation is None:
             self._command_array = np.empty([0, 3], dtype=int)
 
@@ -131,17 +134,14 @@ class AGraph(Equation):
             self._needs_opt = False
             self._modified = False
         elif isinstance(sympy_representation, (Expr, str)):
-            if isinstance(sympy_representation, Expr):
-                sympy_str = str(sympy_representation)
-            else:  # is str instance
-                # not using sympy_representation directly
-                # because it might not be in simplified form
-                sympy_str = str(sympify(sympy_representation))
             command_array, constants = \
-                sympy_string_to_command_array_and_constants(sympy_str)
+                sympy_string_to_command_array_and_constants(str(sympy_representation))
+
             self.set_local_optimization_params(constants)
+            if len(constants) > 0:
+                self._needs_opt = True
+
             self.command_array = command_array
-            # TODO decide on setting _needs_opt or not
         else:
             raise TypeError("sympy_representation is not a valid format")
 

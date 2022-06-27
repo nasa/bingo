@@ -84,10 +84,17 @@ def test_agraph_sympy_unsimplified_str_constructor(engine, agraph_implementation
         pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
 
     unsimplified_string = "1.0 + X_0 + 2.0"
-    sympy_expr = sympy.sympify(unsimplified_string)
-    sympy_str = str(sympy_expr)
     agraph = agraph_implementation(sympy_representation=unsimplified_string)
-    assert agraph.get_formatted_string("console") == sympy_str
+    assert agraph.get_formatted_string("console") == unsimplified_string
+
+
+def test_agraph_sympy_constructor_fixes_formatting(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Sympy to agraph not yet implemented in c++")
+
+    bad_format_string = "(X_0**2)(X_0)"
+    agraph = agraph_implementation(sympy_representation=bad_format_string)
+    assert agraph.get_formatted_string("console") == "((X_0)^(2))(X_0)"
 
 
 def test_agraph_sympy_constructor_invalid(engine, agraph_implementation):

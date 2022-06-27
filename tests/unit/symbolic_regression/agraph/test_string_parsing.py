@@ -222,6 +222,20 @@ def test_sympy_string_to_infix_tokens_negative_unary():
            expected_string.split(" ")
 
 
+def test_sympy_string_to_infix_tokens_paren_mult():
+    input_string = "(X_0)(X_1)"
+    expected_string = "( x_0 ) * ( x_1 )"
+    assert sympy_string_to_infix_tokens(input_string) == \
+           expected_string.split(" ")
+
+
+def test_sympy_string_to_infix_tokens_asterisk_power():
+    input_string = "X_0**2"
+    expected_string = "x_0 ^ 2"
+    assert sympy_string_to_infix_tokens(input_string) == \
+           expected_string.split(" ")
+
+
 def test_sympy_string_to_infix_tokens_case_insensitive():
     sympy_string = "X_0 + SiN(x_0) + aBS(1.0) + C_0 + x_0 + c_0"
     expected_string = "x_0 + sin ( x_0 ) + abs ( 1.0 ) + c_0 + x_0 + c_0"

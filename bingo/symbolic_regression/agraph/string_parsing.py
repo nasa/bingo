@@ -127,48 +127,48 @@ def postfix_to_command_array_and_constants(postfix_tokens):
     return np.array(command_array, dtype=int), constants
 
 
-def sympy_string_to_infix_tokens(sympy_string):
-    """Converts a sympy-formatted string to infix_tokens
+def eq_string_to_infix_tokens(eq_string):
+    """Converts an equation string to infix_tokens
 
     Parameters
     ----------
-    sympy_string : str
-        A string corresponding to a sympy expression
+    eq_string : str
+        A string corresponding to an equation
 
     Returns
     -------
     infix_tokens : list of str
         A list of string tokens that correspond
-        to the expression given by sympy_string
+        to the expression given by eq_string
     """
-    if any(bad_token in sympy_string for bad_token in ["zoo", "I", "oo",
+    if any(bad_token in eq_string for bad_token in ["zoo", "I", "oo",
                                                        "nan"]):
         raise RuntimeError("Cannot parse inf/complex")
-    sympy_string = sympy_string.replace(")(", ")*(").replace("**", "^")
+    eq_string = eq_string.replace(")(", ")*(").replace("**", "^")
 
-    sympy_string = negative_pattern.sub(r"-1 * \1", sympy_string)
+    eq_string = negative_pattern.sub(r"-1 * \1", eq_string)
     # replace -token with -1.0 * token if token != a number
 
-    tokens = non_unary_op_pattern.sub(r" \1 ", sympy_string).split(" ")
+    tokens = non_unary_op_pattern.sub(r" \1 ", eq_string).split(" ")
     tokens = [x.lower() for x in tokens if x != ""]
     return tokens
 
 
-def sympy_string_to_command_array_and_constants(sympy_string):
-    """Converts a sympy-formatted string to its corresponding command
+def eq_string_to_command_array_and_constants(eq_string):
+    """Converts an equation string to its corresponding command
     array and list of constants
 
     Parameters
     ----------
-    sympy_string : str
-        A string corresponding to a sympy expression
+    eq_string : str
+        A string corresponding to an equation
 
     Returns
     -------
     command_array, constants : Nx3 numpy array of int, list of numeric
         A command array and list of constants
-        corresponding to the expression given by sympy_string
+        corresponding to the expression given by eq_string
     """
-    infix_tokens = sympy_string_to_infix_tokens(sympy_string)
+    infix_tokens = eq_string_to_infix_tokens(eq_string)
     postfix_tokens = infix_to_postfix(infix_tokens)
     return postfix_to_command_array_and_constants(postfix_tokens)

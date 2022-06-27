@@ -17,5 +17,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r doc_requirements.txt
       - name: Build docs
-        run: |
+          sphinx-apidoc -f -o docs/source/_apidocs bingo
           sphinx-build -b html docs/source/ docs/build/html

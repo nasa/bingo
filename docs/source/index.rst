@@ -11,6 +11,7 @@ symbolic regression via genetic programming.
 
     _apidocs/modules
     installation
+    get_started
 
 .. panels::
     :card: + intro-card text-center bg-white
@@ -23,15 +24,15 @@ symbolic regression via genetic programming.
     :img-top: _static/download_icon.svg
     :img-top-cls: w-25 align-center my-4
 
-    Installation Guide
+    Get Started
     ^^^
 
-    Install Bingo and perform checks to make sure it is working.
+    Install Bingo and do a quick example.
 
     +++
 
-    .. link-button:: installation.html
-        :text: To the Installation Guide
+    .. link-button:: get_started.html
+        :text: To the Get Started Guide
         :classes: btn-block btn-primary
 
     ---

@@ -14,19 +14,10 @@ For those looking to develop their own features in Bingo.
 
 First clone the repo and move into the directory:
 
-.. tabbed:: HTTPS
+.. code-block:: console
 
-    .. code-block:: console
-
-        git clone --recurse-submodules https://github.com/nasa/bingo.git
-        cd bingo
-
-.. tabbed:: SSH
-
-    .. code-block:: console
-
-        git clone --recurse-submodules git@github.com:nasa/bingo.git
-        cd bingo
+    git clone --recurse-submodules https://github.com/nasa/bingo.git
+    cd bingo
 
 Then make sure you have the requirements necessary to use Bingo:
 

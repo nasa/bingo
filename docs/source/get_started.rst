@@ -6,6 +6,7 @@ to get Bingo setup.
 
 ..
     TODO: GPSR explanation should probably be a high-level story, not in the get started page
+    TODO: agraph explanation probably necessary to understand the GPSR pictures
 
 GPSR
 ----
@@ -22,14 +23,28 @@ stages: variation, evaluation, and selection. It continues to do this until
 a good enough equation is found or another criteria is met (see the picture
 below).
 
+.. figure:: _static/gpsr.svg
+    :width: 630
+
 Variation
 ^^^^^^^^^
 In order to get better individuals, we have to change those that are already in
 the population. This is usually done through two possible operators: mutation
-and crossover. Mutation takes an equation and slightly changes it (see the
-picture below). While crossover takes two equations and mixes their parts
+and crossover. Mutation takes an equation and slightly changes it.
+
+.. figure:: _static/mutation.svg
+    :width: 630
+
+    Mutation of an equation.
+
+Crossover takes two equations and mixes their parts
 together. Some of the individuals from our population undergo one, both, or
 neither of these operators to form a child population.
+
+.. figure:: _static/crossover.svg
+    :width: 630
+
+    Crossover between two equations.
 
 Evaluation
 ^^^^^^^^^^
@@ -45,6 +60,11 @@ each individual, so we can decide which ones should move onto the next
 generation. Selection is the process of deciding which individuals will
 continue in the evolutionary process. This is usually done by looking at
 individual's fitness and mixing in some randomness or other factors.
+
+.. figure:: _static/selection.svg
+    :width: 630
+
+    Selection process on parents + children (individuals from variation).
 
 Finishing
 ^^^^^^^^^

@@ -74,7 +74,7 @@ and get the final population. We can then select some individual from that
 population (or the entire run) to use to do our task.
 
 Using the Scikit-Learn Wrapper
--------------------------
+------------------------------
 
 It is recommended to use the scikit-learn wrapper: ``SymbolicRegressor`` when
 first learning Bingo. Let's setup a test case to show how it works. You can

@@ -11,6 +11,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+os.environ["PYTHONPATH"] = os.path.abspath('../..')
+
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
@@ -37,7 +39,8 @@ extensions = [
     'sphinx_panels',
     'sphinx.ext.napoleon',
     'sphinx_copybutton',
-    'nbsphinx'
+    'nbsphinx',
+    'nbsphinx_link'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

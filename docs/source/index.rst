@@ -11,6 +11,7 @@ symbolic regression via genetic programming.
 
     installation
     get_started
+    low_level
 
 .. panels::
     :card: + intro-card text-center bg-white

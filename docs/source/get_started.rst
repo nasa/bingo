@@ -73,12 +73,12 @@ number of generations or we found a good enough individual), we stop evolving
 and get the final population. We can then select some individual from that
 population (or the entire run) to use to do our task.
 
-Using the SkLearn Wrapper
+Using the Scikit-Learn Wrapper
 -------------------------
 
 It is recommended to use the scikit-learn wrapper: ``SymbolicRegressor`` when
 first learning Bingo. Let's setup a test case to show how it works. You can
-learn more about the sklearn wrapper in the `high-level guide <high_level.html>`_.
+learn more about the scikit-learn wrapper in the `high-level guide <high_level.html>`_.
 
 Creating training data
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -87,8 +87,21 @@ Let's make some dummy data to train on.
 Input
 """""
 Bingo expects that the input is formatted with each variable as a column and
-each datapoint as a row. So, if we had 2 variables and 10 samples,
-we would have an array with 10 rows and 2 columns:
+each datapoint as a row.
+
+Layout of inputs:
+
+=============== ============== ============== ============== ==============
+:math:`i`       :math:`X_0`    :math:`X_1`    :math:`\ldots` :math:`X_n`
+=============== ============== ============== ============== ==============
+0               0.1            1.2            :math:`\ldots` 1.2
+1               0.1            2.3            :math:`\ldots` 3.5
+2               0.1            1.2            :math:`\ldots` 6.0
+:math:`\vdots`  :math:`\vdots` :math:`\vdots` :math:`\vdots` :math:`\vdots`
+=============== ============== ============== ============== ==============
+
+So, if we had 2 variables and 10 samples, we would have an array with
+10 rows and 2 columns:
 
 .. code-block:: python
 
@@ -100,7 +113,17 @@ we would have an array with 10 rows and 2 columns:
 Output
 """"""
 Bingo expects output data to be formatted as a
-of the same number of samples as the input. Using the previous setup, let's
+of the same number of samples as the input.
+
+Layout of output:
+
+=========== =========== =========== ============== ===========
+:math:`i`   :math:`0`   :math:`1`   :math:`\ldots` :math:`n`
+=========== =========== =========== ============== ===========
+:math:`y_i` 0.0         -1.1        :math:`\ldots` 5.0
+=========== =========== =========== ============== ===========
+
+Using the previous setup, let's
 create output data by using the equation :math:`5.0 * X_0 + X_1`:
 
 .. code-block:: python

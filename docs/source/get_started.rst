@@ -100,6 +100,10 @@ Layout of inputs:
 :math:`\vdots`  :math:`\vdots` :math:`\vdots` :math:`\vdots` :math:`\vdots`
 =============== ============== ============== ============== ==============
 
+.. note::
+    Bingo starts counting at 0, so :math:`X_0` is the first variable,
+    :math:`X_1` is the second, and so on.
+
 So, if we had 2 variables and 10 samples, we would have an array with
 10 rows and 2 columns:
 
@@ -129,10 +133,6 @@ create output data by using the equation :math:`5.0 * X_0 + X_1`:
 .. code-block:: python
 
     y = 5.0 * X_0 + X_1
-
-.. note::
-    Bingo starts counting at 0, so :math:`X_0` is the first variable,
-    :math:`X_1` is the second, and so on.
 
 Training
 """"""""

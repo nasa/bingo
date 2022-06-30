@@ -2,3 +2,4 @@ sphinx
 pydata-sphinx-theme
 sphinx-panels
 sphinx-copybutton
+nbsphinx

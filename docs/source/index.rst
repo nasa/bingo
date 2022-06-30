@@ -9,7 +9,6 @@ symbolic regression via genetic programming.
     :caption: Contents:
     :hidden:
 
-    _apidocs/modules
     installation
     get_started
 
@@ -64,7 +63,7 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: _apidocs/bingo.html
+    .. link-button:: low_level.html
         :text: To the Low-Level User Guide
         :classes: btn-block btn-primary
     ---

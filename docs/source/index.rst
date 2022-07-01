@@ -5,7 +5,7 @@ Bingo is a flexible Python library for
 symbolic regression via genetic programming.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Contents:
     :hidden:
 
@@ -13,6 +13,7 @@ symbolic regression via genetic programming.
     get_started
     high_level
     low_level
+    API Docs <_apidocs/modules>
 
 .. panels::
     :card: + intro-card text-center bg-white

@@ -5,6 +5,6 @@ Low-Level User Guide
     :maxdepth: 1
     :caption: Tutorials:
 
-    _notebook_links/tutorial_1
-    _notebook_links/tutorial_2
-    _notebook_links/tutorial_4
+    _low_level/tutorial_1
+    _low_level/tutorial_2
+    _low_level/tutorial_4

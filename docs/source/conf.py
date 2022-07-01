@@ -49,7 +49,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['build', '**.ipynb_checkpoints']
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -65,6 +65,7 @@ html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
 
 html_logo = '_static/transparent_logo.png'
+# html_favicon = '_static/transparent_logo.png'
 
 html_context = {
     'default_mode': 'light'
@@ -84,3 +85,7 @@ html_theme_options = {
 }
 
 autosummary_generate = True
+
+# prevent sphinx-panels from loading boostrap since pydata-sphinx-theme
+# will do it
+panels_add_bootstrap_css = False

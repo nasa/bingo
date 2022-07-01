@@ -11,6 +11,7 @@ symbolic regression via genetic programming.
 
     installation
     get_started
+    high_level
     low_level
 
 .. panels::
@@ -47,7 +48,7 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: _apidocs/bingo.html
+    .. link-button:: high_level.html
         :text: To the High-Level User Guide
         :classes: btn-block btn-primary
 
@@ -80,6 +81,6 @@ symbolic regression via genetic programming.
 
     +++
 
-    .. link-button:: _apidocs/bingo.html
+    .. link-button:: _apidocs/modules.html
         :text: To the API Docs
         :classes: btn-block btn-primary

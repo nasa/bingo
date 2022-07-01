@@ -79,7 +79,7 @@ html_theme_options = {
             'type': 'fontawesome'
         }
     ],
-    'navbar_end' : ['navbar-icon-links'],
+    'navbar_end': ['navbar-icon-links'],
     'footer_items': ['copyright', 'sphinx-version']
 }
 

@@ -99,7 +99,10 @@ class FitnessPredictorIsland(Island):
         self._full_data_size = len(self._full_training_data)
 
         self._predictor_population_size = predictor_population_size
-        self._predictor_size = int(predictor_size_ratio * self._full_data_size)
+        self._predictor_size = max((
+            int(predictor_size_ratio * self._full_data_size),
+            min((10, self._full_data_size))
+        ))
         self._predictor_update_frequency = predictor_update_frequency
         # pylint: disable=C0103
         self._target_predictor_computation_ratio = predictor_computation_ratio

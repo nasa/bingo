@@ -1,0 +1,4 @@
+[darglint]
+docstring_style=numpy
+ignore_regex=^_(.*)  # ignore private functions
+ignore=DAR401

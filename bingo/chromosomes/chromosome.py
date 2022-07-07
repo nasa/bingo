@@ -17,7 +17,9 @@ class Chromosome(metaclass=ABCMeta):
 
     Parameters
     ----------
-    fitness :
+    genetic_age : int
+        age of the oldest component of the genetic material in the individual
+    fitness : numeric
         starting value of fitness
     genetic_age : int
         age of the oldest component of the genetic material in the individual
@@ -26,7 +28,7 @@ class Chromosome(metaclass=ABCMeta):
 
     Attributes
     ----------
-    fitness
+    fitness : numeric
     genetic_age : int
         age of the oldest component of the genetic material in the individual
     fit_set : bool
@@ -88,6 +90,11 @@ class Chromosome(metaclass=ABCMeta):
     @abstractmethod
     def distance(self, chromosome):
         """Distance from self to chromosome
+
+        Parameters
+        ----------
+        chromosome : Chromosome
+            The chromosome to compare to.
 
         Returns
         -------

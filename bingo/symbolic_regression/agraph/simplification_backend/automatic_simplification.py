@@ -10,7 +10,7 @@ book [1].
 from ..operator_definitions import CONSTANT, INTEGER, VARIABLE, POWER, \
                                    MULTIPLICATION, ADDITION, SUBTRACTION, \
                                    DIVISION, SIN, COS, LOGARITHM, EXPONENTIAL, \
-                                   ABS, SQRT, SAFE_POWER
+                                   ABS, SQRT, SAFE_POWER, SINH, COSH
 from .expression import Expression
 
 
@@ -319,4 +319,6 @@ SIMPLIFICATION_FUNCTIONS = {
     ABS: no_simplification,
     SQRT: no_simplification,
     SAFE_POWER: simplify_power,
+    SINH: no_simplification,
+    COSH: no_simplification
 }

@@ -228,7 +228,7 @@ class AGraph(Equation):
         return self._needs_opt
 
     def get_number_local_optimization_params(self):
-        """number of parameters for local optimization
+        """Number of parameters for local optimization
 
         Count constants and set up for optimization
 
@@ -255,7 +255,7 @@ class AGraph(Equation):
         self._needs_opt = False
 
     def get_utilized_commands(self):
-        """"Find which commands are utilized.
+        """Find which commands are utilized.
 
         Find the commands in the command array of the `AGraph` upon which the
         last command relies. This is inclusive of the last command.

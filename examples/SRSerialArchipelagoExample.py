@@ -73,4 +73,7 @@ def main():
 
 
 if __name__ == '__main__':
+    import random
+    random.seed(7)
+    np.random.seed(7)
     main()

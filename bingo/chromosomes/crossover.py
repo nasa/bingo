@@ -9,7 +9,7 @@ from abc import ABCMeta, abstractmethod
 class Crossover(metaclass=ABCMeta):
     """Crossover for chromosomes.
 
-    An abstract base class for the crossovor between two genetic individuals
+    An abstract base class for the crossover between two genetic individuals
     in bingo.
     """
     @abstractmethod
@@ -18,14 +18,14 @@ class Crossover(metaclass=ABCMeta):
 
         Parameters
         ----------
-        parent_1 : GeneticIndividual
+        parent_1 : Chromosome
                    The first parent individual
-        parent_2 : GeneticIndividual
+        parent_2 : Chromosome
                    The second parent individual
 
         Returns
         -------
-        tuple(GeneticIndividual, GeneticIndividual) :
+        tuple(Chromosome, Chromosome) :
             The two children from the crossover.
         """
         raise NotImplementedError

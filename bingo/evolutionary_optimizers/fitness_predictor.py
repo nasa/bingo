@@ -3,16 +3,16 @@ This module contains the utilities for fitness predictors.
 
 Fitness predictors in bingo are chromosomes that encode information necessary
 to make a prediction of fitness for other chromosomes types.  The type of
-fitness predicters used here are subset fitness predictors, which make a
+fitness predictors used here are subset fitness predictors, which make a
 prediction of fitness by using only a subset of the training data used in
 preforming a full/true fitness calculation.  Subset fitness predictors use the
-MultilpleValueChromosome.
+MultipleValueChromosome.
 
 Check out the works of the works of Schmidt and Lipson for more details:
 e.g., "Coevolution of Fitness Predictors" (2008) .
 """
 import logging
-from copy import copy
+from copy import deepcopy
 import numpy as np
 from ..util.argument_validation import argument_validation
 from ..evaluation.fitness_function import FitnessFunction
@@ -45,7 +45,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         super().__init__(training_data)
         self._next_trainer_to_update = 0
         self.point_eval_count = 0
-        self._fitness_function = copy(full_fitness_function)
+        self._fitness_function = deepcopy(full_fitness_function)
         self._trainers, self._true_fitness_for_trainers = \
             self._make_initial_trainer_population(potential_trainers,
                                                   num_trainers)
@@ -126,7 +126,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
         Returns
         -------
-         :
+        fitness : numeric
             true (full) fitness of trainer
         """
         self._fitness_function.training_data = self.training_data
@@ -163,10 +163,17 @@ class FitnessPredictorIndexGenerator:
     Parameters
     ----------
     data_size : int
-                maximum value of randomly generated int (non inclusive)
+                maximum value of randomly generated int (exclusive)
     """
     def __init__(self, data_size):
         self._max = data_size
 
     def __call__(self):
+        """Generates a random int between 0 and `data_size` (exclusive)
+
+        Returns
+        -------
+        int
+            random int between 0 and `data_size` (exclusive)
+        """
         return np.random.randint(self._max)

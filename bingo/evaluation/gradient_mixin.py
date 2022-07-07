@@ -26,7 +26,7 @@ class GradientMixin(metaclass=ABCMeta):
 
         Parameters
         ----------
-        individual : chromosomes
+        individual : Chromosome
             individual for which the fitness and gradient will be calculated for
 
         Returns
@@ -97,16 +97,16 @@ class VectorGradientMixin(GradientMixin):
 
     @abstractmethod
     def get_fitness_vector_and_jacobian(self, individual):
-        """Returns the vectorized fitness of this individual and
+        r"""Returns the vectorized fitness of this individual and
         the jacobian of this vector fitness function with
         respect to the individual's constants
 
-        jacobian = [[:math:`df1/dc1`, :math:`df1/dc2`, ...],
-                    [:math:`df2/dc1`, :math:`df2/dc2`, ...],
+        jacobian = [[:math:`df_1/dc_1`, :math:`df_1/dc_2`, ...],
+                    [:math:`df_2/dc_1`, :math:`df_2/dc_2`, ...],
                     ...]
-            where :math:`f` # is the fitness function corresponding with the
-            #th fitness vector entry and :math:`c` # is the corresponding
-            constant of the individual
+        where :math:`f_\#` is the fitness function corresponding with the
+        #th fitness vector entry and :math:`c_\#` is the corresponding
+        constant of the individual
 
         Parameters
         ----------

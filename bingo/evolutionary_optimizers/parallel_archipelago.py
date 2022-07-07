@@ -1,4 +1,4 @@
-"""The parallel implemenation of the Archipelago
+"""The parallel implementation of the Archipelago
 
 This module defines the Archipelago data structure that runs in parallel on
 multiple processors.
@@ -74,7 +74,7 @@ class ParallelArchipelago(Archipelago):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual in the archipelago
         """
         best_on_proc = self.island.get_best_fitness()

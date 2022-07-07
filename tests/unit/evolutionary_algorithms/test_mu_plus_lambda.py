@@ -31,12 +31,14 @@ def test_all_phases_occur_in_correct_order(mocker, target_pop_size):
     new_pop = evo_alg.generational_step(dummy_population)
 
     mocked_variation.assert_called_once()
-    mocked_evaluation.assert_called_once()
+    assert mocked_evaluation.call_count == 2
     mocked_selection.assert_called_once()
 
     assert mocked_variation.call_args[0][0] == dummy_population
-    assert mocked_evaluation.call_args[0][0] == \
-           dummy_population + dummy_offspring
+    assert mocked_evaluation.call_args_list[0][0][0] == \
+           dummy_population
+    assert mocked_evaluation.call_args_list[1][0][0] == \
+           dummy_offspring
     assert mocked_selection.call_args[0][0] == \
            dummy_population + dummy_offspring
     assert new_pop == dummy_next_gen

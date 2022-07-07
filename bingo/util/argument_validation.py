@@ -125,7 +125,7 @@ class FunctionArgChecker:
         Parameters
         ----------
         arg_name : str
-            name of argument to be chekced
+            name of argument to be checked
         checks : dict {str: any}
             dictionary defining checks to perform on argument. The dictionary
             is of the form: {type_of_check: check_value, ...}

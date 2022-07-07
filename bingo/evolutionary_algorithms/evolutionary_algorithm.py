@@ -58,7 +58,8 @@ class EvolutionaryAlgorithm:
         """
         population_size = len(population)
         offspring = self.variation(population, population_size)
-        self.evaluation(offspring + population)
+        self.evaluation(population)  
+        self.evaluation(offspring)
         next_generation = self.selection(offspring, population_size)
         self.update_diagnostics(population, offspring)
         return next_generation

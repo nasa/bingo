@@ -12,7 +12,6 @@ from ..util.argument_validation import argument_validation
 
 
 class VarOr(Variation):
-
     """variation where either crossover, mutation, or
     replication may occur
 

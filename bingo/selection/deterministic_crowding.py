@@ -16,7 +16,7 @@ class DeterministicCrowding(Selection):
 
         Parameters
         ----------
-        population : list of chromosomes
+        population : list of Chromosome
             The population on which to perform selection. This population
             includes both the parent and child populations, with the parents in
             the first half and the children in the latter half
@@ -25,7 +25,7 @@ class DeterministicCrowding(Selection):
 
         Returns
         -------
-        population : list of chromosomes
+        population : list of Chromosome
             The newly selected generation of chromosomes
         """
         if (len(population) % 2) > 0 or (target_population_size % 2) > 0:

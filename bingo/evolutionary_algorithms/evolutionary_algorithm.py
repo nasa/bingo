@@ -58,8 +58,7 @@ class EvolutionaryAlgorithm:
         """
         population_size = len(population)
         offspring = self.variation(population, population_size)
-        self.evaluation(population)  # TODO (David Randall) why do we split up the evaluation
-                                     #   it doesn't seem to apply more parallelization imo
+        self.evaluation(population)  
         self.evaluation(offspring)
         next_generation = self.selection(offspring, population_size)
         self.update_diagnostics(population, offspring)

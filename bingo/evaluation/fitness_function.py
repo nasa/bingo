@@ -123,7 +123,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
         Returns
         -------
-        vector_fitness : list of numeric
+        vector_fitness : array of numeric
             a vector of fitness values for the passed in individual
         """
         raise NotImplementedError

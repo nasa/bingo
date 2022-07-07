@@ -13,7 +13,9 @@ from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredic
 from bingo.evolutionary_optimizers.island import Island
 from bingo.evolutionary_optimizers.parallel_archipelago import ParallelArchipelago
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
-from bingo.local_optimizers.continuous_local_opt import ContinuousLocalOptimization
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.local_opt_fitness \
+    import LocalOptFitnessFunction
 from bingo.stats.hall_of_fame import HallOfFame
 from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
@@ -120,7 +122,9 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def _get_clo(self, X, y, tol):
         training_data = ExplicitTrainingData(X, y)
         fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
-        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
+        
+        optimizer = ScipyOptimizer(fitness, method=self.clo_alg, tol=tol)
+        local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
         return local_opt_fitness
 
     def _force_diversity_in_island(self, island):

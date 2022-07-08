@@ -76,28 +76,6 @@ class Equation(Chromosome, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def get_latex_string(self):
-        """Latex conversion of individual
-
-        Returns
-        -------
-        str
-            equation in latex interpretable form
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_console_string(self):
-        """Simplified string conversion of equation
-
-        Returns
-        -------
-        str
-            compact form of equation
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     def get_complexity(self):
         """Calculate complexity of equation.
 

@@ -93,6 +93,7 @@ class BenchmarkSuite:
         training_results = []
         testing_results = []
         for bench in self:
+            print("Running Benchmark:", bench.name)
             bench_training_results = []
             bench_testing_results = []
             for _ in range(repeats):

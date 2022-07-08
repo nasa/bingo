@@ -4,17 +4,14 @@
 import csv
 import numpy as np
 
-from bingo.symbolic_regression.agraph \
-    import agraph as agraph_module, backend as pyBackend
-from bingocpp.build import bingocpp as cppBackend
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 from bingo.symbolic_regression.implicit_regression \
-    import ImplicitRegression, ImplicitTrainingData, calculate_partials
+    import ImplicitRegression, ImplicitTrainingData, _calculate_partials
 from bingo.symbolic_regression.explicit_regression \
     import ExplicitRegression, ExplicitTrainingData
-from bingocpp.build import bingocpp
+import bingocpp
 
 LOG_WIDTH = 78
 NUM_AGRAPHS_INDVS = 100
@@ -60,7 +57,8 @@ class StatsPrinter:
         print()
 
 
-def generate_random_individuals(num_individuals, stack_size, optimize_constants=False):
+def generate_random_individuals(num_individuals, stack_size,
+                                optimize_constants=False):
     np.random.seed(0)
     generate_agraph = set_up_agraph_generator(stack_size)
 
@@ -78,7 +76,7 @@ def set_up_agraph_generator(stack_size):
                                    terminal_probability=0.1)
     for i in range(2, 13):
         generator.add_operator(i)
-    generate_agraph = AGraphGenerator(stack_size, generator)
+    generate_agraph = AGraphGenerator(stack_size, generator, use_python=True)
     return generate_agraph
 
 
@@ -88,7 +86,7 @@ def generate_indv_list_that_needs_local_optimiziation(generate_agraph,
     indv_list = []
     while count < num_individuals:
         indv = generate_agraph()
-        if (indv.needs_local_optimization()):
+        if indv.needs_local_optimization():
             indv_list.append(indv)
             count += 1
     return indv_list
@@ -107,7 +105,7 @@ def copy_to_cpp(indvs_python):
     for indv in indvs_python:
         agraph_cpp = bingocpp.AGraph()
         agraph_cpp.genetic_age = indv.genetic_age
-        agraph_cpp.fitness = indv.fitness if indv.fitness != None else 1e9
+        agraph_cpp.fitness = indv.fitness if indv.fitness is not None else 1e9
         agraph_cpp.fit_set = indv.fit_set
         agraph_cpp.set_local_optimization_params(indv.constants)
         agraph_cpp.command_array = indv.command_array
@@ -126,7 +124,7 @@ def write_stacks(test_agraph_list):
         stack_file_writer = csv.writer(stack_file, delimiter=',')
         for agraph in test_agraph_list:
             stack = []
-            for row in agraph._command_array:
+            for row in agraph.command_array:
                 for i in np.nditer(row):
                     stack.append(i)
             stack_file_writer.writerow(stack)
@@ -138,7 +136,7 @@ def write_constants(test_agraph_list):
     with open(filename, mode='w+') as const_file:
         const_file_writer = csv.writer(const_file, delimiter=',')
         for agraph in test_agraph_list:
-            consts = agraph._constants
+            consts = agraph.constants
             num_consts = len(consts)
             consts = np.insert(consts, 0, num_consts, axis=0)
             const_file_writer.writerow(consts)
@@ -155,7 +153,7 @@ def write_x_vals(test_x_vals):
 
 
 def initialize_implicit_data(initial_x):
-    x, dx_dt, _ = calculate_partials(initial_x)
+    x, dx_dt, _ = _calculate_partials(initial_x)
     return x, dx_dt
 
 
@@ -165,8 +163,9 @@ def explicit_regression():
 
 
 def explicit_regression_cpp():
-    training_data = cppBackend.ExplicitTrainingData(TEST_X_PARTIALS, TEST_Y_ZEROS)
-    return cppBackend.ExplicitRegression(training_data)
+    training_data = bingocpp.ExplicitTrainingData(TEST_X_PARTIALS,
+                                                  TEST_Y_ZEROS)
+    return bingocpp.ExplicitRegression(training_data)
 
 
 def implicit_regression():
@@ -175,8 +174,9 @@ def implicit_regression():
 
 
 def implicit_regression_cpp():
-    training_data = cppBackend.ImplicitTrainingData(TEST_X_PARTIALS, TEST_DX_DT)
-    return cppBackend.ImplicitRegression(training_data)
+    training_data = bingocpp.ImplicitTrainingData(TEST_X_PARTIALS,
+                                                  TEST_DX_DT)
+    return bingocpp.ImplicitRegression(training_data)
 
 
 TEST_X = generate_random_x(NUM_X_VALUES)

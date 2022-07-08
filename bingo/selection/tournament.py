@@ -16,7 +16,7 @@ class Tournament(Selection):
     """Tournament selection
 
     This class defines the function for tournament selection in a population.
-    In the tournaments random indivduals from the population are chosen; the
+    In the tournaments random individuals from the population are chosen; the
     most fit individual from that set advances to the next generation.
     Tournaments repeat until the target population size for the next generation
     is met.
@@ -24,7 +24,7 @@ class Tournament(Selection):
     Parameters
     ----------
     tournament_size : int
-                      The size of the tournaments
+        The size of the tournaments
     """
     @argument_validation(tournament_size={">=": 1})
     def __init__(self, tournament_size):
@@ -36,14 +36,14 @@ class Tournament(Selection):
         Parameters
         ----------
         population : list of chromosomes
-                     The population on which to perform selection
+            The population on which to perform selection
         target_population_size : int
-                                 Target size of the population after selection
+            Target size of the population after selection
 
         Returns
         -------
         list of chromosomes :
-            A subset of the input population
+            A subset of the input population (repeats possible)
         """
         next_generation = []
         for _ in range(target_population_size):

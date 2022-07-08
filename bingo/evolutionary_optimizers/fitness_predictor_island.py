@@ -69,7 +69,7 @@ class FitnessPredictorIsland(Island):
     Attributes
     ----------
     generational_age : int
-        The number of generational steps that have beenexecuted
+        The number of generational steps that have been executed
     population : list of chromosomes
         The population that is evolving
     hall_of_fame: HallOfFame
@@ -99,8 +99,12 @@ class FitnessPredictorIsland(Island):
         self._full_data_size = len(self._full_training_data)
 
         self._predictor_population_size = predictor_population_size
-        self._predictor_size = int(predictor_size_ratio * self._full_data_size)
+        self._predictor_size = max((
+            int(predictor_size_ratio * self._full_data_size),
+            min((10, self._full_data_size))
+        ))
         self._predictor_update_frequency = predictor_update_frequency
+        # pylint: disable=C0103
         self._target_predictor_computation_ratio = predictor_computation_ratio
 
         self._trainer_population_size = trainer_population_size
@@ -114,6 +118,7 @@ class FitnessPredictorIsland(Island):
 
     @property
     def hall_of_fame(self):
+        """The hall of fame object which is updated during evolution"""
         return self._hof_w_true_fitness
 
     @hall_of_fame.setter
@@ -122,7 +127,7 @@ class FitnessPredictorIsland(Island):
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
 
     def _execute_generational_step(self):
-        LOGGER.debug("I> " + str(self.generational_age + 1))
+        LOGGER.debug("I> %d", self.generational_age + 1)
         super()._execute_generational_step()
 
         self._step_predictor_island_to_maintain_ratio()
@@ -159,15 +164,14 @@ class FitnessPredictorIsland(Island):
     def _step_predictor_island_to_maintain_ratio(self):
         while (self._get_predictor_computation_ratio()
                < self._target_predictor_computation_ratio):
-            LOGGER.debug("P> " +
-                         str(self._predictor_island.generational_age + 1))
+            LOGGER.debug("P> %d", self._predictor_island.generational_age + 1)
             self._predictor_island.evolve(1, suppress_logging=True)
 
     def _update_predictor_if_needed(self):
         if self.generational_age % self._predictor_update_frequency == 0:
             LOGGER.debug("Updating fitness predictor")
             self._update_to_use_best_fitness_predictor()
-            self._reset_fitness(self.population)
+            self.reset_fitness(self.population)
             if self._hof_w_predicted_fitness is not None:
                 self._hof_w_predicted_fitness.clear()
             self.evaluate_population()
@@ -176,7 +180,7 @@ class FitnessPredictorIsland(Island):
         if self.generational_age % self._trainer_update_frequency == 0:
             LOGGER.debug("Updating trainer")
             self._add_new_trainer()
-            self._reset_fitness(self._predictor_island.population)
+            self.reset_fitness(self._predictor_island.population)
             self._predictor_island.evaluate_population()
 
     def _update_to_use_best_fitness_predictor(self):
@@ -217,11 +221,6 @@ class FitnessPredictorIsland(Island):
                          * self._predictor_size
         return predictor_expense / (predictor_expense + island_expense)
 
-    @staticmethod
-    def _reset_fitness(population):
-        for indv in population:
-            indv.fit_set = False
-
     def _get_potential_hof_members(self):
         self._hof_w_predicted_fitness.update(self.population)
         potential_members = []
@@ -236,7 +235,7 @@ class FitnessPredictorIsland(Island):
     def get_best_individual(self):
         """Finds the individual with the lowest fitness in a population.
 
-        This assures  that the fitness is the true ftness value and not the
+        This assures  that the fitness is the true fitness value and not the
         predicted fitness.
 
         Returns

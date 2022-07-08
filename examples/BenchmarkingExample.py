@@ -4,14 +4,14 @@ from bingo.symbolic_regression.benchmarking.benchmark_suite \
     import BenchmarkSuite
 from bingo.symbolic_regression.benchmarking.benchmark_test \
     import BenchmarkTest
-from bingo.symbolic_regression.agraph.component_generator \
-    import ComponentGenerator
-from bingo.symbolic_regression.agraph.generator import AGraphGenerator
-from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
-from bingo.symbolic_regression.agraph.mutation import AGraphMutation
-from bingo.symbolic_regression.explicit_regression import ExplicitRegression
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+from bingo.symbolic_regression import ComponentGenerator, \
+                                      AGraphGenerator, \
+                                      AGraphCrossover, \
+                                      AGraphMutation, \
+                                      ExplicitRegression
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.local_opt_fitness \
+    import LocalOptFitnessFunction
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_algorithms.deterministic_crowding \
@@ -29,11 +29,12 @@ def training_function(training_data, ea_choice):
     agraph_generator = AGraphGenerator(agraph_size=32,
                                        component_generator=component_generator)
 
-    crossover = AGraphCrossover(component_generator)
+    crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)
-    local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
+    optimizer = ScipyOptimizer(fitness, method='lm')
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     POPULATION_SIZE = 64

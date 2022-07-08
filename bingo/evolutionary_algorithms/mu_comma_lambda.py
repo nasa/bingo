@@ -1,8 +1,8 @@
 """The "Mu , Lambda"
 
-This module defines the basis of the "mu comma lambda"
-evolutionary algorithm in bingo analyses. The next generation
-is selected only from the offspring of the parent population.
+This module defines the basis of the "mu comma lambda" evolutionary algorithm
+in bingo analyses. The next generation is selected only from the offspring of
+the parent population.
 """
 from .evolutionary_algorithm import EvolutionaryAlgorithm
 from ..variation.var_or import VarOr
@@ -18,28 +18,28 @@ class MuCommaLambda(EvolutionaryAlgorithm):
     evaluation : evaluation
         The evaluation algorithm that sets the fitness on the population.
     selection : selection
-                selection instance to perform selection on a population
+        selection instance to perform selection on a population
     crossover : Crossover
-                The algorithm that performs crossover during variation.
+        The algorithm that performs crossover during variation.
     mutation : Mutation
-               The algorithm that performs mutation during variation.
+        The algorithm that performs mutation during variation.
     crossover_probability : float
-                            Probability that crossover will occur on an
-                            individual.
+        Probability that crossover will occur on an individual.
     mutation_probability : float
-                           Probability that mutation will occur on an
-                           individual.
+        Probability that mutation will occur on an individual.
     number_offspring : int
-                       The number of offspring produced from variation.
+        The number of offspring produced from variation.
 
     Attributes
     ----------
     variation : VarOr
-                VarOr variation to perform variation on a population
+        VarOr variation to perform variation on a population
     evaluation : evaluation
-                 evaluation instance to perform evaluation on a population
+        evaluation instance to perform evaluation on a population
     selection : selection
-                selection instance to perform selection on a population
+        selection instance to perform selection on a population
+    diagnostics : `bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics`
+        Public to the EA diagnostics
     """
     def __init__(self, evaluation, selection, crossover, mutation,
                  crossover_probability, mutation_probability,
@@ -57,7 +57,7 @@ class MuCommaLambda(EvolutionaryAlgorithm):
         Parameters
         ----------
         population : list of chromosomes
-                     The population at the start of the generational step
+            The population at the start of the generational step
 
         Returns
         -------
@@ -66,4 +66,5 @@ class MuCommaLambda(EvolutionaryAlgorithm):
         """
         offspring = self.variation(population, self._number_offspring)
         self.evaluation(offspring)
+        self.update_diagnostics(population, offspring)
         return self.selection(offspring, len(population))

@@ -1,10 +1,10 @@
 """The "Deterministic Crowding" evolutionary algorithm
 
-This module defines the basis of the "deterministic crowding"
-evolutionary algorithm in bingo analyses. The next generation
-is selected by pairing parents with their offspring and
-advancing the most fit of the two.
+This module defines the basis of the "deterministic crowding" evolutionary
+algorithm in bingo analyses. The next generation is selected by pairing parents
+with their offspring and advancing the most fit of the two.
 """
+import numpy as np
 from .evolutionary_algorithm import EvolutionaryAlgorithm
 from ..variation.var_and import VarAnd
 from ..selection.deterministic_crowding import DeterministicCrowding
@@ -31,11 +31,13 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
     Attributes
     ----------
     evaluation : evaluation
-                 evaluation instance to perform evaluation on a population
+        evaluation instance to perform evaluation on a population
     selection : DeterministicCrowding
-                Performs selection on a population via deterministic crowding
+        Performs selection on a population via deterministic crowding
     variation : VarAnd
-                Performs VarAnd variation on a population
+        Performs VarAnd variation on a population
+    diagnostics : `bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics`
+        Public to the EA diagnostics
     """
     def __init__(self, evaluation, crossover, mutation, crossover_probability,
                  mutation_probability):
@@ -51,7 +53,7 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
         Parameters
         ----------
         population : list of chromosomes
-                     The population at the start of the generational step
+            The population at the start of the generational step
 
         Returns
         -------
@@ -59,5 +61,9 @@ class DeterministicCrowdingEA(EvolutionaryAlgorithm):
             The next generation of the population
         """
         offspring = self.variation(population, len(population))
-        self.evaluation(population + offspring)
-        return self.selection(population + offspring, len(population))
+        self.evaluation(population)
+        self.evaluation(offspring)
+        self.update_diagnostics(population, offspring)
+        next_gen = self.selection(population + offspring, len(population))
+        np.random.shuffle(next_gen)
+        return next_gen

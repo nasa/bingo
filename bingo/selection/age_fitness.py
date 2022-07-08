@@ -17,8 +17,8 @@ class AgeFitness(Selection):
     Parameters
     ----------
     selection_size : int
-        The size of the group of individuals to be randomly
-        compared. The size must be an integer greater than 1.
+        The size of the group of individuals to be randomly compared. The size
+        must be an integer greater than 1.
     """
     WORST_CASE_FACTOR = 50
 
@@ -39,8 +39,8 @@ class AgeFitness(Selection):
         population : list of chromosomes
             The population on which to perform selection
         target_population_size : int
-            The size of the new population after selection. It will never be the
-            case that the new population will have a size smaller than the
+            The size of the new population after selection. It will never be
+            the case that the new population will have a size smaller than the
             target population. However, it *is* possible to for the new
             population to be larger than ``target_population_size``.
 
@@ -59,23 +59,23 @@ class AgeFitness(Selection):
             raise ValueError("Target population size should\
                               be less than initial population")
 
-        num_removed = 0
+        n_removed = 0
         start_pop_size = len(population)
         target_removal = start_pop_size - target_population_size
 
         selection_attempts = 0
-        while num_removed < target_removal and \
+        while n_removed < target_removal and \
                 selection_attempts < start_pop_size * self.WORST_CASE_FACTOR:
 
-            inds = self._get_unique_rand_indices(start_pop_size - num_removed)
+            inds = self._get_unique_rand_indices(start_pop_size - n_removed)
             to_remove = self._find_inds_for_removal(inds, population,
-                                                    target_removal - num_removed)
-            self._swap_removals_to_end(population, to_remove, num_removed)
+                                                    target_removal - n_removed)
+            self._swap_removals_to_end(population, to_remove, n_removed)
 
-            num_removed += len(to_remove)
+            n_removed += len(to_remove)
             selection_attempts += 1
 
-        new_pop_size = start_pop_size - num_removed
+        new_pop_size = start_pop_size - n_removed
         return population[:new_pop_size]
 
     def _get_unique_rand_indices(self, max_int):
@@ -95,16 +95,16 @@ class AgeFitness(Selection):
         if self._selection_size == 2:
             return self._streamlined_pair_removal(inds[0], inds[1], population)
 
-        to_be_removed = set()
+        removal_set = set()
         for i, ind_a in enumerate(inds[:-1]):
-            if ind_a not in to_be_removed:
+            if ind_a not in removal_set:
                 for ind_b in inds[i+1:]:
-                    if ind_b not in to_be_removed:
+                    if ind_b not in removal_set:
                         self._update_removal_set(population, ind_a, ind_b,
-                                                 to_be_removed)
-                        if len(to_be_removed) >= num_removals_needed:
-                            return list(to_be_removed)
-        return list(to_be_removed)
+                                                 removal_set)
+                        if len(removal_set) >= num_removals_needed:
+                            return list(removal_set)
+        return list(removal_set)
 
     def _streamlined_pair_removal(self, indv_index_1, indv_index_2,
                                   population):
@@ -113,11 +113,11 @@ class AgeFitness(Selection):
 
         if np.isnan(indv_1.fitness):
             return [indv_index_1]
-        elif np.isnan(indv_2.fitness):
+        if np.isnan(indv_2.fitness):
             return [indv_index_2]
-        elif self._first_not_dominated(indv_1, indv_2):
+        if self._first_not_dominated(indv_1, indv_2):
             return [indv_index_2]
-        elif self._first_not_dominated(indv_2, indv_1):
+        if self._first_not_dominated(indv_2, indv_1):
             return [indv_index_1]
         return []
 
@@ -137,6 +137,13 @@ class AgeFitness(Selection):
 
     @staticmethod
     def _first_not_dominated(first_indv, second_indv):
+        # This code block can be used to force equivalency of bingocpp and
+        # bingo that may otherwise diverge because of truncation or small math
+        # differences.
+        # rel_fitness_diff = (first_indv.fitness - second_indv.fitness) \
+        #                   / (first_indv.fitness + second_indv.fitness)
+        # return not (first_indv.genetic_age > second_indv.genetic_age or
+        #             rel_fitness_diff > 1e-15)
         return not (first_indv.genetic_age > second_indv.genetic_age or
                     first_indv.fitness > second_indv.fitness)
 

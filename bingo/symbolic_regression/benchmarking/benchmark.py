@@ -4,7 +4,7 @@ on common symbolic regression example problems.
 """
 import numpy as np
 
-from ..explicit_regression import ExplicitTrainingData
+from .. import ExplicitTrainingData
 
 
 class Benchmark:
@@ -84,7 +84,7 @@ class AnalyticBenchmark(Benchmark):
         training_x = self._get_x_from_distribution(training_x_distribution)
         test_x = self._get_x_from_distribution(test_x_distribution)
         np.random.seed()
-        
+
         training_y = evaluation_function(training_x).reshape((-1, 1))
         test_y = evaluation_function(test_x).reshape((-1, 1))
 

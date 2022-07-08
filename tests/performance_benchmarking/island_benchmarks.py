@@ -1,4 +1,5 @@
 import timeit
+import unittest.mock as mock
 
 import numpy as np
 
@@ -12,8 +13,9 @@ from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.local_opt_fitness \
+    import LocalOptFitnessFunction
 from benchmark_data import StatsPrinter
 
 POP_SIZE = 128
@@ -46,13 +48,14 @@ def init_island():
     component_generator.add_operator(3)
     component_generator.add_operator(4)
 
-    crossover = AGraphCrossover(component_generator)
+    crossover = AGraphCrossover()
     mutation = AGraphMutation(component_generator)
 
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)
-    local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
+    optimizer = ScipyOptimizer(fitness, method='lm')
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     ea_algorithm = AgeFitnessEA(evaluator, agraph_generator, crossover,

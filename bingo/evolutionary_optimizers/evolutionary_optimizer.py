@@ -18,7 +18,8 @@ LOGGER = logging.getLogger(__name__)
 STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
 
 OptimizeResult = namedtuple('OptimizeResult', ['success', 'status', 'message',
-                                               'ngen', 'fitness', 'time'])
+                                               'ngen', 'fitness', 'time',
+                                               'ea_diagnostics'])
 
 
 class EvolutionaryOptimizer(metaclass=ABCMeta):
@@ -37,11 +38,12 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     ----------
     generational_age: int
         The number of generations the optimizer has been evolved
-    hall_of_fame: HallOfFame (optional)
-        An object containing the best individuals seen in the optimization
-    test_function: FitnessFunction (optional)
-        A function which can judges the fitness of an individual, independent
-        of the FitnessFunction used in evolution
+    hall_of_fame: `HallOfFame`
+        (optional) An object containing the best individuals seen in the
+        optimization
+    test_function: `FitnessFunction`
+        (optional) A function which can judges the fitness of an individual,
+        independent of the `FitnessFunction` used in evolution
     """
     def __init__(self, hall_of_fame=None, test_function=None):
         self.generational_age = 0
@@ -78,7 +80,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         Convergence criteria:
           * a maximum number of generations have been evolved
           * a fitness below an absolute threshold has been achieved
-          * improvement upon best fitness has not happened for a set number of
+          * improvement upon best fitness has not occurred for a set number of
             generations
           * the maximum number of fitness function evaluations has been reached
 
@@ -94,23 +96,24 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             convergence.
         min_generations: int, default 0
             The minimum number of generations the algorithm will run.
-        stagnation_generations: int (optional)
-            The number of generations after which evolution will stop if no
-            improvement is seen.
-        max_fitness_evaluations: int (optional)
-            The maximum number of fitness function evaluations (approx) the
-            optimizer will run.
-        max_time : float (optional)
-            The time limit for the evolution, in seconds.
+        stagnation_generations: int
+            (optional) The number of generations after which evolution will
+            stop if no improvement is seen.
+        max_fitness_evaluations: int
+            (optional) The maximum number of fitness function evaluations
+            (approximately) the optimizer will run.
+        max_time : float
+            (optional) The time limit for the evolution, in seconds.
         checkpoint_base_name: str
-            base file name for checkpoint files
-        num_checkpoints: int (optional)
-            number of recent checkpoints to keep, previous ones are removed
+            (optional) base file name for checkpoint files
+        num_checkpoints: int
+            (optional) number of recent checkpoints to keep, previous ones are
+            removed
 
         Returns
-        --------
-        OptimizeResult :
-            Object containing information about the result of the run
+        -------
+        `OptimizeResult` :
+            Object containing information about the result of the evolution
         """
         start_time = datetime.now()
         self._starting_age = self.generational_age
@@ -235,12 +238,12 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if threshold is None:
             return False
         run_time = (datetime.now() - start_time).total_seconds()
-        print(run_time, threshold)
         return run_time >= threshold
 
     def _make_optim_result(self, status, start_time, aux_info):
         ngen = self.generational_age - self._starting_age
         run_time = (datetime.now() - start_time).total_seconds()
+        ea_diagnostics = self.get_ea_diagnostic_info().summary
         if status == 0:
             message = "Absolute convergence occurred with best fitness < " + \
                       "{}".format(aux_info)
@@ -262,7 +265,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             message = "The maximum time ({}) was exceeded.".format(aux_info)
             success = False
         return OptimizeResult(success, status, message, ngen,
-                              self._best_fitness, run_time)
+                              self._best_fitness, run_time, ea_diagnostics)
 
     def _log_exit(self, result):
         if result.success:
@@ -327,7 +330,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         should be considered for induction into the hall of fame.
 
         Returns
-        ----------
+        -------
         list of chromosomes :
             Potential hall of fame members
         """
@@ -350,7 +353,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual
         """
         raise NotImplementedError
@@ -363,6 +366,17 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         -------
         int :
             number of fitness evaluations
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
+
+        Returns
+        -------
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
         """
         raise NotImplementedError
 

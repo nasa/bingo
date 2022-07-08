@@ -1,4 +1,4 @@
-"""The definition of fitness evalutions for individuals.
+"""The definition of fitness evaluations for individuals.
 
 This module defines the basis of fitness evaluation in bingo evolutionary
 analyses.
@@ -6,6 +6,22 @@ analyses.
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+
+
+# Fitness metric functions, outside of FitnessFunction for use in GradientMixin
+def mean_absolute_error(vector):
+    """Calculate the mean absolute error of an error vector"""
+    return np.mean(np.abs(vector))
+
+
+def root_mean_squared_error(vector):
+    """Calculate the root mean squared error of an error vector"""
+    return np.sqrt(np.mean(np.square(vector)))
+
+
+def mean_squared_error(vector):
+    """Calculate the mean squared error of an error vector"""
+    return np.mean(np.square(vector))
 
 
 class FitnessFunction(metaclass=ABCMeta):
@@ -16,15 +32,15 @@ class FitnessFunction(metaclass=ABCMeta):
 
     Parameters
     ----------
-    training_data :
-                   (Optional) data that can be used in fitness evaluation
+    training_data : TrainingData
+        (Optional) data that can be used in fitness evaluation
 
     Attributes
     ----------
     eval_count : int
-                 the number of evaluations that have been performed
-    training_data :
-                   (Optional) data that can be used in fitness evaluation
+        the number of evaluations that have been performed
+    training_data : TrainingData
+        (Optional) data that can be used in fitness evaluation
     """
     def __init__(self, training_data=None):
         self.eval_count = 0
@@ -36,8 +52,8 @@ class FitnessFunction(metaclass=ABCMeta):
 
         Parameters
         ----------
-        individual : chromosomes
-                     individual for which fitness will be calculated
+        individual : Chromosome
+            individual for which fitness will be calculated
 
         Notes
         -----
@@ -46,7 +62,7 @@ class FitnessFunction(metaclass=ABCMeta):
 
         Returns
         -------
-         :
+        fitness : numeric
             fitness of the individual
         """
         raise NotImplementedError
@@ -57,56 +73,57 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     Parameters
     ----------
-    training_data : ExplicitTrainingData
-                    data that is used in fitness evaluation.
+    training_data : TrainingData
+        data that is used in fitness evaluation.
     metric : str
         String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', and
-        'root mean squared error'
+        'mean absolute error'/'mae', 'mean squared error'/'mse', and
+        'root mean squared error'/'rmse'
     """
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data)
 
         if metric in ["mean absolute error", "mae"]:
-            self._metric = VectorBasedFunction._mean_absolute_error
+            self._metric = mean_absolute_error
         elif metric in ["mean squared error", "mse"]:
-            self._metric = VectorBasedFunction._mean_squared_error
+            self._metric = mean_squared_error
         elif metric in ["root mean squared error", "rmse"]:
-            self._metric = VectorBasedFunction._root_mean_squared_error
+            self._metric = root_mean_squared_error
         else:
-            raise KeyError("Invalid metric for Fitness Function")
+            raise ValueError("Invalid metric for Fitness Function")
 
     def __call__(self, individual):
         """Vector based fitness evaluation
 
-        Evaluate the fitness of an individual as the total absolute error of
-        vectorized fitness values.
+        Evaluate the fitness of an individual as based on a vector of fitness
+        (error) values.  The metric defined in the constructor is used to
+        aggregate the vector fitness into a single fitness value
 
         Parameters
         ----------
-        individual : chromosomes
-                     individual for which fitness will be calculated
+        individual : Chromosome
+            individual for which fitness will be calculated
 
         Returns
         -------
-         :
-           fitness of the individual
+        fitness : numeric
+            fitness of the individual
         """
         fitness_vector = self.evaluate_fitness_vector(individual)
         return self._metric(fitness_vector)
 
     @abstractmethod
     def evaluate_fitness_vector(self, individual):
+        """Calculate a vector of fitness values for the passed in individual
+
+        Parameters
+        ----------
+        individual : Chromosome
+            individual for which fitness will be calculated
+
+        Returns
+        -------
+        vector_fitness : array of numeric
+            a vector of fitness values for the passed in individual
+        """
         raise NotImplementedError
-
-    @staticmethod
-    def _mean_absolute_error(vector):
-        return np.mean(np.abs(vector))
-
-    @staticmethod
-    def _root_mean_squared_error(vector):
-        return np.sqrt(np.mean(np.square(vector)))
-
-    @staticmethod
-    def _mean_squared_error(vector):
-        return np.mean(np.square(vector))

@@ -1,9 +1,8 @@
 """The "Deterministic Crowding" selection
 
-This module defines the basis of the "deterministic crowding"
-selection algorithm in bingo analyses. The next generation
-is selected by pairing parents with their offspring and
-advancing the most fit of the two.
+This module defines the basis of the "deterministic crowding" selection
+algorithm in bingo analyses. The next generation is selected by pairing parents
+with their offspring and selecting the most fit of the two.
 """
 import numpy as np
 from .selection import Selection
@@ -17,30 +16,30 @@ class DeterministicCrowding(Selection):
 
         Parameters
         ----------
-        population : list of chromosomes
-                     The population on which to perform selection. This
-                     population includes both the parent and child populations,
-                     with the parents in the first half and the children in the
-                     latter half
+        population : list of Chromosome
+            The population on which to perform selection. This population
+            includes both the parent and child populations, with the parents in
+            the first half and the children in the latter half
         target_population_size : int
-                                 The size of the next generation
+            The size of the next generation
 
         Returns
         -------
-        population : list of chromosomes
-                     The newly selected generation of chromosomes
+        population : list of Chromosome
+            The newly selected generation of chromosomes
         """
-        if (len(population)%2) > 0 or (target_population_size%2) > 0:
+        if (len(population) % 2) > 0 or (target_population_size % 2) > 0:
             raise ValueError('Population must be of even length')
 
-        if target_population_size != (len(population)/2):
+        half_pop_size = len(population) // 2
+        if target_population_size > half_pop_size:
             raise ValueError('Target population size cannot be greater\
-                 than the length of the population')
+                 than the half of the population')
 
-        offspring = population[target_population_size:]
-        population = population[:target_population_size]
+        offspring = population[half_pop_size:]
+        population = population[:half_pop_size]
 
-        for i in range(target_population_size//2):
+        for i in range(target_population_size // 2):
             parent_1 = population[i*2]
             parent_2 = population[i*2+1]
             child_1 = offspring[i*2]

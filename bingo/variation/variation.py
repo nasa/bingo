@@ -5,6 +5,7 @@ Generally this consists of crossover, mutation and replication.
 """
 
 from abc import ABCMeta, abstractmethod
+import numpy as np
 
 
 class Variation(metaclass=ABCMeta):
@@ -16,15 +17,19 @@ class Variation(metaclass=ABCMeta):
     Attributes
     ----------
     crossover_offspring : list of bool
-                          list indicating whether the corresponding member of
-                          the last offspring was a result of crossover
+        list indicating whether the corresponding member of the last offspring
+        was a result of crossover
     mutation_offspring : list of bool
-                         list indicating whether the corresponding member of
-                         the last offspring was a result of mutation
+        list indicating whether the corresponding member of the last offspring
+        was a result of mutation
+    offspring_parents : list of list of int
+        list indicating the parents (by index in the population) of the
+        corresponding member of the last offspring
     """
     def __init__(self):
-        self.crossover_offspring = []
-        self.mutation_offspring = []
+        self.crossover_offspring = np.zeros(shape=(0, ), dtype=bool)
+        self.mutation_offspring = np.zeros(shape=(0, ), dtype=bool)
+        self.offspring_parents = []
 
     @abstractmethod
     def __call__(self, population, number_offspring):

@@ -17,18 +17,19 @@ class Island(EvolutionaryOptimizer):
     """
     Island: a basic unit of evolutionary optimization.  It performs the
     generation and evolution of a single population using a generator and
-    evolutionary algorithm
+    evolutionary algorithm, respectively.
 
     Parameters
     ----------
-    evolution_algorithm : EvolutionaryAlgorithm
+    evolution_algorithm : `EvolutionaryAlgorithm`
         The desired algorithm to use in assessing the population
-    generator : Generator
+    generator : `Generator`
         The generator class that returns an instance of a chromosome
     population_size : int
         The desired size of the population
-    hall_of_fame : HallOfFame (optional)
-        The hall of fame object to be used for storing best individuals
+    hall_of_fame : `HallOfFame`
+        (optional) The hall of fame object to be used for storing best
+        individuals
 
     Attributes
     ----------
@@ -36,7 +37,7 @@ class Island(EvolutionaryOptimizer):
         The number of generational steps that have been executed
     population : list of chromosomes
         The population that is evolving
-    hall_of_fame: HallOfFame
+    hall_of_fame: `HallOfFame`
         An object containing the best individuals seen in the optimization
 
     """
@@ -83,7 +84,7 @@ class Island(EvolutionaryOptimizer):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual
         """
         return self.get_best_individual().fitness
@@ -98,31 +99,15 @@ class Island(EvolutionaryOptimizer):
         """
         return self._ea.evaluation.eval_count
 
-    def load_population(self, population, replace=True):
-        """Loads population from a pickleable object
-
-        Parameters
-        ----------
-        population: list of chromosomes
-            population which is loaded into island
-        replace: boolean
-            if true, value results in all of the population being
-            loaded/replaced. False value means that the population in pop_list
-            is appended to the current population
-        """
-        if replace:
-            self.population = []
-        self.population += population
-
-    def get_population(self):
-        """Getter for population
+    def get_ea_diagnostic_info(self):
+        """ Gets diagnostic info from the evolutionary algorithm(s)
 
         Returns
         -------
-        list of chromosomes:
-            The list of chromosomes in the island population
+        EaDiagnosticsSummary :
+            summary of evolutionary algorithm diagnostics
         """
-        return self.population
+        return self._ea.diagnostics
 
     def _get_potential_hof_members(self):
         return self.population
@@ -150,3 +135,19 @@ class Island(EvolutionaryOptimizer):
         """Randomly regenerates the population"""
         self.population = [self._generator()
                            for _ in range(len(self.population))]
+
+    def reset_fitness(self, population=None):
+        """
+        Mark each individual in the population as needing fitness evaluation
+
+        Parameters
+        ----------
+        population: list of `Chromosome`
+            (Optional) Population to be reset. Default: the island's current
+            population
+        """
+        if population is None:
+            population = self.population
+
+        for indv in population:
+            indv.fit_set = False

@@ -1,9 +1,8 @@
 """The "Mu + Lambda"
 
-This module defines the basis of the "mu plus lambda"
-evolutionary algorithm in bingo analyses. The next generation
-is evaluated and selected from both the parent and offspring
-populations.
+This module defines the basis of the "mu plus lambda" evolutionary algorithm in
+bingo analyses. The next generation is evaluated and selected from both the
+parent and offspring populations.
 """
 from .evolutionary_algorithm import EvolutionaryAlgorithm
 from ..variation.var_or import VarOr
@@ -37,11 +36,13 @@ class MuPlusLambda(EvolutionaryAlgorithm):
     Attributes
     ----------
     variation : VarOr
-                VarOr variation to perform variation on a population
+        VarOr variation to perform variation on a population
     evaluation : evaluation
-                 evaluation instance to perform evaluation on a population
+        evaluation instance to perform evaluation on a population
     selection : selection
-                selection instance to perform selection on a population
+        selection instance to perform selection on a population
+    diagnostics : `bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics`
+        Public to the EA diagnostics
     """
     def __init__(self, evaluation, selection, crossover, mutation,
                  crossover_probability, mutation_probability,
@@ -68,9 +69,11 @@ class MuPlusLambda(EvolutionaryAlgorithm):
             The next generation of the population
         """
         offspring = self.variation(population, self._number_offspring)
-        self.evaluation(population + offspring)
+        self.evaluation(population)
+        self.evaluation(offspring)
         if self._target_populations_size is None:
             new_pop_size = len(population)
         else:
             new_pop_size = self._target_populations_size
+        self.update_diagnostics(population, offspring)
         return self.selection(population + offspring, new_pop_size)

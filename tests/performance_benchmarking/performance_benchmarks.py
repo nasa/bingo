@@ -14,16 +14,17 @@ def print_stats(printer_list):
 
 
 if __name__ == '__main__':
-    title = 'USING AGRAPH PROBLEM SET # '
-    title += str(PROBLEM_SET_VERSION)
-    num_stars_left_side = int((80 - len(title))/2)
-    num_stars_right_side = int((80 - len(title) + 1) / 2)
+    TITLE = 'USING AGRAPH PROBLEM SET # '
+    TITLE += str(PROBLEM_SET_VERSION)
+    NUM_STARS_LEFT_SIDE = int((80 - len(TITLE)) / 2)
+    NUM_STARS_RIGHT_SIDE = int((80 - len(TITLE) + 1) / 2)
 
-    printer_list = [evaluation_benchmark.do_benchmarking()]
-    printer_list += fitness_benchmark.do_benchmarking()
-    printer_list += clo_benchmark.do_benchmarking(debug=False)
+    PRINTER_LIST = [evaluation_benchmark.do_benchmarking()]
+    PRINTER_LIST += fitness_benchmark.do_benchmarking()
+    PRINTER_LIST += clo_benchmark.do_benchmarking(debug=False)
 
-    print('\n\n' + '*'*num_stars_left_side + title + '*'*num_stars_right_side)
+    print('\n\n' + '*' * NUM_STARS_LEFT_SIDE + TITLE + 
+          '*' * NUM_STARS_RIGHT_SIDE)
     print("Note: Times are in milliseconds per individual\n")
-    print_stats(printer_list)
+    print_stats(PRINTER_LIST)
 

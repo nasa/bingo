@@ -19,14 +19,37 @@ except (ImportError, AttributeError):
 
 
 def configure_logging(verbosity="standard", module=False, timestamp=False,
-                      stats_file=None):
+                      stats_file=None, logfile=None):
+    """Configuration of Bingo logging
+
+    Parameters
+    ----------
+    verbosity : str or int
+        verbosity options are "quiet", "standard", "detailed", "debug", or an
+        integer (0 - 100) that corresponds to typical python log level.
+    module : bool
+        whether to show the module name on logging output. Default False
+    timestamp : bool
+        whether to show a time stamp on logging output. Default False
+    stats_file : str
+        (optional) file name for evolution statistics to be logged to
+    logfile : str
+        (optional) file name for a copy of the log to be saved
+    """
     level = _get_log_level_from_verbosity(verbosity)
 
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
 
+    root_logger.handlers=[] # remove current handlers
+
     console_handler = _make_console_handler(level, module, timestamp)
     root_logger.addHandler(console_handler)
+
+    if logfile is not None:
+        logfile_handler = _make_logfile_handler(logfile, level, module,
+                                                timestamp)
+        root_logger.addHandler(logfile_handler)
 
     if stats_file is not None:
         stats_file_handler = _make_stats_file_handler(stats_file)
@@ -44,6 +67,19 @@ def _make_console_handler(level, module, timestamp):
     console_handler.addFilter(StatsFilter(filter_out=True))
     console_handler.addFilter(MpiFilter())
     return console_handler
+
+
+def _make_logfile_handler(filename, level, module, timestamp):
+    file_handler = logging.FileHandler(filename)
+    file_handler.setLevel(level)
+
+    format_string = _get_console_format_string(module, timestamp)
+    formatter = logging.Formatter(format_string)
+    file_handler.setFormatter(formatter)
+
+    file_handler.addFilter(StatsFilter(filter_out=True))
+    file_handler.addFilter(MpiFilter())
+    return file_handler
 
 
 def _get_log_level_from_verbosity(verbosity):
@@ -96,6 +132,21 @@ class MpiFilter(logging.Filter):
         self._add_proc_number = add_proc_number
 
     def filter(self, record):
+        """Filters out INFO records from processes that aren't rank 0.
+
+        Also adds process rank to the record's message if add_proc_number
+        is set to True.
+
+        Parameters
+        ----------
+        record : `LogRecord`
+            the record to filter
+
+        Returns
+        -------
+        bool
+            whether the record will be logged or not
+        """
         if USING_MPI:
             if record.levelno == INFO:
                 return MPIRANK == 0
@@ -118,6 +169,20 @@ class StatsFilter(logging.Filter):
         self._filter_out = filter_out
 
     def filter(self, record):
+        """If filter_out is True, will block all records with identifier
+        "<stats>" set to True.  Otherwise, will only allow records
+        with identifier "<stats>" set to True.
+
+        Parameters
+        ----------
+        record : `LogRecord`
+            the record to filter
+
+        Returns
+        -------
+        bool
+            whether the record will be logged or not
+        """
         if "stats" in record.__dict__:
             return not self._filter_out == record.stats
         return self._filter_out

@@ -3,10 +3,13 @@ import timeit
 import numpy as np
 
 from bingo.symbolic_regression.agraph \
-    import agraph as agraph_module, backend as pyBackend
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
-from bingocpp.build import bingocpp as cppBackend
+    import agraph as agraph_module
+from bingo.symbolic_regression.agraph.evaluation_backend import \
+    evaluation_backend as pyBackend
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.local_opt_fitness \
+    import LocalOptFitnessFunction
+from bingocpp import evaluation_backend as cppBackend
 
 from benchmark_data import StatsPrinter, \
                            generate_random_individuals, \
@@ -23,13 +26,17 @@ import benchmark_data as benchmark_data
 
 
 TEST_EXPLICIT_REGRESSION_OPTIMIZATION \
-    = ContinuousLocalOptimization(TEST_EXPLICIT_REGRESSION)
+    = LocalOptFitnessFunction(TEST_EXPLICIT_REGRESSION,
+                              ScipyOptimizer(TEST_EXPLICIT_REGRESSION))
 TEST_IMPLICIT_REGRESSION_OPTIMIZATION \
-    = ContinuousLocalOptimization(TEST_IMPLICIT_REGRESSION)
+    = LocalOptFitnessFunction(TEST_IMPLICIT_REGRESSION,
+                              ScipyOptimizer(TEST_IMPLICIT_REGRESSION))
 TEST_EXPLICIT_REGRESSION_OPTIMIZATION_CPP \
-    = ContinuousLocalOptimization(TEST_EXPLICIT_REGRESSION_CPP)
+    = LocalOptFitnessFunction(TEST_EXPLICIT_REGRESSION_CPP,
+                              ScipyOptimizer(TEST_EXPLICIT_REGRESSION_CPP))
 TEST_IMPLICIT_REGRESSION_OPTIMIZATION_CPP \
-    = ContinuousLocalOptimization(TEST_IMPLICIT_REGRESSION_CPP)
+    = LocalOptFitnessFunction(TEST_IMPLICIT_REGRESSION_CPP,
+                              ScipyOptimizer(TEST_IMPLICIT_REGRESSION_CPP))
 
 
 TEST_ITERATION = 0
@@ -104,7 +111,7 @@ def do_benchmarking(debug = False):
         [benchmark_explicit_regression_with_optimization,
          benchmark_explicit_regression_cpp_with_optimization,
          "LOCAL OPTIMIZATION (EXPLICIT REGRESSION) BENCHMARKS"],
-        [benchmark_implicit_regression_with_optimization, 
+        [benchmark_implicit_regression_with_optimization,
          benchmark_implicit_regression_cpp_with_optimization,
          "LOCAL OPTIMIZATION (IMPLICIT REGRESSION) BENCHMARKS"]]
 
@@ -119,7 +126,7 @@ def do_benchmarking(debug = False):
 
 def _run_benchmarks(printer, regression, regression_cpp):
     for backend, name in [[pyBackend, " py"], [cppBackend, "c++"]]:
-        agraph_module.Backend = backend
+        agraph_module.evaluation_backend = backend
         _add_stats_and_log_intermediate_steps(
             printer,
             regression,

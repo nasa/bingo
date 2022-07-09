@@ -174,7 +174,7 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
 *   Geoffrey Bomarito
 *   Tyler Townsend
 *   Jacob Hochhalter
-*   Davd Randall
+*   David Randall
 *   Ethan Adams
 *   Kathryn Esham
 *   Diana Vera

@@ -23,7 +23,7 @@ can be used as a general purpose evolutionary optimization package.
 
 ## Installation
 
-To install Bingo, simply use pip:
+To install Bingo, simply use pip.  Unfortunately the pip install is currently not working.  Please use source install for the time being.
 
 ```sh
 pip install bingo-nasa

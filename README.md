@@ -135,7 +135,7 @@ For those looking to develop their own features in Bingo.
 
 First clone the repo and move into the directory:
 
-```console
+```sh
 git clone --recurse-submodules https://github.com/nasa/bingo.git
 cd bingo
 ```

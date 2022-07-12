@@ -146,6 +146,13 @@ Then make sure you have the requirements necessary to use Bingo:
 pip install -r requirements.txt
 ```
 
+This can alternatively be done using conda:
+
+```sh
+conda create --name bingo --channel conda-forge --file requirements.txt
+conda activate bingo
+```
+
 (Optional) Then build the c++ performance library BingoCpp:
 
 ```sh
@@ -157,6 +164,18 @@ the installation process worked properly:
 
 ```sh
 pytest tests
+```
+
+You can also add Bingo to your Python path. Add the following to your `.bashrc` (or some equivalent) file:
+
+```sh
+export PYTHONPATH="$PYTHONPATH:/path/to/bingo/"
+```
+
+You can then import Bingo/BingoCpp when running python in any directory:
+
+```sh
+python -c 'import bingo; import bingocpp'
 ```
 
 ## Contributing

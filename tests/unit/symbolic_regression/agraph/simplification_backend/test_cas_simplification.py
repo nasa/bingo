@@ -224,8 +224,18 @@ def test_exp_simplification(zero, one):
     assert automatic_simplify(exp_zero) == one
 
 
+def test_sinh_simplification(zero, one):
+    sinh_zero = Expression(SINH, [zero, ])
+    assert automatic_simplify(sinh_zero) == zero
+
+
+def test_cosh_simplification(zero, one):
+    cosh_zero = Expression(COSH, [zero, ])
+    assert automatic_simplify(cosh_zero) == one
+
+
 @pytest.mark.parametrize("operator",
-                         [ABS, SQRT, SINH, COSH])
+                         [ABS, SQRT])
 def test_no_simplification_ar1_operators(operator, zero, one, two):
     operands = [zero, one, two]
     for operand in operands:

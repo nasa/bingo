@@ -11,6 +11,13 @@ from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 
 
+@pytest.fixture
+def basic_data():
+    X = np.linspace(-10, 10, num=100).reshape((-1, 1))
+    y = np.sin(X) + 3.0
+    return X, y
+
+
 # do we care about this?
 def test_constructor_default():
     regr = SymbolicRegressor()
@@ -18,59 +25,62 @@ def test_constructor_default():
     # TODO ...
 
 
-@pytest.mark.parametrize("valid_size", [1, 1000])
-def test_constructor_population_size_valid(valid_size):
-    regr = SymbolicRegressor(population_size=valid_size)
-    assert regr.population_size == valid_size
+@pytest.mark.parametrize("invalid_size", [0, -1])
+def test_population_size_invalid(invalid_size, basic_data):
+    regr = SymbolicRegressor(population_size=invalid_size)
+    X, y = basic_data
+
+    with pytest.raises(ValueError):
+        regr.fit(X, y)
 
 
 @pytest.mark.parametrize("invalid_size", [0, -1])
-def test_constructor_population_size_invalid(invalid_size):
-    with pytest.raises(ValueError) as exc_info:
-        SymbolicRegressor(population_size=invalid_size)
+def test_stack_size_invalid(invalid_size, basic_data):
+    regr = SymbolicRegressor(stack_size=invalid_size)
+    X, y = basic_data
 
-    assert str(exc_info.value) == "Invalid population size"
-
-
-@pytest.mark.parametrize("valid_size", [1, 100])
-def test_constructor_stack_size_valid(valid_size):
-    regr = SymbolicRegressor(stack_size=valid_size)
-    assert regr.stack_size == valid_size
+    with pytest.raises(ValueError):
+        regr.fit(X, y)
 
 
-@pytest.mark.parametrize("invalid_size", [0, -1])
-def test_constructor_stack_size_invalid(invalid_size):
-    with pytest.raises(ValueError) as exc_info:
-        SymbolicRegressor(stack_size=invalid_size)
-    assert str(exc_info.value) == "Invalid stack size"
+def test_operator_none_default_set():
+    regr = SymbolicRegressor(operators=None)
+    assert regr.operators == {"+", "-", "*", "/"}
 
 
-def valid_operators():
-    operators = [None]
-    for names in OPERATOR_NAMES.values():
-        operators.extend(names)
-    return operators
+@pytest.mark.parametrize("invalid_operators", [{"abc"}, {"3"}, {""},
+                                               "sin"  # needs to be list-like
+                                               ])  # of operators
+def test_operator_invalid(invalid_operators, basic_data):
+    regr = SymbolicRegressor(operators=invalid_operators)
+    X, y = basic_data
+
+    with pytest.raises(ValueError):
+        regr.fit(X, y)
 
 
-@pytest.mark.parametrize("valid_operator", valid_operators())
-def test_constructor_operator_valid(valid_operator):
-    if valid_operator is None:
-        operators = {"+", "-", "*", "/"}
-    else:
-        operators = set(valid_operator)
-    regr = SymbolicRegressor(operators=operators)
-    assert regr.operators == operators
+@pytest.mark.parametrize("invalid_value, expected_err",
+                         [(-1, ValueError), (1.1, ValueError),
+                          ("a", TypeError), (True, ValueError)])
+def test_crossover_prob_invalid(invalid_value, basic_data, expected_err):
+    regr = SymbolicRegressor(crossover_prob=invalid_value)
+    X, y = basic_data
+
+    with pytest.raises(expected_err):
+        regr.fit(X, y)
 
 
-@pytest.mark.parametrize("invalid_operator", [{"abc"}, {"3"}, {""},
-                                              "sin"  # needs to be iterable of
-                                                     # operators
-                                              ])
-def test_constructor_operator_invalid(invalid_operator):
-    with pytest.raises(ValueError) as exc_info:
-        SymbolicRegressor(operators=set(invalid_operator))
-    assert str(exc_info.value) == "Invalid operators"
+@pytest.mark.parametrize("invalid_value, expected_err",
+                         [(-1, ValueError), (1.1, ValueError),
+                          ("a", TypeError), (True, ValueError)])
+def test_mutation_prob_invalid(invalid_value, basic_data, expected_err):
+    regr = SymbolicRegressor(mutation_prob=invalid_value)
+    X, y = basic_data
 
+    with pytest.raises(expected_err):
+        regr.fit(X, y)
+
+# TODO make sure constructor args get to respective objects
 
 def constructor_params():
     return ["population_size", "stack_size", "operators",

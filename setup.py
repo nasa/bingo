@@ -43,7 +43,6 @@ class CMakeBuild(build_ext):
                 self.build_extension(ext)
         except subprocess.SubprocessError:
             warnings.warn("Couldn't install bingocpp")
-            return
 
     def build_extension(self, ext):
         extdir = os.path.abspath(

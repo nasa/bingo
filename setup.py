@@ -3,6 +3,7 @@ import re
 import sys
 import platform
 import subprocess
+import warnings
 
 from distutils.version import LooseVersion
 from setuptools import setup, Extension
@@ -26,9 +27,10 @@ class CMakeBuild(build_ext):
         try:
             out = subprocess.check_output(['cmake', '--version'])
         except OSError:
-            raise RuntimeError(
+            warnings.warn(
                 "CMake must be installed to build the following extensions: " +
                 ", ".join(e.name for e in self.extensions))
+            return
 
         if platform.system() == "Windows":
             cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)',
@@ -36,8 +38,12 @@ class CMakeBuild(build_ext):
             if cmake_version < '3.1.0':
                 raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
-        for ext in self.extensions:
-            self.build_extension(ext)
+        try:
+            for ext in self.extensions:
+                self.build_extension(ext)
+        except subprocess.SubprocessError:
+            warnings.warn("Couldn't install bingocpp")
+            return
 
     def build_extension(self, ext):
         extdir = os.path.abspath(

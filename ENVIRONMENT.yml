@@ -18,4 +18,5 @@ dependencies:
     - scipy>=1.6.2
     - dill>=0.2.9
     - sympy
-    - scikit-learn  # will need for sklearn-interface
+    - scikit-learn
+    - bingo-nasa

@@ -24,55 +24,66 @@ def test_evaluation_has_accessor_to_fitness_function_eval_count(mocker):
 # using other objects in place of mocked objects where needed
 class FitnessInc(FitnessFunction):
     def __call__(self, indv):
+        self.eval_count += 1
         return indv.fitness + 1
 
 
 @pytest.mark.parametrize("n_proc", [False, 2])
 def test_evaluation_finds_fitness_for_individuals_that_need_it(n_proc):
+    fit_not_set_idx = [2, 4, 6, 8]
     population = [AGraph() for _ in range(10)]
     for i, indv in enumerate(population):
         indv.fitness = i
-        if i in [2, 4, 6, 8]:
+        if i in fit_not_set_idx:
             indv.fit_set = False
         else:
             indv.fit_set = True
+    fitness_fn = FitnessInc()
+    evaluation = Evaluation(fitness_fn, multiprocess=n_proc)
 
-    evaluation = Evaluation(FitnessInc(), multiprocess=n_proc)
     evaluation(population)
 
     for i, indv in enumerate(population):
-        if i in [2, 4, 6, 8]:
+        if i in fit_not_set_idx:
             assert indv.fitness == i + 1
         else:
             assert indv.fitness == i
+    assert evaluation.eval_count == len(fit_not_set_idx)
+    assert fitness_fn.eval_count == len(fit_not_set_idx)
 
 
 @pytest.mark.parametrize("n_proc", [False, 2])
 def test_evaluation_redundant_evaluation(n_proc):
-    population = [AGraph() for _ in range(5)]
+    n_indv = 5
+    population = [AGraph() for _ in range(n_indv)]
     for i, indv in enumerate(population):
         indv.fitness = i
         if i in [2, 3]:
             indv.fit_set = False
         else:
             indv.fit_set = True
-    evaluation = Evaluation(FitnessInc(), redundant=True, multiprocess=n_proc)
+    fitness_fn = FitnessInc()
+    evaluation = Evaluation(fitness_fn, redundant=True, multiprocess=n_proc)
 
     evaluation(population)
 
     for i, indv in enumerate(population):
         assert population[i].fitness == i + 1
+    assert evaluation.eval_count == n_indv
+    assert fitness_fn.eval_count == n_indv
 
 
 @pytest.mark.parametrize("n_proc", [False, 2])
 def test_evaluation_multiprocessing(mocker, n_proc):
-    population = [AGraph() for _ in range(10)]
+    n_indv = 10
+    population = [AGraph() for _ in range(n_indv)]
     for i, indv in enumerate(population):
         indv.fitness = i
         indv.fit_set = False  # IMPORTANT: have to do this after setting fitness
     pool = mocker.patch("bingo.evaluation.evaluation.Pool",
                         new=mocker.Mock(wraps=Pool))
-    evaluation = Evaluation(FitnessInc(), multiprocess=n_proc)
+    fitness_fn = FitnessInc()
+    evaluation = Evaluation(fitness_fn, multiprocess=n_proc)
 
     evaluation(population)
 
@@ -83,3 +94,5 @@ def test_evaluation_multiprocessing(mocker, n_proc):
 
     for i, indv in enumerate(population):
         assert population[i].fitness == i + 1
+    assert evaluation.eval_count == n_indv
+    assert fitness_fn.eval_count == n_indv

@@ -1,9 +1,10 @@
 """The genetic operation of evaluation.
 
-This module defines the a basic form of the evaluation phase of bingo
+This module defines the basic form of the evaluation phase of bingo
 evolutionary algorithms.
 """
 from multiprocessing import Pool
+
 
 class Evaluation:
     """Base phase for calculating fitness of a population.

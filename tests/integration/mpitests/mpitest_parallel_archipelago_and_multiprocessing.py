@@ -1,6 +1,4 @@
-import inspect
 import numpy as np
-import sys
 
 from bingo.evolutionary_optimizers.parallel_archipelago import \
     ParallelArchipelago

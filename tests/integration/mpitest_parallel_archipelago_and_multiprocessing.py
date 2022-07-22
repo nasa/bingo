@@ -18,6 +18,7 @@ COMM_RANK = COMM.Get_rank()
 COMM_SIZE = COMM.Get_size()
 
 POPULATION_SIZE = 100
+OFFSPRING_SIZE = 100
 N_PROC = 2
 
 
@@ -46,7 +47,7 @@ def ea():
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(np.random.random)
     return MuPlusLambda(evaluation(), selection, crossover,
-                        mutation, 0.4, 0.4, POPULATION_SIZE)
+                        mutation, 0.4, 0.4, OFFSPRING_SIZE)
 
 
 def generator():
@@ -55,7 +56,10 @@ def generator():
 
 def multi_process_parallel_archipelago():
     island = Island(ea(), generator(), POPULATION_SIZE)
-    return ParallelArchipelago(island)
+    # TODO: is it intended that non_blocking steps by sync_frequency?
+    #       what if n_steps < sync_frequency?
+    #       also < vs. <= in avg_age vs. target_age
+    return ParallelArchipelago(island, non_blocking=False)
 
 
 def get_total_population(parallel_archipelago):
@@ -74,13 +78,15 @@ def test_parallel_archipelago_and_multiprocessing_eval():
     for indv in get_total_population(archipelago):
         assertions.append(not indv.fit_set)
     assertions.append(archipelago.get_fitness_evaluation_count() == 0)
+    assertions.append(archipelago.generational_age == 0)
 
     archipelago.evolve(1)
 
     for indv in get_total_population(archipelago):
         assertions.append(indv.fit_set)
     assertions.append(archipelago.get_fitness_evaluation_count() ==
-                      n_islands * (2 * POPULATION_SIZE))
+                      n_islands * (POPULATION_SIZE + OFFSPRING_SIZE))
+    assertions.append(archipelago.generational_age == 1)
     return mpi_assert_true(all(assertions))
 
 

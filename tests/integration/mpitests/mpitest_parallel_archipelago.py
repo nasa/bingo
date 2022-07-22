@@ -150,7 +150,8 @@ def test_convergence():
                                        non_blocking=True)
     result = archipelago.evolve_until_convergence(max_generations=100,
                                                   fitness_threshold=0,
-                                                  convergence_check_frequency=25)
+                                                  convergence_check_frequency=25
+                                                  )
     return mpi_assert_true(result.success)
 
 

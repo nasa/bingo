@@ -29,7 +29,7 @@ def evaluation():
 
 
 @pytest.fixture
-def ea():
+def ea(evaluation):
     selection = Tournament(5)
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(np.random.random)
@@ -39,25 +39,26 @@ def ea():
 
 @pytest.fixture
 def generator():
-    return MultipleValueChromosomeGenerator(np.random.randint, 5)
+    return MultipleValueChromosomeGenerator(np.random.random, 5)
 
 
 @pytest.fixture
 def multi_process_parallel_archipelago(ea, generator):
-    island = Island(ea, generator)
+    island = Island(ea, generator, POPULATION_SIZE)
     return ParallelArchipelago(island)
 
 
 def get_total_population(parallel_archipelago, comm):
     island_population = parallel_archipelago.island.population
     total_population = comm.allgather(island_population)
-    return total_population
+    return np.array(total_population).flatten()
 
 
 def test_parallel_archipelago_and_multiprocessing_eval(
         multi_process_parallel_archipelago):
     np.random.seed(7)
     comm = MPI.COMM_WORLD
+    n_islands = comm.Get_size()
     archipelago = multi_process_parallel_archipelago
 
     for indv in get_total_population(archipelago, comm):
@@ -68,4 +69,4 @@ def test_parallel_archipelago_and_multiprocessing_eval(
 
     for indv in get_total_population(archipelago, comm):
         assert indv.fit_set
-    assert archipelago.get_fitness_evaluation_count() == POPULATION_SIZE
+    assert archipelago.get_fitness_evaluation_count() == n_islands * (2 * POPULATION_SIZE)

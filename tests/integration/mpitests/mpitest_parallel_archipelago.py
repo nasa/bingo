@@ -17,7 +17,7 @@ from bingo.evolutionary_optimizers.parallel_archipelago \
     import ParallelArchipelago, load_parallel_archipelago_from_file
 
 from mpitest_util import mpi_assert_true, mpi_assert_equal, \
-    mpi_assert_mean_near, mpi_assert_exactly_n_false, run_tests_in_file
+    mpi_assert_mean_near, mpi_assert_exactly_n_false, run_t_in_module
 
 POP_SIZE = 5
 SELECTION_SIZE = 10
@@ -241,4 +241,4 @@ def test_stale_checkpoint_removal():
 
 
 if __name__ == "__main__":
-    run_tests_in_file()
+    run_t_in_module(__name__)

@@ -73,10 +73,10 @@ def run_t(test_name, test_func):
     return success
 
 
-def run_tests_in_file():
+def run_t_in_module(module_name):
     results = []
     tests = [(name, func)
-             for name, func in inspect.getmembers(sys.modules[__name__],
+             for name, func in inspect.getmembers(sys.modules[module_name],
                                                   inspect.isfunction)
              if "test" in name]
     if COMM_RANK == 0:

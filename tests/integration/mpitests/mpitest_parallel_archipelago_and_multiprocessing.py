@@ -12,7 +12,7 @@ from bingo.chromosomes.multiple_values import SinglePointCrossover, \
 from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evaluation.evaluation import Evaluation
 
-from mpitest_util import mpi_assert_true, run_tests_in_file
+from mpitest_util import mpi_assert_true, run_t_in_module
 
 from mpi4py import MPI
 COMM = MPI.COMM_WORLD
@@ -83,4 +83,4 @@ def test_parallel_archipelago_and_multiprocessing_eval():
 
 
 if __name__ == "__main__":
-    run_tests_in_file()
+    run_t_in_module(__name__)

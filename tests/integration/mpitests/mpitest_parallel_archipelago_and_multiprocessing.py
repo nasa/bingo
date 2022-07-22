@@ -12,6 +12,8 @@ from bingo.chromosomes.multiple_values import SinglePointCrossover, \
 from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evaluation.evaluation import Evaluation
 
+from mpitest_util import mpi_assert_true, run_tests_in_file
+
 from mpi4py import MPI
 COMM = MPI.COMM_WORLD
 COMM_RANK = COMM.Get_rank()
@@ -20,16 +22,6 @@ COMM_SIZE = COMM.Get_size()
 POPULATION_SIZE = 100
 OFFSPRING_SIZE = 100
 N_PROC = 2
-
-
-def mpi_assert_true(value):
-    if not value:
-        message = "\tproc {}: False, expected True\n".format(COMM_RANK)
-    else:
-        message = ""
-    all_values = COMM.allgather(value)
-    all_messages = COMM.allreduce(message, op=MPI.SUM)
-    return all(all_values), all_messages
 
 
 class MagnitudeFitness(FitnessFunction):
@@ -90,45 +82,5 @@ def test_parallel_archipelago_and_multiprocessing_eval():
     return mpi_assert_true(all(assertions))
 
 
-def run_t(test_name, test_func):
-    if COMM_RANK == 0:
-        print(test_name, end=" ")
-    COMM.barrier()
-    success, message = test_func()
-    COMM.barrier()
-    if success:
-        if COMM_RANK == 0:
-            print(".")
-    else:
-        if COMM_RANK == 0:
-            print("F")
-            print(message, end=" ")
-    return success
-
-
-def driver():
-    results = []
-    tests = [(name, func)
-             for name, func in inspect.getmembers(sys.modules[__name__],
-                                                  inspect.isfunction)
-             if "test" in name]
-    if COMM_RANK == 0:
-        print("========== collected", len(tests), "items ==========")
-
-    for name, func in tests:
-        results.append(run_t(name, func))
-
-    num_success = sum(results)
-    num_failures = len(results) - num_success
-    if COMM_RANK == 0:
-        print("==========", end="  ")
-        if num_failures > 0:
-            print(num_failures, "failed,", end=" ")
-        print(num_success, "passed ==========")
-
-    if num_failures > 0:
-        exit(-1)
-
-
 if __name__ == "__main__":
-    driver()
+    run_tests_in_file()

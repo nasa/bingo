@@ -12,7 +12,7 @@ do
   echo ""
 done
 
-MPI_EXEC=$(python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];print(os.path.      dirname(filename)+'/mpiexec');")
+MPI_EXEC=$(python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];print(os.path.dirname(filename)+'/mpiexec');")
 
 for i in examples/*.py
 do

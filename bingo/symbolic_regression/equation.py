@@ -71,7 +71,7 @@ class Equation(Chromosome, metaclass=ABCMeta):
         -------
         tuple(Mx1 array of numeric, MxL array of numeric)
             :math:`f(x)` and :math:`df(x)/dc_i`. L is the number of
-            optimization paremeters.
+            optimization parameters.
         """
         raise NotImplementedError
 

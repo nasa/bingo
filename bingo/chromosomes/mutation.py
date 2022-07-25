@@ -18,12 +18,12 @@ class Mutation(metaclass=ABCMeta):
 
         Parameters
         ----------
-        parent : chromosomes
+        parent : Chromosome
                  The individual to be mutated.
 
         Returns
         -------
-        chromosomes :
+        Chromosome :
             A mutated generated individual
         """
         raise NotImplementedError

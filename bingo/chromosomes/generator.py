@@ -18,7 +18,7 @@ class Generator(metaclass=ABCMeta):
 
         Returns
         -------
-        GeneticIndividual :
+        Chromosome :
             A newly generated individual
         """
         raise NotImplementedError

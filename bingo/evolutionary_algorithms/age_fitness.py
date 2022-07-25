@@ -32,7 +32,7 @@ class AgeFitnessEA(MuPlusLambda):
     mutation_probability : float
         Probability that mutation will occur on an individual.
     population_size : int
-        The targeted poulation size and the number of offspring produced from
+        The targeted population size and the number of offspring produced from
         variation.
     selection_size : int
         The size of the group of individuals to be randomly

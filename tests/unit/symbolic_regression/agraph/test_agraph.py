@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 import dill
+import sympy
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
@@ -55,6 +56,72 @@ def sin_agraph(agraph_implementation):
     sample.command_array = np.array([[VARIABLE, 0, 0],
                                      [SIN, 0, 0]], dtype=int)
     return sample
+
+
+def test_agraph_sympy_expr_constructor(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Equation to agraph not yet implemented in c++")
+
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" \
+                              " cosh((X_3)^(X_4 + 3))"
+    sympy_expr = sympy.sympify(expected_console_string
+                               .replace(")(", ")*(").replace("^", "**"))
+    agraph = agraph_implementation(equation=sympy_expr)
+    assert agraph.get_formatted_string("console") == expected_console_string
+
+
+def test_agraph_sympy_str_constructor(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Equation to agraph not yet implemented in c++")
+
+    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" \
+                              " cosh((X_3)^(X_4 + 3))"
+    sympy_expr = sympy.sympify(expected_console_string
+                               .replace(")(", ")*(").replace("^", "**"))
+    sympy_str = str(sympy_expr)
+    agraph = agraph_implementation(equation=sympy_str)
+    assert agraph.get_formatted_string("console") == expected_console_string
+
+
+def test_agraph_sympy_unsimplified_str_constructor(
+        engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Equation to agraph not yet implemented in c++")
+
+    unsimplified_string = "1.0 + X_0 + 2.0"
+    agraph = agraph_implementation(equation=unsimplified_string)
+    assert agraph.get_formatted_string("console") == unsimplified_string
+
+
+def test_agraph_sympy_constructor_fixes_formatting(
+        engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Equation to agraph not yet implemented in c++")
+
+    bad_format_string = "(X_0**2)(X_0)"
+    agraph = agraph_implementation(equation=bad_format_string)
+    assert agraph.get_formatted_string("console") == "((X_0)^(2))(X_0)"
+
+
+def test_agraph_sympy_constructor_invalid(engine, agraph_implementation):
+    if engine == "c++":
+        pytest.xfail(reason="Equation to agraph not yet implemented in c++")
+
+    with pytest.raises(TypeError) as exception_info:
+        agraph_implementation(equation=1)
+    assert str(exception_info.value) == "equation is not in a valid format"
+
+
+@pytest.mark.parametrize("zoo_string", ["log(log(X_0/X_0)/(X_0/X_0))",
+                                        "zoo", "I", "oo", "nan"])
+def test_agraph_sympy_constructor_zoo(engine, agraph_implementation,
+                                      zoo_string):
+    if engine == "c++":
+        pytest.xfail(reason="Equation to agraph not yet implemented in c++")
+
+    with pytest.raises(RuntimeError) as exception_info:
+        agraph_implementation(equation=sympy.parse_expr(zoo_string))
+    assert str(exception_info.value) == "Cannot parse inf/complex"
 
 
 def test_agraph_copy_and_distance(addition_agraph):
@@ -109,7 +176,7 @@ def test_setting_command_array_unsets_fitness(addition_agraph):
     assert not addition_agraph.fit_set
 
 
-@pytest.mark.parametrize("format_", ["latex", "console", "stack"])
+@pytest.mark.parametrize("format_", ["latex", "console", "sympy", "stack"])
 @pytest.mark.parametrize("raw", [True, False])
 def test_can_get_formatted_strings(format_, raw, addition_agraph):
     string = addition_agraph.get_formatted_string(format_, raw=raw)

@@ -19,13 +19,40 @@ class ImplicitRegressionSchmidt(VectorBasedFunction):
     Fitness in this method is the difference of partial derivatives pairs
     calculated with the data and the input `Equation` individual.
 
+    See "Symbolic Regression of Implicit Equations" by Michael Schmidt
+    and Hod Lipson for more info.
+
     Parameters
     ----------
-    training_data : 'ImplicitTrainingData`
+    training_data : ImplicitTrainingData
         data that is used in fitness evaluation.  Must have attributes x and
         dx_dt.
     """
     def evaluate_fitness_vector(self, individual):
+        r"""Evaluates the fitness of an implicit individual
+
+        Evaluates the fitness of the input Equation individual based on
+        the ratio of partial derivatives between pairs of variables.
+
+        fitness = :math:`-\frac{1}{N} \sum_{i=1}^N \log \left(1 + |
+        \frac{\Delta x_i}{\Delta y_i} + \frac{\delta x_i}{\delta y_i}| \right)`
+        for each :math:`x` and :math:`y` pair in training_data.x where
+        :math:`N` is the length of the training_data,
+        :math:`\frac{\Delta x_i}{\Delta y_i} = \frac{dx/dt}{dy/dt}` from
+        training_data.dx_dt, and :math:`\frac{\delta x_i}{\delta y_i} =
+        \frac{\delta f / \delta y}{\delta f / \delta x}` from the input
+        Equation individual's output on training_data.x.
+
+        Parameters
+        ----------
+        individual : Equation
+            individual whose fitness is evaluated on `training_data`
+
+        Returns
+        -------
+        float
+            the fitness of the input Equation individual
+        """
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
             x=self.training_data.x)
 

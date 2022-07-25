@@ -29,7 +29,7 @@ class TrainingData(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __len__(self):
-        """Gets the number of indexable points in the training data
+        """Gets the number of index-able points in the training data
 
         Returns
         -------

@@ -29,7 +29,7 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
         integer (0 - 100) that corresponds to typical python log level.
     module : bool
         whether to show the module name on logging output. Default False
-    timestamp :
+    timestamp : bool
         whether to show a time stamp on logging output. Default False
     stats_file : str
         (optional) file name for evolution statistics to be logged to
@@ -132,6 +132,21 @@ class MpiFilter(logging.Filter):
         self._add_proc_number = add_proc_number
 
     def filter(self, record):
+        """Filters out INFO records from processes that aren't rank 0.
+
+        Also adds process rank to the record's message if add_proc_number
+        is set to True.
+
+        Parameters
+        ----------
+        record : `LogRecord`
+            the record to filter
+
+        Returns
+        -------
+        bool
+            whether the record will be logged or not
+        """
         if USING_MPI:
             if record.levelno == INFO:
                 return MPIRANK == 0
@@ -154,6 +169,20 @@ class StatsFilter(logging.Filter):
         self._filter_out = filter_out
 
     def filter(self, record):
+        """If filter_out is True, will block all records with identifier
+        "<stats>" set to True.  Otherwise, will only allow records
+        with identifier "<stats>" set to True.
+
+        Parameters
+        ----------
+        record : `LogRecord`
+            the record to filter
+
+        Returns
+        -------
+        bool
+            whether the record will be logged or not
+        """
         if "stats" in record.__dict__:
             return not self._filter_out == record.stats
         return self._filter_out

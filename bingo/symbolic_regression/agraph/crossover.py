@@ -27,7 +27,6 @@ class AGraphCrossover(Crossover):
         tuple(`AGraph`, `AGraph`) :
             The two children from the crossover.
         """
-
         child_1 = parent_1.copy()
         child_2 = parent_2.copy()
 

@@ -9,8 +9,9 @@ from bingo.evolutionary_optimizers.parallel_archipelago \
     import ParallelArchipelago
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.local_opt_fitness \
+    import LocalOptFitnessFunction
 from bingo.symbolic_regression import ComponentGenerator, \
                                       AGraphGenerator, \
                                       AGraphCrossover, \
@@ -57,7 +58,8 @@ def execute_generational_steps():
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)
-    local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm='lm')
+    optimizer = ScipyOptimizer(fitness, method='lm')
+    local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
     ea = AgeFitnessEA(evaluator, agraph_generator, crossover,

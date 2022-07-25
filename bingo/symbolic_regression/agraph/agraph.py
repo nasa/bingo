@@ -49,10 +49,11 @@ Node      Name                                     Math
 """
 import logging
 import numpy as np
+from sympy.core import Expr
 
+from .string_parsing import eq_string_to_command_array_and_constants
 from .string_generation import get_formatted_string
 from ..equation import Equation
-from ...local_optimizers import continuous_local_opt
 from .operator_definitions import CONSTANT
 
 try:
@@ -89,10 +90,17 @@ def force_use_of_python_simplification():
     USING_PYTHON_SIMPLIFICATION = True
 
 
-class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
+class AGraph(Equation):
     """Acyclic graph representation of an equation.
 
     `AGraph` is initialized with with empty command array and no constants.
+
+    Parameters
+    ----------
+    use_simplification : bool, optional
+        Whether to use cas-simplification or not.
+    equation : equation str or sympy expression, optional
+        An equation str or sympy expression to build the AGraph from.
 
     Attributes
     ----------
@@ -104,21 +112,37 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         to be made.
     constants : tuple of numeric
         numeric constants that are used in the equation
-
     """
-    def __init__(self, use_simplification=False):
+    def __init__(self, use_simplification=False, equation=None):
         super().__init__()
-        self._command_array = np.empty([0, 3], dtype=int)
 
-        self._simplified_command_array = np.empty([0, 3], dtype=int)
-        self._simplified_constants = []
-
-        self._needs_opt = False
-        self._modified = False
         self._use_simplification = use_simplification
 
         if use_simplification and not USING_PYTHON_SIMPLIFICATION:
             force_use_of_python_simplification()
+
+        self._init_command_array_and_const(equation)
+
+    def _init_command_array_and_const(self, equation):
+        if equation is None:
+            self._command_array = np.empty([0, 3], dtype=int)
+
+            self._simplified_command_array = np.empty([0, 3], dtype=int)
+            self._simplified_constants = []
+
+            self._needs_opt = False
+            self._modified = False
+        elif isinstance(equation, (Expr, str)):
+            command_array, constants = \
+                eq_string_to_command_array_and_constants(str(equation))
+
+            self.set_local_optimization_params(constants)
+            if len(constants) > 0:
+                self._needs_opt = True
+
+            self.command_array = command_array
+        else:
+            raise TypeError("equation is not in a valid format")
 
     @property
     def engine(self):
@@ -204,7 +228,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         return self._needs_opt
 
     def get_number_local_optimization_params(self):
-        """number of parameters for local optimization
+        """Number of parameters for local optimization
 
         Count constants and set up for optimization
 
@@ -231,7 +255,7 @@ class AGraph(Equation, continuous_local_opt.ChromosomeInterface):
         self._needs_opt = False
 
     def get_utilized_commands(self):
-        """"Find which commands are utilized.
+        """Find which commands are utilized.
 
         Find the commands in the command array of the `AGraph` upon which the
         last command relies. This is inclusive of the last command.

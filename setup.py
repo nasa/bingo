@@ -113,7 +113,9 @@ setup(
                       "pytest-mock",
                       "pytest-timeout",
                       "scipy",
-                      "dill"],
+                      "dill",
+                      "sympy",
+                      "scikit-learn"],
     python_requires='~=3.4',
     classifiers=[
         "Programming Language :: Python :: 3.4",

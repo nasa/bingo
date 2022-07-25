@@ -11,65 +11,66 @@ from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 
 
-# do we care about this?
-def test_constructor_default():
-    regr = SymbolicRegressor()
-    assert regr.population_size == 500
-    # TODO ...
-
-
-@pytest.mark.parametrize("valid_size", [1, 1000])
-def test_constructor_population_size_valid(valid_size):
-    regr = SymbolicRegressor(population_size=valid_size)
-    assert regr.population_size == valid_size
-
-
-@pytest.mark.parametrize("invalid_size", [0, -1])
-def test_constructor_population_size_invalid(invalid_size):
-    with pytest.raises(ValueError) as exc_info:
-        SymbolicRegressor(population_size=invalid_size)
-
-    assert str(exc_info.value) == "Invalid population size"
-
-
-@pytest.mark.parametrize("valid_size", [1, 100])
-def test_constructor_stack_size_valid(valid_size):
-    regr = SymbolicRegressor(stack_size=valid_size)
-    assert regr.stack_size == valid_size
-
-
-@pytest.mark.parametrize("invalid_size", [0, -1])
-def test_constructor_stack_size_invalid(invalid_size):
-    with pytest.raises(ValueError) as exc_info:
-        SymbolicRegressor(stack_size=invalid_size)
-    assert str(exc_info.value) == "Invalid stack size"
-
-
-def valid_operators():
-    operators = [None]
-    for names in OPERATOR_NAMES.values():
-        operators.extend(names)
-    return operators
-
-
-@pytest.mark.parametrize("valid_operator", valid_operators())
-def test_constructor_operator_valid(valid_operator):
-    if valid_operator is None:
-        operators = {"+", "-", "*", "/"}
-    else:
-        operators = set(valid_operator)
-    regr = SymbolicRegressor(operators=operators)
-    assert regr.operators == operators
-
-
-@pytest.mark.parametrize("invalid_operator", [{"abc"}, {"3"}, {""},
-                                              "sin"  # needs to be iterable of
-                                                     # operators
-                                              ])
-def test_constructor_operator_invalid(invalid_operator):
-    with pytest.raises(ValueError) as exc_info:
-        SymbolicRegressor(operators=set(invalid_operator))
-    assert str(exc_info.value) == "Invalid operators"
+# TODO argument validation using fit instead of constructor
+# # do we care about this?
+# def test_constructor_default():
+#     regr = SymbolicRegressor()
+#     assert regr.population_size == 500
+#     # TODO ...
+#
+#
+# @pytest.mark.parametrize("valid_size", [1, 1000])
+# def test_constructor_population_size_valid(valid_size):
+#     regr = SymbolicRegressor(population_size=valid_size)
+#     assert regr.population_size == valid_size
+#
+#
+# @pytest.mark.parametrize("invalid_size", [0, -1])
+# def test_constructor_population_size_invalid(invalid_size):
+#     with pytest.raises(ValueError) as exc_info:
+#         SymbolicRegressor(population_size=invalid_size)
+#
+#     assert str(exc_info.value) == "Invalid population size"
+#
+#
+# @pytest.mark.parametrize("valid_size", [1, 100])
+# def test_constructor_stack_size_valid(valid_size):
+#     regr = SymbolicRegressor(stack_size=valid_size)
+#     assert regr.stack_size == valid_size
+#
+#
+# @pytest.mark.parametrize("invalid_size", [0, -1])
+# def test_constructor_stack_size_invalid(invalid_size):
+#     with pytest.raises(ValueError) as exc_info:
+#         SymbolicRegressor(stack_size=invalid_size)
+#     assert str(exc_info.value) == "Invalid stack size"
+#
+#
+# def valid_operators():
+#     operators = [None]
+#     for names in OPERATOR_NAMES.values():
+#         operators.extend(names)
+#     return operators
+#
+#
+# @pytest.mark.parametrize("valid_operator", valid_operators())
+# def test_constructor_operator_valid(valid_operator):
+#     if valid_operator is None:
+#         operators = {"+", "-", "*", "/"}
+#     else:
+#         operators = set(valid_operator)
+#     regr = SymbolicRegressor(operators=operators)
+#     assert regr.operators == operators
+#
+#
+# @pytest.mark.parametrize("invalid_operator", [{"abc"}, {"3"}, {""},
+#                                               "sin"  # needs to be iterable of
+#                                                      # operators
+#                                               ])
+# def test_constructor_operator_invalid(invalid_operator):
+#     with pytest.raises(ValueError) as exc_info:
+#         SymbolicRegressor(operators=set(invalid_operator))
+#     assert str(exc_info.value) == "Invalid operators"
 
 
 def constructor_params():
@@ -137,10 +138,11 @@ def test_fit_calls_evo_opt(mocker, data_size):
     X = np.linspace(-10, 10, data_size).reshape((data_size, 1))
     y = np.linspace(10, -10, data_size).reshape((data_size, 1))
 
-    from bingo.local_optimizers.continuous_local_opt import ContinuousLocalOptimization
-    mocker.patch.object(ContinuousLocalOptimization, "__call__", return_value=0.01)
+    from bingo.local_optimizers.local_opt_fitness import LocalOptFitnessFunction
+    mocker.patch.object(LocalOptFitnessFunction, "__call__", return_value=0.01)
 
-    mocked_evo = mocker.patch.object(EvolutionaryOptimizer, "evolve_until_convergence")
+    mocked_evo = mocker.patch.object(EvolutionaryOptimizer,
+                                     "evolve_until_convergence")
 
     regr = SymbolicRegressor()
     regr.fit(X, y)

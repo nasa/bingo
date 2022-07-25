@@ -24,11 +24,13 @@ jobs:
       - name: Build using pip
         run: |
           pip install .
-      - name: Run tests (uses pip instead of repo)
+      - name: Run tests (use pip instead of repo)
         run: |
           cd ..
+          cp -r bingo/tests .
           mv bingo bingo_full
-          python -m pytest bingo_full/tests
+          tests/.run_tests.sh
+          mv bingo_full bingo
   deploy:
     needs: pip_build
     if: github.ref == 'refs/heads/environment_setup'

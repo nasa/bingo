@@ -9,14 +9,15 @@ jobs:
     if: github.ref == 'refs/heads/environment_setup'
     runs-on: ubuntu-latest
     steps:
-      - name: Make directory for bingo
-        run: |
-          mkdir bingo_full
-          cd bingo_full
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
         with:
           submodules: recursive
+      - name: Change bingo directory name
+        run: |
+          cd ..
+          mv bingo bingo_full
+          cd bingo_full
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:

@@ -13,11 +13,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Change bingo directory name
-        run: |
-          cd ..
-          mv bingo bingo_full
-          cd bingo_full
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
@@ -32,6 +27,7 @@ jobs:
       - name: Run tests (uses pip instead of repo)
         run: |
           cd ..
+          mv bingo bingo_full
           python -m pytest bingo_full/tests
   deploy:
     needs: pip_build

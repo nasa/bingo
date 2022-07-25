@@ -6,7 +6,7 @@ on: [push]
 
 jobs:
   deploy:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/environment_setup'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository and submodules
@@ -51,3 +51,32 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+  run_tests:
+    needs: deploy
+    if: github.ref == 'refs/heads/environment_setup'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install bingo from TestPyPI
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://test.pypi.org/simple/ bingo-nasa-test
+      - name: Make directory for bingo
+        run: |
+          mkdir bingo_full
+          cd bingo_full
+      - name: Check full bingo repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Copy tests and delete repo
+        run: |
+          cd ..
+          cp -r bingo_full/tests .
+          rm -rf bingo_full
+      - name: Run tests
+        run: |
+          python -m pytest tests/

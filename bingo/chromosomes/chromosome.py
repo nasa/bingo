@@ -88,18 +88,18 @@ class Chromosome(metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def distance(self, chromosome):
-        """Distance from self to chromosome
+    def distance(self, other):
+        """Distance from self to other
 
         Parameters
         ----------
-        chromosome : Chromosome
-            The chromosome to compare to.
+        other : Chromosome
+            The other to compare to.
 
         Returns
         -------
         float
-            Distance from self to chromosome
+            Distance from self to other
         """
         raise NotImplementedError
 

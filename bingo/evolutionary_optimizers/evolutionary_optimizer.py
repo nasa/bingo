@@ -160,23 +160,23 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         test_fitness = None
         if self._test_function is not None:
             test_fitness = self._test_function(self.get_best_individual())
-        log_string = "Generation: %d \t " % self.generational_age
+        log_string = f"Generation: {self.generational_age} \t "
         elapsed_time = datetime.now() - start_time
-        log_string += "Elapsed time: %s \t " % elapsed_time
-        log_string += "Best training fitness: %le \t " % self._best_fitness
+        log_string += f"Elapsed time: {elapsed_time.total_seconds():f} \t "
+        log_string += f"Best training fitness: {self._best_fitness:e} \t "
         if test_fitness is not None:
-            log_string += "Test fitness: %le \t " % test_fitness
+            log_string += "Test fitness: {test_fitness:le} \t "
         LOGGER.log(INFO, log_string)
 
-        stats_string = "%d, %le, %d, %le" % \
-                       (self.generational_age, elapsed_time.total_seconds(),
-                        self.get_fitness_evaluation_count(),
-                        self._best_fitness)
+        stats_string = f"{self.generational_age}, " + \
+                       f"{elapsed_time.total_seconds():e}, " + \
+                       f"{self.get_fitness_evaluation_count()}, " + \
+                       f"{self._best_fitness:e}"
         if test_fitness is not None:
-            stats_string += ", %le" % test_fitness
+            stats_string += f", {test_fitness:e}"
         if self.hall_of_fame is not None:
             for i in self.hall_of_fame:
-                stats_string += ", %le" % i.fitness
+                stats_string += f", {i.fitness:e}"
         STATS_LOGGER.log(INFO, stats_string)
 
     def _update_best_fitness(self):
@@ -191,8 +191,8 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             self._previous_checkpoints = []
 
         if checkpoint_base_name is not None:
-            checkpoint_file_name = "{}_{}.pkl".format(checkpoint_base_name,
-                                                      self.generational_age)
+            checkpoint_file_name = \
+                f"{checkpoint_base_name}_{self.generational_age}.pkl"
             self.dump_to_file(checkpoint_file_name)
             if num_checkpoints is not None:
                 self._previous_checkpoints.append(checkpoint_file_name)
@@ -246,23 +246,23 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         ea_diagnostics = self.get_ea_diagnostic_info().summary
         if status == 0:
             message = "Absolute convergence occurred with best fitness < " + \
-                      "{}".format(aux_info)
+                      f"{aux_info}"
             success = True
         elif status == 1:
             message = "Stagnation occurred with no improvement for more " + \
-                      "than {} generations".format(aux_info)
+                      f"than {aux_info} generations"
             success = False
         elif status == 2:
             message = "The maximum number of generational steps " + \
-                      "({}) occurred".format(aux_info)
+                      f"({aux_info}) occurred"
             success = False
         elif status == 3:
             message = "The maximum number of fitness evaluations " + \
-                      "({}) was exceeded. Total fitness ".format(aux_info) + \
-                      "evals: {}".format(self.get_fitness_evaluation_count())
+                      f"({aux_info}) was exceeded. Total fitness " + \
+                      f"evals: {self.get_fitness_evaluation_count()}"
             success = False
         else:  # status == 4:
-            message = "The maximum time ({}) was exceeded.".format(aux_info)
+            message = f"The maximum time ({aux_info}) was exceeded."
             success = False
         return OptimizeResult(success, status, message, ngen,
                               self._best_fitness, run_time, ea_diagnostics)

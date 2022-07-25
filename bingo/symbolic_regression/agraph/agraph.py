@@ -121,8 +121,14 @@ class AGraph(Equation):
         if use_simplification and not USING_PYTHON_SIMPLIFICATION:
             force_use_of_python_simplification()
 
+        # self._command_array
+        # self._simplified_command_array
+        # self._simplified_constants
+        # self._needs_opt
+        # self._modified
         self._init_command_array_and_const(equation)
 
+    # pylint: disable=attribute-defined-outside-init
     def _init_command_array_and_const(self, equation):
         if equation is None:
             self._command_array = np.empty([0, 3], dtype=int)
@@ -402,14 +408,14 @@ class AGraph(Equation):
             self._update()
         return self._simplified_command_array.shape[0]
 
-    def distance(self, chromosome):
+    def distance(self, other):
         """Computes the distance to another `AGraph`
 
         Distance is a measure of similarity of the two command_arrays
 
         Parameters
         ----------
-        chromosome : `AGraph`
+        other : `AGraph`
             The individual to which distance will be calculated
 
         Returns
@@ -417,7 +423,7 @@ class AGraph(Equation):
         int :
             distance from self to individual
         """
-        dist = np.sum(self.command_array != chromosome.command_array)
+        dist = np.sum(self.command_array != other.command_array)
         return dist
 
     def __deepcopy__(self, memodict=None):

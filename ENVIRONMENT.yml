@@ -1,0 +1,22 @@
+name: Bingo
+channels:
+  - conda-forge
+dependencies:
+  - python=3.*
+  - cmake>=3.18
+  - eigen>=3.3
+  - setuptools
+  - numpy>=1.14.3
+  - mpi4py
+  - pip
+  - pip:
+    - mpi4py>=2.0.0
+    - numpy>=1.14.3
+    - pytest>=3.6
+    - pytest-mock>=1.10.0
+    - pytest-timeout>=1.4.2
+    - scipy>=1.6.2
+    - dill>=0.2.9
+    - sympy
+    - scikit-learn
+    - bingo-nasa

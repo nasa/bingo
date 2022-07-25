@@ -86,5 +86,5 @@ class ParetoFront(HallOfFame):
         return dominated_members
 
     def __str__(self):
-        return '\n'.join(["{}\t{}\t{}".format(key, self._key_func_2(i), i)
+        return '\n'.join([f"{key}\t{self._key_func_2(i)}\t{i}"
                           for key, i in zip(self._keys, self._items)])

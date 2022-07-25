@@ -1,9 +1,9 @@
 import os
 import re
 import sys
-import sysconfig
 import platform
 import subprocess
+import warnings
 
 from distutils.version import LooseVersion
 from setuptools import setup, Extension
@@ -27,9 +27,10 @@ class CMakeBuild(build_ext):
         try:
             out = subprocess.check_output(['cmake', '--version'])
         except OSError:
-            raise RuntimeError(
+            warnings.warn(
                 "CMake must be installed to build the following extensions: " +
                 ", ".join(e.name for e in self.extensions))
+            return
 
         if platform.system() == "Windows":
             cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)',
@@ -37,8 +38,11 @@ class CMakeBuild(build_ext):
             if cmake_version < '3.1.0':
                 raise RuntimeError("CMake >= 3.1.0 is required on Windows")
 
-        for ext in self.extensions:
-            self.build_extension(ext)
+        try:
+            for ext in self.extensions:
+                self.build_extension(ext)
+        except subprocess.SubprocessError:
+            warnings.warn("Couldn't install bingocpp")
 
     def build_extension(self, ext):
         extdir = os.path.abspath(
@@ -102,12 +106,14 @@ setup(
               "bingo.symbolic_regression.benchmarking",
               "bingo.util",
               "bingo.variation",
-              "bingocpp"
-             ],
-    install_requires=['mpi4py',
-                      'numpy',
-                      'scipy',
-                      'dill'],
+              ],
+    install_requires=["mpi4py",
+                      "numpy",
+                      "pytest",
+                      "pytest-mock",
+                      "pytest-timeout",
+                      "scipy",
+                      "dill"],
     python_requires='~=3.4',
     classifiers=[
         "Programming Language :: Python :: 3.4",
@@ -118,7 +124,7 @@ setup(
         "Development Status :: 3 - Alpha"
     ],
     # add extension module
-    ext_modules=[CMakeExtension('bingo.bingocpp', 'bingocpp')],
+    ext_modules=[CMakeExtension('bingocpp', 'bingocpp')],
     # add custom build_ext command
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,

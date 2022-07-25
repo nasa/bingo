@@ -135,7 +135,7 @@ For those looking to develop their own features in Bingo.
 
 First clone the repo and move into the directory:
 
-```console
+```sh
 git clone --recurse-submodules https://github.com/nasa/bingo.git
 cd bingo
 ```
@@ -144,6 +144,12 @@ Then make sure you have the requirements necessary to use Bingo:
 
 ```sh
 pip install -r requirements.txt
+```
+
+or
+
+```sh
+conda install --channel conda-forge --file requirements.txt
 ```
 
 (Optional) Then build the c++ performance library BingoCpp:
@@ -157,6 +163,18 @@ the installation process worked properly:
 
 ```sh
 pytest tests
+```
+
+Add Bingo to your Python path to begin using it from other directories.
+
+```sh
+export PYTHONPATH="$PYTHONPATH:/path/to/bingo/"
+```
+
+and test it with:
+
+```sh
+python -c 'import bingo; import bingocpp'
 ```
 
 ## Contributing
@@ -174,7 +192,7 @@ see the [tags on this repository](https://github.com/nasa/bingo/tags).
 *   Geoffrey Bomarito
 *   Tyler Townsend
 *   Jacob Hochhalter
-*   Davd Randall
+*   David Randall
 *   Ethan Adams
 *   Kathryn Esham
 *   Diana Vera

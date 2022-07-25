@@ -104,11 +104,11 @@ class ParallelArchipelago(Archipelago):
 
     def _non_blocking_execution(self, num_steps):
         if self.comm_rank == 0:
-            self._non_blocking_execution_master(num_steps)
+            self._non_blocking_execution_main(num_steps)
         else:
-            self._non_blocking_execution_slave()
+            self._non_blocking_execution_helper()
 
-    def _non_blocking_execution_master(self, num_steps):
+    def _non_blocking_execution_main(self, num_steps):
         total_age = {}
         average_age = self.generational_age
         target_age = average_age + num_steps
@@ -140,7 +140,7 @@ class ParallelArchipelago(Archipelago):
                                   tag=EXIT_NOTIFICATION)
             req.Wait()
 
-    def _non_blocking_execution_slave(self):
+    def _non_blocking_execution_helper(self):
         self._send_updated_age()
         while not self._has_exit_notification():
             self.island.evolve(self._sync_frequency,

@@ -124,5 +124,5 @@ class HallOfFame:
         return reversed(self._items)
 
     def __str__(self):
-        return '\n'.join(["{}\t{}".format(key, i)
+        return '\n'.join([f"{key}\t{i}"
                           for key, i in zip(self._keys, self._items)])

@@ -24,7 +24,8 @@ class Evaluation:
         Default False.
     multiprocess : int or bool
         Number of processes to use in parallel evaluation
-        or False for serial evaluation.
+        or False for serial evaluation. If using multiple processes,
+        individuals and fitness functions need to be pickle-able.
         Default False.
 
     Attributes

@@ -1,12 +1,11 @@
 # roughly following https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 
-name: PyPI Deployment
+name: Pip Build and PyPI Deployment
 
 on: [push]
 
 jobs:
   pip_build:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository and submodules

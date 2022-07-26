@@ -6,7 +6,7 @@ on: [push]
 
 jobs:
   pip_build:
-    if: github.ref == 'refs/heads/environment_setup'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository and submodules
@@ -33,7 +33,7 @@ jobs:
           mv bingo_full bingo
   deploy:
     needs: pip_build
-    if: github.ref == 'refs/heads/environment_setup'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository and submodules

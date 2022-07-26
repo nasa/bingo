@@ -83,7 +83,7 @@ with open("README.md", "r") as fh:
 
 
 setup(
-    name="bingo-nasa-test",
+    name="bingo-nasa",
     version=get_property('__version__', 'bingo'),
     author="Geoffrey Bomarito",
     author_email="geoffrey.f.bomarito@nasa.gov",

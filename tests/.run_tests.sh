@@ -18,4 +18,3 @@ then
     $MPI_EXEC -np 3 python tests/integration/mpitest_parallel_archipelago.py
     pytest tests
 fi
-

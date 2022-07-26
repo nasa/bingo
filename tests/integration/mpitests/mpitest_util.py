@@ -1,3 +1,6 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import inspect
 import sys
 
@@ -11,7 +14,7 @@ COMM_SIZE = COMM.Get_size()
 def mpi_assert_equal(actual, expected):
     equal = actual == expected
     if not equal:
-        message = "\tproc {}:  {} != {}\n".format(COMM_RANK, actual, expected)
+        message = f"\tproc {COMM_RANK}:  {actual} != {expected}\n"
     else:
         message = ""
     all_equals = COMM.allgather(equal)
@@ -21,7 +24,7 @@ def mpi_assert_equal(actual, expected):
 
 def mpi_assert_true(value):
     if not value:
-        message = "\tproc {}: False, expected True\n".format(COMM_RANK)
+        message = f"\tproc {COMM_RANK}: False, expected True\n"
     else:
         message = ""
     all_values = COMM.allgather(value)
@@ -34,7 +37,7 @@ def mpi_assert_exactly_n_false(value, n):
     if sum(all_values) == len(all_values) - n:
         return True, ""
 
-    message = "\tproc {}: {}\n".format(COMM_RANK, value)
+    message = f"\tproc {COMM_RANK}: {value}\n"
     all_messages = COMM.allreduce(message, op=MPI.SUM)
     all_messages = "\tExpected exactly " + str(n) + " False\n" + all_messages
     return False, all_messages
@@ -50,10 +53,10 @@ def mpi_assert_mean_near(value, expected_mean, rel=1e-6, abs=None):
     if -allowable_error <= actual_mean - expected_mean <= allowable_error:
         return True, ""
 
-    message = "\tproc {}:  {}\n".format(COMM_RANK, value)
+    message = f"\tproc {COMM_RANK}:  {value}\n"
     all_messages = COMM.allreduce(message, op=MPI.SUM)
-    all_messages += "\tMean {} != {} +- {}".format(actual_mean, expected_mean,
-                                                   allowable_error)
+    all_messages += f"\tMean {actual_mean} != {expected_mean} +- " \
+                    f"{allowable_error}"
     return False, all_messages
 
 
@@ -94,4 +97,4 @@ def run_t_in_module(module_name):
         print(num_success, "passed ==========")
 
     if num_failures > 0:
-        exit(-1)
+        sys.exit(-1)

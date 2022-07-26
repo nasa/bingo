@@ -1,11 +1,16 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
+from unittest.mock import Mock
 import os
+
+from mpi4py import MPI
 import numpy as np
 import dill
-from mpi4py import MPI
-from unittest.mock import Mock
+
+from mpitest_util import mpi_assert_true, mpi_assert_equal, \
+    mpi_assert_mean_near, mpi_assert_exactly_n_false, run_t_in_module
+
 from bingo.chromosomes.multiple_values import SinglePointCrossover, \
                                               SinglePointMutation, \
                                               MultipleValueChromosomeGenerator
@@ -15,9 +20,6 @@ from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.parallel_archipelago \
     import ParallelArchipelago, load_parallel_archipelago_from_file
-
-from mpitest_util import mpi_assert_true, mpi_assert_equal, \
-    mpi_assert_mean_near, mpi_assert_exactly_n_false, run_t_in_module
 
 POP_SIZE = 5
 SELECTION_SIZE = 10

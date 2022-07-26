@@ -45,8 +45,8 @@ class ParallelArchipelago(Archipelago):
     non_blocking : bool
         Specifies whether to use blocking or non-blocking execution. Default
         is non-blocking (True).
-    sync_frequency : int
-        How frequently to update the average age for each island. Default 10
+    sync_frequency : int, optional
+        How frequently to update the average age for each island. Default 10.
 
     Attributes
     ----------
@@ -96,6 +96,8 @@ class ParallelArchipelago(Archipelago):
 
     def _step_through_generations(self, num_steps):
         if self._non_blocking:
+            if num_steps < self._sync_frequency:
+                self._sync_frequency = 1
             self._non_blocking_execution(num_steps)
         else:
             self.island.evolve(num_steps,

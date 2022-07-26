@@ -133,6 +133,16 @@ def test_blocking_fitness_eval_count():
     return mpi_assert_equal(actual_evaluations, expected_evaluations)
 
 
+def test_non_blocking_evolution_default_sync_freq():
+    steps = 200
+    island = num_island(COMM_RANK)
+    archipelago = ParallelArchipelago(island, non_blocking=True)
+    archipelago.evolve(steps)
+    island_age = archipelago.island.generational_age
+    archipelago_age = archipelago.generational_age
+    return mpi_assert_mean_near(island_age, archipelago_age, rel=0.1)
+
+
 def test_non_blocking_evolution():
     steps = 200
     island = num_island(COMM_RANK)

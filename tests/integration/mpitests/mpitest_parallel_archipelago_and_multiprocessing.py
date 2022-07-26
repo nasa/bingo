@@ -46,9 +46,6 @@ def generator():
 
 def multi_process_parallel_archipelago():
     island = Island(ea(), generator(), POPULATION_SIZE)
-    # TODO: is it intended that non_blocking steps by sync_frequency?
-    #       what if n_steps < sync_frequency?
-    #       also < vs. <= in avg_age vs. target_age
     return ParallelArchipelago(island, non_blocking=False)
 
 

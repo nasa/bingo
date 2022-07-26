@@ -1,4 +1,10 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import numpy as np
+
+from mpi4py import MPI
+from mpitest_util import mpi_assert_true, run_t_in_module
 
 from bingo.evolutionary_optimizers.parallel_archipelago import \
     ParallelArchipelago
@@ -10,9 +16,6 @@ from bingo.chromosomes.multiple_values import SinglePointCrossover, \
 from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evaluation.evaluation import Evaluation
 
-from mpitest_util import mpi_assert_true, run_t_in_module
-
-from mpi4py import MPI
 COMM = MPI.COMM_WORLD
 COMM_RANK = COMM.Get_rank()
 COMM_SIZE = COMM.Get_size()
@@ -32,7 +35,7 @@ def evaluation():
     return Evaluation(MagnitudeFitness(), multiprocess=N_PROC)
 
 
-def ea():
+def evo_alg():
     selection = Tournament(5)
     crossover = SinglePointCrossover()
     mutation = SinglePointMutation(np.random.random)
@@ -45,7 +48,7 @@ def generator():
 
 
 def multi_process_parallel_archipelago():
-    island = Island(ea(), generator(), POPULATION_SIZE)
+    island = Island(evo_alg(), generator(), POPULATION_SIZE)
     return ParallelArchipelago(island, non_blocking=False)
 
 

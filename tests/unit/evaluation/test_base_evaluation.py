@@ -1,8 +1,8 @@
 # Ignoring some linting rules in tests
 # pylint: disable=missing-docstring
-import pytest
-
 from multiprocessing import Pool
+
+import pytest
 
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evaluation.fitness_function import FitnessFunction
@@ -68,7 +68,7 @@ def test_evaluation_redundant_evaluation(n_proc):
     evaluation(population)
 
     for i, indv in enumerate(population):
-        assert population[i].fitness == i + 1
+        assert indv.fitness == i + 1
     assert evaluation.eval_count == n_indv
     assert fitness_fn.eval_count == n_indv
 
@@ -93,6 +93,6 @@ def test_evaluation_multiprocessing(mocker, n_proc):
         assert not pool.called
 
     for i, indv in enumerate(population):
-        assert population[i].fitness == i + 1
+        assert indv.fitness == i + 1
     assert evaluation.eval_count == n_indv
     assert fitness_fn.eval_count == n_indv

@@ -1,9 +1,10 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import pytest
-import numpy as np
 import os
+
+import numpy as np
+import pytest
 
 from bingo.chromosomes.multiple_values import SinglePointCrossover, \
     SinglePointMutation, MultipleValueChromosomeGenerator
@@ -176,4 +177,3 @@ def test_dump_then_load(one_island):
     assert 2 == archipelago.generational_age
 
     os.remove(file_name)
-

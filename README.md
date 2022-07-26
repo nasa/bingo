@@ -23,7 +23,7 @@ can be used as a general purpose evolutionary optimization package.
 
 ## Installation
 
-To install Bingo, simply use pip:
+To install Bingo, simply use pip.  Unfortunately the pip install is currently not working.  Please use source install for the time being.
 
 ```sh
 pip install bingo-nasa
@@ -135,7 +135,7 @@ For those looking to develop their own features in Bingo.
 
 First clone the repo and move into the directory:
 
-```console
+```sh
 git clone --recurse-submodules https://github.com/nasa/bingo.git
 cd bingo
 ```
@@ -144,6 +144,12 @@ Then make sure you have the requirements necessary to use Bingo:
 
 ```sh
 pip install -r requirements.txt
+```
+
+or
+
+```sh
+conda install --channel conda-forge --file requirements.txt
 ```
 
 (Optional) Then build the c++ performance library BingoCpp:
@@ -157,6 +163,18 @@ the installation process worked properly:
 
 ```sh
 pytest tests
+```
+
+Add Bingo to your Python path to begin using it from other directories.
+
+```sh
+export PYTHONPATH="$PYTHONPATH:/path/to/bingo/"
+```
+
+and test it with:
+
+```sh
+python -c 'import bingo; import bingocpp'
 ```
 
 ## Contributing

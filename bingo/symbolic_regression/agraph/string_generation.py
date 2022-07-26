@@ -117,16 +117,16 @@ def _get_stack_string(command_array, constants):
 
 def _get_stack_element_string(command_index, stack_element, constants):
     node, param1, param2 = stack_element
-    tmp_str = "(%d) <= " % command_index
+    tmp_str = f"({command_index}) <= "
     if node == VARIABLE:
-        tmp_str += "X_%d" % param1
+        tmp_str += f"X_{param1}"
     elif node == CONSTANT:
         if param1 == -1 or param1 >= len(constants):
             tmp_str += "C"
         else:
-            tmp_str += "C_{} = {}".format(param1, constants[param1])
+            tmp_str += f"C_{param1} = {constants[param1]}"
     elif node == INTEGER:
-        tmp_str += "{} (integer)".format(param1)
+        tmp_str += f"{param1} (integer)"
     else:
         tmp_str += STACK_PRINT_MAP[node].format(param1, param2)
     tmp_str += "\n"
@@ -137,7 +137,7 @@ def _get_formatted_element_string(stack_element, str_list,
                                   format_dict, constants):
     node, param1, param2 = stack_element
     if node == VARIABLE:
-        tmp_str = "X_%d" % param1
+        tmp_str = f"X_{param1}"
     elif node == CONSTANT:
         if param1 == -1 or param1 >= len(constants):
             tmp_str = "?"

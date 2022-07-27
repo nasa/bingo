@@ -50,7 +50,7 @@ def test_operator_none_default_set():
 
 @pytest.mark.parametrize("invalid_operators", [{"abc"}, {"3"}, {""},
                                                "sin"  # needs to be list-like
-                                               ])  # of operators
+                                               ])     # of operators
 def test_operator_invalid(invalid_operators, basic_data):
     regr = SymbolicRegressor(operators=invalid_operators)
     X, y = basic_data
@@ -80,7 +80,36 @@ def test_mutation_prob_invalid(invalid_value, basic_data, expected_err):
     with pytest.raises(expected_err):
         regr.fit(X, y)
 
+
+@pytest.mark.parametrize("invalid_metric", ["aaa", 1, False])
+def test_metric_invalid(invalid_metric, basic_data):
+    regr = SymbolicRegressor(metric=invalid_metric)
+    X, y = basic_data
+
+    with pytest.raises(ValueError):
+        regr.fit(X, y)
+
+
+@pytest.mark.parametrize("invalid_alg", ["not_an_alg", 1, False])
+def test_clo_alg_invalid(invalid_alg, basic_data):
+    regr = SymbolicRegressor(clo_alg=invalid_alg)
+    X, y = basic_data
+
+    with pytest.raises(KeyError):
+        regr.fit(X, y)
+
+
+@pytest.mark.timeout(3)
+@pytest.mark.parametrize("invalid_n_gens", [0, -1])
+def test_n_gens_invalid(invalid_n_gens, basic_data):
+    regr = SymbolicRegressor(generations=invalid_n_gens)
+    X, y = basic_data
+
+    with pytest.raises(ValueError):
+        regr.fit(X, y)
+
 # TODO make sure constructor args get to respective objects
+#      e.g. if metric = "mse", make sure fitness gets "mse"
 
 def constructor_params():
     return ["population_size", "stack_size", "operators",

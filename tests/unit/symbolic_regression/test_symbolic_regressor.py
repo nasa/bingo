@@ -34,13 +34,6 @@ def basic_data():
     return X, y
 
 
-# TODO do we care about this?
-def test_constructor_default():
-    regr = SymbolicRegressor()
-    assert regr.population_size == 500
-    # TODO ...
-
-
 @pytest.mark.parametrize("invalid_size", [0, -1])
 def test_population_size_invalid(invalid_size, basic_data):
     regr = SymbolicRegressor(population_size=invalid_size)
@@ -276,6 +269,78 @@ def test_cant_force_diversity_in_island(mocker, sample_ea, sample_agraph):
     unique_indvs = set([str(indv) for indv in island.population])
     assert len(unique_indvs) == 1
     assert len(island.population) == pop_size
+
+
+# TODO split this up, way too big
+# TODO parametrize per ea
+def test_get_archipelago_gets_args(mocker):
+    stack_size = mocker.Mock()
+    use_simplification = mocker.Mock()
+    operators = [mocker.Mock() for _ in range(10)]
+    crossover_prob = mocker.Mock()
+    mutation_prob = mocker.Mock()
+    pop_size = mocker.Mock()
+
+    comp_gen = mocker.patch(get_sym_reg_import("ComponentGenerator"))
+
+    crossover = mocker.patch(get_sym_reg_import("AGraphCrossover"))
+    mutation = mocker.patch(get_sym_reg_import("AGraphMutation"))
+
+    agraph_gen = mocker.patch(get_sym_reg_import("AGraphGenerator"))
+
+    get_clo = mocker.patch(get_sym_reg_import("SymbolicRegressor._get_clo"))
+    clo_threshold = mocker.Mock()
+
+    eval = mocker.patch(get_sym_reg_import("Evaluation"))
+
+    ea = mocker.patch(get_sym_reg_import("AgeFitnessEA"))
+
+    hof = mocker.patch(get_sym_reg_import("HallOfFame"))
+    make_island = mocker.patch(get_sym_reg_import("SymbolicRegressor._make_island"))
+
+    force_diversity = mocker.patch(get_sym_reg_import("SymbolicRegressor._force_diversity_in_island"))
+
+    X = np.linspace(0, 100, num=100).reshape((10, 10))
+    y = np.linspace(-10, 10, num=100)
+    n_proc = mocker.Mock()
+
+    regr = SymbolicRegressor(stack_size=stack_size,
+                             use_simplification=use_simplification,
+                             clo_threshold=clo_threshold,
+                             evolutionary_algorithm=ea,
+                             operators=operators,
+                             crossover_prob=crossover_prob,
+                             mutation_prob=mutation_prob,
+                             population_size=pop_size)
+
+    arch = regr._get_archipelago(X, y, n_proc)
+
+    assert regr.component_generator == comp_gen.return_value
+    comp_gen.assert_called_with(X.shape[1])
+    for operator in operators:
+        comp_gen.return_value.add_operator.assert_any_call(operator)
+
+    assert regr.crossover == crossover.return_value
+
+    assert regr.mutation == mutation.return_value
+    mutation.assert_called_with(regr.component_generator)
+
+    assert regr.generator == agraph_gen.return_value
+    agraph_gen.assert_called_with(stack_size, regr.component_generator,
+                                  use_simplification=use_simplification,
+                                  use_python=True)
+
+    get_clo.assert_called_with(X, y, clo_threshold)
+    eval.assert_called_with(get_clo.return_value, multiprocess=n_proc)
+
+    ea.assert_called_with(eval.return_value, agraph_gen.return_value,
+                          crossover.return_value, mutation.return_value,
+                          crossover_prob, mutation_prob, pop_size)
+
+    make_island.assert_called_with(len(X), ea.return_value, hof.return_value)
+    force_diversity.assert_called_with(make_island.return_value)
+
+    assert arch == make_island.return_value
 
 
 def test_get_best_individual_normal(mocker):

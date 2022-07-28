@@ -19,7 +19,7 @@ except (ImportError, AttributeError):
 
 
 def configure_logging(verbosity="standard", module=False, timestamp=False,
-                      stats_file=None, logfile=None):
+                      stats_file=None, logfile=None, diagnostics_file=None):
     """Configuration of Bingo logging
 
     Parameters
@@ -35,6 +35,8 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
         (optional) file name for evolution statistics to be logged to
     logfile : str
         (optional) file name for a copy of the log to be saved
+    diagnostics_file : str
+        (optional) file name for evolution diagnostics to be logged to
     """
     level = _get_log_level_from_verbosity(verbosity)
 
@@ -55,6 +57,11 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
         stats_file_handler = _make_stats_file_handler(stats_file)
         root_logger.addHandler(stats_file_handler)
 
+    if diagnostics_file is not None:
+        diagnostics_file_handler = \
+            _make_diagnostics_file_handler(diagnostics_file)
+        root_logger.addHandler(diagnostics_file_handler)
+
 
 def _make_console_handler(level, module, timestamp):
     console_handler = logging.StreamHandler()
@@ -65,6 +72,7 @@ def _make_console_handler(level, module, timestamp):
     console_handler.setFormatter(formatter)
 
     console_handler.addFilter(StatsFilter(filter_out=True))
+    console_handler.addFilter(DiagnosticsFilter(filter_out=True))
     console_handler.addFilter(MpiFilter())
     return console_handler
 
@@ -78,6 +86,7 @@ def _make_logfile_handler(filename, level, module, timestamp):
     file_handler.setFormatter(formatter)
 
     file_handler.addFilter(StatsFilter(filter_out=True))
+    file_handler.addFilter(DiagnosticsFilter(filter_out=True))
     file_handler.addFilter(MpiFilter())
     return file_handler
 
@@ -113,6 +122,20 @@ def _make_stats_file_handler(stats_file):
     file_handler.setFormatter(formatter)
 
     file_handler.addFilter(StatsFilter(filter_out=False))
+    file_handler.addFilter(DiagnosticsFilter(filter_out=True))
+    file_handler.addFilter(MpiFilter())
+    return file_handler
+
+
+def _make_diagnostics_file_handler(diagnostics_file):
+    file_handler = logging.FileHandler(diagnostics_file)
+    file_handler.setLevel(INFO)
+
+    formatter = logging.Formatter("%(message)s")
+    file_handler.setFormatter(formatter)
+
+    file_handler.addFilter(StatsFilter(filter_out=True))
+    file_handler.addFilter(DiagnosticsFilter(filter_out=False))
     file_handler.addFilter(MpiFilter())
     return file_handler
 
@@ -184,5 +207,38 @@ class StatsFilter(logging.Filter):
             whether the record will be logged or not
         """
         if "stats" in record.__dict__:
+            return not self._filter_out == record.stats
+        return self._filter_out
+
+
+class DiagnosticsFilter(logging.Filter):
+    """This is a filter which filters based on the identifier "<diagnostics>" at
+    the beginning of a log message
+
+    Parameters
+    ----------
+    filter_out : bool
+        Whether to filter-out or filter-in stats messages
+    """
+    def __init__(self, filter_out):
+        super().__init__()
+        self._filter_out = filter_out
+
+    def filter(self, record):
+        """If filter_out is True, will block all records with identifier
+        "<diagnostics>" set to True.  Otherwise, will only allow records
+        with identifier "<diagnostics>" set to True.
+
+        Parameters
+        ----------
+        record : `LogRecord`
+            the record to filter
+
+        Returns
+        -------
+        bool
+            whether the record will be logged or not
+        """
+        if "diagnostics" in record.__dict__:
             return not self._filter_out == record.stats
         return self._filter_out

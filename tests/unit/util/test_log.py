@@ -40,13 +40,14 @@ def test_configure_logging_makes_console_handler(mocker):
     assert isinstance(positional_args[0], logging.StreamHandler)
 
 
-def test_console_handler_gets_two_filters(mocker):
+def test_console_handler_gets_three_filters(mocker):
     mocker.patch('logging.StreamHandler.addFilter')
     log.configure_logging()
     calls = logging.StreamHandler.addFilter.call_args_list
     filters = [positional_args[0] for positional_args, _ in calls]
     assert isinstance(filters[0], log.StatsFilter)
-    assert isinstance(filters[1], log.MpiFilter)
+    assert isinstance(filters[1], log.DiagnosticsFilter)
+    assert isinstance(filters[2], log.MpiFilter)
 
 
 def test_configure_logging_makes_stats_file_handler(mocker):
@@ -56,13 +57,31 @@ def test_configure_logging_makes_stats_file_handler(mocker):
     assert isinstance(positional_args[0], logging.FileHandler)
 
 
-def test_stats_file_handler_gets_two_filters(mocker):
+def test_stats_file_handler_gets_three_filters(mocker):
     mocker.patch('logging.FileHandler.addFilter')
     log.configure_logging(stats_file="test.log")
     calls = logging.FileHandler.addFilter.call_args_list
     filters = [positional_args[0] for positional_args, _ in calls]
     assert isinstance(filters[0], log.StatsFilter)
-    assert isinstance(filters[1], log.MpiFilter)
+    assert isinstance(filters[1], log.DiagnosticsFilter)
+    assert isinstance(filters[2], log.MpiFilter)
+
+
+def test_configure_logging_makes_diagnostics_file_handler(mocker):
+    mocker.patch('logging.Logger.addHandler')
+    log.configure_logging(diagnostics_file="test.log")
+    positional_args, _ = logging.Logger.addHandler.call_args
+    assert isinstance(positional_args[0], logging.FileHandler)
+
+
+def test_diagnostics_file_handler_gets_three_filters(mocker):
+    mocker.patch('logging.FileHandler.addFilter')
+    log.configure_logging(diagnostics_file="test.log")
+    calls = logging.FileHandler.addFilter.call_args_list
+    filters = [positional_args[0] for positional_args, _ in calls]
+    assert isinstance(filters[0], log.StatsFilter)
+    assert isinstance(filters[1], log.DiagnosticsFilter)
+    assert isinstance(filters[2], log.MpiFilter)
 
 
 @pytest.mark.parametrize("level, mpi_on, mpi_rank, expected_filter",

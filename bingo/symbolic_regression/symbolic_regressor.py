@@ -64,6 +64,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.clo_threshold = clo_threshold
 
+        # TODO make private attribute, as well as other attributes not defined in __init__?
         self.best_ind = None
 
         self.random_state = random_state
@@ -90,7 +91,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                                          )
 
         local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
-        evaluator = Evaluation(local_opt_fitness, n_processes)
+        evaluator = Evaluation(local_opt_fitness, multiprocess=n_processes)
 
         if self.evolutionary_algorithm == AgeFitnessEA:
             ea = self.evolutionary_algorithm(evaluator, self.generator, self.crossover,
@@ -118,7 +119,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
                                       predictor_size_ratio=800/dset_size)
 
-    def _get_clo(self, X, y, tol):
+    def _get_clo(self, X, y, tol):  # TODO rename to _get_local_opt
         training_data = ExplicitTrainingData(X, y)
         fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
         local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
@@ -181,6 +182,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             self.best_ind = self.archipelago.hall_of_fame[0]
         # print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
 
+        # TODO turn into helper fn
         # rerun CLO on best_ind with tighter tol
         fit_func = self._get_clo(X, y, tol=1e-6)
         best_fitness = fit_func(self.best_ind)

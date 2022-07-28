@@ -5,10 +5,13 @@ import pytest
 from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor
 from bingo.symbolic_regression.agraph.operator_definitions import OPERATOR_NAMES
 from bingo.evolutionary_optimizers.evolutionary_optimizer import EvolutionaryOptimizer
-from bingo.evolutionary_optimizers.island import Island
-from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
 from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
+
+
+def get_sym_reg_import(class_or_method_name):
+    return "bingo.symbolic_regression.symbolic_regressor." \
+           + class_or_method_name
 
 
 @pytest.fixture
@@ -18,7 +21,7 @@ def basic_data():
     return X, y
 
 
-# do we care about this?
+# TODO do we care about this?
 def test_constructor_default():
     regr = SymbolicRegressor()
     assert regr.population_size == 500
@@ -32,6 +35,81 @@ def test_population_size_invalid(invalid_size, basic_data):
 
     with pytest.raises(ValueError):
         regr.fit(X, y)
+
+
+def test_component_generator_gets_shape_and_ops(mocker, basic_data):
+    mocker.patch(get_sym_reg_import("SymbolicRegressor._make_island"))
+    mocker.patch(get_sym_reg_import(
+        "SymbolicRegressor._force_diversity_in_island"))
+    comp_gen = mocker.patch(get_sym_reg_import("ComponentGenerator"))
+
+    mocked_operators = [mocker.Mock() for _ in range(5)]
+    regr = SymbolicRegressor(operators=mocked_operators)
+    X, y = basic_data
+
+    regr._get_archipelago(X, y, 1)
+
+    comp_gen.assert_called_with(X.shape[1])
+    for mocked_operator in mocked_operators:
+        comp_gen.return_value.add_operator.assert_any_call(mocked_operator)
+
+
+def test_agraph_generator_gets_args(mocker, basic_data):
+    agraph_gen = mocker.patch(get_sym_reg_import("AGraphGenerator"))
+    comp_gen = mocker.patch(get_sym_reg_import("ComponentGenerator"))
+
+    stack_size = mocker.Mock()
+    use_simplification = mocker.Mock()
+
+    regr = SymbolicRegressor(stack_size=stack_size,
+                             use_simplification=use_simplification)
+    X, y = basic_data
+    regr._get_archipelago(X, y, 1)
+
+    agraph_gen.assert_called_with(stack_size, comp_gen.return_value,
+                                  use_simplification=use_simplification,
+                                  use_python=True)
+
+
+def test_agraph_mutation_gets_comp_gen(mocker, basic_data):
+    mocker.patch(get_sym_reg_import("SymbolicRegressor._make_island"))
+    mocker.patch(get_sym_reg_import(
+        "SymbolicRegressor._force_diversity_in_island"))
+    agraph_mutation = mocker.patch(get_sym_reg_import("AGraphMutation"))
+    comp_gen = mocker.patch(get_sym_reg_import("ComponentGenerator"))
+
+    regr = SymbolicRegressor()
+    X, y = basic_data
+    regr._get_archipelago(X, y, 1)
+
+    agraph_mutation.assert_called_with(comp_gen.return_value)
+
+
+def test_local_opt_and_fitness(mocker, basic_data):
+    training_data = mocker.patch(get_sym_reg_import("ExplicitTrainingData"))
+    fitness = mocker.patch(get_sym_reg_import("ExplicitRegression"))
+    local_opt = mocker.patch(get_sym_reg_import("ContinuousLocalOptimization"))
+    clo_alg = mocker.Mock()
+    clo_threshold = mocker.Mock()
+    metric = mocker.Mock()
+    X, y = basic_data
+
+    regr = SymbolicRegressor(metric=metric, clo_alg=clo_alg,
+                             clo_threshold=clo_threshold)
+    regr._get_archipelago(X, y, 1)
+
+    # TODO can we test that training_data.x == x and fitness.training_data == training_data
+    #   testing functionality vs. expected function calls
+    training_data.assert_called_with(X, y)
+    fitness.assert_called_with(training_data=training_data.return_value,
+                               metric=metric)
+    local_opt.assert_called_with(fitness.return_value, algorithm=clo_alg,
+                                 tol=clo_threshold)
+
+
+# TODO
+def test_evolutionary_alg_gets_args(mocker):
+    pass
 
 
 @pytest.mark.parametrize("invalid_size", [0, -1])

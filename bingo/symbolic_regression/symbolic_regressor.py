@@ -25,6 +25,7 @@ from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredic
 from bingo.evolutionary_optimizers.island import Island
 
 
+# TODO to and from hyperparam dict
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def __init__(self, *, population_size=500, stack_size=32,
                  operators=None, use_simplification=False,
@@ -85,7 +86,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.generator = AGraphGenerator(self.stack_size, self.component_generator,
                                          use_simplification=self.use_simplification,
-                                         use_python=True # only using c++ backend
+                                         use_python=True  # only using Python backend
                                          )
 
         local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
@@ -101,7 +102,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                                              self.crossover_prob, self.mutation_prob)
 
         # TODO pareto front based on complexity?
-        hof = HallOfFame(5)
+        hof = HallOfFame(10)
 
         island = self._make_island(len(X), ea, hof)
         self._force_diversity_in_island(island)
@@ -135,7 +136,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             if ind_str not in pop_strings or i > 15 * self.population_size:
                 pop_strings.add(ind_str)
                 diverse_pop.append(ind)
-        print(f" Generating a diverse population took {i} iterations.")
+        # print(f" Generating a diverse population took {i} iterations.")
         island.population = diverse_pop
 
     def get_best_individual(self):
@@ -155,13 +156,13 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         n_cpus = os.environ.get('OMP_NUM_THREADS', 1)
 
-        print(f"using {n_cpus} processes")
+        # print(f"using {n_cpus} processes")
         self.archipelago = self._get_archipelago(X, y, n_cpus)
-        print(f"archipelago: {type(self.archipelago)}")
+        # print(f"archipelago: {type(self.archipelago)}")
 
         max_eval_scaling = 1
         if isinstance(self.archipelago, FitnessPredictorIsland):
-            print("n_points per predictor:", self.archipelago._predictor_size)
+            # print("n_points per predictor:", self.archipelago._predictor_size)
             if self.scale_max_evals:
                 max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
         # print("max evals:", self.max_evals * max_eval_scaling)
@@ -178,7 +179,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             self.best_ind = self.archipelago.get_best_individual()
         else:
             self.best_ind = self.archipelago.hall_of_fame[0]
-        print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
+        # print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
 
         # rerun CLO on best_ind with tighter tol
         fit_func = self._get_clo(X, y, tol=1e-6)
@@ -192,7 +193,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                 best_constants = tuple(self.best_ind.constants)
         self.best_ind.fitness = best_fitness
         self.best_ind.set_local_optimization_params(best_constants)
-        print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
+        # print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
 
         # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
         # print("\nbest individual:", self.best_ind)

@@ -343,6 +343,59 @@ def test_get_archipelago_gets_args(mocker):
     assert arch == make_island.return_value
 
 
+# TODO sample weight testing
+# TODO break down into component tests
+def test_fit_normal(mocker):
+    random_state = mocker.Mock()
+    np_seed = mocker.patch(get_sym_reg_import("np.random.seed"))
+    random_seed = mocker.patch(get_sym_reg_import("random.seed"))
+
+    n_cpus = mocker.Mock()
+    os = mocker.patch(get_sym_reg_import("os"))
+    os.environ = {"OMP_NUM_THREADS": n_cpus}
+
+    get_archipelago = mocker.patch(get_sym_reg_import("SymbolicRegressor._get_archipelago"))
+
+    max_gens = mocker.Mock()
+    fit_threshold = mocker.Mock()
+    max_time = mocker.Mock()
+    evo_opt_converge = get_archipelago.return_value.evolve_until_convergence
+
+    best_indv = mocker.Mock()
+    get_best_indv = mocker.patch(get_sym_reg_import("SymbolicRegressor.get_best_individual"))
+    get_best_indv.return_value = best_indv
+
+    refit_indv = mocker.patch(get_sym_reg_import("SymbolicRegressor._refit_best_individual"))
+
+    regr = SymbolicRegressor(random_state=random_state, generations=max_gens,
+                             fitness_threshold=fit_threshold, max_time=max_time)
+
+    X = mocker.MagicMock()
+    y = mocker.MagicMock()
+
+    returned_obj = regr.fit(X, y, sample_weight=None)
+
+    np_seed.assert_called_with(random_state)
+    random_seed.assert_called_with(random_state)
+
+    get_archipelago.assert_called_with(X, y, n_cpus)
+
+    assert len(evo_opt_converge.call_args_list) == 1
+    assert evo_opt_converge.call_args.kwargs["max_generations"] == max_gens
+    assert evo_opt_converge.call_args.kwargs["fitness_threshold"] == fit_threshold
+    assert evo_opt_converge.call_args.kwargs["max_time"] == max_time
+    # TODO need to understand the max_eval scaling better
+    # assert evo_opt_converge.call_args.kwargs["max_fitness_evaluations"] == max_evals
+
+    assert regr.get_best_individual() == best_indv
+
+    assert len(refit_indv.call_args_list) == 1
+    assert refit_indv.call_args.args == (X, y)
+
+    assert returned_obj is regr
+
+
+
 def test_get_best_individual_normal(mocker):
     regr = SymbolicRegressor()
     best_ind = mocker.Mock()

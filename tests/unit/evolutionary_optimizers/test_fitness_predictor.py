@@ -69,8 +69,8 @@ def test_deep_copy_of_full_fitness_fn(mocked_training_data,
                                                        mocked_fitness_function,
                                                        mocked_population,
                                                        num_trainers=5)
-    assert predictor_fit_fn._fitness_function != mocked_fitness_function
-    assert predictor_fit_fn._fitness_function.training_data != \
+    assert predictor_fit_fn._fitness_function is not mocked_fitness_function
+    assert predictor_fit_fn._fitness_function.training_data is not \
            mocked_fitness_function.training_data
 
 

@@ -33,7 +33,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                  metric="mse", parallel=False, clo_alg="lm",
                  generations=int(1e19), fitness_threshold=1.0e-16,
                  max_time=1800, max_evals=int(1e19),
-                 evolutionary_algorithm=AgeFitnessEA,
+                 evolutionary_algorithm=None,
                  clo_threshold=1.0e-8, scale_max_evals=False,
                  random_state=None):
         self.population_size = population_size
@@ -60,6 +60,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.max_evals = max_evals
         self.scale_max_evals = scale_max_evals
 
+        if evolutionary_algorithm is None:
+            evolutionary_algorithm = AgeFitnessEA
         self.evolutionary_algorithm = evolutionary_algorithm
 
         self.clo_threshold = clo_threshold
@@ -97,10 +99,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             ea = self.evolutionary_algorithm(evaluator, self.generator, self.crossover,
                                              self.mutation, self.crossover_prob, self.mutation_prob,
                                              self.population_size)
-
-        else:  # DeterministicCrowdingEA
+        elif self.evolutionary_algorithm == DeterministicCrowdingEA:
             ea = self.evolutionary_algorithm(evaluator, self.crossover, self.mutation,
                                              self.crossover_prob, self.mutation_prob)
+        else:
+            raise TypeError(f"{self.evolutionary_algorithm} is an unsupported "
+                            "evolutionary algorithm")
 
         # TODO pareto front based on complexity?
         hof = HallOfFame(10)
@@ -140,12 +144,19 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         # print(f" Generating a diverse population took {i} iterations.")
         island.population = diverse_pop
 
-    def get_best_individual(self):
-        if self.best_ind is None:
-            raise ValueError("Best individual not set")
-        return self.best_ind
+    def _refit_best_individual(self, X, y, tol):
+        fit_func = self._get_clo(X, y, tol)
+        best_fitness = fit_func(self.best_ind)
+        best_constants = tuple(self.best_ind.constants)
+        for _ in range(5):
+            self.best_ind._needs_opt = True
+            fitness = fit_func(self.best_ind)
+            if fitness < best_fitness:
+                best_fitness = fitness
+                best_constants = tuple(self.best_ind.constants)
+        self.best_ind.fitness = best_fitness
+        self.best_ind.set_local_optimization_params(best_constants)
 
-    # TODO should return self
     def fit(self, X, y, sample_weight=None):
         if self.random_state is not None:
             np.random.seed(self.random_state)
@@ -182,23 +193,19 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             self.best_ind = self.archipelago.hall_of_fame[0]
         # print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
 
-        # TODO turn into helper fn
+        self._refit_best_individual(X, y, tol=1e-6)
+
+        return self
         # rerun CLO on best_ind with tighter tol
-        fit_func = self._get_clo(X, y, tol=1e-6)
-        best_fitness = fit_func(self.best_ind)
-        best_constants = tuple(self.best_ind.constants)
-        for _ in range(5):
-            self.best_ind._needs_opt = True
-            fitness = fit_func(self.best_ind)
-            if fitness < best_fitness:
-                best_fitness = fitness
-                best_constants = tuple(self.best_ind.constants)
-        self.best_ind.fitness = best_fitness
-        self.best_ind.set_local_optimization_params(best_constants)
         # print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
 
         # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
         # print("\nbest individual:", self.best_ind)
+
+    def get_best_individual(self):
+        if self.best_ind is None:
+            raise ValueError("Best individual not set")
+        return self.best_ind
 
     def predict(self, X):
         best_ind = self.get_best_individual()

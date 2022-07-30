@@ -1,4 +1,3 @@
-from functools import partial
 import numpy as np
 import pytest
 from bingo.evaluation.evaluation import Evaluation
@@ -20,11 +19,27 @@ from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 
 INF_REPLACEMENT = 1e100
+DEFAULT_OPERATORS = {"+", "-", "*", "/"}
+SUPPORTED_EA_STRS = ["AgeFitnessEA", "DeterministicCrowdingEA"]
+
+# NOTE (David Randall): I'm testing a lot of private methods here. Normally
+# I would avoid doing this, but to make the tests more manageable, I am doing
+# so to break down the larger function tests (e.g., fit).
 
 
 def get_sym_reg_import(class_or_method_name):
     return "bingo.symbolic_regression.symbolic_regressor." \
            + class_or_method_name
+
+def patch_import(mocker, class_name):
+    import_name = "bingo.symbolic_regression.symbolic_regressor." + class_name
+    return mocker.patch(import_name)
+
+
+def patch_regr_method(mocker, method_name):
+    import_name = "bingo.symbolic_regression.symbolic_regressor." \
+                  "SymbolicRegressor." + method_name
+    return mocker.patch(import_name)
 
 
 @pytest.fixture
@@ -271,74 +286,181 @@ def test_cant_force_diversity_in_island(mocker, sample_ea, sample_agraph):
     assert len(island.population) == pop_size
 
 
-# TODO split this up, way too big
-# TODO parametrize per ea
-def test_get_archipelago_gets_args(mocker):
-    stack_size = mocker.Mock()
-    use_simplification = mocker.Mock()
-    operators = [mocker.Mock() for _ in range(10)]
-    crossover_prob = mocker.Mock()
-    mutation_prob = mocker.Mock()
-    pop_size = mocker.Mock()
+def patch_all_get_archipelago(mocker):
+    imports = ["ComponentGenerator", "AGraphCrossover", "AGraphMutation",
+               "AGraphGenerator", "Evaluation", "AgeFitnessEA",
+               "DeterministicCrowdingEA", "HallOfFame"]
+    fns = ["_get_clo", "_make_island", "_force_diversity_in_island"]
 
-    comp_gen = mocker.patch(get_sym_reg_import("ComponentGenerator"))
+    patched_imports = {name: patch_import(mocker, name) for name in imports}
+    patched_fns = {name: patch_regr_method(mocker, name) for name in fns}
 
-    crossover = mocker.patch(get_sym_reg_import("AGraphCrossover"))
-    mutation = mocker.patch(get_sym_reg_import("AGraphMutation"))
+    patched_imports.update(patched_fns)
 
-    agraph_gen = mocker.patch(get_sym_reg_import("AGraphGenerator"))
+    return patched_imports
 
-    get_clo = mocker.patch(get_sym_reg_import("SymbolicRegressor._get_clo"))
-    clo_threshold = mocker.Mock()
 
-    eval = mocker.patch(get_sym_reg_import("Evaluation"))
+def get_mocked_data(mocker):
+    X = mocker.MagicMock()
+    X.shape = (mocker.Mock(), mocker.Mock())
 
-    ea = mocker.patch(get_sym_reg_import("AgeFitnessEA"))
+    y = mocker.MagicMock()
+    y.shape = (mocker.Mock(), mocker.Mock())
 
-    hof = mocker.patch(get_sym_reg_import("HallOfFame"))
-    make_island = mocker.patch(get_sym_reg_import("SymbolicRegressor._make_island"))
+    return X, y
 
-    force_diversity = mocker.patch(get_sym_reg_import("SymbolicRegressor._force_diversity_in_island"))
 
-    X = np.linspace(0, 100, num=100).reshape((10, 10))
-    y = np.linspace(-10, 10, num=100)
+@pytest.mark.parametrize("operators", [None, "mock"])
+def test_get_archipelago_component_gen(mocker, operators):
+    patched_objs = patch_all_get_archipelago(mocker)
+    comp_gen = patched_objs["ComponentGenerator"]
+    if operators == "mock":
+        operators = [mocker.Mock() for _ in range(10)]
+
+    regr = SymbolicRegressor(operators=operators)
+    X, y = get_mocked_data(mocker)
     n_proc = mocker.Mock()
 
-    regr = SymbolicRegressor(stack_size=stack_size,
-                             use_simplification=use_simplification,
-                             clo_threshold=clo_threshold,
-                             evolutionary_algorithm=ea,
-                             operators=operators,
-                             crossover_prob=crossover_prob,
-                             mutation_prob=mutation_prob,
-                             population_size=pop_size)
+    regr._get_archipelago(X, y, n_proc)
 
-    arch = regr._get_archipelago(X, y, n_proc)
-
+    comp_gen.assert_called_once_with(X.shape[1])
     assert regr.component_generator == comp_gen.return_value
-    comp_gen.assert_called_with(X.shape[1])
+
+    if operators is None:
+        operators = DEFAULT_OPERATORS
     for operator in operators:
         comp_gen.return_value.add_operator.assert_any_call(operator)
 
+
+def test_get_archipelago_agraph_crossover(mocker):
+    patched_objs = patch_all_get_archipelago(mocker)
+    crossover = patched_objs["AGraphCrossover"]
+
+    regr = SymbolicRegressor()
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
+
+    regr._get_archipelago(X, y, n_proc)
+
+    crossover.assert_called_once()
     assert regr.crossover == crossover.return_value
 
+
+def test_get_archipelago_agraph_mutation(mocker):
+    patched_objs = patch_all_get_archipelago(mocker)
+    mutation = patched_objs["AGraphMutation"]
+    comp_gen = patched_objs["ComponentGenerator"]
+
+    regr = SymbolicRegressor()
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
+
+    regr._get_archipelago(X, y, n_proc)
+
+    mutation.assert_called_once_with(comp_gen.return_value)
     assert regr.mutation == mutation.return_value
-    mutation.assert_called_with(regr.component_generator)
 
-    assert regr.generator == agraph_gen.return_value
-    agraph_gen.assert_called_with(stack_size, regr.component_generator,
-                                  use_simplification=use_simplification,
-                                  use_python=True)
 
-    get_clo.assert_called_with(X, y, clo_threshold)
-    eval.assert_called_with(get_clo.return_value, multiprocess=n_proc)
+def test_get_archipelago_agraph_generator(mocker):
+    patched_objs = patch_all_get_archipelago(mocker)
+    generator = patched_objs["AGraphGenerator"]
+    comp_gen = patched_objs["ComponentGenerator"]
 
-    ea.assert_called_with(eval.return_value, agraph_gen.return_value,
-                          crossover.return_value, mutation.return_value,
-                          crossover_prob, mutation_prob, pop_size)
+    stack_size = mocker.Mock()
+    use_simplification = mocker.Mock()
+    regr = SymbolicRegressor(stack_size=stack_size,
+                             use_simplification=use_simplification)
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
 
-    make_island.assert_called_with(len(X), ea.return_value, hof.return_value)
-    force_diversity.assert_called_with(make_island.return_value)
+    regr._get_archipelago(X, y, n_proc)
+
+    generator.assert_called_once_with(stack_size, comp_gen.return_value,
+                                      use_simplification=use_simplification,
+                                      use_python=True)
+    assert regr.generator == generator.return_value
+
+
+def test_get_archipelago_evaluation(mocker):
+    patched_objs = patch_all_get_archipelago(mocker)
+    age_fitness = mocker.patch("bingo.evolutionary_algorithms.age_fitness")
+    age_fitness.AgeFitnessEA = mocker.Mock()
+    get_clo = patched_objs["_get_clo"]
+    evaluation = patched_objs["Evaluation"]
+
+    clo_tol = mocker.Mock()
+    regr = SymbolicRegressor(clo_threshold=clo_tol)
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
+
+    regr._get_archipelago(X, y, n_proc)
+
+    get_clo.assert_called_once_with(X, y, clo_tol)
+    evaluation.assert_called_once_with(get_clo.return_value,
+                                       multiprocess=n_proc)
+
+
+@pytest.mark.parametrize("evo_alg_str", SUPPORTED_EA_STRS)
+def test_get_archipelago_evo_alg_supported(mocker, evo_alg_str):
+    patched_objs = patch_all_get_archipelago(mocker)
+    evo_alg = patched_objs[evo_alg_str]
+    evaluation = patched_objs["Evaluation"].return_value
+    generator = patched_objs["AGraphGenerator"].return_value
+    crossover = patched_objs["AGraphCrossover"].return_value
+    mutation = patched_objs["AGraphMutation"].return_value
+
+    cross_prob = mocker.Mock()
+    mutation_prob = mocker.Mock()
+    pop_size = mocker.Mock()
+    regr = SymbolicRegressor(crossover_prob=cross_prob,
+                             mutation_prob=mutation_prob,
+                             population_size=pop_size,
+                             evolutionary_algorithm=evo_alg)
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
+
+    regr._get_archipelago(X, y, n_proc)
+
+    if evo_alg_str == "AgeFitnessEA":
+        evo_alg.assert_called_once_with(evaluation, generator, crossover,
+                                        mutation, cross_prob, mutation_prob,
+                                        pop_size)
+    else:
+        evo_alg.assert_called_once_with(evaluation, crossover, mutation,
+                                        cross_prob, mutation_prob)
+
+
+def test_get_archipelago_evo_alg_unsupported(mocker):
+    patch_all_get_archipelago(mocker)
+    regr = SymbolicRegressor(evolutionary_algorithm=mocker.Mock())
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
+
+    with pytest.raises(TypeError) as exc_info:
+        regr._get_archipelago(X, y, n_proc)
+    assert "is an unsupported evolutionary algorithm" in str(exc_info.value)
+
+
+@pytest.mark.parametrize("evo_alg_str", SUPPORTED_EA_STRS)
+def test_get_archipelago_arch_and_return(mocker, evo_alg_str):
+    patched_objs = patch_all_get_archipelago(mocker)
+    evo_alg = patched_objs[evo_alg_str]
+    hof = patched_objs["HallOfFame"]
+    make_island = patched_objs["_make_island"]
+    force_diversity = patched_objs["_force_diversity_in_island"]
+
+    regr = SymbolicRegressor(evolutionary_algorithm=evo_alg)
+    X, y = get_mocked_data(mocker)
+    n_proc = mocker.Mock()
+
+    arch = regr._get_archipelago(X, y, n_proc)
+
+    make_island.assert_called_once()
+    expected_args = [(len(X), evo_alg.return_value, hof.return_value),
+                     (X.shape[0], evo_alg.return_value, hof.return_value)]
+    assert make_island.call_args.args in expected_args
+
+    force_diversity.assert_called_once_with(make_island.return_value)
 
     assert arch == make_island.return_value
 
@@ -641,7 +763,8 @@ def test_fit_finds_sol_in_initial_pop(mocker):
     regr = SymbolicRegressor()
     regr.fit(X, y)
 
-    assert regr.get_best_individual() == sol_agraph
+    np.testing.assert_array_equal(regr.get_best_individual().command_array,
+                                  sol_agraph.command_array)
     assert regr.archipelago.generational_age == 0
 
 
@@ -675,6 +798,3 @@ def test_fit_finds_sol_normal(mocker):
 # TODO validation tests on fit
 # TODO check to see which param's don't give descriptive exceptions
 # TODO get_best_individual normal test
-# TODO test fit returns self
-# TODO test diverse population (works and doesn't error out when not possible)?
-

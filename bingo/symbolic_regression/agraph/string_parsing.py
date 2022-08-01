@@ -2,7 +2,10 @@
 import re
 import numpy as np
 
-from bingo.symbolic_regression.agraph.operator_definitions import *
+from bingo.symbolic_regression.agraph.operator_definitions \
+    import INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION, MULTIPLICATION, \
+           DIVISION, SIN, COS, SINH, COSH, EXPONENTIAL, LOGARITHM, POWER, ABS, \
+           SQRT
 
 operators = {"+", "-", "*", "/", "^"}
 functions = {"sin", "cos", "sinh", "cosh", "exp", "log", "abs", "sqrt"}

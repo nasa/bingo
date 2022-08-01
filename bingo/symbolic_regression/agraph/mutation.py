@@ -429,14 +429,14 @@ class AGraphMutation(Mutation):
             while operator is None or IS_ARITY_2_MAP[operator]:
                 if attempts >= 100:
                     raise RuntimeError("Could not generate arity "
-                                       "{} operator".format(arity))
+                                       f"{arity} operator")
                 operator = self._component_generator.random_operator()
                 attempts += 1
         else:
             while operator is None or not IS_ARITY_2_MAP[operator]:
                 if attempts >= 100:
                     raise RuntimeError("Could not generate arity "
-                                       "{} operator".format(arity))
+                                       f"{arity} operator")
                 operator = self._component_generator.random_operator()
                 attempts += 1
         return operator

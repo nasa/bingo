@@ -89,7 +89,7 @@ class ComponentGenerator:
         for operator_number, operator_names in OPERATOR_NAMES.items():
             if operator_string in operator_names:
                 return operator_number
-        raise ValueError("Could not find operator %s. " % operator_string)
+        raise ValueError(f"Could not find operator {operator_string}. ")
 
     def random_command(self, stack_location):
         """Get a random command

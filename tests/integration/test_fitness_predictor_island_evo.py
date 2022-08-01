@@ -20,8 +20,10 @@ from bingo.stats.hall_of_fame import HallOfFame
 MAIN_POPULATION_SIZE = 40
 PREDICTOR_POPULATION_SIZE = 4
 TRAINER_POPULATION_SIZE = 4
-SUBSET_TRAINING_DATA_SIZE = 2
-FULL_TRAINING_DATA_SIZE = 20
+SUBSET_TRAINING_DATA_SIZE = 20
+FULL_TRAINING_DATA_SIZE = 200
+PREDICTOR_SIZE_RATIO = SUBSET_TRAINING_DATA_SIZE/FULL_TRAINING_DATA_SIZE
+SMALL_TRAINING_DATA_THRESHOLD = 10
 
 
 class DistanceToAverage(FitnessFunction):
@@ -57,7 +59,7 @@ def fitness_predictor_island(ev_alg, generator):
     island = FPI(ev_alg, generator, MAIN_POPULATION_SIZE,
                  predictor_population_size=PREDICTOR_POPULATION_SIZE,
                  trainer_population_size=TRAINER_POPULATION_SIZE,
-                 predictor_size_ratio=SUBSET_TRAINING_DATA_SIZE/FULL_TRAINING_DATA_SIZE,
+                 predictor_size_ratio=PREDICTOR_SIZE_RATIO,
                  predictor_computation_ratio=0.4,
                  trainer_update_frequency=4,
                  predictor_update_frequency=5)
@@ -88,6 +90,41 @@ def test_best_fitness_is_true_fitness(fitness_predictor_island,
     best_fitness = fitness_predictor_island.get_best_fitness()
     expected_best_fitness = true_fitness_function(best_individual)
     assert best_fitness == expected_best_fitness
+
+
+def get_island_with_training_data_size(training_data_size):
+    training_data = np.linspace(0.1, 1, training_data_size)
+    generator = MultipleValueChromosomeGenerator(np.random.random, 10)
+
+    crossover = SinglePointCrossover()
+    mutation = SinglePointMutation(np.random.random)
+    selection = Tournament(2)
+    fitness = DistanceToAverage(training_data)
+    evaluator = Evaluation(fitness)
+
+    ea = MuPlusLambda(evaluator, selection, crossover, mutation,
+                      0.0, 1.0, MAIN_POPULATION_SIZE)
+    island = FPI(ea, generator, MAIN_POPULATION_SIZE,
+                 predictor_population_size=PREDICTOR_POPULATION_SIZE,
+                 trainer_population_size=TRAINER_POPULATION_SIZE,
+                 predictor_size_ratio=PREDICTOR_SIZE_RATIO,
+                 predictor_computation_ratio=0.4,
+                 trainer_update_frequency=4,
+                 predictor_update_frequency=5)
+    island._predictor_island._ea.variation._mutation_probability = 1.0
+    return island
+
+
+@pytest.mark.parametrize("n_training_data", [1, SMALL_TRAINING_DATA_THRESHOLD,
+                                             SMALL_TRAINING_DATA_THRESHOLD * 2])
+def test_predictor_size_not_below_threshold_or_full_dataset(n_training_data):
+    n_subset_data = int(PREDICTOR_SIZE_RATIO * n_training_data)
+    island = get_island_with_training_data_size(n_training_data)
+    if n_subset_data <= SMALL_TRAINING_DATA_THRESHOLD:
+        assert island._predictor_size == \
+               min(n_training_data, SMALL_TRAINING_DATA_THRESHOLD)
+    else:
+        assert island._predictor_size == n_subset_data
 
 
 def test_predictor_compute_ratios(fitness_predictor_island):

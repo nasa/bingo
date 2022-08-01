@@ -151,7 +151,7 @@ class MpiFilter(logging.Filter):
             if record.levelno == INFO:
                 return MPIRANK == 0
             if self._add_proc_number:
-                record.msg = "{}>\t".format(MPIRANK) + record.msg
+                record.msg = f"{MPIRANK}>\t" + record.msg
         return True
 
 

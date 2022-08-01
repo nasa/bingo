@@ -11,7 +11,7 @@ from setuptools.command.build_ext import build_ext
 
 
 def get_property(prop, project):
-    result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), 
+    result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop),
                        open(project + '/__init__.py').read())
     return result.group(1)
 
@@ -72,7 +72,7 @@ class CMakeBuild(build_ext):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args,
                               cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.', '--target', 'bingocpp'] 
+        subprocess.check_call(['cmake', '--build', '.', '--target', 'bingocpp']
                               + build_args,
                               cwd=self.build_temp)
         print()  # Add an empty line for cleaner output

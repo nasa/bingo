@@ -1,11 +1,37 @@
 # roughly following https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
 
-name: PyPI Deployment
+name: Pip Build and PyPI Deployment
 
 on: [push]
 
 jobs:
+  pip_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install MPI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mpich libmpich-dev
+      - name: Build using pip
+        run: |
+          pip install .
+      - name: Run tests (use pip instead of repo)
+        run: |
+          cd ..
+          cp -r bingo/tests .
+          mv bingo bingo_full
+          tests/.run_tests.sh normal
+          mv bingo_full bingo
   deploy:
+    needs: pip_build
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:

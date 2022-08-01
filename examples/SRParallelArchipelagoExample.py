@@ -71,9 +71,10 @@ def execute_generational_steps():
 
     opt_result = archipelago.evolve_until_convergence(max_generations=500,
                                                       fitness_threshold=1.0e-4)
+    best_indv = archipelago.get_best_individual()
     if opt_result.success:
         if rank == 0:
-            print("best: ", archipelago.get_best_individual())
+            print("best: ", best_indv)
 
 
 def main():

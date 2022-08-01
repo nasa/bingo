@@ -12,26 +12,30 @@ try:
 except ImportError:
     PAR_ARCH_LOADED = False
 
-from bingo.evolutionary_optimizers.island import Island
-
 
 DummyChromosome = namedtuple("DummyChromosome", ["fitness"])
 
 
 @pytest.mark.parametrize("non_blocking", [True, False])
 @pytest.mark.parametrize("sync_frequency", [10, 12])
-def test_step_through_generations(mocker, non_blocking, sync_frequency):
+@pytest.mark.parametrize("n_steps", [120, 5, 1])
+def test_step_through_generations(mocker, non_blocking, sync_frequency, n_steps):
+    expected_sync_freq = sync_frequency
+    if n_steps < sync_frequency:
+        expected_sync_freq = 1
     mocked_island = mocker.Mock()
     type(mocked_island).generational_age = \
-        mocker.PropertyMock(side_effect=list(range(sync_frequency, 200,
-                                                   sync_frequency)))
+        mocker.PropertyMock(side_effect=list(range(expected_sync_freq, 200,
+                                                    expected_sync_freq)))
     arch = ParallelArchipelago(mocked_island, non_blocking=non_blocking,
                                sync_frequency=sync_frequency)
-    arch._step_through_generations(120)
+
+    arch._step_through_generations(n_steps)
+
     if non_blocking:
-        assert mocked_island.evolve.call_count == 120 // sync_frequency
+        assert mocked_island.evolve.call_count == n_steps // expected_sync_freq
     else:
-        mocked_island.evolve.assert_called_once_with(120,
+        mocked_island.evolve.assert_called_once_with(n_steps,
                                                      hall_of_fame_update=False,
                                                      suppress_logging=True)
 

@@ -10,13 +10,11 @@ from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_optimizers.fitness_predictor_island import \
     FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
-from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor
+from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor, \
+    INF_REPLACEMENT, DEFAULT_OPERATORS, SUPPORTED_EA_STRS
 from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 
-INF_REPLACEMENT = 1e100
-DEFAULT_OPERATORS = {"+", "-", "*", "/"}
-SUPPORTED_EA_STRS = ["AgeFitnessEA", "DeterministicCrowdingEA"]
 
 # NOTE (David Randall): I'm testing a lot of private methods here. Normally
 # I would avoid doing this, but to make the tests more manageable, I am doing
@@ -36,7 +34,18 @@ def patch_regr_method(mocker, method_name):
     return mocker.patch(get_sym_reg_import(f"SymbolicRegressor.{method_name}"))
 
 
-# TODO test init sets properties
+def constructor_attrs():
+    params = inspect.signature(SymbolicRegressor.__init__).parameters.keys()
+    params = [param for param in params if param != "self"]
+    return params
+
+
+@pytest.mark.parametrize("attribute", constructor_attrs())
+def test_init_sets_attributes(mocker, attribute):
+    attribute_value = mocker.Mock()
+    regr = SymbolicRegressor(**{attribute: attribute_value})
+
+    assert getattr(regr, attribute) == attribute_value
 
 
 @pytest.fixture
@@ -335,9 +344,49 @@ def test_get_archipelago_arch_and_return(mocker, evo_alg_str):
     assert arch == make_island.return_value
 
 
-# TODO
-def test_refit_best_individual():
-    pass
+class OptIndividual:
+    def __init__(self):
+        self._needs_opt = True
+        self.constants = [float("inf")]
+        self.fitness = float("inf")
+
+    def needs_local_optimization(self):
+        return self._needs_opt
+
+    def get_number_local_optimization_params(self):
+        return 1
+
+    def set_local_optimization_params(self, params):
+        self._needs_opt = False
+        self.constants = params
+
+
+def test_refit_best_individual(mocker):
+    get_clo = patch_regr_method(mocker, "_get_clo")
+
+    constant_iter = iter([5, 3, 4, 1, 2, 6])
+
+    def mocked_clo(indv):
+        if indv.needs_local_optimization():
+            next_constant = next(constant_iter)
+            indv.set_local_optimization_params([next_constant])
+            indv.fitness = next_constant
+        return indv.fitness
+    clo = mocker.Mock(side_effect=mocked_clo)
+    get_clo.return_value = clo
+
+    regr = SymbolicRegressor()
+    best_indv = OptIndividual()
+    regr.best_ind = best_indv
+
+    X, y = get_mocked_data(mocker)
+    tol = mocker.Mock()
+
+    regr._refit_best_individual(X, y, tol)
+
+    assert clo.call_count == 6
+    assert best_indv.fitness == 1
+    assert best_indv.constants == (1,)
 
 
 def patch_all_fit(mocker):
@@ -479,18 +528,7 @@ def test_predict_bad_output(mocker):
     np.testing.assert_array_equal(regr.predict(mocker.Mock()), expected_output)
 
 
-def test_evo_opt_adapts_to_dataset_size():
-    pass
-
-
-def constructor_params():
-    params = inspect.signature(SymbolicRegressor.__init__).parameters.keys()
-    params = [param for param in params if param != "self"]
-    return params
-
-
-# TODO need set_param tests? should be same as sklearn
-@pytest.mark.parametrize("param", constructor_params())
+@pytest.mark.parametrize("param", constructor_attrs())
 def test_can_set_all_params(mocker, param):
     mocked_value = mocker.Mock(spec=object)  # spec=object so get_params()
     # doesn't try to treat the mock like a dictionary

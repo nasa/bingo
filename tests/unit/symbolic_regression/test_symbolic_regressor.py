@@ -100,8 +100,8 @@ def test_get_local_opt(mocker, basic_data, clo_alg):
                                   X)
     np.testing.assert_array_equal(local_opt._fitness_function.training_data.y,
                                   y)
-    assert local_opt._algorithm == clo_alg
-    assert local_opt.optimization_options["tol"] == tol
+    assert local_opt.optimizer.options["method"] == clo_alg
+    assert local_opt.optimizer.options["tol"] == tol
 
 
 # TODO test predictor_size_ratio?

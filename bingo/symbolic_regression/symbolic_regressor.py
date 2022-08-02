@@ -69,14 +69,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.random_state = random_state
 
-    def set_params(self, **params):
-        # TODO not clean
-        new_params = self.get_params()
-        new_params.update(params)
-        super().set_params(**new_params)
-        self.__init__(**new_params)
-        return self
-
     def _get_clo(self, X, y, tol):  # TODO rename to _get_local_opt
         training_data = ExplicitTrainingData(X, y)
         fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
@@ -130,7 +122,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             raise TypeError(f"{self.evolutionary_algorithm} is an unsupported "
                             "evolutionary algorithm")
 
-        # TODO pareto front based on complexity?
         hof = HallOfFame(10)
 
         island = self._make_island(len(X), ea, hof)
@@ -249,35 +240,3 @@ class CrossValRegressor(GridSearchCV):
 
             print(self.best_estimator_)
             return self
-
-
-if __name__ == '__main__':
-    # SRSerialArchipelagoExample with SymbolicRegressor
-    import random
-    # random.seed(7)
-    # np.random.seed(7)
-    x = np.linspace(-10, 10, 1000).reshape([-1, 1])
-    y = x**2 + 3.5*x**3
-
-    regr = SymbolicRegressor(population_size=100, stack_size=10,
-                             operators=["+", "-", "*"],
-                             use_simplification=True,
-                             crossover_prob=0.4, mutation_prob=0.4, metric="mae",
-                             parallel=False, clo_alg="lm", generations=500, fitness_threshold=-1,
-                             evolutionary_algorithm=AgeFitnessEA, clo_threshold=1.0e-4, random_state=7)
-
-    hyper_params = [
-        {"population_size": [100], "stack_size": [24]},
-        {"population_size": [500], "stack_size": [24]},
-        {"population_size": [2500], "stack_size": [32]}
-    ]
-
-    print(regr.get_params())
-    regr.set_params()
-    print(regr)
-
-    regr.fit(x, y)
-    print(regr.get_best_individual())
-
-    # TODO MPI.COMM_WORLD.bcast in parallel?
-    # TODO rank in MPI

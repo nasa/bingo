@@ -27,7 +27,6 @@ from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
     ExplicitTrainingData  # this forces use of python fit funcs
 
 DEFAULT_OPERATORS = {"+", "-", "*", "/"}
-DEFAULT_EA = AgeFitnessEA
 SUPPORTED_EA_STRS = ["AgeFitnessEA", "DeterministicCrowdingEA"]
 INF_REPLACEMENT = 1e100
 
@@ -103,7 +102,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.scale_max_evals = scale_max_evals
 
         if evolutionary_algorithm is None:
-            evolutionary_algorithm = DEFAULT_EA
+            evolutionary_algorithm = AgeFitnessEA
         self.evolutionary_algorithm = evolutionary_algorithm
 
         self.clo_threshold = clo_threshold

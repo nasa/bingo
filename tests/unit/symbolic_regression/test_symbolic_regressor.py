@@ -1,11 +1,14 @@
+# Ignoring some linting rules in tests
+# pylint: disable=redefined-outer-name
+# pylint: disable=missing-docstring
 import inspect
 
 import numpy as np
 import pytest
 
 from bingo.evaluation.evaluation import Evaluation
-from bingo.symbolic_regression import ExplicitTrainingData, ExplicitRegression, \
-    AGraphCrossover, AGraphMutation, ComponentGenerator
+from bingo.symbolic_regression import ExplicitTrainingData, \
+    ExplicitRegression, AGraphCrossover, AGraphMutation, ComponentGenerator
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_optimizers.fitness_predictor_island import \
     FitnessPredictorIsland
@@ -57,7 +60,7 @@ def basic_data():
 
 @pytest.fixture
 def sample_comp_gen(basic_data):
-    X, y = basic_data
+    X, _ = basic_data
     comp_gen = ComponentGenerator(X.shape[1])
     comp_gen.add_operator("+")
     comp_gen.add_operator("sin")
@@ -76,10 +79,10 @@ def sample_ea(basic_data, sample_comp_gen, sample_agraph_gen):
     crossover = AGraphCrossover()
     mutation = AGraphMutation(sample_comp_gen)
 
-    ea = AgeFitnessEA(evaluation, sample_agraph_gen, crossover, mutation,
-                      crossover_probability=0.4, mutation_probability=0.4,
-                      population_size=100)
-    return ea
+    evo_alg = AgeFitnessEA(evaluation, sample_agraph_gen, crossover, mutation,
+                           crossover_probability=0.4, mutation_probability=0.4,
+                           population_size=100)
+    return evo_alg
 
 
 @pytest.mark.parametrize("clo_alg", ["BFGS", "lm", "SLSQP"])
@@ -117,6 +120,7 @@ def test_make_island(mocker, sample_ea, sample_agraph_gen, dataset_size,
 
     island = regr._make_island(dataset_size, sample_ea, hof)
 
+    assert isinstance(island, expected_island)
     assert island._ea == sample_ea
     assert island._generator == sample_agraph_gen
     assert island._population_size == pop_size
@@ -133,7 +137,7 @@ def test_force_diversity_in_island(sample_ea, sample_agraph_gen):
 
     regr._force_diversity_in_island(island)
 
-    unique_indvs = set([str(indv) for indv in island.population])
+    unique_indvs = set(str(indv) for indv in island.population)
     assert len(unique_indvs) == pop_size
     assert len(island.population) == pop_size
 
@@ -157,7 +161,7 @@ def test_cant_force_diversity_in_island(mocker, sample_ea, sample_agraph):
 
     regr._force_diversity_in_island(island)
 
-    unique_indvs = set([str(indv) for indv in island.population])
+    unique_indvs = set(str(indv) for indv in island.population)
     assert len(unique_indvs) == 1
     assert len(island.population) == pop_size
 
@@ -431,7 +435,7 @@ def test_fit_archipelago(mocker, n_cpus):
 
     if n_cpus is None:
         n_cpus = 1
-        environ_dict = dict()
+        environ_dict = {}
     else:
         environ_dict = {"OMP_NUM_THREADS": str(n_cpus)}
     mocker.patch.dict(get_sym_reg_import("os.environ"),

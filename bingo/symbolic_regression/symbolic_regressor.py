@@ -1,24 +1,26 @@
-import numpy as np
 import os
 import random
-import signal
 
-from sklearn.base import BaseEstimator, RegressorMixin, clone
-from sklearn.model_selection import GridSearchCV
+import numpy as np
+from sklearn.base import BaseEstimator, RegressorMixin
 
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
-from bingo.evolutionary_algorithms.deterministic_crowding import DeterministicCrowdingEA
-from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
+from bingo.evolutionary_algorithms.deterministic_crowding import \
+    DeterministicCrowdingEA
+from bingo.evolutionary_optimizers.fitness_predictor_island import \
+    FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers.continuous_local_opt import ContinuousLocalOptimization
+from bingo.local_optimizers.continuous_local_opt import \
+    ContinuousLocalOptimization
 from bingo.stats.hall_of_fame import HallOfFame
-from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
+from bingo.symbolic_regression.agraph.component_generator import \
+    ComponentGenerator
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
 from bingo.symbolic_regression import AGraphGenerator
-from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData  # this forces use of python fit funcs
-
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
+    ExplicitTrainingData  # this forces use of python fit funcs
 
 DEFAULT_OPERATORS = {"+", "-", "*", "/"}
 DEFAULT_EA = AgeFitnessEA
@@ -26,6 +28,7 @@ SUPPORTED_EA_STRS = ["AgeFitnessEA", "DeterministicCrowdingEA"]
 INF_REPLACEMENT = 1e100
 
 
+# pylint: disable=too-many-instance-attributes, too-many-locals
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def __init__(self, *, population_size=500, stack_size=32,
                  operators=None, use_simplification=False,
@@ -64,22 +67,28 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.clo_threshold = clo_threshold
 
-        # TODO make private attribute, as well as other attributes not defined in __init__?
+        # TODO make private attribute,
+        #  as well as other attributes not defined in __init__?
         self.best_ind = None
 
         self.random_state = random_state
 
     def _get_clo(self, X, y, tol):  # TODO rename to _get_local_opt
         training_data = ExplicitTrainingData(X, y)
-        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
-        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
+        fitness = ExplicitRegression(training_data=training_data,
+                                     metric=self.metric)
+        local_opt_fitness = \
+            ContinuousLocalOptimization(fitness, algorithm=self.clo_alg,
+                                        tol=tol)
         return local_opt_fitness
 
-    def _make_island(self, dset_size, ea, hof):
+    def _make_island(self, dset_size, evo_alg, hof):
         if dset_size < 1200:
-            return Island(ea, self.generator, self.population_size, hall_of_fame=hof)
-        return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
-                                      predictor_size_ratio=800/dset_size)
+            return Island(evo_alg, self.generator, self.population_size,
+                          hall_of_fame=hof)
+        return FitnessPredictorIsland(evo_alg, self.generator,
+                                      self.population_size, hall_of_fame=hof,
+                                      predictor_size_ratio=800 / dset_size)
 
     def _force_diversity_in_island(self, island):
         diverse_pop = []
@@ -95,6 +104,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                 diverse_pop.append(ind)
         island.population = diverse_pop
 
+    # pylint: disable=attribute-defined-outside-init
     def _get_archipelago(self, X, y, n_processes):
         self.component_generator = ComponentGenerator(X.shape[1])
         for operator in self.operators:
@@ -103,28 +113,33 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.crossover = AGraphCrossover()
         self.mutation = AGraphMutation(self.component_generator)
 
-        self.generator = AGraphGenerator(self.stack_size, self.component_generator,
-                                         use_simplification=self.use_simplification,
-                                         use_python=True  # only using Python backend
-                                         )
+        self.generator = \
+            AGraphGenerator(self.stack_size, self.component_generator,
+                            use_simplification=self.use_simplification,
+                            use_python=True)
 
         local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
         evaluator = Evaluation(local_opt_fitness, multiprocess=n_processes)
 
         if self.evolutionary_algorithm == AgeFitnessEA:
-            ea = self.evolutionary_algorithm(evaluator, self.generator, self.crossover,
-                                             self.mutation, self.crossover_prob, self.mutation_prob,
-                                             self.population_size)
+            evo_alg = self.evolutionary_algorithm(evaluator, self.generator,
+                                                  self.crossover,
+                                                  self.mutation,
+                                                  self.crossover_prob,
+                                                  self.mutation_prob,
+                                                  self.population_size)
         elif self.evolutionary_algorithm == DeterministicCrowdingEA:
-            ea = self.evolutionary_algorithm(evaluator, self.crossover, self.mutation,
-                                             self.crossover_prob, self.mutation_prob)
+            evo_alg = self.evolutionary_algorithm(evaluator, self.crossover,
+                                                  self.mutation,
+                                                  self.crossover_prob,
+                                                  self.mutation_prob)
         else:
             raise TypeError(f"{self.evolutionary_algorithm} is an unsupported "
                             "evolutionary algorithm")
 
         hof = HallOfFame(10)
 
-        island = self._make_island(len(X), ea, hof)
+        island = self._make_island(len(X), evo_alg, hof)
         self._force_diversity_in_island(island)
 
         return island
@@ -158,9 +173,10 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         max_eval_scaling = 1
         if isinstance(self.archipelago, FitnessPredictorIsland):
             if self.scale_max_evals:
-                max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
+                max_eval_scaling = \
+                    len(X) / self.archipelago._predictor_size / 1.1
 
-        opt_result = self.archipelago.evolve_until_convergence(
+        _ = self.archipelago.evolve_until_convergence(
             max_generations=self.generations,
             fitness_threshold=self.fitness_threshold,
             max_time=self.max_time,
@@ -168,7 +184,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             convergence_check_frequency=10
         )
 
-        if len(self.archipelago.hall_of_fame) == 0:  # most likely found sol in 0 gens
+        # most likely found sol in 0 gens
+        if len(self.archipelago.hall_of_fame) == 0:
             self.best_ind = self.archipelago.get_best_individual()
         else:
             self.best_ind = self.archipelago.hall_of_fame[0]

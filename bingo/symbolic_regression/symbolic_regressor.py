@@ -162,16 +162,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         n_cpus = int(os.environ.get("OMP_NUM_THREADS", "1"))
 
-        # print(f"using {n_cpus} processes")
         self.archipelago = self._get_archipelago(X, y, n_cpus)
-        # print(f"archipelago: {type(self.archipelago)}")
 
         max_eval_scaling = 1
         if isinstance(self.archipelago, FitnessPredictorIsland):
-            # print("n_points per predictor:", self.archipelago._predictor_size)
             if self.scale_max_evals:
                 max_eval_scaling = len(X) / self.archipelago._predictor_size / 1.1
-        # print("max evals:", self.max_evals * max_eval_scaling)
 
         opt_result = self.archipelago.evolve_until_convergence(
             max_generations=self.generations,
@@ -185,16 +181,10 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             self.best_ind = self.archipelago.get_best_individual()
         else:
             self.best_ind = self.archipelago.hall_of_fame[0]
-        # print(f"done with opt, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
 
         self._refit_best_individual(X, y, tol=1e-6)
 
         return self
-        # rerun CLO on best_ind with tighter tol
-        # print(f"reran CLO, best_ind: {self.best_ind}, fitness: {self.best_ind.fitness}")
-
-        # print("------------------hall of fame------------------", self.archipelago.hall_of_fame, sep="\n")
-        # print("\nbest individual:", self.best_ind)
 
     def get_best_individual(self):
         if self.best_ind is None:

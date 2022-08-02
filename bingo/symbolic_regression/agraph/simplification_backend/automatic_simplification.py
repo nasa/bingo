@@ -301,6 +301,20 @@ def simplify_exponential(expression):
     return expression
 
 
+def simplify_sinh(expression):
+    """simplification of hyperbolic sin operators"""
+    if expression.operands[0].is_zero():
+        return ZERO.copy()
+    return expression
+
+
+def simplify_cosh(expression):
+    """simplification of hyperbolic cos operators"""
+    if expression.operands[0].is_zero():
+        return ONE.copy()
+    return expression
+
+
 def no_simplification(expression):
     """no simplification performed"""
     return expression
@@ -319,6 +333,6 @@ SIMPLIFICATION_FUNCTIONS = {
     ABS: no_simplification,
     SQRT: no_simplification,
     SAFE_POWER: simplify_power,
-    SINH: no_simplification,
-    COSH: no_simplification
+    SINH: simplify_sinh,
+    COSH: simplify_cosh
 }

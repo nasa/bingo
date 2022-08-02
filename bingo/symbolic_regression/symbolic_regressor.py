@@ -49,8 +49,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.metric = metric
 
-        self.parallel = parallel
-
         self.clo_alg = clo_alg
 
         self.generations = generations
@@ -77,6 +75,32 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         super().set_params(**new_params)
         self.__init__(**new_params)
         return self
+
+    def _get_clo(self, X, y, tol):  # TODO rename to _get_local_opt
+        training_data = ExplicitTrainingData(X, y)
+        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
+        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
+        return local_opt_fitness
+
+    def _make_island(self, dset_size, ea, hof):
+        if dset_size < 1200:
+            return Island(ea, self.generator, self.population_size, hall_of_fame=hof)
+        return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
+                                      predictor_size_ratio=800/dset_size)
+
+    def _force_diversity_in_island(self, island):
+        diverse_pop = []
+        pop_strings = set()
+
+        i = 0
+        while len(diverse_pop) < self.population_size:
+            i += 1
+            ind = self.generator()
+            ind_str = str(ind)
+            if ind_str not in pop_strings or i > 15 * self.population_size:
+                pop_strings.add(ind_str)
+                diverse_pop.append(ind)
+        island.population = diverse_pop
 
     def _get_archipelago(self, X, y, n_processes):
         self.component_generator = ComponentGenerator(X.shape[1])
@@ -112,33 +136,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self._force_diversity_in_island(island)
 
         return island
-
-    def _make_island(self, dset_size, ea, hof):
-        if dset_size < 1200:
-            return Island(ea, self.generator, self.population_size, hall_of_fame=hof)
-        return FitnessPredictorIsland(ea, self.generator, self.population_size, hall_of_fame=hof,
-                                      predictor_size_ratio=800/dset_size)
-
-    def _get_clo(self, X, y, tol):  # TODO rename to _get_local_opt
-        training_data = ExplicitTrainingData(X, y)
-        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
-        local_opt_fitness = ContinuousLocalOptimization(fitness, algorithm=self.clo_alg, tol=tol)
-        return local_opt_fitness
-
-    def _force_diversity_in_island(self, island):
-        diverse_pop = []
-        pop_strings = set()
-
-        i = 0
-        while len(diverse_pop) < self.population_size:
-            i+=1
-            ind = self.generator()
-            ind_str = str(ind)
-            if ind_str not in pop_strings or i > 15 * self.population_size:
-                pop_strings.add(ind_str)
-                diverse_pop.append(ind)
-        # print(f" Generating a diverse population took {i} iterations.")
-        island.population = diverse_pop
 
     def _refit_best_individual(self, X, y, tol):
         fit_func = self._get_clo(X, y, tol)

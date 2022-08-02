@@ -113,7 +113,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.random_state = random_state
 
-    def _get_clo(self, X, y, tol):  # TODO rename to _get_local_opt
+    def _get_local_opt(self, X, y, tol):
         training_data = ExplicitTrainingData(X, y)
         fitness = ExplicitRegression(training_data=training_data,
                                      metric=self.metric)
@@ -158,7 +158,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                             use_simplification=self.use_simplification,
                             use_python=True)
 
-        local_opt_fitness = self._get_clo(X, y, self.clo_threshold)
+        local_opt_fitness = self._get_local_opt(X, y, self.clo_threshold)
         evaluator = Evaluation(local_opt_fitness, multiprocess=n_processes)
 
         if self.evolutionary_algorithm == AgeFitnessEA:
@@ -185,7 +185,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         return island
 
     def _refit_best_individual(self, X, y, tol):
-        fit_func = self._get_clo(X, y, tol)
+        fit_func = self._get_local_opt(X, y, tol)
         best_fitness = fit_func(self.best_ind)
         best_constants = tuple(self.best_ind.constants)
         for _ in range(5):

@@ -94,7 +94,7 @@ def test_get_local_opt(mocker, basic_data, clo_alg):
     regr.clo_alg = clo_alg
     regr.clo_threshold = tol
 
-    local_opt = regr._get_clo(X, y, tol)
+    local_opt = regr._get_local_opt(X, y, tol)
 
     np.testing.assert_array_equal(local_opt._fitness_function.training_data.x,
                                   X)
@@ -170,7 +170,7 @@ def patch_all_get_archipelago(mocker):
     imports = ["ComponentGenerator", "AGraphCrossover", "AGraphMutation",
                "AGraphGenerator", "Evaluation", "AgeFitnessEA",
                "DeterministicCrowdingEA", "HallOfFame"]
-    fns = ["_get_clo", "_make_island", "_force_diversity_in_island"]
+    fns = ["_get_local_opt", "_make_island", "_force_diversity_in_island"]
 
     patched_imports = {name: patch_import(mocker, name) for name in imports}
     patched_fns = {name: patch_regr_method(mocker, name) for name in fns}
@@ -268,7 +268,7 @@ def test_get_archipelago_evaluation(mocker):
     patched_objs = patch_all_get_archipelago(mocker)
     age_fitness = mocker.patch("bingo.evolutionary_algorithms.age_fitness")
     age_fitness.AgeFitnessEA = mocker.Mock()
-    get_clo = patched_objs["_get_clo"]
+    get_local_opt = patched_objs["_get_local_opt"]
     evaluation = patched_objs["Evaluation"]
 
     clo_tol = mocker.Mock()
@@ -278,8 +278,8 @@ def test_get_archipelago_evaluation(mocker):
 
     regr._get_archipelago(X, y, n_proc)
 
-    get_clo.assert_called_once_with(X, y, clo_tol)
-    evaluation.assert_called_once_with(get_clo.return_value,
+    get_local_opt.assert_called_once_with(X, y, clo_tol)
+    evaluation.assert_called_once_with(get_local_opt.return_value,
                                        multiprocess=n_proc)
 
 
@@ -366,7 +366,7 @@ class OptIndividual:
 
 
 def test_refit_best_individual(mocker):
-    get_clo = patch_regr_method(mocker, "_get_clo")
+    get_local_opt = patch_regr_method(mocker, "_get_local_opt")
 
     constant_iter = iter([5, 3, 4, 1, 2, 6])
 
@@ -377,7 +377,7 @@ def test_refit_best_individual(mocker):
             indv.fitness = next_constant
         return indv.fitness
     clo = mocker.Mock(side_effect=mocked_clo)
-    get_clo.return_value = clo
+    get_local_opt.return_value = clo
 
     regr = SymbolicRegressor()
     best_indv = OptIndividual()

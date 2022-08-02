@@ -1,4 +1,4 @@
-"""The definition of fitness evalutions for individuals.
+"""The definition of fitness evaluations for individuals.
 
 This module defines the basis of fitness evaluation in bingo evolutionary
 analyses.
@@ -32,14 +32,14 @@ class FitnessFunction(metaclass=ABCMeta):
 
     Parameters
     ----------
-    training_data :
-        Optional) data that can be used in fitness evaluation
+    training_data : TrainingData
+        (Optional) data that can be used in fitness evaluation
 
     Attributes
     ----------
     eval_count : int
         the number of evaluations that have been performed
-    training_data :
+    training_data : TrainingData
         (Optional) data that can be used in fitness evaluation
     """
     def __init__(self, training_data=None):
@@ -52,7 +52,7 @@ class FitnessFunction(metaclass=ABCMeta):
 
         Parameters
         ----------
-        individual : chromosomes
+        individual : Chromosome
             individual for which fitness will be calculated
 
         Notes
@@ -62,7 +62,7 @@ class FitnessFunction(metaclass=ABCMeta):
 
         Returns
         -------
-         :
+        fitness : numeric
             fitness of the individual
         """
         raise NotImplementedError
@@ -73,12 +73,12 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
 
     Parameters
     ----------
-    training_data : ExplicitTrainingData
+    training_data : TrainingData
         data that is used in fitness evaluation.
     metric : str
         String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', and
-        'root mean squared error'
+        'mean absolute error'/'mae', 'mean squared error'/'mse', and
+        'root mean squared error'/'rmse'
     """
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data)
@@ -96,23 +96,34 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         """Vector based fitness evaluation
 
         Evaluate the fitness of an individual as based on a vector of fitness
-        (error) values.  The metric defined in the consructor is used to
+        (error) values.  The metric defined in the constructor is used to
         aggregate the vector fitness into a single fitness value
 
         Parameters
         ----------
-        individual : chromosomes
+        individual : Chromosome
             individual for which fitness will be calculated
 
         Returns
         -------
-         :
-           fitness of the individual
+        fitness : numeric
+            fitness of the individual
         """
         fitness_vector = self.evaluate_fitness_vector(individual)
         return self._metric(fitness_vector)
 
     @abstractmethod
     def evaluate_fitness_vector(self, individual):
-        """Calaculate a vector of fitness values"""
+        """Calculate a vector of fitness values for the passed in individual
+
+        Parameters
+        ----------
+        individual : Chromosome
+            individual for which fitness will be calculated
+
+        Returns
+        -------
+        vector_fitness : array of numeric
+            a vector of fitness values for the passed in individual
+        """
         raise NotImplementedError

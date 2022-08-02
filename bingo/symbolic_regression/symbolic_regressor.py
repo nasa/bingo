@@ -15,8 +15,9 @@ from bingo.evolutionary_algorithms.deterministic_crowding import \
 from bingo.evolutionary_optimizers.fitness_predictor_island import \
     FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
-from bingo.local_optimizers.continuous_local_opt import \
-    ContinuousLocalOptimization
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.local_opt_fitness \
+    import LocalOptFitnessFunction
 from bingo.stats.hall_of_fame import HallOfFame
 from bingo.symbolic_regression.agraph.component_generator import \
     ComponentGenerator
@@ -117,9 +118,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         training_data = ExplicitTrainingData(X, y)
         fitness = ExplicitRegression(training_data=training_data,
                                      metric=self.metric)
-        local_opt_fitness = \
-            ContinuousLocalOptimization(fitness, algorithm=self.clo_alg,
-                                        tol=tol)
+        optimizer = ScipyOptimizer(fitness, method=self.clo_alg, tol=tol)
+        local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
         return local_opt_fitness
 
     def _make_island(self, dset_size, evo_alg, hof):

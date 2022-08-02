@@ -62,6 +62,18 @@ def test_raises_error_not_enough_valid_trainers(mocker, mocked_training_data,
                                             num_trainers=5)
 
 
+def test_deep_copy_of_full_fitness_fn(mocked_training_data,
+                                      mocked_fitness_function,
+                                      mocked_population):
+    predictor_fit_fn = FitnessPredictorFitnessFunction(mocked_training_data,
+                                                       mocked_fitness_function,
+                                                       mocked_population,
+                                                       num_trainers=5)
+    assert predictor_fit_fn._fitness_function is not mocked_fitness_function
+    assert predictor_fit_fn._fitness_function.training_data is not \
+           mocked_fitness_function.training_data
+
+
 def test_adding_trainers_to_predictor_fitness_function(mocker,
                                                        predictor_fit_func):
     for i in range(10):

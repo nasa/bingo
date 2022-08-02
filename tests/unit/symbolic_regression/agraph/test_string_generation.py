@@ -35,9 +35,17 @@ def test_latex_format(all_funcs_command_array):
     assert generated_string == expected_string
 
 
+def test_sympy_format(all_funcs_command_array):
+    expected_string = "sqrt(abs((log(exp(cos(sin(((2.0 - (X_0 + 5))*(X_0))/" \
+                      "(X_0))))))**(5)))"
+    generated_string = get_formatted_string("sympy", all_funcs_command_array,
+                                            constants=[2.0, ])
+    assert generated_string == expected_string
+
+
 def test_console_format(all_funcs_command_array):
     expected_string = "sqrt(|(log(exp(cos(sin(((2.0 - (X_0 + 5))(X_0))/" +\
-                      "(X_0) )))))^(5)|)"
+                      "(X_0))))))^(5)|)"
     generated_string = get_formatted_string("console", all_funcs_command_array,
                                             constants=[2.0, ])
     assert generated_string == expected_string
@@ -50,7 +58,7 @@ def test_stack_format(all_funcs_command_array):
                       "(3) <= (1) + (0)\n" + \
                       "(4) <= (2) - (3)\n" + \
                       "(5) <= (4) * (1)\n" + \
-                      "(6) <= (5) / (1) \n" + \
+                      "(6) <= (5) / (1)\n" + \
                       "(7) <= sin (6)\n" + \
                       "(8) <= cos (7)\n" + \
                       "(9) <= exp (8)\n" + \
@@ -71,9 +79,17 @@ def test_latex_format_no_consts(all_funcs_command_array):
     assert generated_string == expected_string
 
 
+def test_sympy_format_no_consts(all_funcs_command_array):
+    expected_string = "sqrt(abs((log(exp(cos(sin(((? - (X_0 + 5))*(X_0))" \
+                      "/(X_0))))))**(5)))"
+    generated_string = get_formatted_string("sympy", all_funcs_command_array,
+                                            constants=[])
+    assert generated_string == expected_string
+
+
 def test_console_format_no_consts(all_funcs_command_array):
     expected_string = "sqrt(|(log(exp(cos(sin(((? - (X_0 + 5))(X_0))/" +\
-                      "(X_0) )))))^(5)|)"
+                      "(X_0))))))^(5)|)"
     generated_string = get_formatted_string("console", all_funcs_command_array,
                                             constants=[])
     assert generated_string == expected_string
@@ -86,7 +102,7 @@ def test_stack_format_no_consts(all_funcs_command_array):
                       "(3) <= (1) + (0)\n" + \
                       "(4) <= (2) - (3)\n" + \
                       "(5) <= (4) * (1)\n" + \
-                      "(6) <= (5) / (1) \n" + \
+                      "(6) <= (5) / (1)\n" + \
                       "(7) <= sin (6)\n" + \
                       "(8) <= cos (7)\n" + \
                       "(9) <= exp (8)\n" + \

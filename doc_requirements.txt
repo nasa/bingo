@@ -1,0 +1,9 @@
+sphinx
+pydata-sphinx-theme
+sphinx-panels
+sphinx-copybutton
+# for tutorials
+nbsphinx
+nbsphinx-link
+jupyter
+matplotlib

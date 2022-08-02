@@ -1,6 +1,6 @@
 """
 Simplification operations that are not strictly necessary, but could be
-performed to maintain a specific cannonical structure.
+performed to maintain a specific canonical structure.
 
 The module constants below control this behavior:
 

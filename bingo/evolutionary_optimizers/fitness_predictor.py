@@ -3,10 +3,10 @@ This module contains the utilities for fitness predictors.
 
 Fitness predictors in bingo are chromosomes that encode information necessary
 to make a prediction of fitness for other chromosomes types.  The type of
-fitness predicters used here are subset fitness predictors, which make a
+fitness predictors used here are subset fitness predictors, which make a
 prediction of fitness by using only a subset of the training data used in
 preforming a full/true fitness calculation.  Subset fitness predictors use the
-MultilpleValueChromosome.
+MultipleValueChromosome.
 
 Check out the works of the works of Schmidt and Lipson for more details:
 e.g., "Coevolution of Fitness Predictors" (2008) .
@@ -126,7 +126,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
 
         Returns
         -------
-         :
+        fitness : numeric
             true (full) fitness of trainer
         """
         self._fitness_function.training_data = self.training_data
@@ -163,10 +163,17 @@ class FitnessPredictorIndexGenerator:
     Parameters
     ----------
     data_size : int
-                maximum value of randomly generated int (non inclusive)
+                maximum value of randomly generated int (exclusive)
     """
     def __init__(self, data_size):
         self._max = data_size
 
     def __call__(self):
+        """Generates a random int between 0 and `data_size` (exclusive)
+
+        Returns
+        -------
+        int
+            random int between 0 and `data_size` (exclusive)
+        """
         return np.random.randint(self._max)

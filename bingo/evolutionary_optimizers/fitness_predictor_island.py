@@ -69,7 +69,7 @@ class FitnessPredictorIsland(Island):
     Attributes
     ----------
     generational_age : int
-        The number of generational steps that have beenexecuted
+        The number of generational steps that have been executed
     population : list of chromosomes
         The population that is evolving
     hall_of_fame: HallOfFame
@@ -235,7 +235,7 @@ class FitnessPredictorIsland(Island):
     def get_best_individual(self):
         """Finds the individual with the lowest fitness in a population.
 
-        This assures  that the fitness is the true ftness value and not the
+        This assures  that the fitness is the true fitness value and not the
         predicted fitness.
 
         Returns

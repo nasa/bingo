@@ -40,7 +40,7 @@ class AddRandomIndividuals(Variation):
 
         Returns
         -------
-        list of chromosomes:
+        list of chromosomes :
             The offspring of the original population and the
             new random individuals
         """

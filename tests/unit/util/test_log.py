@@ -100,7 +100,7 @@ def test_mpi_filter_adds_proc_num(add_proc_num, mpi_on, mocker):
 
 @pytest.mark.parametrize("filter_out", [True, False])
 @pytest.mark.parametrize("stats_extra", [True, False, None])
-def test_mpi_filter_adds_proc_num(filter_out, stats_extra, mocker):
+def test_stats_filter(filter_out, stats_extra, mocker):
     record = mocker.Mock()
     if stats_extra is not None:
         record.stats = stats_extra

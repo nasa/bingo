@@ -7,3 +7,4 @@ recursive-include bingocpp/tests *
 recursive-include bingocpp/external/pybind/include *
 recursive-include bingocpp/external/eigen/Eigen *
 recursive-include bingocpp/external/eigen/unsupported/Eigen *
+recursive-include bingocpp/external/googletest/googletest *

@@ -10,7 +10,7 @@ book [1].
 from ..operator_definitions import CONSTANT, INTEGER, VARIABLE, POWER, \
                                    MULTIPLICATION, ADDITION, SUBTRACTION, \
                                    DIVISION, SIN, COS, LOGARITHM, EXPONENTIAL, \
-                                   ABS, SQRT, SAFE_POWER
+                                   ABS, SQRT, SAFE_POWER, SINH, COSH
 from .expression import Expression
 
 
@@ -301,6 +301,20 @@ def simplify_exponential(expression):
     return expression
 
 
+def simplify_sinh(expression):
+    """simplification of hyperbolic sin operators"""
+    if expression.operands[0].is_zero():
+        return ZERO.copy()
+    return expression
+
+
+def simplify_cosh(expression):
+    """simplification of hyperbolic cos operators"""
+    if expression.operands[0].is_zero():
+        return ONE.copy()
+    return expression
+
+
 def no_simplification(expression):
     """no simplification performed"""
     return expression
@@ -319,4 +333,6 @@ SIMPLIFICATION_FUNCTIONS = {
     ABS: no_simplification,
     SQRT: no_simplification,
     SAFE_POWER: simplify_power,
+    SINH: simplify_sinh,
+    COSH: simplify_cosh
 }

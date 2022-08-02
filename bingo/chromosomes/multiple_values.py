@@ -43,6 +43,7 @@ class MultipleValueChromosome(Chromosome):
         Parameters
         ----------
         other : MultipleValueChromosome
+            The chromosome to compare to.
 
         Returns
         -------
@@ -56,14 +57,14 @@ class MultipleValueChromosome(Chromosome):
 class MultipleValueChromosomeGenerator(Generator):
     """Generation of a population of Multi-Value chromosomes
 
-        Parameters
-        ----------
-        random_value_function : user defined function
-            a function that returns randomly generated values to be used as
-            components of the chromosomes.
-        values_per_chromosome : int
-            the number of values that each chromosome will hold
-        """
+    Parameters
+    ----------
+    random_value_function : user defined function
+        a function that returns randomly generated values to be used as
+        components of the chromosomes.
+    values_per_chromosome : int
+        the number of values that each chromosome will hold
+    """
     @argument_validation(values_per_chromosome={">=": 0})
     def __init__(self, random_value_function, values_per_chromosome):
         super().__init__()

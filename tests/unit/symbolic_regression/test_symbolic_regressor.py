@@ -29,14 +29,11 @@ def get_sym_reg_import(class_or_method_name):
 
 
 def patch_import(mocker, class_name):
-    import_name = "bingo.symbolic_regression.symbolic_regressor." + class_name
-    return mocker.patch(import_name)
+    return mocker.patch(get_sym_reg_import(class_name))
 
 
 def patch_regr_method(mocker, method_name):
-    import_name = "bingo.symbolic_regression.symbolic_regressor." \
-                  "SymbolicRegressor." + method_name
-    return mocker.patch(import_name)
+    return mocker.patch(get_sym_reg_import(f"SymbolicRegressor.{method_name}"))
 
 
 # TODO test init sets properties

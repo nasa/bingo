@@ -427,14 +427,14 @@ def test_fit_seed(mocker, seed):
         random_seed.assert_called_once_with(seed)
 
 
-@pytest.mark.parametrize("n_cpus", [None, 1, 2, 3])
+@pytest.mark.parametrize("n_cpus", [None, 0, 1, 2, 3])
 def test_fit_archipelago(mocker, n_cpus):
     patched_objs = patch_all_fit(mocker)
     get_archipelago = patched_objs["_get_archipelago"]
     evolve = get_archipelago.return_value.evolve_until_convergence
 
     if n_cpus is None:
-        n_cpus = 1
+        n_cpus = 0
         environ_dict = {}
     else:
         environ_dict = {"OMP_NUM_THREADS": str(n_cpus)}

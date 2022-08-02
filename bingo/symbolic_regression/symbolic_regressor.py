@@ -1,3 +1,7 @@
+"""
+This module contains the implementation of an object used for symbolic
+regression via a scikit-learn interface.
+"""
 import os
 import random
 
@@ -30,6 +34,43 @@ INF_REPLACEMENT = 1e100
 
 # pylint: disable=too-many-instance-attributes, too-many-locals
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
+    """Class for performing symbolic regression using genetic programming.
+
+    Parameters
+    ----------
+    population_size: int, optional
+        The number of individuals in a population.
+    stack_size: int, optional
+        The max number of commands per individual.
+    operators: iterable of str, optional
+        Potential operations that can be used.
+    use_simplification: bool, optional
+        Whether to use simplification to speed up evaluation or not.
+    crossover_prob: float, optional
+        Probability in [0, 1] of crossover occurring on an individual.
+    mutation_prob: float, optional
+        Probability in [0, 1] of mutation occurring on an individual.
+    metric: str, optional
+        Error metric to use for fitness (e.g., "rmse", "mse", "mae").
+    clo_alg: str, optional
+        Algorithm to use for local optimization (e.g., "lm", "BFGS", etc.).
+    generations: int, optional
+        Maximum number of generations allowed for evolution.
+    fitness_threshold: float, optional
+        Error/fitness threshold to stop evolution at.
+    max_time: int, optional
+        Number of seconds to stop evolution at.
+    max_evals: int, optional
+        Number of fitness evaluation to stop evolution at.
+    evolutionary_algorithm: `EvolutionaryAlgorithm`, optional
+        Evolutionary algorithm to use in evolution.
+    clo_threshold: float, optional
+        Threshold/tolerance for local optimization.
+    scale_max_evals: bool, optional
+        Whether to scale `max_evals` based on fitness predictors or not.
+    random_state: int, optional
+        Seed for random processes.
+    """
     def __init__(self, *, population_size=500, stack_size=32,
                  operators=None, use_simplification=False,
                  crossover_prob=0.4, mutation_prob=0.4,
@@ -158,6 +199,23 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.best_ind.set_local_optimization_params(best_constants)
 
     def fit(self, X, y, sample_weight=None):
+        """Fit this model to the given data.
+
+        Parameters
+        ----------
+        X: MxD numpy array of numeric
+            Input values. D is the number of dimensions and
+            M is the number of data points.
+        y: Mx1 numpy array of numeric
+            Target/output values. M is the number of data points.
+        sample_weight: Mx1 numpy array of numeric, optional
+            Weights per sample/data point. M is the number of data points.
+
+        Returns
+        -------
+        self: `SymbolicRegressor`
+            The fitted version of this object.
+        """
         if self.random_state is not None:
             np.random.seed(self.random_state)
             random.seed(self.random_state)
@@ -166,7 +224,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             print("sample weight not None, TODO")
             raise NotImplementedError
 
-        n_cpus = int(os.environ.get("OMP_NUM_THREADS", "1"))
+        n_cpus = int(os.environ.get("OMP_NUM_THREADS", "0"))
 
         self.archipelago = self._get_archipelago(X, y, n_cpus)
 
@@ -195,11 +253,31 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         return self
 
     def get_best_individual(self):
+        """Gets the best model found from fit().
+
+        Returns
+        -------
+        best_ind: `AGraph`
+            Model with the best fitness from fit().
+        """
         if self.best_ind is None:
             raise ValueError("Best individual not set")
         return self.best_ind
 
     def predict(self, X):
+        """Use the best individual to predict the outputs of `X`.
+
+        Parameters
+        ----------
+        X: MxD numpy array of numeric
+            Input values. D is the number of dimensions and
+            M is the number of data points.
+
+        Returns
+        -------
+        pred_y: Mx1 numpy array of numeric
+            Predicted target/output values. M is the number of data points.
+        """
         best_ind = self.get_best_individual()
         output = best_ind.evaluate_equation_at(X)
 

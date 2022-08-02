@@ -11,20 +11,21 @@ from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_algorithms.deterministic_crowding import DeterministicCrowdingEA
 from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
-from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.local_optimizers.continuous_local_opt import ContinuousLocalOptimization
 from bingo.stats.hall_of_fame import HallOfFame
 from bingo.symbolic_regression.agraph.component_generator import ComponentGenerator
 from bingo.symbolic_regression.agraph.crossover import AGraphCrossover
 from bingo.symbolic_regression.agraph.mutation import AGraphMutation
-from bingo.symbolic_regression import AGraphGenerator #, ExplicitRegression, ExplicitTrainingData
-from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData # this forces use of python fit funcs
-
-from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
-from bingo.evolutionary_optimizers.island import Island
+from bingo.symbolic_regression import AGraphGenerator
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData  # this forces use of python fit funcs
 
 
-# TODO to and from hyperparam dict
+DEFAULT_OPERATORS = {"+", "-", "*", "/"}
+DEFAULT_EA = AgeFitnessEA
+SUPPORTED_EA_STRS = ["AgeFitnessEA", "DeterministicCrowdingEA"]
+INF_REPLACEMENT = 1e100
+
+
 class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def __init__(self, *, population_size=500, stack_size=32,
                  operators=None, use_simplification=False,
@@ -39,7 +40,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.stack_size = stack_size
 
         if operators is None:
-            operators = {"+", "-", "*", "/"}
+            operators = DEFAULT_OPERATORS
         self.operators = operators
 
         self.use_simplification = use_simplification
@@ -58,7 +59,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.scale_max_evals = scale_max_evals
 
         if evolutionary_algorithm is None:
-            evolutionary_algorithm = AgeFitnessEA
+            evolutionary_algorithm = DEFAULT_EA
         self.evolutionary_algorithm = evolutionary_algorithm
 
         self.clo_threshold = clo_threshold
@@ -205,7 +206,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         output = best_ind.evaluate_equation_at(X)
 
         # convert nan to 0, inf to large number, and -inf to small number
-        return np.nan_to_num(output, posinf=1e100, neginf=-1e100)
+        return np.nan_to_num(output, posinf=INF_REPLACEMENT,
+                             neginf=-INF_REPLACEMENT)
 
 
 class TimeOutException(Exception):

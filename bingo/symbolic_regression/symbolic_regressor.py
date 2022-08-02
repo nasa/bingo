@@ -11,7 +11,6 @@ from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_algorithms.deterministic_crowding import DeterministicCrowdingEA
 from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
-from bingo.evolutionary_optimizers.parallel_archipelago import ParallelArchipelago
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.local_optimizers.continuous_local_opt import ContinuousLocalOptimization
 from bingo.stats.hall_of_fame import HallOfFame
@@ -30,7 +29,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
     def __init__(self, *, population_size=500, stack_size=32,
                  operators=None, use_simplification=False,
                  crossover_prob=0.4, mutation_prob=0.4,
-                 metric="mse", parallel=False, clo_alg="lm",
+                 metric="mse", clo_alg="lm",
                  generations=int(1e19), fitness_threshold=1.0e-16,
                  max_time=1800, max_evals=int(1e19),
                  evolutionary_algorithm=None,
@@ -112,10 +111,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         island = self._make_island(len(X), ea, hof)
         self._force_diversity_in_island(island)
 
-        if self.parallel:
-            return ParallelArchipelago(island, hall_of_fame=hof)
-        else:
-            return island
+        return island
 
     def _make_island(self, dset_size, ea, hof):
         if dset_size < 1200:
@@ -166,7 +162,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             print("sample weight not None, TODO")
             raise NotImplementedError
 
-        n_cpus = os.environ.get('OMP_NUM_THREADS', 1)
+        n_cpus = int(os.environ.get("OMP_NUM_THREADS", "1"))
 
         # print(f"using {n_cpus} processes")
         self.archipelago = self._get_archipelago(X, y, n_cpus)

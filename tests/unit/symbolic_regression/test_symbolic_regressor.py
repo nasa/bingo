@@ -301,11 +301,14 @@ def patch_all_get_archipelago(mocker):
 
 
 def get_mocked_data(mocker):
+    len = 250
     X = mocker.MagicMock()
-    X.shape = (mocker.Mock(), mocker.Mock())
+    X.__len__.return_value = len
+    X.shape = (len, mocker.Mock())
 
     y = mocker.MagicMock()
-    y.shape = (mocker.Mock(), mocker.Mock())
+    y.__len__.return_value = len
+    y.shape = (len, mocker.Mock())
 
     return X, y
 
@@ -465,58 +468,107 @@ def test_get_archipelago_arch_and_return(mocker, evo_alg_str):
     assert arch == make_island.return_value
 
 
-# TODO sample weight testing
-# TODO break down into component tests
-def test_fit_normal(mocker):
-    random_state = mocker.Mock()
-    np_seed = mocker.patch(get_sym_reg_import("np.random.seed"))
-    random_seed = mocker.patch(get_sym_reg_import("random.seed"))
+def patch_all_fit(mocker):
+    imports = ["np.random.seed", "random.seed"]
+    fns = ["_get_archipelago", "_refit_best_individual"]
 
-    n_cpus = mocker.Mock()
-    os = mocker.patch(get_sym_reg_import("os"))
-    os.environ = {"OMP_NUM_THREADS": n_cpus}
+    patched_imports = {name: patch_import(mocker, name) for name in imports}
+    patched_fns = {name: patch_regr_method(mocker, name) for name in fns}
 
-    get_archipelago = mocker.patch(get_sym_reg_import("SymbolicRegressor._get_archipelago"))
+    patched_imports.update(patched_fns)
+
+    return patched_imports
+
+
+@pytest.mark.parametrize("seed", [None, "mock"])
+def test_fit_seed(mocker, seed):
+    patched_objs = patch_all_fit(mocker)
+    np_seed = patched_objs["np.random.seed"]
+    random_seed = patched_objs["random.seed"]
+
+    if seed == "mock":
+        seed = mocker.Mock()
+
+    regr = SymbolicRegressor(random_state=seed)
+    X, y = get_mocked_data(mocker)
+
+    regr.fit(X, y)
+
+    if seed is None:
+        np_seed.assert_not_called()
+        random_seed.assert_not_called()
+    else:
+        np_seed.assert_called_once_with(seed)
+        random_seed.assert_called_once_with(seed)
+
+
+@pytest.mark.parametrize("n_cpus", [None, 1, 2, 3])
+def test_fit_archipelago(mocker, n_cpus):
+    patched_objs = patch_all_fit(mocker)
+    get_archipelago = patched_objs["_get_archipelago"]
+    evolve = get_archipelago.return_value.evolve_until_convergence
+
+    if n_cpus is None:
+        n_cpus = 1
+        environ_dict = dict()
+    else:
+        environ_dict = {"OMP_NUM_THREADS": str(n_cpus)}
+    mocker.patch.dict(get_sym_reg_import("os.environ"),
+                      environ_dict, clear=True)
 
     max_gens = mocker.Mock()
     fit_threshold = mocker.Mock()
     max_time = mocker.Mock()
-    evo_opt_converge = get_archipelago.return_value.evolve_until_convergence
+    regr = SymbolicRegressor(generations=max_gens,
+                             fitness_threshold=fit_threshold,
+                             max_time=max_time)
+    X, y = get_mocked_data(mocker)
 
-    best_indv = mocker.Mock()
-    get_best_indv = mocker.patch(get_sym_reg_import("SymbolicRegressor.get_best_individual"))
-    get_best_indv.return_value = best_indv
+    regr.fit(X, y)
 
-    refit_indv = mocker.patch(get_sym_reg_import("SymbolicRegressor._refit_best_individual"))
+    get_archipelago.assert_called_once_with(X, y, n_cpus)
+    assert regr.archipelago == get_archipelago.return_value
 
-    regr = SymbolicRegressor(random_state=random_state, generations=max_gens,
-                             fitness_threshold=fit_threshold, max_time=max_time)
+    evolve.assert_called_once()
+    assert evolve.call_args.kwargs["max_generations"] == max_gens
+    assert evolve.call_args.kwargs["fitness_threshold"] == fit_threshold
+    assert evolve.call_args.kwargs["max_time"] == max_time
 
-    X = mocker.MagicMock()
-    y = mocker.MagicMock()
 
-    returned_obj = regr.fit(X, y, sample_weight=None)
+@pytest.mark.parametrize("hof_len", [0, 1])
+def test_fit_best_individual(mocker, hof_len):
+    patched_objs = patch_all_fit(mocker)
+    refit_best_indv = patched_objs["_refit_best_individual"]
+    archipelago = patched_objs["_get_archipelago"].return_value
+    hof = [mocker.Mock() for _ in range(hof_len)]
+    archipelago.hall_of_fame = hof
 
-    np_seed.assert_called_with(random_state)
-    random_seed.assert_called_with(random_state)
+    regr = SymbolicRegressor()
+    X, y = get_mocked_data(mocker)
 
-    get_archipelago.assert_called_with(X, y, n_cpus)
+    regr.fit(X, y)
 
-    assert len(evo_opt_converge.call_args_list) == 1
-    assert evo_opt_converge.call_args.kwargs["max_generations"] == max_gens
-    assert evo_opt_converge.call_args.kwargs["fitness_threshold"] == fit_threshold
-    assert evo_opt_converge.call_args.kwargs["max_time"] == max_time
-    # TODO need to understand the max_eval scaling better
-    # assert evo_opt_converge.call_args.kwargs["max_fitness_evaluations"] == max_evals
+    if hof_len == 0:
+        assert regr.best_ind == archipelago.get_best_individual.return_value
+    else:
+        assert regr.best_ind == hof[0]
 
-    assert regr.get_best_individual() == best_indv
+    refit_best_indv.assert_called_once()
+    assert (X, y) in refit_best_indv.call_args
 
-    assert len(refit_indv.call_args_list) == 1
-    assert refit_indv.call_args.args == (X, y)
+
+def test_fit_return(mocker):
+    patch_all_fit(mocker)
+
+    regr = SymbolicRegressor()
+    X, y = get_mocked_data(mocker)
+
+    returned_obj = regr.fit(X, y)
 
     assert returned_obj is regr
 
 
+# TODO sample weight testing
 
 def test_get_best_individual_normal(mocker):
     regr = SymbolicRegressor()
@@ -661,7 +713,7 @@ def test_n_gens_invalid(invalid_n_gens, basic_data):
 def constructor_params():
     return ["population_size", "stack_size", "operators",
             "use_simplification", "crossover_prob",
-            "mutation_prob", "metric", "parallel",
+            "mutation_prob", "metric",
             "clo_alg", "generations",
             "fitness_threshold", "max_time", "max_evals",
             "evolutionary_algorithm", "clo_threshold",

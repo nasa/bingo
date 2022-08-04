@@ -26,14 +26,19 @@ def population_0123_times_4(dummy_chromosome):
     return [dummy_chromosome(fitness=i) for i in [0, 1, 2, 3] * 4]
 
 
-def test_correctly_updated_summary(population_12, population_0123_times_4):
+@pytest.mark.parametrize("crossover_type, mutation_type",
+                         [("normal_c", 1), ("normal_m", 1)])
+def test_correctly_updated_summary(population_12, population_0123_times_4,
+                                   crossover_type, mutation_type):
     offspring_parents = [[0, 1]] * 8 + [[0]] * 6 + [[]]*2
-    offspring_crossover = np.array([1] * 8 + [0] * 8, dtype=bool)
-    offspring_mutation = np.array([0] * 4 + [1] * 8 + [0] * 4, dtype=bool)
+    offspring_crossover_type = \
+        np.array([crossover_type] * 8 + [None] * 8, dtype=object)
+    offspring_mutation_type = \
+        np.array([None] * 4 + [mutation_type] * 8 + [None] * 4, dtype=object)
 
     ead = EaDiagnostics()
     ead.update(population_12, population_0123_times_4, offspring_parents,
-               offspring_crossover, offspring_mutation)
+               offspring_crossover_type, offspring_mutation_type)
 
     expected_summary = EaDiagnosticsSummary(
             beneficial_crossover_rate=0.25,
@@ -47,10 +52,15 @@ def test_correctly_updated_summary(population_12, population_0123_times_4):
 
 
 @pytest.mark.parametrize("num_subsets", [1, 2, 4, 8])
-def test_sum(population_12, population_0123_times_4, num_subsets):
+@pytest.mark.parametrize("crossover_type, mutation_type",
+                         [("normal_c", 1), ("normal_m", 1)])
+def test_sum(population_12, population_0123_times_4, num_subsets,
+             crossover_type, mutation_type):
     offspring_parents = [[0, 1]] * 8 + [[0]] * 8
-    offspring_crossover = np.array([1] * 8 + [0] * 8, dtype=bool)
-    offspring_mutation = np.array([0] * 4 + [1] * 8 + [0] * 4, dtype=bool)
+    offspring_crossover_type = \
+        np.array([crossover_type] * 8 + [None] * 8, dtype=object)
+    offspring_mutation_type = \
+        np.array([None] * 4 + [mutation_type] * 8 + [None] * 4, dtype=object)
 
     num_subsets = 2
     ead_list = []
@@ -58,10 +68,10 @@ def test_sum(population_12, population_0123_times_4, num_subsets):
         subset_inds = list(range(i, 16, num_subsets))
         offspring = [population_0123_times_4[i] for i in subset_inds]
         parents = [offspring_parents[i] for i in subset_inds]
-        cross = offspring_crossover[subset_inds]
-        mut = offspring_mutation[subset_inds]
+        cross_type = offspring_crossover_type[subset_inds]
+        mut_type = offspring_mutation_type[subset_inds]
         ead = EaDiagnostics()
-        ead.update(population_12, offspring, parents, cross, mut)
+        ead.update(population_12, offspring, parents, cross_type, mut_type)
         ead_list.append(ead)
 
     expected_summary = EaDiagnosticsSummary(

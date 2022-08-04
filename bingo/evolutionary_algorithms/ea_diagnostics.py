@@ -47,7 +47,7 @@ class EaDiagnostics:
                 self._cross_mut_stats[2] / self._cross_mut_stats[0])
 
     def update(self, population, offspring, offspring_parents,
-               offspring_crossover, offspring_mutation):
+               offspring_crossover_type, offspring_mutation_type):
         """Updates the diagnostic information associated with a single step in
         an EA
 
@@ -60,13 +60,16 @@ class EaDiagnostics:
         offspring_parents : list of list of int
             list indicating the parents (by index in population) of the
             corresponding member of offspring
-        offspring_crossover : list of bool
-            list indicating whether the corresponding member of offspring
-            was a result of crossover
-        offspring_mutation : list of bool
-            list indicating whether the corresponding member of offspring
-            was a result of mutation
+        offspring_crossover_type : numpy array of object
+            numpy array indicating the crossover type that the
+            corresponding offspring underwent
+        offspring_mutation_type : numpy array of object
+            numpy array indicating the mutation type that the
+            corresponding offspring underwent
         """
+        offspring_crossover = offspring_crossover_type.astype(bool)
+        offspring_mutation = offspring_mutation_type.astype(bool)
+
         beneficial_var = np.zeros(len(offspring), dtype=bool)
         detrimental_var = np.zeros(len(offspring), dtype=bool)
         for i, (child, parent_indices) in \

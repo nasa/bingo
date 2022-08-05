@@ -15,6 +15,8 @@ EaDiagnosticsSummary = namedtuple("EaDiagnosticsSummary",
                                    "detrimental_mutation_rate",
                                    "beneficial_crossover_mutation_rate",
                                    "detrimental_crossover_mutation_rate"])
+GeneticOperatorSummary = namedtuple("GeneticOperatorSummary",
+                                    ["beneficial_rate", "detrimental_rate"])
 
 
 class EaDiagnostics:
@@ -30,21 +32,51 @@ class EaDiagnostics:
         namedtuple describing the summary of the diagnostic information
 
     """
-    def __init__(self):
+    def __init__(self, crossover_types, mutation_types):
         self._crossover_stats = np.zeros(3)
         self._mutation_stats = np.zeros(3)
         self._cross_mut_stats = np.zeros(3)
+        self._crossover_types = crossover_types
+        self._mutation_types = mutation_types
+
+        self._crossover_type_stats = \
+            {type_: np.zeros(3) for type_ in crossover_types}
+        self._mutation_type_stats = \
+            {type_: np.zeros(3) for type_ in mutation_types}
 
     @property
     def summary(self):
         """Summary statistics of the diagnostic data"""
         return EaDiagnosticsSummary(
-                self._crossover_stats[1] / self._crossover_stats[0],
-                self._crossover_stats[2] / self._crossover_stats[0],
-                self._mutation_stats[1] / self._mutation_stats[0],
-                self._mutation_stats[2] / self._mutation_stats[0],
-                self._cross_mut_stats[1] / self._cross_mut_stats[0],
-                self._cross_mut_stats[2] / self._cross_mut_stats[0])
+            self._crossover_stats[1] / self._crossover_stats[0],
+            self._crossover_stats[2] / self._crossover_stats[0],
+            self._mutation_stats[1] / self._mutation_stats[0],
+            self._mutation_stats[2] / self._mutation_stats[0],
+            self._cross_mut_stats[1] / self._cross_mut_stats[0],
+            self._cross_mut_stats[2] / self._cross_mut_stats[0])
+
+    @property
+    def crossover_type_summary(self):
+        summary = {}
+        for crossover_type in self._crossover_types:
+            type_stats = self._crossover_type_stats[crossover_type]
+            summary[crossover_type] = GeneticOperatorSummary(
+                type_stats[1] / type_stats[0],
+                type_stats[2] / type_stats[0])
+        return summary
+
+    @property
+    def mutation_type_summary(self):
+        summary = {}
+        for mutation_type in self._mutation_types:
+            type_stats = self._mutation_type_stats[mutation_type]
+            summary[mutation_type] = GeneticOperatorSummary(
+                type_stats[1] / type_stats[0],
+                type_stats[2] / type_stats[0])
+        return summary
+    
+    def _get_stats(self, idx, beneficial_var, detrimental_var):
+        return sum(idx), sum(beneficial_var * idx), sum(detrimental_var * idx)
 
     def update(self, population, offspring, offspring_parents,
                offspring_crossover_type, offspring_mutation_type):
@@ -78,26 +110,35 @@ class EaDiagnostics:
                 continue
             beneficial_var[i] = \
                 all(child.fitness < population[p].fitness
-                     for p in parent_indices)
+                    for p in parent_indices)
             detrimental_var[i] = \
                 all(child.fitness > population[p].fitness
-                     for p in parent_indices)
+                    for p in parent_indices)
 
         just_cross = offspring_crossover * ~offspring_mutation
         just_mut = ~offspring_crossover * offspring_mutation
         cross_mut = offspring_crossover * offspring_mutation
-        self._crossover_stats += (sum(just_cross),
-                                  sum(beneficial_var * just_cross),
-                                  sum(detrimental_var * just_cross))
-        self._mutation_stats += (sum(just_mut),
-                                 sum(beneficial_var * just_mut),
-                                 sum(detrimental_var * just_mut))
-        self._cross_mut_stats += (sum(cross_mut),
-                                  sum(beneficial_var * cross_mut),
-                                  sum(detrimental_var * cross_mut))
+        self._crossover_stats += self._get_stats(just_cross, beneficial_var,
+                                                 detrimental_var)
+        self._mutation_stats += self._get_stats(just_mut, beneficial_var,
+                                                 detrimental_var)
+        self._cross_mut_stats += self._get_stats(cross_mut, beneficial_var,
+                                                 detrimental_var)
+
+        for crossover_type in self._crossover_types:
+            type_idx = offspring_crossover_type == crossover_type
+            self._crossover_type_stats[crossover_type] += self._get_stats(
+                just_cross[type_idx], beneficial_var[type_idx],
+                detrimental_var[type_idx])
+
+        for mutation_type in self._mutation_types:
+            type_idx = offspring_mutation_type == mutation_type
+            self._mutation_type_stats[mutation_type] += self._get_stats(
+                just_mut[type_idx], beneficial_var[type_idx],
+                detrimental_var[type_idx])
 
     def __add__(self, other):
-        sum_ = EaDiagnostics()
+        sum_ = EaDiagnostics(self._crossover_types, self._mutation_types)
         sum_._crossover_stats = self._crossover_stats + other._crossover_stats
         sum_._mutation_stats = self._mutation_stats + other._mutation_stats
         sum_._cross_mut_stats = self._cross_mut_stats + other._cross_mut_stats

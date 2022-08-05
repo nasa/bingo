@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 from bingo.chromosomes.chromosome import Chromosome
 from bingo.evolutionary_algorithms.ea_diagnostics \
-    import EaDiagnostics, EaDiagnosticsSummary
+    import EaDiagnostics, EaDiagnosticsSummary, GeneticOperatorSummary
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_correctly_updated_overall_summary(population_12,
     offspring_mutation_type = \
         np.array([None] * 4 + ["normal_m"] * 8 + [None] * 4, dtype=object)
 
-    ead = EaDiagnostics()
+    ead = EaDiagnostics(["normal_c"], ["normal_m"])
     ead.update(population_12, population_0123_times_4, offspring_parents,
                offspring_crossover_type, offspring_mutation_type)
 
@@ -50,7 +50,7 @@ def test_correctly_updated_overall_summary(population_12,
 
 
 def test_correctly_updated_type_summaries(population_12,
-                                         population_0123_times_4):
+                                          population_0123_times_4):
     offspring_parents = [[0, 1]] * 16
     offspring_crossover_type = \
         np.array(["c_n"] * 2 + ["c_s"] * 4 + ["c_n"] * 4 + [None] * 6,
@@ -58,24 +58,37 @@ def test_correctly_updated_type_summaries(population_12,
     offspring_mutation_type = \
         np.array([None] * 4 + ["m_n", "m_s"] * 5 + [None] * 2, dtype=object)
 
-    ead = EaDiagnostics()
+    ead = EaDiagnostics(["c_n", "c_s"], ["m_n", "m_s"])
     ead.update(population_12, population_0123_times_4, offspring_parents,
                offspring_crossover_type, offspring_mutation_type)
 
-    expected_cross_summary = {"c_n": (0.5, 0),
-                              "c_s": (0, 0.5)}
+    expected_cross_summary = {
+        "c_n": GeneticOperatorSummary(beneficial_rate=0.5,
+                                      detrimental_rate=0),
+        "c_s": GeneticOperatorSummary(beneficial_rate=0,
+                                      detrimental_rate=0.5)}
 
     assert ead.crossover_type_summary == expected_cross_summary
 
-    expected_mut_summary = {"m_n": (0.5, 0),
-                            "m_s": (0, 0.5)}
+    expected_mut_summary = {
+        "m_n": GeneticOperatorSummary(beneficial_rate=0.5,
+                                      detrimental_rate=0),
+        "m_s": GeneticOperatorSummary(beneficial_rate=0,
+                                      detrimental_rate=0.5)}
 
     assert ead.mutation_type_summary == expected_mut_summary
 
-    expected_cross_mut_summary = {"c_n": {"m_n": (0.5, 0),
-                                          "m_s": (0, 0.5)},
-                                  "c_S": {"m_n": (1, 0),
-                                          "m_s": (0, 0)}}
+    # expected_cross_mut_summary = {
+    #     "c_n": {"m_n": GeneticOperatorSummary(beneficial_rate=0.5,
+    #                                           detrimental_rate=0),
+    #             "m_s": GeneticOperatorSummary(beneficial_rate=0,
+    #                                           detrimental_rate=0.5)},
+    #     "c_s": {"m_n": GeneticOperatorSummary(beneficial_rate=1,
+    #                                           detrimental_rate=0),
+    #             "m_s": GeneticOperatorSummary(beneficial_rate=0,
+    #                                           detrimental_rate=0)}}
+    #
+    # assert ead.crossover_mutation_summary == expected_cross_mut_summary
 
     assert ead.crossover_mutation_summary == expected_cross_mut_summary
 
@@ -99,16 +112,16 @@ def test_sum(population_12, population_0123_times_4, num_subsets,
         parents = [offspring_parents[i] for i in subset_inds]
         cross_type = offspring_crossover_type[subset_inds]
         mut_type = offspring_mutation_type[subset_inds]
-        ead = EaDiagnostics()
+        ead = EaDiagnostics([crossover_type], [mutation_type])
         ead.update(population_12, offspring, parents, cross_type, mut_type)
         ead_list.append(ead)
 
     expected_summary = EaDiagnosticsSummary(
-            beneficial_crossover_rate=0.25,
-            detrimental_crossover_rate=0.25,
-            beneficial_mutation_rate=0.25,
-            detrimental_mutation_rate=0.5,
-            beneficial_crossover_mutation_rate=0.25,
-            detrimental_crossover_mutation_rate=0.25)
+        beneficial_crossover_rate=0.25,
+        detrimental_crossover_rate=0.25,
+        beneficial_mutation_rate=0.25,
+        detrimental_mutation_rate=0.5,
+        beneficial_crossover_mutation_rate=0.25,
+        detrimental_crossover_mutation_rate=0.25)
 
     assert sum(ead_list).summary == expected_summary

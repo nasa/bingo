@@ -78,17 +78,17 @@ def test_correctly_updated_type_summaries(population_12,
 
     assert ead.mutation_type_summary == expected_mut_summary
 
-    # expected_cross_mut_summary = {
-    #     "c_n": {"m_n": GeneticOperatorSummary(beneficial_rate=0.5,
-    #                                           detrimental_rate=0),
-    #             "m_s": GeneticOperatorSummary(beneficial_rate=0,
-    #                                           detrimental_rate=0.5)},
-    #     "c_s": {"m_n": GeneticOperatorSummary(beneficial_rate=1,
-    #                                           detrimental_rate=0),
-    #             "m_s": GeneticOperatorSummary(beneficial_rate=0,
-    #                                           detrimental_rate=0)}}
-    #
-    # assert ead.crossover_mutation_summary == expected_cross_mut_summary
+    expected_cross_mut_summary = {
+        ("c_n", "m_n"): GeneticOperatorSummary(beneficial_rate=0.5,
+                                              detrimental_rate=0),
+        ("c_n", "m_s"): GeneticOperatorSummary(beneficial_rate=0,
+                                               detrimental_rate=0.5),
+        ("c_s", "m_n"): GeneticOperatorSummary(beneficial_rate=1,
+                                               detrimental_rate=0),
+        ("c_s", "m_s"): GeneticOperatorSummary(beneficial_rate=0,
+                                               detrimental_rate=0)}
+
+    assert ead.crossover_mutation_type_summary == expected_cross_mut_summary
 
     assert ead.crossover_mutation_summary == expected_cross_mut_summary
 

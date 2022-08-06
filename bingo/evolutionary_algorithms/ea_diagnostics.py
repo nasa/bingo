@@ -4,8 +4,9 @@ EA diagnostics are tracked to allow for investigating convergence properties,
 etc.  Currently ony diagnostics associated with the variation phase of a EA are
 tracked.
 """
-
 from collections import namedtuple
+from itertools import product
+
 import numpy as np
 
 EaDiagnosticsSummary = namedtuple("EaDiagnosticsSummary",
@@ -43,6 +44,9 @@ class EaDiagnostics:
             {type_: np.zeros(3) for type_ in crossover_types}
         self._mutation_type_stats = \
             {type_: np.zeros(3) for type_ in mutation_types}
+        self._crossover_mutation_type_stats = \
+            {type_pair: np.zeros(3) for type_pair in product(crossover_types,
+                                                             mutation_types)}
 
     @property
     def summary(self):
@@ -73,6 +77,17 @@ class EaDiagnostics:
             summary[mutation_type] = GeneticOperatorSummary(
                 type_stats[1] / type_stats[0],
                 type_stats[2] / type_stats[0])
+        return summary
+
+    @property
+    def crossover_mutation_type_summary(self):
+        summary = {}
+        for type_pairing in product(self._crossover_types,
+                                    self._mutation_types):
+            pair_stats = self._crossover_mutation_type_stats[type_pairing]
+            summary[type_pairing] = GeneticOperatorSummary(
+                pair_stats[1] / pair_stats[0],
+                pair_stats[2] / pair_stats[0])
         return summary
     
     def _get_stats(self, idx, beneficial_var, detrimental_var):
@@ -136,6 +151,14 @@ class EaDiagnostics:
             self._mutation_type_stats[mutation_type] += self._get_stats(
                 just_mut[type_idx], beneficial_var[type_idx],
                 detrimental_var[type_idx])
+
+        for type_pair in product(self._crossover_types, self._mutation_types):
+            cross_type, mut_type = type_pair
+            pair_idx = np.logical_and(offspring_crossover_type == cross_type,
+                                      offspring_mutation_type == mut_type)
+            self._crossover_mutation_type_stats[type_pair] += self._get_stats(
+                cross_mut[pair_idx], beneficial_var[pair_idx],
+                detrimental_var[pair_idx])
 
     def __add__(self, other):
         sum_ = EaDiagnostics(self._crossover_types, self._mutation_types)

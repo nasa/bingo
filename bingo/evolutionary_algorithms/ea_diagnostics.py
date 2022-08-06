@@ -141,24 +141,22 @@ class EaDiagnostics:
                                                  detrimental_var)
 
         for crossover_type in self._crossover_types:
-            type_idx = offspring_crossover_type == crossover_type
+            cross_idx = offspring_crossover_type == crossover_type
             self._crossover_type_stats[crossover_type] += self._get_stats(
-                just_cross[type_idx], beneficial_var[type_idx],
-                detrimental_var[type_idx])
+                just_cross[cross_idx], beneficial_var[cross_idx],
+                detrimental_var[cross_idx])
 
-        for mutation_type in self._mutation_types:
-            type_idx = offspring_mutation_type == mutation_type
-            self._mutation_type_stats[mutation_type] += self._get_stats(
-                just_mut[type_idx], beneficial_var[type_idx],
-                detrimental_var[type_idx])
-
-        for type_pair in product(self._crossover_types, self._mutation_types):
-            cross_type, mut_type = type_pair
-            pair_idx = np.logical_and(offspring_crossover_type == cross_type,
-                                      offspring_mutation_type == mut_type)
-            self._crossover_mutation_type_stats[type_pair] += self._get_stats(
-                cross_mut[pair_idx], beneficial_var[pair_idx],
-                detrimental_var[pair_idx])
+            for mutation_type in self._mutation_types:
+                mut_idx = offspring_mutation_type == mutation_type
+                self._mutation_type_stats[mutation_type] += self._get_stats(
+                    just_mut[mut_idx], beneficial_var[mut_idx],
+                    detrimental_var[mut_idx])
+                
+                cross_mut_idx = np.logical_and(cross_idx, mut_idx)
+                self._crossover_mutation_type_stats[
+                    (crossover_type, mutation_type)] += self._get_stats(
+                    cross_mut[cross_mut_idx], beneficial_var[cross_mut_idx],
+                    detrimental_var[cross_mut_idx])
 
     def __add__(self, other):
         sum_ = EaDiagnostics(self._crossover_types, self._mutation_types)

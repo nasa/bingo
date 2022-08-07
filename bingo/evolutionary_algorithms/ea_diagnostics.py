@@ -91,7 +91,8 @@ class EaDiagnostics:
         return summary
     
     def _get_stats(self, idx, beneficial_var, detrimental_var):
-        return sum(idx), sum(beneficial_var * idx), sum(detrimental_var * idx)
+        return np.sum([idx, beneficial_var * idx, detrimental_var * idx],
+                      axis=1)
 
     def update(self, population, offspring, offspring_parents,
                offspring_crossover_type, offspring_mutation_type):

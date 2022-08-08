@@ -74,6 +74,16 @@ def test_correctly_updated_type_summaries(population_12,
     ead.update(population_12, population_0123_times_4, offspring_parent_idx,
                cross_type_complex, mut_type_complex)
 
+    expected_summary = EaDiagnosticsSummary(
+        beneficial_crossover_rate=0,
+        detrimental_crossover_rate=0.5,
+        beneficial_mutation_rate=0.5,
+        detrimental_mutation_rate=0,
+        beneficial_crossover_mutation_rate=1.0/3.0,
+        detrimental_crossover_mutation_rate=1.0/6.0)
+
+    assert ead.summary == expected_summary
+
     expected_cross_summary = {
         "c_n": GeneticOperatorSummary(beneficial_rate=np.nan,
                                       detrimental_rate=np.nan),
@@ -132,6 +142,16 @@ def test_correctly_updated_existing_type_summaries(population_12,
 
     ead.update(population_12, population_0123_times_4, offspring_parents,
                offspring_crossover_type_2, offspring_mutation_type_2)
+
+    expected_summary = EaDiagnosticsSummary(
+        beneficial_crossover_rate=0.25,
+        detrimental_crossover_rate=0.5,
+        beneficial_mutation_rate=0.4,
+        detrimental_mutation_rate=0.4,
+        beneficial_crossover_mutation_rate=0.3,
+        detrimental_crossover_mutation_rate=0.2)
+
+    assert ead.summary == expected_summary
 
     expected_cross_summary = {
         "c_n": GeneticOperatorSummary(beneficial_rate=np.nan,

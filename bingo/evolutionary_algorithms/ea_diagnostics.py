@@ -89,7 +89,7 @@ class EaDiagnostics:
                 pair_stats[1] / pair_stats[0],
                 pair_stats[2] / pair_stats[0])
         return summary
-    
+
     def _get_stats(self, idx, beneficial_var, detrimental_var):
         return np.sum([idx, beneficial_var * idx, detrimental_var * idx],
                       axis=1)
@@ -137,7 +137,7 @@ class EaDiagnostics:
         self._crossover_stats += self._get_stats(just_cross, beneficial_var,
                                                  detrimental_var)
         self._mutation_stats += self._get_stats(just_mut, beneficial_var,
-                                                 detrimental_var)
+                                                detrimental_var)
         self._cross_mut_stats += self._get_stats(cross_mut, beneficial_var,
                                                  detrimental_var)
 
@@ -152,7 +152,7 @@ class EaDiagnostics:
                 self._mutation_type_stats[mutation_type] += self._get_stats(
                     just_mut[mut_idx], beneficial_var[mut_idx],
                     detrimental_var[mut_idx])
-                
+
                 cross_mut_idx = np.logical_and(cross_idx, mut_idx)
                 self._crossover_mutation_type_stats[
                     (crossover_type, mutation_type)] += self._get_stats(

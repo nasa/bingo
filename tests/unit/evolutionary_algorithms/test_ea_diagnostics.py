@@ -79,8 +79,8 @@ def test_correctly_updated_type_summaries(population_12,
         detrimental_crossover_rate=0.5,
         beneficial_mutation_rate=0.5,
         detrimental_mutation_rate=0,
-        beneficial_crossover_mutation_rate=1.0/3.0,
-        detrimental_crossover_mutation_rate=1.0/6.0)
+        beneficial_crossover_mutation_rate=1.0 / 3.0,
+        detrimental_crossover_mutation_rate=1.0 / 6.0)
 
     assert ead.summary == expected_summary
 
@@ -109,7 +109,7 @@ def test_correctly_updated_type_summaries(population_12,
 
     expected_cross_mut_summary = {
         ("c_n", "m_n"): GeneticOperatorSummary(beneficial_rate=0.5,
-                                              detrimental_rate=0),
+                                               detrimental_rate=0),
         ("c_n", "m_s"): GeneticOperatorSummary(beneficial_rate=0,
                                                detrimental_rate=0.5),
         ("c_s", "m_n"): GeneticOperatorSummary(beneficial_rate=0.5,
@@ -166,7 +166,7 @@ def test_correctly_updated_existing_type_summaries(population_12,
                                       expected_cross_summary[cross_type])
 
     expected_mut_summary = {
-        "m_n": GeneticOperatorSummary(beneficial_rate=2.0/3.0,
+        "m_n": GeneticOperatorSummary(beneficial_rate=2.0 / 3.0,
                                       detrimental_rate=0),
         "m_s": GeneticOperatorSummary(beneficial_rate=0,
                                       detrimental_rate=1)}
@@ -177,7 +177,7 @@ def test_correctly_updated_existing_type_summaries(population_12,
         ("c_n", "m_n"): GeneticOperatorSummary(beneficial_rate=0.5,
                                                detrimental_rate=0),
         ("c_n", "m_s"): GeneticOperatorSummary(beneficial_rate=0,
-                                               detrimental_rate=2.0/3.0),
+                                               detrimental_rate=2.0 / 3.0),
         ("c_s", "m_n"): GeneticOperatorSummary(beneficial_rate=0.25,
                                                detrimental_rate=0),
         ("c_s", "m_s"): GeneticOperatorSummary(beneficial_rate=1,
@@ -236,7 +236,7 @@ def test_sum(population_12, population_0123_times_4, num_subsets,
                                                detrimental_rate=np.nan)}
 
     summed_ead = sum(ead_list)
-    
+
     assert summed_ead.summary == expected_summary
 
     # using np.testing.assert_equal to deal with nan

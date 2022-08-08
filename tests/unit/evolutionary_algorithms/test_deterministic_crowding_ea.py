@@ -45,7 +45,7 @@ def test_all_phases_occur_in_correct_order(mocker):
     assert new_pop == dummy_next_gen
 
 
-def test_creates_var_or(mocker):
+def test_creates_var_and(mocker):
     mocked_crossover = mocker.Mock()
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()

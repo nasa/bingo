@@ -67,3 +67,21 @@ def test_creates_var_and(mocker):
                                                           mocked_mutation,
                                                           0.5, 0.3)
     deterministic_crowding.DeterministicCrowding.assert_called_once()
+
+
+def test_creates_ea_diagnostics(mocker):
+    mocked_crossover = mocker.Mock()
+    mocked_mutation = mocker.Mock()
+    mocked_evaluation = mocker.Mock()
+    mocked_variation = mocker.patch("bingo.evolutionary_algorithms."
+                                    "deterministic_crowding.VarAnd",
+                                    autospec=True)
+    ead = mocker.patch("bingo.evolutionary_algorithms."
+                       "evolutionary_algorithm.EaDiagnostics", autospec=True)
+
+    _ = DeterministicCrowdingEA(mocked_evaluation, mocked_crossover,
+                                mocked_mutation, crossover_probability=0.5,
+                                mutation_probability=0.3)
+
+    ead.assert_called_once_with(mocked_variation.crossover_types,
+                                mocked_variation.mutation_types)

@@ -56,3 +56,21 @@ def test_creates_var_or(mocker):
 
     mu_comma_lambda.VarOr.assert_called_once_with(mocked_crossover,
                                                   mocked_mutation, 0.5, 0.3)
+
+
+def test_creates_ea_diagnostics(mocker):
+    mocked_crossover = mocker.Mock()
+    mocked_mutation = mocker.Mock()
+    mocked_evaluation = mocker.Mock()
+    mocked_selection = mocker.Mock()
+    mocked_variation = mocker.patch("bingo.evolutionary_algorithms."
+                                    "mu_comma_lambda.VarOr", autospec=True)
+    ead = mocker.patch("bingo.evolutionary_algorithms."
+                       "evolutionary_algorithm.EaDiagnostics", autospec=True)
+
+    _ = MuCommaLambda(mocked_evaluation, mocked_selection, mocked_crossover,
+                      mocked_mutation, crossover_probability=0.5,
+                      mutation_probability=0.3, number_offspring=10)
+
+    ead.assert_called_once_with(mocked_variation.crossover_types,
+                                mocked_variation.mutation_types)

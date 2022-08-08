@@ -35,3 +35,17 @@ def test_all_phases_occur_in_ea(mocker):
         mocked_variation.offspring_crossover_type,
         mocked_variation.offspring_mutation_type)
     assert new_pop == dummy_next_gen
+
+
+def test_creates_ea_diagnostics(mocker):
+    mocked_variation = mocker.Mock()
+    mocked_evaluation = mocker.Mock()
+    mocked_selection = mocker.Mock()
+    ead = mocker.patch("bingo.evolutionary_algorithms."
+                       "evolutionary_algorithm.EaDiagnostics", autospec=True)
+
+    _ = EvolutionaryAlgorithm(mocked_variation, mocked_evaluation,
+                              mocked_selection)
+
+    ead.assert_called_once_with(mocked_variation.crossover_types,
+                                mocked_variation.mutation_types)

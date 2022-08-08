@@ -41,7 +41,8 @@ class EvolutionaryAlgorithm:
         self.variation = variation
         self.evaluation = evaluation
         self.selection = selection
-        self.diagnostics = EaDiagnostics()
+        self.diagnostics = EaDiagnostics(variation.crossover_types,
+                                         variation.mutation_types)
 
     def generational_step(self, population):
         """Performs a generational step on population.

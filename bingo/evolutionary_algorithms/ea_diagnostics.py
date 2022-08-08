@@ -159,11 +159,21 @@ class EaDiagnostics:
                     cross_mut[cross_mut_idx], beneficial_var[cross_mut_idx],
                     detrimental_var[cross_mut_idx])
 
+    def _get_type_stats_sum(self, self_stats, other_stats):
+        return {k: v + other_stats[k] for k, v in self_stats.items()}
+
     def __add__(self, other):
         sum_ = EaDiagnostics(self._crossover_types, self._mutation_types)
         sum_._crossover_stats = self._crossover_stats + other._crossover_stats
         sum_._mutation_stats = self._mutation_stats + other._mutation_stats
         sum_._cross_mut_stats = self._cross_mut_stats + other._cross_mut_stats
+        sum_._crossover_type_stats = self._get_type_stats_sum(
+            self._crossover_type_stats, other._crossover_type_stats)
+        sum_._mutation_type_stats = self._get_type_stats_sum(
+            self._mutation_type_stats, other._mutation_type_stats)
+        sum_._crossover_mutation_type_stats = self._get_type_stats_sum(
+            self._crossover_mutation_type_stats,
+            other._crossover_mutation_type_stats)
         return sum_
 
     def __radd__(self, other):

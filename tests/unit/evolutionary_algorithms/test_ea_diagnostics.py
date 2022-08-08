@@ -187,15 +187,11 @@ def test_correctly_updated_existing_type_summaries(population_12,
 
 
 @pytest.mark.parametrize("num_subsets", [1, 2, 4, 8])
-@pytest.mark.parametrize("crossover_type, mutation_type",
-                         [("normal_c", 1), ("normal_m", 1)])
 def test_sum(population_12, population_0123_times_4, num_subsets,
-             crossover_type, mutation_type):
+             cross_type_complex, mut_type_complex):
     offspring_parent_idx = [[0, 1]] * 8 + [[0]] * 8
-    offspring_crossover_type = \
-        np.array([crossover_type] * 8 + [None] * 8, dtype=object)
-    offspring_mutation_type = \
-        np.array([None] * 4 + [mutation_type] * 8 + [None] * 4, dtype=object)
+    crossover_types = set(cross_type_complex) - {None}
+    mutation_types = set(mut_type_complex) - {None}
 
     num_subsets = 2
     ead_list = []
@@ -203,18 +199,64 @@ def test_sum(population_12, population_0123_times_4, num_subsets,
         subset_inds = list(range(i, 16, num_subsets))
         offspring = [population_0123_times_4[i] for i in subset_inds]
         parents = [offspring_parent_idx[i] for i in subset_inds]
-        cross_type = offspring_crossover_type[subset_inds]
-        mut_type = offspring_mutation_type[subset_inds]
-        ead = EaDiagnostics([crossover_type], [mutation_type])
+        cross_type = cross_type_complex[subset_inds]
+        mut_type = mut_type_complex[subset_inds]
+        ead = EaDiagnostics(crossover_types, mutation_types)
         ead.update(population_12, offspring, parents, cross_type, mut_type)
         ead_list.append(ead)
 
     expected_summary = EaDiagnosticsSummary(
-        beneficial_crossover_rate=0.25,
-        detrimental_crossover_rate=0.25,
-        beneficial_mutation_rate=0.25,
-        detrimental_mutation_rate=0.5,
-        beneficial_crossover_mutation_rate=0.25,
-        detrimental_crossover_mutation_rate=0.25)
+        beneficial_crossover_rate=0,
+        detrimental_crossover_rate=0.5,
+        beneficial_mutation_rate=0.5,
+        detrimental_mutation_rate=0,
+        beneficial_crossover_mutation_rate=1.0 / 3.0,
+        detrimental_crossover_mutation_rate=1.0 / 6.0)
 
-    assert sum(ead_list).summary == expected_summary
+    expected_cross_summary = {
+        "c_n": GeneticOperatorSummary(beneficial_rate=np.nan,
+                                      detrimental_rate=np.nan),
+        "c_s": GeneticOperatorSummary(beneficial_rate=0,
+                                      detrimental_rate=0.5)}
+
+    expected_mut_summary = {
+        "m_n": GeneticOperatorSummary(beneficial_rate=0.5,
+                                      detrimental_rate=0),
+        "m_s": GeneticOperatorSummary(beneficial_rate=np.nan,
+                                      detrimental_rate=np.nan)}
+
+    expected_cross_mut_summary = {
+        ("c_n", "m_n"): GeneticOperatorSummary(beneficial_rate=0.5,
+                                               detrimental_rate=0),
+        ("c_n", "m_s"): GeneticOperatorSummary(beneficial_rate=0,
+                                               detrimental_rate=0.5),
+        ("c_s", "m_n"): GeneticOperatorSummary(beneficial_rate=0.5,
+                                               detrimental_rate=0),
+        ("c_s", "m_s"): GeneticOperatorSummary(beneficial_rate=np.nan,
+                                               detrimental_rate=np.nan)}
+
+    summed_ead = sum(ead_list)
+    
+    assert summed_ead.summary == expected_summary
+
+    # using np.testing.assert_equal to deal with nan
+    assert summed_ead.crossover_type_summary.keys() == \
+           expected_cross_summary.keys()
+    for cross_type in expected_cross_summary.keys():
+        np.testing.assert_array_equal(
+            summed_ead.crossover_type_summary[cross_type],
+            expected_cross_summary[cross_type])
+
+    assert summed_ead.mutation_type_summary.keys() == \
+           expected_mut_summary.keys()
+    for mut_type in expected_mut_summary.keys():
+        np.testing.assert_array_equal(
+            summed_ead.mutation_type_summary[mut_type],
+            expected_mut_summary[mut_type])
+
+    assert summed_ead.crossover_mutation_type_summary.keys() == \
+           expected_cross_mut_summary.keys()
+    for pair in expected_cross_mut_summary.keys():
+        np.testing.assert_array_equal(
+            summed_ead.crossover_mutation_type_summary[pair],
+            expected_cross_mut_summary[pair])

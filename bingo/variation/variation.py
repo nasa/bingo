@@ -16,12 +16,12 @@ class Variation(metaclass=ABCMeta):
 
     Attributes
     ----------
-    crossover_offspring : list of bool
-        list indicating whether the corresponding member of the last offspring
-        was a result of crossover
-    mutation_offspring : list of bool
-        list indicating whether the corresponding member of the last offspring
-        was a result of mutation
+    offspring_crossover_type : numpy array of str
+        numpy array indicating the crossover type that the
+        corresponding offspring underwent (or None)
+    offspring_mutation_type : numpy array of str
+        numpy array indicating the mutation type that the
+        corresponding offspring underwent (or None)
     offspring_parents : list of list of int
         list indicating the parents (by index in the population) of the
         corresponding member of the last offspring

@@ -27,17 +27,40 @@ class EaDiagnostics:
     properties, etc.  Currently ony diagnostics associated with the variation
     phase of a EA are tracked.
 
+    Parameters
+    ----------
+    crossover_types : iterable of str, optional
+        possible crossover types (not including None)
+    mutation_types : iterable of str, optional
+        possible mutation types (not including None)
+
     Attributes
     ----------
     summary : `EaDiagnosticsSummary`
         namedtuple describing the summary of the diagnostic information
-
+    crossover_type_summary : dict(str: `GeneticOperatorSummary`)
+        dict mapping crossover types to `GeneticOperatorSummary`, describing
+        the diagnostic information of cases when only a particular crossover 
+        type was applied
+    mutation_type_summary : dict(str: `GeneticOperatorSummary`)
+        dict mapping mutation types to `GeneticOperatorSummary`, describing
+        the diagnostic information of cases when only a particular mutation 
+        type was applied
+    crossover_mutation_type_summary : dict(tuple(str, str): `GeneticOperatorSummary`)  # pylint: disable=line-too-long
+        dict mapping a tuple of crossover type and mutation type (in that order)
+        to the diagnostic information of cases when both the crossover
+        and mutation type were applied
     """
-    def __init__(self, crossover_types, mutation_types):
+    def __init__(self, crossover_types=None, mutation_types=None):
         self._crossover_stats = np.zeros(3)
         self._mutation_stats = np.zeros(3)
         self._cross_mut_stats = np.zeros(3)
+        if crossover_types is None:
+            crossover_types = []
         self._crossover_types = crossover_types
+
+        if mutation_types is None:
+            mutation_types = []
         self._mutation_types = mutation_types
 
         self._crossover_type_stats = \
@@ -61,6 +84,7 @@ class EaDiagnostics:
 
     @property
     def crossover_type_summary(self):
+        """Summary of diagnostic data when only crossover happened"""
         summary = {}
         for crossover_type in self._crossover_types:
             type_stats = self._crossover_type_stats[crossover_type]
@@ -71,6 +95,7 @@ class EaDiagnostics:
 
     @property
     def mutation_type_summary(self):
+        """Summary of diagnostic data when only mutation happened"""
         summary = {}
         for mutation_type in self._mutation_types:
             type_stats = self._mutation_type_stats[mutation_type]
@@ -81,6 +106,8 @@ class EaDiagnostics:
 
     @property
     def crossover_mutation_type_summary(self):
+        """Summary of diagnostic data when both crossover and
+        mutation happened"""
         summary = {}
         for type_pairing in product(self._crossover_types,
                                     self._mutation_types):
@@ -108,12 +135,12 @@ class EaDiagnostics:
         offspring_parents : list of list of int
             list indicating the parents (by index in population) of the
             corresponding member of offspring
-        offspring_crossover_type : numpy array of object
+        offspring_crossover_type : numpy array of str
             numpy array indicating the crossover type that the
-            corresponding offspring underwent
-        offspring_mutation_type : numpy array of object
+            corresponding offspring underwent (or None)
+        offspring_mutation_type : numpy array of str
             numpy array indicating the mutation type that the
-            corresponding offspring underwent
+            corresponding offspring underwent (or None)
         """
         offspring_crossover = offspring_crossover_type.astype(bool)
         offspring_mutation = offspring_mutation_type.astype(bool)

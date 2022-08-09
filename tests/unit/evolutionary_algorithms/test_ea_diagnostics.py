@@ -133,15 +133,15 @@ def test_correctly_updated_existing_type_summaries(population_12,
     ead.update(population_12, population_0123_times_4, offspring_parents,
                cross_type_complex, mut_type_complex)
 
-    offspring_crossover_type_2 = \
+    crossover_offspring_type_2 = \
         np.array(["c_s"] * 3 + ["c_n"] + ["c_s"] + [None] * 2 +
                  ["c_s"] + [None] * 8, dtype=object)
-    offspring_mutation_type_2 = \
+    mutation_offspring_type_2 = \
         np.array(["m_s"] + ["m_n"] * 2 + ["m_s"] + [None] * 4 + ["m_n"] +
                  [None] * 2 + ["m_s"] + [None] * 3 + ["m_s"], dtype=object)
 
     ead.update(population_12, population_0123_times_4, offspring_parents,
-               offspring_crossover_type_2, offspring_mutation_type_2)
+               crossover_offspring_type_2, mutation_offspring_type_2)
 
     expected_summary = EaDiagnosticsSummary(
         beneficial_crossover_rate=0.25,

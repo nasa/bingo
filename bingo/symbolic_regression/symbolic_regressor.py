@@ -11,7 +11,7 @@ from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evolutionary_algorithms.deterministic_crowding import DeterministicCrowdingEA
 from bingo.evolutionary_optimizers.fitness_predictor_island import FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
-from bingo.evolutionary_optimizers.parallel_archipelago import ParallelArchipelago
+# from bingo.evolutionary_optimizers.parallel_archipelago import ParallelArchipelago
 from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.local_opt_fitness \
@@ -108,10 +108,10 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         island = self._make_island(len(X), ea, hof)
         self._force_diversity_in_island(island)
 
-        if self.parallel:
-            return ParallelArchipelago(island, hall_of_fame=hof)
-        else:
-            return island
+        # if self.parallel:
+        #     return ParallelArchipelago(island, hall_of_fame=hof)
+        # else:
+        return island
 
     def _make_island(self, dset_size, ea, hof):
         if dset_size < 1200:

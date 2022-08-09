@@ -122,7 +122,7 @@ class EaDiagnostics:
                       axis=1)
 
     def update(self, population, offspring, offspring_parents,
-               offspring_crossover_type, offspring_mutation_type):
+               crossover_offspring_type, mutation_offspring_type):
         """Updates the diagnostic information associated with a single step in
         an EA
 
@@ -135,15 +135,15 @@ class EaDiagnostics:
         offspring_parents : list of list of int
             list indicating the parents (by index in population) of the
             corresponding member of offspring
-        offspring_crossover_type : numpy array of str
+        crossover_offspring_type : numpy array of str
             numpy array indicating the crossover type that the
             corresponding offspring underwent (or None)
-        offspring_mutation_type : numpy array of str
+        mutation_offspring_type : numpy array of str
             numpy array indicating the mutation type that the
             corresponding offspring underwent (or None)
         """
-        offspring_crossover = offspring_crossover_type.astype(bool)
-        offspring_mutation = offspring_mutation_type.astype(bool)
+        offspring_crossover = crossover_offspring_type.astype(bool)
+        offspring_mutation = mutation_offspring_type.astype(bool)
 
         beneficial_var = np.zeros(len(offspring), dtype=bool)
         detrimental_var = np.zeros(len(offspring), dtype=bool)
@@ -169,13 +169,13 @@ class EaDiagnostics:
                                                  detrimental_var)
 
         for crossover_type in self._crossover_types:
-            cross_idx = offspring_crossover_type == crossover_type
+            cross_idx = crossover_offspring_type == crossover_type
             self._crossover_type_stats[crossover_type] += self._get_stats(
                 just_cross[cross_idx], beneficial_var[cross_idx],
                 detrimental_var[cross_idx])
 
             for mutation_type in self._mutation_types:
-                mut_idx = offspring_mutation_type == mutation_type
+                mut_idx = mutation_offspring_type == mutation_type
                 self._mutation_type_stats[mutation_type] += self._get_stats(
                     just_mut[mut_idx], beneficial_var[mut_idx],
                     detrimental_var[mut_idx])

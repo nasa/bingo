@@ -37,8 +37,8 @@ def test_all_phases_occur_in_correct_order(mocker):
     assert mocked_selection.call_args[0][0] == dummy_offspring
     ead.update.assert_called_once_with(
         dummy_population, dummy_offspring, mocked_variation.offspring_parents,
-        mocked_variation.offspring_crossover_type,
-        mocked_variation.offspring_mutation_type)
+        mocked_variation.crossover_offspring_type,
+        mocked_variation.mutation_offspring_type)
     assert new_pop == dummy_next_gen
 
 

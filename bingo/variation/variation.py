@@ -23,12 +23,12 @@ class Variation(metaclass=ABCMeta):
 
     Attributes
     ----------
-    offspring_crossover_type : numpy array of str
+    crossover_offspring_type : numpy array of str
         numpy array indicating the crossover type that the
         corresponding offspring underwent (or None)
     crossover_types : iterable of str
         possible types of crossover (excluding None)
-    offspring_mutation_type : numpy array of str
+    mutation_offspring_type : numpy array of str
         numpy array indicating the mutation type that the
         corresponding offspring underwent (or None)
     mutation_types : iterable of str

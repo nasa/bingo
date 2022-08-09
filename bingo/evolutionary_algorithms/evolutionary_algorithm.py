@@ -80,5 +80,5 @@ class EvolutionaryAlgorithm:
         """
         self.diagnostics.update(population, offspring,
                                 self.variation.offspring_parents,
-                                self.variation.offspring_crossover_type,
-                                self.variation.offspring_mutation_type)
+                                self.variation.crossover_offspring_type,
+                                self.variation.mutation_offspring_type)

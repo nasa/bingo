@@ -30,9 +30,9 @@ class EaDiagnostics:
     Parameters
     ----------
     crossover_types : iterable of str, optional
-        possible crossover types (not including None)
+        possible crossover types (excluding None)
     mutation_types : iterable of str, optional
-        possible mutation types (not including None)
+        possible mutation types (excluding None)
 
     Attributes
     ----------

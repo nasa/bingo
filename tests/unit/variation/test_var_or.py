@@ -23,13 +23,21 @@ def dummy_population(dummy_chromosome):
 def dummy_crossover(mocker, dummy_chromosome):
     crossover_cromosome = dummy_chromosome(fitness="crossover")
     return mocker.Mock(return_value=(crossover_cromosome,
-                                     crossover_cromosome))
+                                     crossover_cromosome),
+                       last_crossover_types=("default", "default"))
 
 
 @pytest.fixture
 def dummy_mutation(mocker, dummy_chromosome):
     mutation_chromosome = dummy_chromosome(fitness="mutation")
-    return mocker.Mock(return_value=mutation_chromosome)
+    return mocker.Mock(return_value=mutation_chromosome,
+                       last_mutation_type="default")
+
+
+def test_set_crossover_and_mutation_types(dummy_mutation, dummy_crossover):
+    var_or = VarOr(dummy_crossover, dummy_mutation, 0.4, 0.4)
+    assert var_or.crossover_types == dummy_crossover.types
+    assert var_or.mutation_types == dummy_mutation.types
 
 
 @pytest.mark.parametrize("cx_prob", [-0.1, 1.1, 0.6])
@@ -57,14 +65,14 @@ def test_diagnostics_source(dummy_population, dummy_crossover, dummy_mutation):
     variation = VarOr(dummy_crossover, dummy_mutation, 0.5, 0.3)
     offspring = variation(dummy_population, 100)
 
-    for off, cross, mut in zip(offspring, variation.crossover_offspring,
-                               variation.mutation_offspring):
+    for off, cross, mut in zip(offspring, variation.crossover_offspring_type,
+                               variation.mutation_offspring_type):
         if off.fitness == "replication":
             assert not cross and not mut
         elif off.fitness == "crossover":
-            assert cross and not mut
+            assert cross == "default" and not mut
         elif off.fitness == "mutation":
-            assert not cross and mut
+            assert not cross and mut == "default"
 
 
 def test_diagnostics_parents(dummy_population, dummy_crossover,
@@ -73,8 +81,8 @@ def test_diagnostics_parents(dummy_population, dummy_crossover,
     _ = variation(dummy_population, 100)
 
     for parents, cross, mut in zip(variation.offspring_parents,
-                                   variation.crossover_offspring,
-                                   variation.mutation_offspring):
+                                   variation.crossover_offspring_type,
+                                   variation.mutation_offspring_type):
         if cross:
             assert len(parents) == 2
         else:

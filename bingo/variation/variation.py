@@ -38,12 +38,12 @@ class Variation(metaclass=ABCMeta):
         corresponding member of the last offspring
     """
     def __init__(self, crossover_types=None, mutation_types=None):
-        self.crossover_offspring = np.zeros(shape=(0, ), dtype=bool)
+        self.crossover_offspring_type = np.zeros(shape=(0, ), dtype=object)
         if crossover_types is None:
             crossover_types = []
         self.crossover_types = crossover_types
 
-        self.mutation_offspring = np.zeros(shape=(0, ), dtype=bool)
+        self.mutation_offspring_type = np.zeros(shape=(0, ), dtype=object)
         if mutation_types is None:
             mutation_types = []
         self.mutation_types = mutation_types

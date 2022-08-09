@@ -21,15 +21,20 @@ def dummy_population(dummy_chromosome):
 
 @pytest.fixture
 def dummy_crossover(mocker, dummy_chromosome):
-    crossover_cromosome = dummy_chromosome(fitness="crossover")
-    return mocker.Mock(return_value=(crossover_cromosome,
-                                     crossover_cromosome))
+    crossover_chromosome = dummy_chromosome(fitness="crossover")
+    return mocker.Mock(return_value=(crossover_chromosome,
+                                     crossover_chromosome))
 
 
 @pytest.fixture
 def dummy_mutation(mocker, dummy_chromosome):
-    mutation_chromosome = dummy_chromosome(fitness="mutation")
-    return mocker.Mock(return_value=mutation_chromosome)
+    def mocked_mutation(indv):
+        if indv.fitness == "replication":
+            indv.fitness = "mutation"
+        else:
+            indv.fitness += "_mutation"
+        return indv
+    return mocker.Mock(side_effect=mocked_mutation)
 
 
 @pytest.mark.parametrize("cx_prob, mut_prob",
@@ -50,22 +55,25 @@ def test_probabilities_are_about_right(dummy_population, dummy_crossover,
     variation = VarAnd(dummy_crossover, dummy_mutation, 0.5, 0.3)
     _ = variation(dummy_population, 1000)
 
-    assert np.count_nonzero(variation.crossover_offspring) == 470
-    assert np.count_nonzero(variation.mutation_offspring) == 296
+    assert np.count_nonzero(variation.crossover_offspring_types) == 470
+    assert np.count_nonzero(variation.mutation_offspring_types) == 296
 
 
 def test_diagnostics_source(dummy_population, dummy_crossover, dummy_mutation):
     variation = VarAnd(dummy_crossover, dummy_mutation, 0.5, 0.3)
     offspring = variation(dummy_population, 100)
 
-    for off, cross, mut in zip(offspring, variation.crossover_offspring,
-                               variation.mutation_offspring):
+    for off, cross_type, mut_type in zip(offspring,
+                                         variation.crossover_offspring_types,
+                                         variation.mutation_offspring_types):
         if off.fitness == "replication":
-            assert not cross and not mut
+            assert not cross_type and not mut_type
         elif off.fitness == "mutation":
-            assert mut
+            assert mut_type == "default" and not cross_type
         elif off.fitness == "crossover":
-            assert cross
+            assert cross_type == "default" and not mut_type
+        elif off.fitness == "crossover_mutation":
+            assert mut_type == "default" and cross_type == "default"
 
 
 def test_diagnostics_parents(dummy_population, dummy_crossover,

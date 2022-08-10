@@ -98,9 +98,17 @@ class SinglePointMutation(Mutation):
     mutation_function : user defined function
         a function that returns a random value that will replace (or "mutate")
         a random value in the chromosome.
+
+    Attributes
+    ----------
+    types : iterable of str
+        an iterable of the possible mutation types
+    last_mutation_type : str
+        the last mutation type that happened (or None)
     """
     def __init__(self, mutation_function):
         super().__init__()
+        self.types = ["single_point"]
         self._mutation_function = mutation_function
 
     def __call__(self, parent):
@@ -122,6 +130,7 @@ class SinglePointMutation(Mutation):
         child.fit_set = False
         mutation_point = np.random.randint(len(parent.values))
         child.values[mutation_point] = self._mutation_function()
+        self.last_mutation_type = "single_point"
         return child
 
 
@@ -131,9 +140,18 @@ class SinglePointCrossover(Crossover):
     Crossover results in two individuals with single-point crossed-over lists
     whose values are provided by the parents. Crossover point is
     a random integer produced by numpy.
+
+    Attributes
+    ----------
+    types : iterable of str
+        an iterable of the possible crossover types
+    last_crossover_types : tuple(str, str)
+        the crossover type (or None) that happened to create the first child
+        and second child, respectively
     """
     def __init__(self):
         super().__init__()
+        self.types = ["single_point"]
         self._crossover_point = 0
 
     def __call__(self, parent_1, parent_2):
@@ -166,4 +184,5 @@ class SinglePointCrossover(Crossover):
             age = parent_2.genetic_age
         child_1.genetic_age = age
         child_2.genetic_age = age
+        self.last_crossover_types = ("single_point", "single_point")
         return child_1, child_2

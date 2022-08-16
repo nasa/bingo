@@ -6,8 +6,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+COPY bingo/ /opt/bingo/
+WORKDIR /opt/bingo/
 RUN python -m pip install -r requirements.txt
-RUN mkdir -p bingocpp/build/
+RUN mkdir -p /opt/bingo/bingocpp/build/
 WORKDIR bingocpp/build/
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH=$(which python) .. && \
     make VERBOSE=1 -j

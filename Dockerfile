@@ -2,7 +2,12 @@ FROM ubuntu:22.04
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install --no-install-recommends -y \
-        build-essential cmake python3.10 python3-pip && \
+        build-essential \
+        cmake \
+        python3.10 \
+        python3-mpi4py \
+        python3-numpy \
+        python3-pip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1

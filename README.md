@@ -123,9 +123,18 @@ plt.legend(["Actual", "Predicted"])
 plt.show()
 ```
 
-
-    
 ![png](media/usage_example_2.png)
+
+## Docker
+
+[![docker](https://github.com/mrbuche/bingo/actions/workflows/docker.yml/badge.svg)](https://github.com/mrbuche/bingo/actions/workflows/docker.yml)
+[![dockerhub](https://img.shields.io/docker/v/mrbuche/bingo?color=0db7ed&logo=docker&logoColor=0db7ed)](https://hub.docker.com/r/mrbuche/bingo)
+
+An Ubuntu-based Docker image, with Bingo built and installed, is available on [Docker Hub](https://hub.docker.com/r/mrbuche/bingo).
+
+```sh
+docker pull mrbuche/bingo
+```
 
 # Source
 
@@ -175,17 +184,6 @@ and test it with:
 
 ```sh
 python -c 'import bingo; import bingocpp'
-```
-
-## Docker
-
-[![docker](https://github.com/mrbuche/bingo/actions/workflows/docker.yml/badge.svg)](https://github.com/mrbuche/bingo/actions/workflows/docker.yml)
-[![dockerhub](https://img.shields.io/docker/v/mrbuche/bingo?color=0db7ed&logo=docker&logoColor=0db7ed)](https://hub.docker.com/r/mrbuche/bingo)
-
-An Ubuntu-based Docker image, with Bingo built and installed, is available on [Docker Hub](https://hub.docker.com/r/mrbuche/bingo).
-
-```sh
-docker pull mrbuche/bingo
 ```
 
 ## Contributing

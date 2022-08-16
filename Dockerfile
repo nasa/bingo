@@ -5,6 +5,7 @@ RUN apt-get update && \
         build-essential \
         cmake \
         python3.10 \
+        python3-dev \
         python3-mpi4py \
         python3-numpy \
         python3-pip && \

@@ -1,9 +1,10 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import pytest
-import numpy as np
 import os
+
+import numpy as np
+import pytest
 
 from bingo.chromosomes.multiple_values import SinglePointCrossover, \
     SinglePointMutation, MultipleValueChromosomeGenerator
@@ -155,11 +156,7 @@ def test_fitness_eval_count(one_island, sync_freq, non_blocking):
                                        non_blocking=non_blocking)
     assert archipelago.get_fitness_evaluation_count() == 0
     archipelago.evolve(1)
-    if non_blocking:
-        expected_evals = num_islands * (POP_SIZE +
-                                              sync_freq * OFFSPRING_SIZE)
-    else:
-        expected_evals = num_islands * (POP_SIZE + OFFSPRING_SIZE)
+    expected_evals = num_islands * (POP_SIZE + OFFSPRING_SIZE)
     assert archipelago.get_fitness_evaluation_count() == expected_evals
 
 

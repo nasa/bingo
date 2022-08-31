@@ -1,13 +1,16 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
-import sys
-import os
-import numpy as np
-import inspect
-import dill
-from mpi4py import MPI
 from unittest.mock import Mock
+import os
+
+from mpi4py import MPI
+import numpy as np
+import dill
+
+from mpitest_util import mpi_assert_true, mpi_assert_equal, \
+    mpi_assert_mean_near, mpi_assert_exactly_n_false, run_t_in_module
+
 from bingo.chromosomes.multiple_values import SinglePointCrossover, \
                                               SinglePointMutation, \
                                               MultipleValueChromosomeGenerator
@@ -15,7 +18,6 @@ from bingo.evolutionary_optimizers.island import Island
 from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
 from bingo.selection.tournament import Tournament
 from bingo.evaluation.evaluation import Evaluation
-# from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evolutionary_optimizers.parallel_archipelago \
     import ParallelArchipelago, load_parallel_archipelago_from_file
 
@@ -133,6 +135,16 @@ def test_blocking_fitness_eval_count():
     return mpi_assert_equal(actual_evaluations, expected_evaluations)
 
 
+def test_non_blocking_evolution_default_sync_freq():
+    steps = 200
+    island = num_island(COMM_RANK)
+    archipelago = ParallelArchipelago(island, non_blocking=True)
+    archipelago.evolve(steps)
+    island_age = archipelago.island.generational_age
+    archipelago_age = archipelago.generational_age
+    return mpi_assert_mean_near(island_age, archipelago_age, rel=0.1)
+
+
 def test_non_blocking_evolution():
     steps = 200
     island = num_island(COMM_RANK)
@@ -150,7 +162,8 @@ def test_convergence():
                                        non_blocking=True)
     result = archipelago.evolve_until_convergence(max_generations=100,
                                                   fitness_threshold=0,
-                                                  convergence_check_frequency=25)
+                                                  convergence_check_frequency=25
+                                                  )
     return mpi_assert_true(result.success)
 
 
@@ -239,97 +252,6 @@ def test_stale_checkpoint_removal():
         os.remove("stale_check_3.pkl")
     return mpi_assert_true(all(correct_files))
 
-# ============================================================================
-
-
-def mpi_assert_equal(actual, expected):
-    equal = actual == expected
-    if not equal:
-        message = "\tproc {}:  {} != {}\n".format(COMM_RANK, actual, expected)
-    else:
-        message = ""
-    all_equals = COMM.allgather(equal)
-    all_messages = COMM.allreduce(message, op=MPI.SUM)
-    return all(all_equals), all_messages
-
-
-def mpi_assert_true(value):
-    if not value:
-        message = "\tproc {}: False, expected True\n".format(COMM_RANK)
-    else:
-        message = ""
-    all_values = COMM.allgather(value)
-    all_messages = COMM.allreduce(message, op=MPI.SUM)
-    return all(all_values), all_messages
-
-
-def mpi_assert_exactly_n_false(value, n):
-    all_values = COMM.allgather(value)
-    if sum(all_values) == len(all_values) - n:
-        return True, ""
-
-    message = "\tproc {}: {}\n".format(COMM_RANK, value)
-    all_messages = COMM.allreduce(message, op=MPI.SUM)
-    all_messages = "\tExpected exactly " + str(n) + " False\n" + all_messages
-    return False, all_messages
-
-
-def mpi_assert_mean_near(value, expected_mean, rel=1e-6, abs=None):
-    actual_mean = COMM.allreduce(value, op=MPI.SUM)
-    actual_mean /= COMM_SIZE
-    allowable_error = rel * expected_mean
-    if abs is not None:
-        allowable_error = max(allowable_error, abs)
-
-    if -allowable_error <= actual_mean - expected_mean <= allowable_error:
-        return True, ""
-
-    message = "\tproc {}:  {}\n".format(COMM_RANK, value)
-    all_messages = COMM.allreduce(message, op=MPI.SUM)
-    all_messages += "\tMean {} != {} +- {}".format(actual_mean, expected_mean,
-                                                   allowable_error)
-    return False, all_messages
-
-
-def run_t(test_name, test_func):
-    if COMM_RANK == 0:
-        print(test_name, end=" ")
-    COMM.barrier()
-    success, message = test_func()
-    COMM.barrier()
-    if success:
-        if COMM_RANK == 0:
-            print(".")
-    else:
-        if COMM_RANK == 0:
-            print("F")
-            print(message, end=" ")
-    return success
-
-
-def driver():
-    results = []
-    tests = [(name, func)
-             for name, func in inspect.getmembers(sys.modules[__name__],
-                                                  inspect.isfunction)
-             if "test" in name]
-    if COMM_RANK == 0:
-        print("========== collected", len(tests), "items ==========")
-
-    for name, func in tests:
-        results.append(run_t(name, func))
-
-    num_success = sum(results)
-    num_failures = len(results) - num_success
-    if COMM_RANK == 0:
-        print("==========", end="  ")
-        if num_failures > 0:
-            print(num_failures, "failed,", end=" ")
-        print(num_success, "passed ==========")
-
-    if num_failures > 0:
-        exit(-1)
-
 
 if __name__ == "__main__":
-    driver()
+    run_t_in_module(__name__)

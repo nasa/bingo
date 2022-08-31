@@ -12,10 +12,17 @@ do
   echo ""
 done
 
+MPI_EXEC=$(python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];print(os.path.dirname(filename)+'/mpiexec');")
+
 for i in examples/*.py
 do
   echo "Running Script: $i"
-  python $i > /dev/null
+  if [ $i == "examples/SRParallelArchipelagoExample.py" ]
+  then
+    $MPI_EXEC -np 3 python $i > /dev/null
+  else
+    python $i > /dev/null
+  fi
   echo "Success"
   echo ""
 done

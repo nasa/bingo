@@ -38,12 +38,12 @@ class SerialArchipelago(Archipelago):
     """
 
     def __init__(self, template_island, num_islands=2, hall_of_fame=None):
+        super().__init__(num_islands, hall_of_fame)
         self._template_island = template_island
         self.islands = self._generate_islands(template_island, num_islands)
         for i in self.islands:
             if i.hall_of_fame is None:
-                i.hall_of_fame = copy.deepcopy(hall_of_fame)
-        super().__init__(num_islands, hall_of_fame)
+                i.hall_of_fame = copy.deepcopy(self.hall_of_fame)
 
     def _step_through_generations(self, num_steps):
         for island in self.islands:

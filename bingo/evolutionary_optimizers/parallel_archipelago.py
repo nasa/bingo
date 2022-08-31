@@ -64,12 +64,12 @@ class ParallelArchipelago(Archipelago):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
+        super().__init__(self.comm_size, hall_of_fame)
         self.island = island
         self._non_blocking = non_blocking
         self._sync_frequency = sync_frequency
         if self.island.hall_of_fame is None:
-            self.island.hall_of_fame = deepcopy(hall_of_fame)
-        super().__init__(self.comm_size, hall_of_fame)
+            self.island.hall_of_fame = deepcopy(self.hall_of_fame)
 
     def get_best_fitness(self):
         """Gets the fitness of most fit member

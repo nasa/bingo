@@ -103,14 +103,13 @@ class FitnessPredictorIsland(Island):
         trainer_update_frequency=50,
         hall_of_fame=None,
     ):
+        super().__init__(evolution_algorithm, generator, population_size, None)
 
         self._hof_w_true_fitness = hall_of_fame
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
         self._potential_hof_members = {}
 
-        self._fitness_function = (
-            evolution_algorithm.evaluation.fitness_function
-        )
+        self._fitness_function = self._ea.evaluation.fitness_function
         self._full_training_data = copy(self._fitness_function.training_data)
         self._full_data_size = len(self._full_training_data)
 
@@ -127,8 +126,6 @@ class FitnessPredictorIsland(Island):
 
         self._trainer_population_size = trainer_population_size
         self._trainer_update_frequency = trainer_update_frequency
-
-        super().__init__(evolution_algorithm, generator, population_size, None)
 
         self._predictor_fitness_function = (
             self._make_fitness_predictor_fitness_function()

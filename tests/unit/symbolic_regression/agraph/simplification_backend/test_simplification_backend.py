@@ -59,9 +59,6 @@ def test_reduce_stack(simp_backend, sample_command_array):
 
 
 def test_simplification_1(simp_backend, engine):
-    if engine == "c++":
-        pytest.xfail(reason="Simplification not yet implemented in c++")
-
     stack = np.array([[CONSTANT, -1, -1],
                       [MULTIPLICATION, 0, 0],
                       [ADDITION, 1, 0],
@@ -82,9 +79,6 @@ def test_simplification_1(simp_backend, engine):
 
 
 def test_simplification_2(simp_backend, engine):
-    if engine == "c++":
-        pytest.xfail(reason="Simplification not yet implemented in c++")
-
     stack = np.array([[CONSTANT, -1, -1],
                       [VARIABLE, 0, 0],
                       [CONSTANT, -1, -1],
@@ -100,9 +94,6 @@ def test_simplification_2(simp_backend, engine):
 
 
 def test_simplification_3(simp_backend, engine):
-    if engine == "c++":
-        pytest.xfail(reason="Simplification not yet implemented in c++")
-
     stack = np.array([[CONSTANT, -1, -1],
                       [VARIABLE, 0, 0],
                       [SUBTRACTION, 0, 0],

@@ -36,13 +36,14 @@ class SerialArchipelago(Archipelago):
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the archipelago
     """
+
     def __init__(self, template_island, num_islands=2, hall_of_fame=None):
-        super().__init__(num_islands, hall_of_fame)
         self._template_island = template_island
         self.islands = self._generate_islands(template_island, num_islands)
         for i in self.islands:
             if i.hall_of_fame is None:
-                i.hall_of_fame = copy.deepcopy(self.hall_of_fame)
+                i.hall_of_fame = copy.deepcopy(hall_of_fame)
+        super().__init__(num_islands, hall_of_fame)
 
     def _step_through_generations(self, num_steps):
         for island in self.islands:
@@ -52,7 +53,7 @@ class SerialArchipelago(Archipelago):
         LOGGER.log(DETAILED_INFO, "Performing migration between Islands")
         island_partners = self._shuffle_island_indices()
 
-        for i in range(self._num_islands//2):
+        for i in range(self._num_islands // 2):
             self._shuffle_island_and_swap_pairs(island_partners, i)
 
     def get_best_fitness(self):
@@ -85,8 +86,9 @@ class SerialArchipelago(Archipelago):
         int :
             number of fitness evaluations
         """
-        return sum([island.get_fitness_evaluation_count()
-                    for island in self.islands])
+        return sum(
+            [island.get_fitness_evaluation_count() for island in self.islands]
+        )
 
     def get_ea_diagnostic_info(self):
         """ Gets diagnostic info from the evolutionary algorithm(s)
@@ -101,8 +103,7 @@ class SerialArchipelago(Archipelago):
 
     @staticmethod
     def _generate_islands(island, num_islands):
-        island_list = [copy.deepcopy(island)
-                       for _ in range(num_islands)]
+        island_list = [copy.deepcopy(island) for _ in range(num_islands)]
         for isl in island_list:
             isl.regenerate_population()
         return island_list

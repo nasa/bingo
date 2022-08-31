@@ -41,14 +41,20 @@ class Island(EvolutionaryOptimizer):
         An object containing the best individuals seen in the optimization
 
     """
+
     @argument_validation(population_size={">=": 0})
-    def __init__(self, evolution_algorithm, generator, population_size,
-                 hall_of_fame=None):
-        super().__init__(hall_of_fame)
+    def __init__(
+        self,
+        evolution_algorithm,
+        generator,
+        population_size,
+        hall_of_fame=None,
+    ):
         self._generator = generator
         self.population = [generator() for _ in range(population_size)]
         self._ea = evolution_algorithm
         self._population_size = population_size
+        super().__init__(hall_of_fame)
 
     def _do_evolution(self, num_generations):
         for _ in range(num_generations):
@@ -133,8 +139,9 @@ class Island(EvolutionaryOptimizer):
 
     def regenerate_population(self):
         """Randomly regenerates the population"""
-        self.population = [self._generator()
-                           for _ in range(len(self.population))]
+        self.population = [
+            self._generator() for _ in range(len(self.population))
+        ]
 
     def reset_fitness(self, population=None):
         """

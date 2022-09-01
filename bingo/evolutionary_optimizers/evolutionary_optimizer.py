@@ -190,7 +190,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
     def _log_diagnostics_header(self):
         header = "generational_age, elapsed_time, "
         diagnostics = self.get_ea_diagnostic_info()
-        # header += diagnostics.get_log_header()
+        header += diagnostics.get_log_header()
         DIAGNOSTICS_LOGGER.log(INFO, header)
 
     def _log_optimization(self, start_time):
@@ -227,7 +227,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             f"{self.generational_age}, {elapsed_time.total_seconds():e}, "
         )
         diagnostics = self.get_ea_diagnostic_info()
-        # diag_string += ", ".join(diagnostics.get_log_stats())
+        diag_string += ", ".join(str(diagnostics.get_log_stats()))
         DIAGNOSTICS_LOGGER.log(INFO, diag_string)
 
     def _update_best_fitness(self):

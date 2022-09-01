@@ -227,7 +227,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             f"{self.generational_age}, {elapsed_time.total_seconds():e}, "
         )
         diagnostics = self.get_ea_diagnostic_info()
-        diag_string += ", ".join(str(diagnostics.get_log_stats()))
+        diag_string += ", ".join([str(i) for i in diagnostics.get_log_stats()])
         DIAGNOSTICS_LOGGER.log(INFO, diag_string)
 
     def _update_best_fitness(self):

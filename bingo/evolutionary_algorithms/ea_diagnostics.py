@@ -238,7 +238,6 @@ class EaDiagnostics:
         self._cross_mut_stats += self._get_stats(
             cross_mut_idx, beneficial_var, detrimental_var
         )
-        print(mut_only_idx)
 
     def _get_stats(self, idx, beneficial_var, detrimental_var):
         return np.count_nonzero(

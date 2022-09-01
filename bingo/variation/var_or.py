@@ -44,7 +44,7 @@ class VarOr(Variation):
                          mutation_probability={">=": 0, "<=": 1})
     def __init__(self, crossover, mutation, crossover_probability,
                  mutation_probability):
-        super().__init__()
+        super().__init__(crossover.types, mutation.types)
         if (crossover_probability + mutation_probability) > 1:
             raise ValueError('The sum of crossover and mutation probabilities '
                              'must be less than or equal to 1.0')
@@ -71,8 +71,8 @@ class VarOr(Variation):
             The offspring of the population
         """
         offspring = []
-        self.crossover_offspring = np.zeros(number_offspring, bool)
-        self.mutation_offspring = np.zeros(number_offspring, bool)
+        self.crossover_offspring_type = np.zeros(number_offspring, object)
+        self.mutation_offspring_type = np.zeros(number_offspring, object)
         self.offspring_parents = [[]] * number_offspring
         for i in range(number_offspring):
             choice = np.random.rand()
@@ -92,7 +92,7 @@ class VarOr(Variation):
         parent, parent_ind = self._get_random_parent(population)
         mutant = self._mutation(parent)
         self._append_new_individual_to_offspring(mutant, offspring)
-        self.mutation_offspring[i] = True
+        self.mutation_offspring_type[i] = self._mutation.last_mutation_type
         self.offspring_parents[i] = [parent_ind]
 
     def _do_crossover(self, population, offspring, i):
@@ -100,7 +100,8 @@ class VarOr(Variation):
         parent_2, parent_ind_2 = self._get_random_parent(population)
         child_1, _ = self._crossover(parent_1, parent_2)
         self._append_new_individual_to_offspring(child_1, offspring)
-        self.crossover_offspring[i] = True
+        self.crossover_offspring_type[i] = \
+            self._crossover.last_crossover_types[0]
         self.offspring_parents[i] = [parent_ind_1, parent_ind_2]
 
     def _do_replication(self, population, offspring, i):

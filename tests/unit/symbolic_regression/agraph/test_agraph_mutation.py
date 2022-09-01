@@ -11,7 +11,9 @@ from bingo.symbolic_regression.agraph.operator_definitions \
     import VARIABLE, CONSTANT, COS, MULTIPLICATION, ADDITION, SIN, \
     SUBTRACTION, IS_TERMINAL_MAP
 from bingo.symbolic_regression.agraph.agraph import AGraph
-from bingo.symbolic_regression.agraph.mutation import AGraphMutation
+from bingo.symbolic_regression.agraph.mutation import AGraphMutation, \
+    COMMAND_MUTATION, NODE_MUTATION, PARAMETER_MUTATION, PRUNE_MUTATION, \
+    FORK_MUTATION
 from bingo.symbolic_regression.agraph.component_generator \
     import ComponentGenerator
 
@@ -214,6 +216,13 @@ def test_raises_error_invalid_mutation_probability(mocker, prob,
         _ = AGraphMutation(mocked_component_generator, *input_probabilities)
 
 
+def test_set_types(mocker):
+    mutation = AGraphMutation(mocker.Mock())
+    assert mutation.types == [COMMAND_MUTATION, NODE_MUTATION,
+                              PARAMETER_MUTATION,
+                              PRUNE_MUTATION, FORK_MUTATION]
+
+
 @pytest.mark.parametrize("repeats", range(5))
 @pytest.mark.parametrize("algo_index", range(3))
 def test_single_point_mutations(sample_agraph, sample_component_generator,
@@ -234,6 +243,7 @@ def test_single_point_mutations(sample_agraph, sample_component_generator,
         print("parent\n", p_stack)
         print("child\n", c_stack)
     assert changed_commands == 1
+    assert mutation.last_mutation_type == mutation.types[algo_index]
 
 
 @pytest.mark.parametrize("repeats", range(5))
@@ -257,6 +267,7 @@ def test_mutation_of_nodes(sample_agraph, sample_component_generator,
         assert changed_columns[0] == 1
     else:
         assert changed_columns[0] == 0
+    assert mutation.last_mutation_type == mutation.types[algo_index]
 
 
 @pytest.mark.parametrize("repeats", range(5))
@@ -273,6 +284,7 @@ def test_mutation_of_parameters(sample_agraph, sample_component_generator,
     changed_columns = np.sum(p_stack != c_stack, axis=0)
 
     assert sum(changed_columns[1:]) > 0
+    assert mutation.last_mutation_type == mutation.types[algo_index]
 
 
 @pytest.mark.parametrize("repeats", range(5))
@@ -298,6 +310,9 @@ def test_pruning_mutation(sample_agraph, sample_component_generator, repeats):
                                       np.full(c_changes.shape,
                                               c_changes[0]))
         assert c_changes[0] < p_changes[0]
+        assert mutation.last_mutation_type == PRUNE_MUTATION
+    else:
+        assert mutation.last_mutation_type is None
 
 
 @pytest.mark.parametrize("algo_index", [2, 3])
@@ -315,6 +330,7 @@ def test_impossible_param_or_prune_mutation(mocker, algo_index,
     c_stack = child.mutable_command_array
 
     np.testing.assert_array_equal(c_stack, p_stack)
+    assert mutation.last_mutation_type is None
 
 
 def test_mutate_variable(single_variable_agraph, sample_component_generator):
@@ -330,6 +346,7 @@ def test_mutate_variable(single_variable_agraph, sample_component_generator):
 
     assert p_stack[-1, 1] != c_stack[-1, 1]
     assert p_stack[-1, 2] != c_stack[-1, 2]
+    assert mutation.last_mutation_type == PARAMETER_MUTATION
 
 
 def command_array_is_valid(individual):
@@ -350,6 +367,7 @@ def test_fork_mutation(mocker, fork_agraph, fork_mutation, mutation_location):
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+    assert fork_mutation.last_mutation_type == FORK_MUTATION
 
 
 @pytest.mark.parametrize("mutation_location", [1, 3, 4])
@@ -363,6 +381,7 @@ def test_fork_mutation_spaced_util_commands(mocker, spaced_fork_agraph,
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+    assert fork_mutation.last_mutation_type == FORK_MUTATION
 
 
 def test_fork_mutation_not_enough_unutilized_commands(
@@ -374,6 +393,7 @@ def test_fork_mutation_not_enough_unutilized_commands(
 
     np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array,
                                   child.command_array)
+    assert fork_mutation.last_mutation_type is None
 
 
 class MockedRandInt:
@@ -407,6 +427,7 @@ def test_fork_mutation_many_unutilized_commands(
     else:
         assert parent.get_complexity() == child.get_complexity() - fork_size
     assert command_array_is_valid(child)
+    assert fork_mutation.last_mutation_type == FORK_MUTATION
 
 
 @pytest.mark.parametrize("mutation_location", [0, 2])
@@ -421,6 +442,7 @@ def test_fork_mutation_unutil_after_mutation_location(
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+    assert fork_mutation.last_mutation_type == FORK_MUTATION
 
 
 def test_fork_mutation_arity_one_operator_linked_to_unutilized_command(
@@ -433,6 +455,7 @@ def test_fork_mutation_arity_one_operator_linked_to_unutilized_command(
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+    assert fork_mutation.last_mutation_type == FORK_MUTATION
 
 
 def test_fork_mutation_unused_op_invalid_after_mutation(
@@ -448,6 +471,7 @@ def test_fork_mutation_unused_op_invalid_after_mutation(
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+    assert fork_mutation.last_mutation_type == FORK_MUTATION
 
 
 @pytest.mark.timeout(1)
@@ -476,6 +500,7 @@ def test_fork_mutation_generator_has_no_ar1_op(mocker, many_unutil_fork_agraph,
 
     assert parent.get_complexity() < child.get_complexity()
     assert command_array_is_valid(child)
+    assert mutation.last_mutation_type == FORK_MUTATION
 
 
 @pytest.mark.timeout(1)
@@ -502,3 +527,4 @@ def test_fork_mutation_generator_has_no_ar2_op(mocker, many_unutil_fork_agraph,
 
     assert parent.get_complexity() == child.get_complexity() - fork_size
     assert command_array_is_valid(child)
+    assert mutation.last_mutation_type == FORK_MUTATION

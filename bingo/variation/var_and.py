@@ -42,7 +42,7 @@ class VarAnd(Variation):
                          mutation_probability={">=": 0, "<=": 1})
     def __init__(self, crossover, mutation, crossover_probability,
                  mutation_probability):
-        super().__init__()
+        super().__init__(crossover.types, mutation.types)
         self._crossover = crossover
         self._mutation = mutation
         self._crossover_probability = crossover_probability
@@ -64,8 +64,8 @@ class VarAnd(Variation):
         list of chromosomes :
             The offspring of the population
         """
-        self.crossover_offspring = np.zeros(number_offspring, bool)
-        self.mutation_offspring = np.zeros(number_offspring, bool)
+        self.crossover_offspring_type = np.zeros(number_offspring, object)
+        self.mutation_offspring_type = np.zeros(number_offspring, object)
         self.offspring_parents = [[]] * number_offspring
         offspring = self._crossover_population(number_offspring, population)
         self._mutate_population(offspring)
@@ -81,7 +81,8 @@ class VarAnd(Variation):
                                                    population[parent_index_2])
                 offspring.append(child_1)
                 offspring.append(child_2)
-                self.crossover_offspring[i:i + 2] = True
+                self.crossover_offspring_type[i:i + 2] = \
+                    self._crossover.last_crossover_types
                 self.offspring_parents[i] = [parent_index_1, parent_index_2]
                 self.offspring_parents[i + 1] = \
                     [parent_index_1, parent_index_2]
@@ -100,4 +101,5 @@ class VarAnd(Variation):
         for i, parent in enumerate(offspring):
             if np.random.random() <= self._mutation_probability:
                 offspring[i] = self._mutation(parent)
-                self.mutation_offspring[i] = True
+                self.mutation_offspring_type[i] = \
+                    self._mutation.last_mutation_type

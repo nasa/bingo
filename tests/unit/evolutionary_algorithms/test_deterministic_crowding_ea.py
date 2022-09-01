@@ -16,8 +16,9 @@ def test_all_phases_occur_in_correct_order(mocker):
     mocked_variation = mocker.Mock(return_value=dummy_offspring)
     mocked_evaluation = mocker.Mock()
     mocked_selection = mocker.Mock(return_value=dummy_next_gen)
-    mocker.patch("bingo.evolutionary_algorithms."
-                 "evolutionary_algorithm.EaDiagnostics", autospec=True)
+    ead = mocker.patch(
+        "bingo.evolutionary_algorithms.evolutionary_algorithm.EaDiagnostics",
+        autospec=True).return_value
     mocker.patch("bingo.evolutionary_algorithms."
                  "deterministic_crowding.VarAnd", autospec=True,
                  return_value=mocked_variation)
@@ -42,10 +43,14 @@ def test_all_phases_occur_in_correct_order(mocker):
            dummy_offspring
     assert mocked_selection.call_args[0][0] == \
            dummy_population + dummy_offspring
+    ead.update.assert_called_once_with(
+        dummy_population, dummy_offspring, mocked_variation.offspring_parents,
+        mocked_variation.crossover_offspring_type,
+        mocked_variation.mutation_offspring_type)
     assert new_pop == dummy_next_gen
 
 
-def test_creates_var_or(mocker):
+def test_creates_var_and(mocker):
     mocked_crossover = mocker.Mock()
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()
@@ -62,3 +67,21 @@ def test_creates_var_or(mocker):
                                                           mocked_mutation,
                                                           0.5, 0.3)
     deterministic_crowding.DeterministicCrowding.assert_called_once()
+
+
+def test_creates_ea_diagnostics(mocker):
+    mocked_crossover = mocker.Mock()
+    mocked_mutation = mocker.Mock()
+    mocked_evaluation = mocker.Mock()
+    mocked_variation = mocker.patch("bingo.evolutionary_algorithms."
+                                    "deterministic_crowding.VarAnd",
+                                    autospec=True)
+    ead = mocker.patch("bingo.evolutionary_algorithms."
+                       "evolutionary_algorithm.EaDiagnostics", autospec=True)
+
+    _ = DeterministicCrowdingEA(mocked_evaluation, mocked_crossover,
+                                mocked_mutation, crossover_probability=0.5,
+                                mutation_probability=0.3)
+
+    ead.assert_called_once_with(mocked_variation.crossover_types,
+                                mocked_variation.mutation_types)

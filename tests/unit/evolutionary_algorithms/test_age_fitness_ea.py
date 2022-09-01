@@ -5,7 +5,7 @@ from bingo.evolutionary_algorithms.age_fitness \
 from bingo.evolutionary_algorithms import age_fitness
 
 
-def test_creates_var_or(mocker):
+def test_creates_var_and(mocker):
     mocked_crossover = mocker.Mock()
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()

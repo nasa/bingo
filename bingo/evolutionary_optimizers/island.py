@@ -75,7 +75,8 @@ class Island(EvolutionaryOptimizer):
         best : chromosomes
             The chromosomes with the lowest fitness value
         """
-        self.evaluate_population()
+        if self.generational_age == 0:
+            self.evaluate_population()
         best = self.population[0]
         for indv in self.population:
             if indv.fitness < best.fitness or np.isnan(best.fitness).any():

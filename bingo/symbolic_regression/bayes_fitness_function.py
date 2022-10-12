@@ -60,7 +60,8 @@ class BayesFitnessFunction(FitnessFunction):
                            self._ess_threshold,
                            proposal=proposal,
                            required_phi=self._norm_phi)
-        except (ValueError, np.linalg.LinAlgError, ZeroDivisionError):
+        except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
+            # print(e)
             if self._return_nmll_only:
                 return np.nan
             return np.nan, None, None
@@ -108,6 +109,7 @@ class BayesFitnessFunction(FitnessFunction):
         else:
             for _ in range(8*num_multistarts):
                 mean, cov, var_ols, ssqe = self.estimate_covariance(individual)
+                # print(f"   proposal (mean, cov) = ({mean}, {cov})")
                 try:
                     dists = mvn(mean, cov, allow_singular=True)
                 except ValueError as e:
@@ -124,14 +126,19 @@ class BayesFitnessFunction(FitnessFunction):
 
         if self._std is None:
             len_data = len(self.training_data.x)
-            noise_dists = [invgamma((0.01 + len_data) / 2,
-                                    scale=(0.01 * var_ols + ssqe) / 2)
-                           for _, _, var_ols, ssqe in cov_estimates]
+            scale_data = np.sqrt(np.mean(np.square(self.training_data.y)))
+            # print(f"   scale data: {scale_data}")
+            noise_dists = []
+            for _, _, var_ols, ssqe in cov_estimates:
+                shape = (0.01 + len_data) / 2
+                scale = max((0.01 * var_ols + ssqe) / 2, 1e-12*scale_data)
+                noise_dists.append(invgamma(shape,scale=scale))
+                # print(f"   invgamma noise (shape, scale) = ({shape}, {scale})")
             noise_pdf, noise_samples = self._get_samples_and_pdf(noise_dists,
                                                                  num_samples)
 
             param_names.append('std_dev')
-            samples = np.concatenate((samples, noise_samples), axis=1)
+            samples = np.concatenate((samples, np.sqrt(noise_samples)), axis=1)
             pdf *= noise_pdf
 
         if self._uniformly_weighted_proposal:

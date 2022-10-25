@@ -33,15 +33,15 @@ class BayesFitnessFunction(FitnessFunction):
         self._eval_count = 0
 
     def __call__(self, individual):
-        param_names = self.get_parameter_names(individual)
         try:
-            proposal = self.generate_proposal_samples(individual,
+            proposal = self._generate_proposal_samples(individual,
                                                       self._num_particles)
         except (ValueError, np.linalg.LinAlgError, RuntimeError) as e:
             if self._return_nmll_only:
                 return np.nan
             return np.nan, None, None
 
+        param_names = self._get_parameter_names(individual)
         priors = [ImproperUniform() for _ in range(len(param_names))]
         if self._std is None:
             priors.append(ImproperUniform(0, None))
@@ -50,7 +50,6 @@ class BayesFitnessFunction(FitnessFunction):
         vector_mcmc = VectorMCMC(lambda x: self.evaluate_model(x, individual),
                                  self.training_data.y.flatten(), priors,
                                  log_like_args=self._std)
-
         mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
         smc = AdaptiveSampler(mcmc_kernel)
 
@@ -61,7 +60,6 @@ class BayesFitnessFunction(FitnessFunction):
                            proposal=proposal,
                            required_phi=self._norm_phi)
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
-            # print(e)
             if self._return_nmll_only:
                 return np.nan
             return np.nan, None, None
@@ -77,27 +75,8 @@ class BayesFitnessFunction(FitnessFunction):
             return nmll
         return nmll, step_list, vector_mcmc
 
-    @staticmethod
-    def get_parameter_names(individual):
-        num_params = individual.get_number_local_optimization_params()
-        return [f'p{i}' for i in range(num_params)]
-
-    def do_local_opt(self, individual):
-        individual._needs_opt = True
-        _ = self._cont_local_opt(individual)
-        return individual
-
-    def estimate_covariance(self, individual):
-        self.do_local_opt(individual)
-        x = self.training_data.x
-        f, f_deriv = individual.evaluate_equation_with_local_opt_gradient_at(x)
-        ssqe = np.sum((self.training_data.y - f) ** 2)
-        var_ols = ssqe / len(f)
-        cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
-        return individual.constants, cov, var_ols, ssqe
-
-    def generate_proposal_samples(self, individual, num_samples):
-        param_names = self.get_parameter_names(individual)
+    def _generate_proposal_samples(self, individual, num_samples):
+        param_names = self._get_parameter_names(individual)
         pdf = np.ones((num_samples, 1))
         samples = np.ones((num_samples, len(param_names)))
 
@@ -105,11 +84,10 @@ class BayesFitnessFunction(FitnessFunction):
         param_dists = []
         cov_estimates = []
         if not param_names:
-            cov_estimates.append(self.estimate_covariance(individual))
+            cov_estimates.append(self._estimate_covariance(individual))
         else:
             for _ in range(8*num_multistarts):
-                mean, cov, var_ols, ssqe = self.estimate_covariance(individual)
-                # print(f"   proposal (mean, cov) = ({mean}, {cov})")
+                mean, cov, var_ols, ssqe = self._estimate_covariance(individual)
                 try:
                     dists = mvn(mean, cov, allow_singular=True)
                 except ValueError as e:
@@ -127,13 +105,11 @@ class BayesFitnessFunction(FitnessFunction):
         if self._std is None:
             len_data = len(self.training_data.x)
             scale_data = np.sqrt(np.mean(np.square(self.training_data.y)))
-            # print(f"   scale data: {scale_data}")
             noise_dists = []
             for _, _, var_ols, ssqe in cov_estimates:
                 shape = (0.01 + len_data) / 2
                 scale = max((0.01 * var_ols + ssqe) / 2, 1e-12*scale_data)
                 noise_dists.append(invgamma(shape,scale=scale))
-                # print(f"   invgamma noise (shape, scale) = ({shape}, {scale})")
             noise_pdf, noise_samples = self._get_samples_and_pdf(noise_dists,
                                                                  num_samples)
 
@@ -146,6 +122,25 @@ class BayesFitnessFunction(FitnessFunction):
 
         samples = dict(zip(param_names, samples.T))
         return samples, pdf
+
+    @staticmethod
+    def _get_parameter_names(individual):
+        num_params = individual.get_number_local_optimization_params()
+        return [f'p{i}' for i in range(num_params)]
+
+    def _estimate_covariance(self, individual):
+        self._do_local_opt(individual)
+        x = self.training_data.x
+        f, f_deriv = individual.evaluate_equation_with_local_opt_gradient_at(x)
+        ssqe = np.sum((self.training_data.y - f) ** 2)
+        var_ols = ssqe / len(f)
+        cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
+        return individual.constants, cov, var_ols, ssqe
+
+    def _do_local_opt(self, individual):
+        individual._needs_opt = True
+        _ = self._cont_local_opt(individual)
+        return individual
 
     @staticmethod
     def _get_samples_and_pdf(distributions, num_samples):

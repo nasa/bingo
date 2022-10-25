@@ -184,6 +184,23 @@ python -c 'import bingo; import bingocpp'
 4.  Push to the branch (`git push origin feature/fooBar`)
 5.  Create a new Pull Request
 
+# Citing Bingo
+Please consider citing the following reference when using bingo in your works.
+
+### MLA:
+Randall, David L., et al. "Bingo: a customizable framework for symbolic regression with genetic programming." Proceedings of the Genetic and Evolutionary Computation Conference Companion. 2022.
+
+### Bibtex:
+```latex
+@inproceedings{randall2022bingo,
+  title={Bingo: a customizable framework for symbolic regression with genetic programming},
+  author={Randall, David L and Townsend, Tyler S and Hochhalter, Jacob D and Bomarito, Geoffrey F},
+  booktitle={Proceedings of the Genetic and Evolutionary Computation Conference Companion},
+  pages={2282--2288},
+  year={2022}
+}
+```
+
 # Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 see the [tags on this repository](https://github.com/nasa/bingo/tags). 

@@ -60,7 +60,7 @@ class SerialArchipelago(Archipelago):
 
         Returns
         -------
-         :
+        fitness : numeric
             Fitness of best individual in the archipelago
         """
         return self.get_best_individual().fitness

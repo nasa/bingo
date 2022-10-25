@@ -11,6 +11,20 @@ from .generalized_crowding import GeneralizedCrowding
 # pylint: disable=too-few-public-methods
 class DeterministicCrowding(GeneralizedCrowding):
     """The class that performs deterministic crowding selection on a population
+
+        Parameters
+        ----------
+        population : list of Chromosome
+            The population on which to perform selection. This population
+            includes both the parent and child populations, with the parents in
+            the first half and the children in the latter half
+        target_population_size : int
+            The size of the next generation
+
+        Returns
+        -------
+        population : list of Chromosome
+            The newly selected generation of chromosomes
     """
     @staticmethod
     def _return_most_fit(child, parent):

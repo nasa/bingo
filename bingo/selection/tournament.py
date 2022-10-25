@@ -16,7 +16,7 @@ class Tournament(Selection):
     """Tournament selection
 
     This class defines the function for tournament selection in a population.
-    In the tournaments random indivduals from the population are chosen; the
+    In the tournaments random individuals from the population are chosen; the
     most fit individual from that set advances to the next generation.
     Tournaments repeat until the target population size for the next generation
     is met.

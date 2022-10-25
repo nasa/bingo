@@ -69,7 +69,7 @@ class FitnessPredictorIsland(Island):
     Attributes
     ----------
     generational_age : int
-        The number of generational steps that have beenexecuted
+        The number of generational steps that have been executed
     population : list of chromosomes
         The population that is evolving
     hall_of_fame: HallOfFame
@@ -99,7 +99,10 @@ class FitnessPredictorIsland(Island):
         self._full_data_size = len(self._full_training_data)
 
         self._predictor_population_size = predictor_population_size
-        self._predictor_size = int(predictor_size_ratio * self._full_data_size)
+        self._predictor_size = max((
+            int(predictor_size_ratio * self._full_data_size),
+            min((10, self._full_data_size))
+        ))
         self._predictor_update_frequency = predictor_update_frequency
         # pylint: disable=C0103
         self._target_predictor_computation_ratio = predictor_computation_ratio
@@ -232,7 +235,7 @@ class FitnessPredictorIsland(Island):
     def get_best_individual(self):
         """Finds the individual with the lowest fitness in a population.
 
-        This assures  that the fitness is the true ftness value and not the
+        This assures  that the fitness is the true fitness value and not the
         predicted fitness.
 
         Returns

@@ -1,96 +1,181 @@
 ![Bingo Logo](media/logo.png)
 
-master: [![Build Status](https://travis-ci.com/nasa/bingo.svg?branch=master)](https://travis-ci.com/nasa/bingo) [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=master)](https://coveralls.io/github/nasa/bingo?branch=master)
+master: [![Build Status](https://github.com/nasa/bingo/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/nasa/bingo/actions?query=branch%3Adevelop)
+[![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=master)](https://coveralls.io/github/nasa/bingo?branch=develop) 
 
 develop: 
 [![Build Status](https://github.com/nasa/bingo/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/nasa/bingo/actions?query=branch%3Adevelop)
 [![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=develop)](https://coveralls.io/github/nasa/bingo?branch=develop) 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9fe09cffafe64032962a82f7f1588e9f)](https://www.codacy.com/app/bingo_developers/bingo?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nasa/bingo&amp;utm_campaign=Badge_Grade)
 
-## General
-Bingo is an open source package for performing symbolic regression, Though it 
+## Description
+Bingo is an open source package for performing symbolic regression, though it 
 can be used as a general purpose evolutionary optimization package.  
 
-### Key Features
+## Key Features
 *   Integrated local optimization strategies
 *   Parallel island evolution strategy implemented with mpi4py
 *   Coevolution of fitness predictors
-  
-### Note
-At this point, the API is still in a state of flux. The current release has a 
-much more stable API but still lacks some of the features of older releases.
 
-## Getting Started
+# Quick Start
 
-### Cloning with git
-The Bingo repository uses git submodules so make sure to clone all the
-submodules when cloning.  Git has an easy way to do this with:
-```shell
-git clone --recurse-submodules ...
+## Documentation
+[Full Documentation Here](https://nightdr.github.io/bingo/)
+
+## Installation
+
+To install Bingo, simply use pip.  Unfortunately the pip install is currently not working.  Please use source install for the time being.
+
+```sh
+pip install bingo-nasa
 ```
 
-### Dependencies
-Bingo is intended for use with Python 3.x.  Bingo requires installation of a 
-few dependencies which are relatively common for data science work in python:
-*   numpy
-*   scipy
-*   matplotlib
-*   mpi4py (if parallel implementations are to be run)
-*   pytest, pytest-mock (if the testing suite is to be run)
-  
-A `requirements.txt` file is included for easy installation of dependencies with 
-`pip` or `conda`.
+## Usage Example
+A no-fuss way of using Bingo is by using the scikit-learn wrapper:
+`SymbolicRegressor`. Let's setup a test case to show how it works.
 
-Installation with pip:
-```shell
+### Setting Up the Regressor
+
+There are many options that can be set in `SymbolicRegressor`. Here we set some basic ones including
+`population_size` (the number of equations in a population), `stack_size` (the max number of nodes per equation), and `use_simplification`
+(whether to use simplification to speed up equation evaluation and for easier reading). You can see all of `SymbolicRegressor`'s
+options [here](https://nightdr.github.io/bingo/_apidocs/bingo.symbolic_regression.html#module-bingo.symbolic_regression.symbolic_regressor).
+
+
+```python
+from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor
+regressor = SymbolicRegressor(population_size=100, stack_size=16,
+                              use_simplification=True)
+```
+
+    /home/gbomarit/Projects/Genetic_Programming/bingo/bingo/symbolic_regression/__init__.py:31: UserWarning: Could not load C++ modules No module named 'bingocpp.build.bingocpp'
+      warnings.warn(f"Could not load C++ modules {import_err}")
+
+
+### Training Data
+Here we're just creating some dummy training data from the equation $5.0 X_0^2 + 3.5 X_0$. More on training data can be found
+in the [data formatting guide](https://nightdr.github.io/bingo/_high_level/data_formatting.html).
+```python
+import numpy as np
+X_0 = np.linspace(-10, 10, num=30).reshape((-1, 1))
+X = np.array(X_0)
+y = 5.0 * X_0 ** 2 + 3.5 * X_0
+```
+
+
+```python
+import matplotlib.pyplot as plt
+plt.scatter(X, y)
+plt.xlabel("X_0")
+plt.ylabel("y")
+plt.title("Training Data")
+plt.show()
+```
+
+
+    
+![png](media/usage_example_1.png)
+    
+
+
+### Fitting the Regressor
+
+Fitting is as simple as calling the `.fit()` method.
+
+
+```python
+regressor.fit(X, y)
+```
+
+    using 1 processes
+     Generating a diverse population took 274 iterations.
+    archipelago: <class 'bingo.evolutionary_optimizers.island.Island'>
+    done with opt, best_ind: X_0 + (5.0)((0.49999999999999967)(X_0) + (X_0)(X_0)), fitness: 5.4391466376923e-28
+    reran CLO, best_ind: X_0 + (5.0)((0.4999999999999999)(X_0) + (X_0)(X_0)), fitness: 5.352980018399097e-28
+
+
+### Getting the Best Individual
+
+
+```python
+best_individual = regressor.get_best_individual()
+print("best individual is:", best_individual)
+```
+
+    best individual is: X_0 + (5.0)((0.4999999999999999)(X_0) + (X_0)(X_0))
+
+
+### Predicting Data with the Best Individual
+
+You can use the regressor's `.predict(X)` or
+the best_individual's `.evaluate_equation_at(X)` to get
+its predictions for `X`.
+
+
+```python
+pred_y = regressor.predict(X)
+pred_y = best_individual.evaluate_equation_at(X)
+
+plt.scatter(X, y)
+plt.plot(X, pred_y, 'r')
+plt.xlabel("X_0")
+plt.ylabel("y")
+plt.legend(["Actual", "Predicted"])
+plt.show()
+```
+
+
+    
+![png](media/usage_example_2.png)
+
+# Source
+
+## Installation from Source
+
+For those looking to develop their own features in Bingo.
+
+First clone the repo and move into the directory:
+
+```sh
+git clone --recurse-submodules https://github.com/nasa/bingo.git
+cd bingo
+```
+
+Then make sure you have the requirements necessary to use Bingo:
+
+```sh
 pip install -r requirements.txt
 ```
 
-Installation with conda:
-```shell
-conda install --yes --file requirements.txt
+or
+
+```sh
+conda install --channel conda-forge --file requirements.txt
 ```
 
-### BingoCpp
-A section of bingo is written in c++ for increased performance.  In order to 
-take advantage of this capability, the code must be compiled.  See the 
-documentation in the bingocpp submodule for more information.
+(Optional) Then build the c++ performance library BingoCpp:
 
-Note that bingo can be run without the bingocpp portion, it will just have lower 
-performance.
-
-If bingocpp has been properly installed, the following command should run 
-without error.
-```shell
-python -c "from bingocpp"
+```sh
+./.build_bingocpp.sh
 ```
 
-A common error in the installation of bingocpp is that it must be built with 
-the same version of python that will run your bingo scripts.  The easiest way 
-to ensure consistent python versioning is to build and run in a Python 3 
-virtual environment.
+Now you should be good to go! You can run Bingo's test suite to make sure that
+the installation process worked properly:
 
-### Documentation
-Sphynx is used for automatically generating API documentation for bingo. The 
-most recent build of the documentation can be found in the repository at: 
-`doc/_build/html/index.html`
-
-## Running Tests
-An extensive unit test suite is included with bingo to help ensure proper 
-installation. The tests can be run using pytest on the tests directory, e.g., 
-by running:
-```shell
-python -m pytest tests 
+```sh
+pytest tests
 ```
-from the root directory of the repository.
 
-## Usage Examples
-The best place to get started in bingo is by going through the jupyter notebook
-tutorials in the [examples directory](examples/). They step through several of
-the most important aspects of running bingo with detailed explanations at each
-step.  The [examples directory](examples/) also contains several python scripts
-which may act as a good base when starting to write your own custom bingo
-scripts.
+Add Bingo to your Python path to begin using it from other directories.
+
+```sh
+export PYTHONPATH="$PYTHONPATH:/path/to/bingo/"
+```
+
+and test it with:
+
+```sh
+python -c 'import bingo; import bingocpp'
+```
 
 ## Contributing
 1.  Fork it (<https://github.com/nasa/bingo/fork>)
@@ -99,19 +184,37 @@ scripts.
 4.  Push to the branch (`git push origin feature/fooBar`)
 5.  Create a new Pull Request
 
-## Versioning
+# Citing Bingo
+Please consider citing the following reference when using bingo in your works.
+
+### MLA:
+Randall, David L., et al. "Bingo: a customizable framework for symbolic regression with genetic programming." Proceedings of the Genetic and Evolutionary Computation Conference Companion. 2022.
+
+### Bibtex:
+```latex
+@inproceedings{randall2022bingo,
+  title={Bingo: a customizable framework for symbolic regression with genetic programming},
+  author={Randall, David L and Townsend, Tyler S and Hochhalter, Jacob D and Bomarito, Geoffrey F},
+  booktitle={Proceedings of the Genetic and Evolutionary Computation Conference Companion},
+  pages={2282--2288},
+  year={2022}
+}
+```
+
+# Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 see the [tags on this repository](https://github.com/nasa/bingo/tags). 
 
-## Authors
+# Authors
 *   Geoffrey Bomarito
 *   Tyler Townsend
 *   Jacob Hochhalter
+*   David Randall
 *   Ethan Adams
 *   Kathryn Esham
 *   Diana Vera
   
-## License 
+# License 
 Copyright 2018 United States Government as represented by the Administrator of 
 the National Aeronautics and Space Administration. No copyright is claimed in 
 the United States under Title 17, U.S. Code. All Other Rights Reserved.

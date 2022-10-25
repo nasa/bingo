@@ -60,7 +60,7 @@ def test_run_until_absolute_convergence(converging_eo):
     assert optimization_result.success
     assert optimization_result.status == 0
     assert optimization_result.ngen == 3
-    assert pytest.approx(optimization_result.fitness, 0.125)
+    assert optimization_result.fitness == pytest.approx(0.125)
 
 
 def test_run_until_time_limit(converging_eo):
@@ -130,7 +130,7 @@ def test_run_until_stagnation(stale_eo):
     assert not optimization_result.success
     assert optimization_result.status == 1
     assert optimization_result.ngen == 5
-    assert pytest.approx(optimization_result.fitness, 1.0)
+    assert optimization_result.fitness == pytest.approx(1.0)
 
 
 def test_run_until_max_steps(converging_eo):
@@ -141,7 +141,7 @@ def test_run_until_max_steps(converging_eo):
     assert not optimization_result.success
     assert optimization_result.status == 2
     assert optimization_result.ngen == 2
-    assert pytest.approx(optimization_result.fitness, 0.25)
+    assert optimization_result.fitness == pytest.approx(0.25)
 
 
 @pytest.mark.parametrize("min_generations", [0, 2])
@@ -155,7 +155,7 @@ def test_run_until_max_fitness_evaluations(converging_eo, min_generations):
     assert not optimization_result.success
     assert optimization_result.status == 3
     assert optimization_result.ngen == 2
-    assert pytest.approx(optimization_result.fitness, 0.25)
+    assert optimization_result.fitness == pytest.approx(0.25)
 
 
 @pytest.mark.parametrize('invalid_arg_dict',

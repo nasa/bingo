@@ -75,10 +75,10 @@ class EaDiagnostics:
                 continue
             beneficial_var[i] = \
                 all(child.fitness < population[p].fitness
-                    for p in parent_indices)
+                     for p in parent_indices)
             detrimental_var[i] = \
                 all(child.fitness > population[p].fitness
-                    for p in parent_indices)
+                     for p in parent_indices)
 
         just_cross = offspring_crossover * ~offspring_mutation
         just_mut = ~offspring_crossover * offspring_mutation

@@ -46,8 +46,13 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
 
         Parameters
         ----------
-        individual : agraph
+        individual : Equation
             individual whose fitness is evaluated on `training_data`
+
+        Returns
+        -------
+        float
+            the fitness of the input Equation individual
         """
         self.eval_count += 1
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
@@ -57,6 +62,32 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
         return (error / self.training_data.y).flatten()
 
     def get_fitness_vector_and_jacobian(self, individual):
+        r"""Fitness and jacobian evaluation of individual
+
+        fitness = y - f(x) where x and y are in the training_data (i.e.
+        training_data.x and training_data.y) and the function f is defined by
+        the input Equation individual.
+
+        jacobian = [[:math:`df_1/dc_1`, :math:`df_1/dc_2`, ...],
+                    [:math:`df_2/dc_1`, :math:`df_2/dc_2`, ...],
+                    ...]
+        where :math:`f_\#` is the fitness function corresponding with the
+        #th fitness vector entry and :math:`c_\#` is the corresponding
+        constant of the individual
+
+        Parameters
+        ----------
+        individual : Equation
+            individual whose fitness will be evaluated on `training_data`
+            and whose constants will be used for evaluating the jacobian
+
+        Returns
+        -------
+        fitness_vector, jacobian :
+            the vectorized fitness of the individual and
+            the partial derivatives of each fitness function with respect
+            to the individual's constants
+        """
         self.eval_count += 1
         f_of_x, df_dc = \
             individual.evaluate_equation_with_local_opt_gradient_at(

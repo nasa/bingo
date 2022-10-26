@@ -10,8 +10,8 @@ from sklearn.base import BaseEstimator, RegressorMixin
 
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
-from bingo.evolutionary_algorithms.deterministic_crowding import \
-    DeterministicCrowdingEA
+from bingo.evolutionary_algorithms.generalized_crowding import \
+    GeneralizedCrowdingEA
 from bingo.evolutionary_optimizers.fitness_predictor_island import \
     FitnessPredictorIsland
 from bingo.evolutionary_optimizers.island import Island
@@ -28,7 +28,7 @@ from bingo.symbolic_regression.explicit_regression import ExplicitRegression, \
     ExplicitTrainingData  # this forces use of python fit funcs
 
 DEFAULT_OPERATORS = {"+", "-", "*", "/"}
-SUPPORTED_EA_STRS = ["AgeFitnessEA", "DeterministicCrowdingEA"]
+SUPPORTED_EA_STRS = ["AgeFitnessEA", "GeneralizedCrowdingEA"]
 INF_REPLACEMENT = 1e100
 
 
@@ -168,7 +168,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                                                   self.crossover_prob,
                                                   self.mutation_prob,
                                                   self.population_size)
-        elif self.evolutionary_algorithm == DeterministicCrowdingEA:
+        elif self.evolutionary_algorithm == GeneralizedCrowdingEA:
             evo_alg = self.evolutionary_algorithm(evaluator, self.crossover,
                                                   self.mutation,
                                                   self.crossover_prob,

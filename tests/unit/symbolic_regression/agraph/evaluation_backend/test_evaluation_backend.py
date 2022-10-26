@@ -91,7 +91,16 @@ def test_all_funcs_eval(eval_backend, all_funcs_command_array):
 def test_higher_dim_func_eval(eval_backend, higher_dim_command_array):
     x = np.arange(8).reshape((-1, 2))
     constants = (10, 100)
-    expected_f_of_x = np.sum(x*constants, axis=1).reshape((-1, 1))
+    expected_f_of_x = x[:, [0]]*constants[0] + x[:, [1]]*constants[1]
+    f_of_x = eval_backend.evaluate(higher_dim_command_array,
+                                   x, constants)
+    np.testing.assert_array_almost_equal(f_of_x, expected_f_of_x)
+
+
+def test_func_eval_vectorized_constants(eval_backend, higher_dim_command_array):
+    x = np.arange(8).reshape((-1, 2))
+    constants = np.array([[10, 20], [100, 200]])
+    expected_f_of_x = x[:, [0]]*constants[0] + x[:, [1]]*constants[1]
     f_of_x = eval_backend.evaluate(higher_dim_command_array,
                                    x, constants)
     np.testing.assert_array_almost_equal(f_of_x, expected_f_of_x)

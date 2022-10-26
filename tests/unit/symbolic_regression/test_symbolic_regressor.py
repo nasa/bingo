@@ -169,7 +169,7 @@ def test_cant_force_diversity_in_island(mocker, sample_ea, sample_agraph):
 def patch_all_get_archipelago(mocker):
     imports = ["ComponentGenerator", "AGraphCrossover", "AGraphMutation",
                "AGraphGenerator", "Evaluation", "AgeFitnessEA",
-               "DeterministicCrowdingEA", "HallOfFame"]
+               "GeneralizedCrowdingEA", "HallOfFame"]
     fns = ["_get_local_opt", "_make_island", "_force_diversity_in_island"]
 
     patched_imports = {name: patch_import(mocker, name) for name in imports}

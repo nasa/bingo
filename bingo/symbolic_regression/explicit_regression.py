@@ -8,6 +8,7 @@ that are unique to explicit symbolic regression. Namely, these classes are an
 appropriate fitness evaluator and a corresponding training data container.
 """
 import logging
+import numpy as np
 
 from ..evaluation.fitness_function import VectorBasedFunction
 from ..evaluation.gradient_mixin import VectorGradientMixin
@@ -58,8 +59,8 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
         error = f_of_x - self.training_data.y
         if not self._relative:
-            return error.flatten()
-        return (error / self.training_data.y).flatten()
+            return np.squeeze(error)
+        return np.squeeze(error / self.training_data.y)
 
     def get_fitness_vector_and_jacobian(self, individual):
         r"""Fitness and jacobian evaluation of individual
@@ -94,8 +95,8 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
                     self.training_data.x)
         error = f_of_x - self.training_data.y
         if not self._relative:
-            return error.flatten(), df_dc
-        return (error / self.training_data.y).flatten(), \
+            return np.squeeze(error), df_dc
+        return np.squeeze(error / self.training_data.y), \
             df_dc / self.training_data.y
 
 

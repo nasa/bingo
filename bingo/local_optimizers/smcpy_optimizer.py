@@ -18,15 +18,26 @@ class SmcpyOptimizer(LocalOptimizer):
 
     Parameters
     ----------
-    objective_fn
+    objective_fn : VectorBasedFunction, VectorGradientMixin
         A `VectorBasedFunction` with `VectorGradientMixin` (e.g., 
         ExplicitRegression).  It should produce a vector where the target value 
         is 0.
-
-    deterministic_optimizer
+    deterministic_optimizer : LocalOptimizer
         A deterministic local optimizer e.g., `ScipyOptimizer`
-
-
+    num_particles : int
+        The number of particles to use in the SMC approximation
+    mcmc_steps : int
+        The number of MCMC steps to perform with each SMC update
+    ess_threshold : float (0-1)
+        The effective sample size (ratio) below which SMC particles will be 
+        resampled
+    std : float
+        (Optional) The fixed noise level, if it is known
+    num_multistarts : int
+        (Optional) The number of deterministic optimizations performed when 
+        developing the SMC proposal
+    uniformly_weighted_proposal : bool
+        Whether to equally weight particles in the proposal. Default True.  
 
     Attributes
     ----------

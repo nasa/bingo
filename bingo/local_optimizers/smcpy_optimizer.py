@@ -98,6 +98,15 @@ class SmcpyOptimizer(LocalOptimizer):
         self._norm_phi = self._calculate_norm_phi()
 
     @property
+    def eval_count(self):
+        """int : the number of evaluations that have been performed"""
+        return self._objective_fn.eval_count
+
+    @eval_count.setter
+    def eval_count(self, value):
+        self._objective_fn.eval_count = value
+
+    @property
     def options(self):
         """dict : optimizer's options"""
         return {

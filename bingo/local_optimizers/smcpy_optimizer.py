@@ -174,11 +174,11 @@ class SmcpyOptimizer(LocalOptimizer):
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
 
-        nmll = -1 * (
+        log_nml = (
             marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]
         )
 
-        return nmll, step_list, vector_mcmc
+        return log_nml, step_list, vector_mcmc
 
     def _generate_proposal_samples(self, individual, num_samples):
         param_names = self._get_parameter_names(individual)

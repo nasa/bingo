@@ -53,7 +53,6 @@ class NormalizedMarginalLikelihood(FitnessFunction):
 
     @training_data.setter
     def training_data(self, value):
-        print("HIHIHIHIHIHI")
         self.optimizer.training_data = value
 
     @property

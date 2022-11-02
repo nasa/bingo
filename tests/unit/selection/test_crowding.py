@@ -113,7 +113,7 @@ def test_probabilistic_crowding_negative_false(
     # -1(p) vs 0(c) and -2(p) vs -3(c)
     mocker.patch.object(Chromosome, "distance", side_effect=[1, 1, 0, 0])
     mocker.patch(
-        "bingo.selection.bayes_crowding.np.random.random",
+        "bingo.selection.probabilistic_crowding.np.random.random",
         return_value=rand_value,
     )
     selection = ProbabilisticCrowding(logscale=logscale, negative=False)
@@ -137,16 +137,16 @@ def test_probabilistic_crowding_negative_false(
         (1.0, True, [1, 2]),
     ],
 )
-def test_probabilistic_crowding(
+def test_probabilistic_crowding_negative_true(
     mocker, population_of_4, rand_value, logscale, expected_fitnesses
 ):
     # -1(p) vs 0(c) and -2(p) vs -3(c)
     mocker.patch.object(Chromosome, "distance", side_effect=[1, 1, 0, 0])
     mocker.patch(
-        "bingo.selection.bayes_crowding.np.random.random",
+        "bingo.selection.probabilistic_crowding.np.random.random",
         return_value=rand_value,
     )
-    selection = ProbabilisticCrowding(logscale=logscale)
+    selection = ProbabilisticCrowding(logscale=logscale, negative=True)
     new_pop = selection(population_of_4, target_population_size=2)
     fitnesses = [individual.fitness for individual in new_pop]
     assert fitnesses == expected_fitnesses

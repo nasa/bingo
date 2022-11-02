@@ -72,7 +72,9 @@ def test_tournament_selection_negative_fitness(
         "bingo.selection.probabilistic_tournament.np.random.choice",
         return_value=population_n012,
     )
-    tourn = ProbabilisticTournament(tournament_size=3, logscale=logscale)
+    tourn = ProbabilisticTournament(
+        tournament_size=3, logscale=logscale, negative=True
+    )
     new_population = tourn(population_n012, 1)
     assert new_population[0].fitness == selected_fitness
 

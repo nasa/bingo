@@ -25,7 +25,7 @@ class ProbabilisticCrowding(GeneralizedCrowding):
         True.
     """
 
-    def __init__(self, logscale=True, negative=True):
+    def __init__(self, logscale=True, negative=False):
         self._logscale = logscale
         self._negative = negative
         super().__init__()

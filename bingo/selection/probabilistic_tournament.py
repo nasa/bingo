@@ -31,7 +31,7 @@ class ProbabilisticTournament(Selection):
     """
 
     @argument_validation(tournament_size={">=": 1})
-    def __init__(self, tournament_size, logscale=True, negative=True):
+    def __init__(self, tournament_size, logscale=True, negative=False):
         self._size = tournament_size
         self._logscale = logscale
         self._negative = negative

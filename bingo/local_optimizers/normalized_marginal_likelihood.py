@@ -49,20 +49,21 @@ class NormalizedMarginalLikelihood(FitnessFunction):
     @property
     def training_data(self):
         """TrainingData : data that can be used in fitness evaluations"""
-        return self._optimizer.training_data
+        return self.optimizer.training_data
 
     @training_data.setter
     def training_data(self, value):
-        self._optimizer.training_data = value
+        print("HIHIHIHIHIHI")
+        self.optimizer.training_data = value
 
     @property
     def eval_count(self):
         """int : the number of evaluations that have been performed"""
-        return self._optimizer.eval_count
+        return self.optimizer.eval_count
 
     @eval_count.setter
     def eval_count(self, value):
-        self._optimizer.eval_count = value
+        self.optimizer.eval_count = value
 
     def __call__(self, individual):
         """Evaluates the normalized marginal likelihood of the individual.

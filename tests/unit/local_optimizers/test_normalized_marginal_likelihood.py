@@ -15,16 +15,23 @@ def test_nml_sets_up_smcpy_optimizer(mocker):
     nml = NormalizedMarginalLikelihood(
         objective_fn, deterministic_optimizer, log_scale=True, mcmc_steps=999
     )
+    nml.training_data = 10
+    nml.eval_count = 13
 
     smcpy_optimizer.assert_called_once_with(
         objective_fn, deterministic_optimizer, mcmc_steps=999
     )
 
+    assert nml.optimizer.training_data == 10
+    assert nml.optimizer.eval_count == 13
+    assert nml.training_data == 10
+    assert nml.eval_count == 13
+
 
 @pytest.mark.parametrize(
     "log_scale,expected_nml", [(True, 1), (False, 2.718281828459045)]
 )
-def test_nml_sets_up_smcpy_optimizer(mocker, log_scale, expected_nml):
+def test_logscale(mocker, log_scale, expected_nml):
     individual = mocker.Mock()
     objective_fn = mocker.MagicMock()
     deterministic_optimizer = mocker.Mock()

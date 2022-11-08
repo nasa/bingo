@@ -11,6 +11,7 @@ DETAILED_INFO = 20
 
 try:
     import mpi4py
+
     MPISIZE = mpi4py.MPI.COMM_WORLD.Get_size()
     MPIRANK = mpi4py.MPI.COMM_WORLD.Get_rank()
     USING_MPI = MPISIZE > 1
@@ -18,8 +19,14 @@ except (ImportError, AttributeError):
     USING_MPI = False
 
 
-def configure_logging(verbosity="standard", module=False, timestamp=False,
-                      stats_file=None, logfile=None, diagnostics_file=None):
+def configure_logging(
+    verbosity="standard",
+    module=False,
+    timestamp=False,
+    stats_file=None,
+    logfile=None,
+    diagnostics_file=None,
+):
     """Configuration of Bingo logging
 
     Parameters
@@ -43,14 +50,15 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
 
-    root_logger.handlers=[] # remove current handlers
+    root_logger.handlers = []  # remove current handlers
 
     console_handler = _make_console_handler(level, module, timestamp)
     root_logger.addHandler(console_handler)
 
     if logfile is not None:
-        logfile_handler = _make_logfile_handler(logfile, level, module,
-                                                timestamp)
+        logfile_handler = _make_logfile_handler(
+            logfile, level, module, timestamp
+        )
         root_logger.addHandler(logfile_handler)
 
     if stats_file is not None:
@@ -58,8 +66,9 @@ def configure_logging(verbosity="standard", module=False, timestamp=False,
         root_logger.addHandler(stats_file_handler)
 
     if diagnostics_file is not None:
-        diagnostics_file_handler = \
-            _make_diagnostics_file_handler(diagnostics_file)
+        diagnostics_file_handler = _make_diagnostics_file_handler(
+            diagnostics_file
+        )
         root_logger.addHandler(diagnostics_file_handler)
 
 
@@ -92,16 +101,19 @@ def _make_logfile_handler(filename, level, module, timestamp):
 
 
 def _get_log_level_from_verbosity(verbosity):
-    verbosity_map = {"quiet": logging.WARNING,
-                     "standard": INFO,
-                     "detailed": DETAILED_INFO,
-                     "debug": logging.DEBUG}
+    verbosity_map = {
+        "quiet": logging.WARNING,
+        "standard": INFO,
+        "detailed": DETAILED_INFO,
+        "debug": logging.DEBUG,
+    }
     if isinstance(verbosity, str):
         return verbosity_map[verbosity]
     if isinstance(verbosity, int):
         return verbosity
-    warnings.warn("Unrecognized verbosity level provided. "
-                  "Using standard verbosity.")
+    warnings.warn(
+        "Unrecognized verbosity level provided. " "Using standard verbosity."
+    )
     return INFO
 
 
@@ -150,6 +162,7 @@ class MpiFilter(logging.Filter):
     add_proc_number : bool (optional)
         Add processor identifier to multi-processor log messages. default True.
     """
+
     def __init__(self, add_proc_number=True):
         super().__init__()
         self._add_proc_number = add_proc_number
@@ -187,6 +200,7 @@ class StatsFilter(logging.Filter):
     filter_out : bool
         Whether to filter-out or filter-in stats messages
     """
+
     def __init__(self, filter_out):
         super().__init__()
         self._filter_out = filter_out
@@ -220,6 +234,7 @@ class DiagnosticsFilter(logging.Filter):
     filter_out : bool
         Whether to filter-out or filter-in stats messages
     """
+
     def __init__(self, filter_out):
         super().__init__()
         self._filter_out = filter_out
@@ -240,5 +255,5 @@ class DiagnosticsFilter(logging.Filter):
             whether the record will be logged or not
         """
         if "diagnostics" in record.__dict__:
-            return not self._filter_out == record.stats
+            return not self._filter_out == record.diagnostics
         return self._filter_out

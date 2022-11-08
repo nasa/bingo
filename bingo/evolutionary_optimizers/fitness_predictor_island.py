@@ -19,14 +19,19 @@ from copy import copy, deepcopy
 import numpy as np
 from ..util.argument_validation import argument_validation
 from ..evaluation.evaluation import Evaluation
-from ..evolutionary_algorithms.deterministic_crowding \
-    import DeterministicCrowdingEA
+from ..evolutionary_algorithms.deterministic_crowding import (
+    DeterministicCrowdingEA,
+)
 from .island import Island
-from ..chromosomes.multiple_values import MultipleValueChromosomeGenerator, \
-                                         SinglePointCrossover, \
-                                         SinglePointMutation
-from .fitness_predictor import FitnessPredictorFitnessFunction, \
-                              FitnessPredictorIndexGenerator
+from ..chromosomes.multiple_values import (
+    MultipleValueChromosomeGenerator,
+    SinglePointCrossover,
+    SinglePointMutation,
+)
+from .fitness_predictor import (
+    FitnessPredictorFitnessFunction,
+    FitnessPredictorIndexGenerator,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -75,20 +80,30 @@ class FitnessPredictorIsland(Island):
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the optimization
     """
-    @argument_validation(population_size={">=": 0},
-                         predictor_population_size={">=": 0},
-                         predictor_update_frequency={">": 0},
-                         predictor_size_ratio={">": 0, "<=": 1},
-                         predictor_computation_ratio={">=": 0, "<": 1},
-                         trainer_population_size={">=": 0},
-                         trainer_update_frequency={">": 0})
-    def __init__(self, evolution_algorithm, generator, population_size,
-                 predictor_population_size=16, predictor_update_frequency=50,
-                 predictor_size_ratio=0.1, predictor_computation_ratio=0.1,
-                 trainer_population_size=16, trainer_update_frequency=50,
-                 hall_of_fame=None):
-        super().__init__(evolution_algorithm, generator, population_size,
-                         None)
+
+    @argument_validation(
+        population_size={">=": 0},
+        predictor_population_size={">=": 0},
+        predictor_update_frequency={">": 0},
+        predictor_size_ratio={">": 0, "<=": 1},
+        predictor_computation_ratio={">=": 0, "<": 1},
+        trainer_population_size={">=": 0},
+        trainer_update_frequency={">": 0},
+    )
+    def __init__(
+        self,
+        evolution_algorithm,
+        generator,
+        population_size,
+        predictor_population_size=16,
+        predictor_update_frequency=50,
+        predictor_size_ratio=0.1,
+        predictor_computation_ratio=0.1,
+        trainer_population_size=16,
+        trainer_update_frequency=50,
+        hall_of_fame=None,
+    ):
+        super().__init__(evolution_algorithm, generator, population_size, None)
 
         self._hof_w_true_fitness = hall_of_fame
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
@@ -99,10 +114,12 @@ class FitnessPredictorIsland(Island):
         self._full_data_size = len(self._full_training_data)
 
         self._predictor_population_size = predictor_population_size
-        self._predictor_size = max((
-            int(predictor_size_ratio * self._full_data_size),
-            min((10, self._full_data_size))
-        ))
+        self._predictor_size = max(
+            (
+                int(predictor_size_ratio * self._full_data_size),
+                min((10, self._full_data_size)),
+            )
+        )
         self._predictor_update_frequency = predictor_update_frequency
         # pylint: disable=C0103
         self._target_predictor_computation_ratio = predictor_computation_ratio
@@ -110,8 +127,9 @@ class FitnessPredictorIsland(Island):
         self._trainer_population_size = trainer_population_size
         self._trainer_update_frequency = trainer_update_frequency
 
-        self._predictor_fitness_function = \
+        self._predictor_fitness_function = (
             self._make_fitness_predictor_fitness_function()
+        )
 
         self._predictor_island = self._make_predictor_island()
         self._update_to_use_best_fitness_predictor()
@@ -135,20 +153,23 @@ class FitnessPredictorIsland(Island):
         self._update_trainer_if_needed()
 
     def _make_fitness_predictor_fitness_function(self):
-        pred_fit_func = \
-            FitnessPredictorFitnessFunction(self._full_training_data,
-                                            self._fitness_function,
-                                            self.population,
-                                            self._trainer_population_size)
+        pred_fit_func = FitnessPredictorFitnessFunction(
+            self._full_training_data,
+            self._fitness_function,
+            self.population,
+            self._trainer_population_size,
+        )
         return pred_fit_func
 
     def _make_predictor_island(self):
         index_generator = FitnessPredictorIndexGenerator(self._full_data_size)
         predictor_ea = self._make_predictor_ea(index_generator)
-        generator = MultipleValueChromosomeGenerator(index_generator,
-                                                     self._predictor_size)
-        predictor_island = Island(predictor_ea, generator,
-                                  self._predictor_population_size)
+        generator = MultipleValueChromosomeGenerator(
+            index_generator, self._predictor_size
+        )
+        predictor_island = Island(
+            predictor_ea, generator, self._predictor_population_size
+        )
         predictor_island.evolve(1, suppress_logging=True)
         return predictor_island
 
@@ -156,14 +177,20 @@ class FitnessPredictorIsland(Island):
         crossover = SinglePointCrossover()
         mutation = SinglePointMutation(index_generator)
         evaluation = Evaluation(self._predictor_fitness_function)
-        dc_ea = DeterministicCrowdingEA(evaluation, crossover, mutation,
-                                        crossover_probability=0.5,
-                                        mutation_probability=0.2)
+        dc_ea = DeterministicCrowdingEA(
+            evaluation,
+            crossover,
+            mutation,
+            crossover_probability=0.5,
+            mutation_probability=0.2,
+        )
         return dc_ea
 
     def _step_predictor_island_to_maintain_ratio(self):
-        while (self._get_predictor_computation_ratio()
-               < self._target_predictor_computation_ratio):
+        while (
+            self._get_predictor_computation_ratio()
+            < self._target_predictor_computation_ratio
+        ):
             LOGGER.debug("P> %d", self._predictor_island.generational_age + 1)
             self._predictor_island.evolve(1, suppress_logging=True)
 
@@ -185,8 +212,7 @@ class FitnessPredictorIsland(Island):
 
     def _update_to_use_best_fitness_predictor(self):
         best_predictor = self._predictor_island.get_best_individual()
-        best_subset_data = \
-            self._full_training_data[best_predictor.values]
+        best_subset_data = self._full_training_data[best_predictor.values]
         self._fitness_function.training_data = best_subset_data
 
     def _add_new_trainer(self):
@@ -204,21 +230,28 @@ class FitnessPredictorIsland(Island):
         return best_candidate
 
     def _calculate_predictor_variance_of(self, individual):
-        predicted_fitness_list = \
-            [self._predictor_fitness_function.predict_fitness_for_trainer(
-                predictor, individual)
-             for predictor in self._predictor_island.population]
+        predicted_fitness_list = [
+            self._predictor_fitness_function.predict_fitness_for_trainer(
+                predictor, individual
+            )
+            for predictor in self._predictor_island.population
+        ]
         try:
             variance = np.var(predicted_fitness_list)
-        except (ArithmeticError, OverflowError, FloatingPointError,
-                ValueError):
+        except (
+            ArithmeticError,
+            OverflowError,
+            FloatingPointError,
+            ValueError,
+        ):
             variance = np.nan
         return variance
 
     def _get_predictor_computation_ratio(self):
         predictor_expense = self._predictor_fitness_function.point_eval_count
-        island_expense = self._fitness_function.eval_count \
-                         * self._predictor_size
+        island_expense = (
+            self._fitness_function.eval_count * self._predictor_size
+        )
         return predictor_expense / (predictor_expense + island_expense)
 
     def _get_potential_hof_members(self):
@@ -226,9 +259,9 @@ class FitnessPredictorIsland(Island):
         potential_members = []
         for indv_w_ped_fitness in self._hof_w_predicted_fitness:
             indv_w_true_fitness = deepcopy(indv_w_ped_fitness)
-            indv_w_true_fitness.fitness = \
-                self._predictor_fitness_function.get_true_fitness_for_trainer(
-                    indv_w_true_fitness)
+            indv_w_true_fitness.fitness = self._predictor_fitness_function.get_true_fitness_for_trainer(
+                indv_w_true_fitness
+            )
             potential_members.append(indv_w_true_fitness)
         return potential_members
 
@@ -244,7 +277,7 @@ class FitnessPredictorIsland(Island):
             The chromosomes with the lowest fitness value
         """
         best_indv = super().get_best_individual().copy()
-        best_indv.fitness = \
-            self._predictor_fitness_function.get_true_fitness_for_trainer(
-                best_indv)
+        best_indv.fitness = self._predictor_fitness_function.get_true_fitness_for_trainer(
+            best_indv
+        )
         return best_indv

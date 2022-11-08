@@ -37,17 +37,24 @@ class Variation(metaclass=ABCMeta):
         list indicating the parents (by index in the population) of the
         corresponding member of the last offspring
     """
-    def __init__(self, crossover_types=None, mutation_types=None):
-        self.crossover_offspring_type = np.zeros(shape=(0, ), dtype=object)
-        if crossover_types is None:
-            crossover_types = []
-        self.crossover_types = crossover_types
 
-        self.mutation_offspring_type = np.zeros(shape=(0, ), dtype=object)
-        if mutation_types is None:
-            mutation_types = []
-        self.mutation_types = mutation_types
+    def __init__(self, crossover_types=None, mutation_types=None):
+        self.crossover_offspring_type = np.zeros(shape=(0,), dtype=object)
+        self._crossover_types = (
+            [] if crossover_types is None else crossover_types
+        )
+
+        self.mutation_offspring_type = np.zeros(shape=(0,), dtype=object)
+        self._mutation_types = [] if mutation_types is None else mutation_types
         self.offspring_parents = []
+
+    @property
+    def crossover_types(self):
+        return self._crossover_types
+
+    @property
+    def mutation_types(self):
+        return self._mutation_types
 
     @abstractmethod
     def __call__(self, population, number_offspring):

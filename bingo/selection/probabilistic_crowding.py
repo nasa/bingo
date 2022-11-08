@@ -18,15 +18,15 @@ class ProbabilisticCrowding(GeneralizedCrowding):
 
     Parameters
     ----------
-    logscale : bool
+    log_scale : bool
         Whether fitnesses of the individuals is in log space. Default True.
     negative : bool
         Whether to invert the fitness of the individual (before log). Default 
         True.
     """
 
-    def __init__(self, logscale=True, negative=False):
-        self._logscale = logscale
+    def __init__(self, log_scale=True, negative=False):
+        self._log_scale = log_scale
         self._negative = negative
         super().__init__()
 
@@ -42,7 +42,7 @@ class ProbabilisticCrowding(GeneralizedCrowding):
             p_fit = -p_fit
             c_fit = -c_fit
 
-        if self._logscale:
+        if self._log_scale:
             prob = np.exp(c_fit - p_fit)
             prob = prob / (prob + 1)
         else:

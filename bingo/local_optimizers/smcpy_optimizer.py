@@ -172,7 +172,8 @@ class SmcpyOptimizer(LocalOptimizer):
 
         max_idx = np.argmax(step_list[-1].log_likes)
         maps = step_list[-1].params[max_idx]
-        individual.set_local_optimization_params(maps[:-1])
+        if len(maps) > 1:
+            individual.set_local_optimization_params(maps[:-1])
 
         log_nml = (
             marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]

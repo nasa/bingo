@@ -116,7 +116,7 @@ def test_probabilistic_crowding_negative_false(
         "bingo.selection.probabilistic_crowding.np.random.random",
         return_value=rand_value,
     )
-    selection = ProbabilisticCrowding(logscale=logscale, negative=False)
+    selection = ProbabilisticCrowding(log_scale=logscale, negative=False)
     new_pop = selection(population_of_n4, target_population_size=2)
     fitnesses = [individual.fitness for individual in new_pop]
     assert fitnesses == expected_fitnesses
@@ -146,7 +146,7 @@ def test_probabilistic_crowding_negative_true(
         "bingo.selection.probabilistic_crowding.np.random.random",
         return_value=rand_value,
     )
-    selection = ProbabilisticCrowding(logscale=logscale, negative=True)
+    selection = ProbabilisticCrowding(log_scale=logscale, negative=True)
     new_pop = selection(population_of_4, target_population_size=2)
     fitnesses = [individual.fitness for individual in new_pop]
     assert fitnesses == expected_fitnesses

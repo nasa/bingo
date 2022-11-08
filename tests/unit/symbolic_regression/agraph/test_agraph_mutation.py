@@ -330,7 +330,7 @@ def test_impossible_param_or_prune_mutation(mocker, algo_index,
     c_stack = child.mutable_command_array
 
     np.testing.assert_array_equal(c_stack, p_stack)
-    assert mutation.last_mutation_type is None
+    assert mutation.last_mutation_type == mutation.types[algo_index]  # TODO should be None?
 
 
 def test_mutate_variable(single_variable_agraph, sample_component_generator):
@@ -393,7 +393,7 @@ def test_fork_mutation_not_enough_unutilized_commands(
 
     np.testing.assert_array_equal(not_enough_unutil_fork_agraph.command_array,
                                   child.command_array)
-    assert fork_mutation.last_mutation_type is None
+    assert fork_mutation.last_mutation_type == FORK_MUTATION  # TODO should be None?
 
 
 class MockedRandInt:

@@ -1,20 +1,36 @@
 import numpy as np
 
-from bingo.local_optimizers.continuous_local_opt \
-    import ContinuousLocalOptimization
-from bingo.symbolic_regression \
-    import ExplicitRegression, ExplicitTrainingData, AGraph, \
-           AGraphGenerator, ComponentGenerator, AGraphCrossover, AGraphMutation
+from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
+from bingo.local_optimizers.normalized_marginal_likelihood import (
+    NormalizedMarginalLikelihood,
+)
+from time import time
 
-from bingo.evolutionary_algorithms.generalized_crowding \
-    import GeneralizedCrowdingEA
+from bingo.symbolic_regression.explicit_regression import (
+    ExplicitRegression as ERPy,
+    ExplicitTrainingData as ETDPy,
+)
+from bingo.symbolic_regression import (
+    ExplicitRegression as ERCpp,
+    ExplicitTrainingData as ETDCpp,
+    AGraph,
+    AGraphGenerator,
+    ComponentGenerator,
+    AGraphCrossover,
+    AGraphMutation,
+)
+from bingo.symbolic_regression.agraph.agraph import (
+    force_use_of_python_backends,
+)
+
+from bingo.evolutionary_algorithms.generalized_crowding import (
+    GeneralizedCrowdingEA,
+)
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.stats.hall_of_fame import HallOfFame
 
-from bingo.symbolic_regression.bayes_fitness_function \
-    import BayesFitnessFunction
-from bingo.selection.bayes_crowding import BayesCrowding
+from bingo.selection.probabilistic_crowding import ProbabilisticCrowding
 
 from bingo.util.log import configure_logging
 
@@ -22,13 +38,10 @@ configure_logging("detailed")
 
 
 def _true_equation():
-    true_commands = np.array([[0, 0, 0],
-                              [1, 0, 0],
-                              [1, 1, 1],
-                              [6, 0, 0],
-                              [4, 1, 3],
-                              [2, 4, 2]])
-    true_constants = np.array([2., 3.])
+    true_commands = np.array(
+        [[0, 0, 0], [1, 0, 0], [1, 1, 1], [6, 0, 0], [4, 1, 3], [2, 4, 2]]
+    )
+    true_constants = np.array([2.0, 3.0])
 
     true_equ = AGraph(use_simplification=False)
     true_equ.command_array = true_commands
@@ -44,30 +57,45 @@ def get_training_data(equ, minx, maxx, numx, noise_ratio):
     return ExplicitTrainingData(x, y)
 
 
-def make_fitness_function(training_data, mcmc_steps, num_particles,
-                          phi_exponent, smc_steps, num_multistarts):
-    reg = ExplicitRegression(training_data)
-    clo = ContinuousLocalOptimization(reg, algorithm="lm")
-    bff = BayesFitnessFunction(clo,
-                               num_particles=num_particles,
-                               phi_exponent=phi_exponent,
-                               smc_steps=smc_steps,
-                               mcmc_steps=mcmc_steps,
-                               num_multistarts=num_multistarts)
-    return bff
+def make_fitness_function(
+    training_data, mcmc_steps, num_particles, num_multistarts,
+):
+    fitness = ExplicitRegression(training_data=training_data, metric="mse")
+
+    scipy_opt = ScipyOptimizer(fitness, method="lm")
+    nml = NormalizedMarginalLikelihood(
+        fitness,
+        scipy_opt,
+        num_particles=num_particles,
+        mcmc_steps=mcmc_steps,
+        num_multistarts=num_multistarts,
+    )
+
+    return nml
 
 
-def make_island(fitness_function, population_size, stack_size, operators,
-                crossover_prob, mutation_prob):
+def make_island(
+    fitness_function,
+    population_size,
+    stack_size,
+    operators,
+    crossover_prob,
+    mutation_prob,
+    python_agraph=True,
+):
 
     # generation
     component_generator = ComponentGenerator(
-            input_x_dimension=fitness_function.training_data.x.shape[1])
+        input_x_dimension=fitness_function.training_data.x.shape[1]
+    )
     for comp in operators:
         component_generator.add_operator(comp)
-    generator = AGraphGenerator(stack_size, component_generator,
-                                use_python=True,
-                                use_simplification=True)
+    generator = AGraphGenerator(
+        stack_size,
+        component_generator,
+        use_python=python_agraph,
+        use_simplification=True,
+    )
 
     # variation
     crossover = AGraphCrossover()
@@ -77,39 +105,45 @@ def make_island(fitness_function, population_size, stack_size, operators,
     evaluation_phase = Evaluation(fitness_function, redundant=True)
 
     # selection
-    selection_phase = BayesCrowding()
+    selection_phase = ProbabilisticCrowding(log_scale=True)
 
     # evolutionary algorithm
-    ea = GeneralizedCrowdingEA(evaluation_phase, crossover, mutation,
-                               crossover_prob, mutation_prob,
-                               selection=selection_phase)
+    ea = GeneralizedCrowdingEA(
+        evaluation_phase,
+        crossover,
+        mutation,
+        crossover_prob,
+        mutation_prob,
+        selection=selection_phase,
+    )
 
     # island
-    hof = HallOfFame(10,
-                     similarity_function=lambda x, y: np.array_equal(
-                                                x._simplified_command_array,
-                                                y._simplified_command_array))
-    island = Island(ea, generator, population_size=population_size,
-                    hall_of_fame=hof)
+    hof = HallOfFame(
+        10,
+        similarity_function=lambda x, y: np.array_equal(
+            x.command_array, y.command_array
+        ),
+    )
+    island = Island(
+        ea, generator, population_size=population_size, hall_of_fame=hof
+    )
     return island
 
 
 if __name__ == "__main__":
 
+    np.random.seed(0)
+
     # DATA PARAMS
     MINX = 0
     MAXX = np.pi * 1.5
-    NUMX = 100
+    NUMX = 200
     NOISE_RATIO = 0.15
     TRU_EQU = _true_equation()
-    np.random.seed(0)
-    TRAINING_DATA = get_training_data(TRU_EQU, MINX, MAXX, NUMX, NOISE_RATIO)
 
     # BFF PARAMS
-    NUM_PARTICLES = 400
-    NUM_SMC_STEPS = 20
+    NUM_PARTICLES = 500
     NUM_MCMC_STEPS = 10
-    PHI_EXPONENT = 2
     NUM_MULTISTARTS = 8
 
     # ISLAND PARAMS
@@ -127,11 +161,38 @@ if __name__ == "__main__":
     # EVOLUTION PARAMS
     NUM_GENERATIONS = 10
 
+    # Backend
 
-    BFF = make_fitness_function(TRAINING_DATA, NUM_MCMC_STEPS, NUM_PARTICLES,
-                                PHI_EXPONENT, NUM_SMC_STEPS, NUM_MULTISTARTS)
-    ISLAND = make_island(BFF, POPULATION_SIZE, STACK_SIZE, OPERATORS,
-                         CROSSOVER_PROB, MUTATION_PROB)
+    # # Python
+    # ExplicitRegression = ERPy
+    # ExplicitTrainingData = ETDPy
+    # PYAGRAPH = True
+    # force_use_of_python_backends()
+
+    # Cpp
+    ExplicitRegression = ERCpp
+    ExplicitTrainingData = ETDCpp
+    PYAGRAPH = False
+
+    # # Hybrid
+    # ExplicitRegression = ERPy
+    # ExplicitTrainingData = ETDCpp
+    # PYAGRAPH = True
+
+    np.random.seed(0)
+    TRAINING_DATA = get_training_data(TRU_EQU, MINX, MAXX, NUMX, NOISE_RATIO)
+    NML = make_fitness_function(
+        TRAINING_DATA, NUM_MCMC_STEPS, NUM_PARTICLES, NUM_MULTISTARTS,
+    )
+    ISLAND = make_island(
+        NML,
+        POPULATION_SIZE,
+        STACK_SIZE,
+        OPERATORS,
+        CROSSOVER_PROB,
+        MUTATION_PROB,
+        python_agraph=PYAGRAPH,
+    )
 
     for _ in range(2):
         ISLAND.evolve(1)

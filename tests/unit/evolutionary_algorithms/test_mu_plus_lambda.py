@@ -19,8 +19,7 @@ def test_all_phases_occur_in_correct_order(mocker, target_pop_size):
     ead = mocker.patch(
         "bingo.evolutionary_algorithms.evolutionary_algorithm.EaDiagnostics",
         autospec=True).return_value
-    mocker.patch("bingo.evolutionary_algorithms."
-                 "mu_plus_lambda.VarOr", autospec=True,
+    mocker.patch("bingo.evolutionary_algorithms.mu_plus_lambda.VarOr",
                  return_value=mocked_variation)
 
     evo_alg = MuPlusLambda(mocked_evaluation, mocked_selection,
@@ -54,8 +53,7 @@ def test_creates_var_or(mocker):
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()
     mocked_selection = mocker.Mock()
-    mocker.patch("bingo.evolutionary_algorithms."
-                 "mu_plus_lambda.VarOr", autospec=True)
+    mocker.patch("bingo.evolutionary_algorithms.mu_plus_lambda.VarOr")
 
     _ = MuPlusLambda(mocked_evaluation, mocked_selection, mocked_crossover,
                      mocked_mutation, crossover_probability=0.5,
@@ -70,8 +68,9 @@ def test_creates_ea_diagnostics(mocker):
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()
     mocked_selection = mocker.Mock()
-    mocked_variation = mocker.patch("bingo.evolutionary_algorithms."
-                                    "mu_plus_lambda.VarOr", autospec=True)
+    mocked_variation = mocker.Mock()
+    mocker.patch("bingo.evolutionary_algorithms.mu_plus_lambda.VarOr",
+                 return_value = mocked_variation)
     ead = mocker.patch("bingo.evolutionary_algorithms."
                        "evolutionary_algorithm.EaDiagnostics", autospec=True)
 

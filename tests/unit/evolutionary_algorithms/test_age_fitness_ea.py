@@ -11,13 +11,14 @@ def test_creates_var_and(mocker):
     mocked_evaluation = mocker.Mock()
     mocked_generator = mocker.Mock()
     mocked_variation = mocker.Mock()
-    mocker.patch("bingo.evolutionary_algorithms."
-                 "age_fitness.VarAnd", autospec=True,
+    mocker.patch("bingo.evolutionary_algorithms.age_fitness.VarAnd",
                  return_value=mocked_variation)
     mocker.patch("bingo.evolutionary_algorithms."
                  "age_fitness.AgeFitness", autospec=True)
     mocker.patch("bingo.evolutionary_algorithms."
                  "age_fitness.AddRandomIndividuals", autospec=True)
+    mocker.patch("bingo.evolutionary_algorithms."
+                 "evolutionary_algorithm.EaDiagnostics", autospec=True)
 
     _ = AgeFitnessEA(mocked_evaluation, mocked_generator, mocked_crossover,
                      mocked_mutation, crossover_probability=0.5,

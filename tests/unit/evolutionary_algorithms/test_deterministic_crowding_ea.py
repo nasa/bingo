@@ -19,8 +19,7 @@ def test_all_phases_occur_in_correct_order(mocker):
     ead = mocker.patch(
         "bingo.evolutionary_algorithms.evolutionary_algorithm.EaDiagnostics",
         autospec=True).return_value
-    mocker.patch("bingo.evolutionary_algorithms."
-                 "deterministic_crowding.VarAnd", autospec=True,
+    mocker.patch("bingo.evolutionary_algorithms.deterministic_crowding.VarAnd",
                  return_value=mocked_variation)
     mocker.patch("bingo.evolutionary_algorithms."
                  "deterministic_crowding.DeterministicCrowding", autospec=True,
@@ -54,8 +53,7 @@ def test_creates_var_and(mocker):
     mocked_crossover = mocker.Mock()
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()
-    mocker.patch("bingo.evolutionary_algorithms."
-                 "deterministic_crowding.VarAnd", autospec=True)
+    mocker.patch("bingo.evolutionary_algorithms.deterministic_crowding.VarAnd")
     mocker.patch("bingo.evolutionary_algorithms."
                  "deterministic_crowding.DeterministicCrowding", autospec=True)
 
@@ -73,9 +71,10 @@ def test_creates_ea_diagnostics(mocker):
     mocked_crossover = mocker.Mock()
     mocked_mutation = mocker.Mock()
     mocked_evaluation = mocker.Mock()
-    mocked_variation = mocker.patch("bingo.evolutionary_algorithms."
-                                    "deterministic_crowding.VarAnd",
-                                    autospec=True)
+    mocked_variation = mocker.Mock()
+
+    mocker.patch("bingo.evolutionary_algorithms."
+                 "deterministic_crowding.VarAnd", return_value=mocked_variation)
     ead = mocker.patch("bingo.evolutionary_algorithms."
                        "evolutionary_algorithm.EaDiagnostics", autospec=True)
 

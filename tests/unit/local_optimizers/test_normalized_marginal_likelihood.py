@@ -29,7 +29,7 @@ def test_nml_sets_up_smcpy_optimizer(mocker):
 
 
 @pytest.mark.parametrize(
-    "log_scale,expected_nml", [(True, 1), (False, 2.718281828459045)]
+    "log_scale,expected_nml", [(True, -1), (False, -2.718281828459045)]
 )
 def test_logscale(mocker, log_scale, expected_nml):
     individual = mocker.Mock()

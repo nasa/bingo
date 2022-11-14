@@ -7,14 +7,19 @@ from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.local_opt_fitness \
-    import LocalOptFitnessFunction
-from bingo.symbolic_regression import ComponentGenerator, \
-                                      AGraphGenerator, \
-                                      AGraphCrossover, \
-                                      AGraphMutation, \
-                                      ExplicitRegression, \
-                                      ExplicitTrainingData
+from bingo.local_optimizers.local_opt_fitness import LocalOptFitnessFunction
+from bingo.symbolic_regression import (
+    ComponentGenerator,
+    AGraphGenerator,
+    AGraphCrossover,
+    AGraphMutation,
+    ExplicitRegression,
+    ExplicitTrainingData,
+)
+
+from bingo.util.log import configure_logging
+
+configure_logging(diagnostics_file="diagnostics.csv")
 
 POP_SIZE = 128
 STACK_SIZE = 10
@@ -31,7 +36,7 @@ def init_x_vals(start, stop, num_points):
 
 
 def equation_eval(x):
-    return x**2 + 3.5*x**3
+    return x ** 2 + 3.5 * x ** 3
 
 
 def init_island():
@@ -51,13 +56,19 @@ def init_island():
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)
-    optimizer = ScipyOptimizer(fitness, method='lm')
+    optimizer = ScipyOptimizer(fitness, method="lm")
     local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
-    ea = AgeFitnessEA(evaluator, agraph_generator, crossover,
-                      mutation, MUTATION_PROBABILITY,
-                      CROSSOVER_PROBABILITY, POP_SIZE)
+    ea = AgeFitnessEA(
+        evaluator,
+        agraph_generator,
+        crossover,
+        mutation,
+        MUTATION_PROBABILITY,
+        CROSSOVER_PROBABILITY,
+        POP_SIZE,
+    )
 
     island = Island(ea, agraph_generator, POP_SIZE)
     return island
@@ -66,8 +77,9 @@ def init_island():
 def main():
     test_island = init_island()
     report_island_status(test_island)
-    test_island.evolve_until_convergence(max_generations=1000,
-                                         fitness_threshold=ERROR_TOLERANCE)
+    test_island.evolve_until_convergence(
+        max_generations=1000, fitness_threshold=ERROR_TOLERANCE
+    )
     report_island_status(test_island)
 
 
@@ -78,5 +90,5 @@ def report_island_status(test_island):
     print("Fitness evaluations: ", test_island.get_fitness_evaluation_count())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

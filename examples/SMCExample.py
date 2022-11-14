@@ -4,23 +4,14 @@ from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.normalized_marginal_likelihood import (
     NormalizedMarginalLikelihood,
 )
-from time import time
-
-from bingo.symbolic_regression.explicit_regression import (
-    ExplicitRegression as ERPy,
-    ExplicitTrainingData as ETDPy,
-)
 from bingo.symbolic_regression import (
-    ExplicitRegression as ERCpp,
-    ExplicitTrainingData as ETDCpp,
+    ExplicitRegression,
+    ExplicitTrainingData,
     AGraph,
     AGraphGenerator,
     ComponentGenerator,
     AGraphCrossover,
     AGraphMutation,
-)
-from bingo.symbolic_regression.agraph.agraph import (
-    force_use_of_python_backends,
 )
 
 from bingo.evolutionary_algorithms.generalized_crowding import (
@@ -81,7 +72,6 @@ def make_island(
     operators,
     crossover_prob,
     mutation_prob,
-    python_agraph=True,
 ):
 
     # generation
@@ -91,10 +81,7 @@ def make_island(
     for comp in operators:
         component_generator.add_operator(comp)
     generator = AGraphGenerator(
-        stack_size,
-        component_generator,
-        use_python=python_agraph,
-        use_simplification=True,
+        stack_size, component_generator, use_simplification=True,
     )
 
     # variation
@@ -137,12 +124,12 @@ if __name__ == "__main__":
     # DATA PARAMS
     MINX = 0
     MAXX = np.pi * 1.5
-    NUMX = 200
+    NUMX = 25
     NOISE_RATIO = 0.15
     TRU_EQU = _true_equation()
 
     # BFF PARAMS
-    NUM_PARTICLES = 500
+    NUM_PARTICLES = 200
     NUM_MCMC_STEPS = 10
     NUM_MULTISTARTS = 8
 
@@ -161,24 +148,6 @@ if __name__ == "__main__":
     # EVOLUTION PARAMS
     NUM_GENERATIONS = 10
 
-    # Backend
-
-    # # Python
-    # ExplicitRegression = ERPy
-    # ExplicitTrainingData = ETDPy
-    # PYAGRAPH = True
-    # force_use_of_python_backends()
-
-    # Cpp
-    ExplicitRegression = ERCpp
-    ExplicitTrainingData = ETDCpp
-    PYAGRAPH = False
-
-    # # Hybrid
-    # ExplicitRegression = ERPy
-    # ExplicitTrainingData = ETDCpp
-    # PYAGRAPH = True
-
     np.random.seed(0)
     TRAINING_DATA = get_training_data(TRU_EQU, MINX, MAXX, NUMX, NOISE_RATIO)
     NML = make_fitness_function(
@@ -191,7 +160,6 @@ if __name__ == "__main__":
         OPERATORS,
         CROSSOVER_PROB,
         MUTATION_PROB,
-        python_agraph=PYAGRAPH,
     )
 
     for _ in range(2):

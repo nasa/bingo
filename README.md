@@ -142,14 +142,15 @@ cd bingo
 
 Then make sure you have the requirements necessary to use Bingo:
 
+
 ```sh
-pip install -r requirements.txt
+conda env create -f conda_environment.yml
 ```
 
 or
 
 ```sh
-conda install --channel conda-forge --file requirements.txt
+pip install -r requirements.txt
 ```
 
 (Optional) Then build the c++ performance library BingoCpp:

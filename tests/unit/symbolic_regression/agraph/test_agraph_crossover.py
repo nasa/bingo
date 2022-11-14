@@ -38,6 +38,15 @@ def crossover_parents(request):
             request.getfixturevalue(request.param[1]))
 
 
+def test_crossover_sets_types(crossover_parents):
+    crossover = AGraphCrossover()
+    assert crossover.types == ["default"]
+
+    crossover(crossover_parents[0], crossover_parents[1])
+
+    assert crossover.last_crossover_types == ("default", "default")
+
+
 def test_crossover_is_single_point(crossover_parents):
     crossover = AGraphCrossover()
     child_1, child_2 = crossover(crossover_parents[0], crossover_parents[1])

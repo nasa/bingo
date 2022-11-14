@@ -16,6 +16,7 @@ from ..util.log import INFO, DETAILED_INFO
 
 LOGGER = logging.getLogger(__name__)
 STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
+DIAGNOSTICS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"diagnostics": True})
 
 OptimizeResult = namedtuple(
     "OptimizeResult",
@@ -63,17 +64,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         self.hall_of_fame = hall_of_fame
         self._previous_checkpoints = []
         self._test_function = test_function
-        self._log_stats_header()
-
-    def _log_stats_header(self):
-        header = (
-            "#generational_age, elapsed_time, "
-            + "fitness_evaluation_count, current_training_fitness, "
-        )
-        if self._test_function is not None:
-            header += "current_test_fitness, "
-        header += "hall_of_fame_fitnesses"
-        STATS_LOGGER.log(INFO, header)
+        self._logged_headers = False
 
     @argument_validation(
         max_generations={">=": 1},
@@ -132,6 +123,9 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         `OptimizeResult` :
             Object containing information about the result of the evolution
         """
+        if not self._logged_headers:
+            self._log_all_headers()
+
         start_time = datetime.now()
         self._starting_age = self.generational_age
         self._update_best_fitness()
@@ -178,6 +172,27 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         self._log_exit(result)
         return result
 
+    def _log_all_headers(self):
+        self._log_stats_header()
+        self._log_diagnostics_header()
+        self._logged_headers = True
+
+    def _log_stats_header(self):
+        header = (
+            "generational_age, elapsed_time, "
+            + "fitness_evaluation_count, current_training_fitness, "
+        )
+        if self._test_function is not None:
+            header += "current_test_fitness, "
+        header += "hall_of_fame_fitnesses"
+        STATS_LOGGER.log(INFO, header)
+
+    def _log_diagnostics_header(self):
+        header = "generational_age, elapsed_time, "
+        diagnostics = self.get_ea_diagnostic_info()
+        header += diagnostics.get_log_header()
+        DIAGNOSTICS_LOGGER.log(INFO, header)
+
     def _log_optimization(self, start_time):
         test_fitness = None
         if self._test_function is not None:
@@ -190,6 +205,10 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             log_string += f"Test fitness: {test_fitness:e} \t "
         LOGGER.log(INFO, log_string)
 
+        self._log_stats(test_fitness, elapsed_time)
+        self._log_diagnostics(elapsed_time)
+
+    def _log_stats(self, test_fitness, elapsed_time):
         stats_string = (
             f"{self.generational_age}, "
             + f"{elapsed_time.total_seconds():e}, "
@@ -202,6 +221,14 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             for i in self.hall_of_fame:
                 stats_string += f", {i.fitness:e}"
         STATS_LOGGER.log(INFO, stats_string)
+
+    def _log_diagnostics(self, elapsed_time):
+        diag_string = (
+            f"{self.generational_age}, {elapsed_time.total_seconds():e}, "
+        )
+        diagnostics = self.get_ea_diagnostic_info()
+        diag_string += ", ".join([str(i) for i in diagnostics.get_log_stats()])
+        DIAGNOSTICS_LOGGER.log(INFO, diag_string)
 
     def _update_best_fitness(self):
         last_best_fitness = self._best_fitness
@@ -347,6 +374,9 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         suppress_logging : bool (optional)
             Used to manually suppress the logging output of this function
         """
+        if not self._logged_headers:
+            self._log_all_headers()
+
         start_time = datetime.now()
         self._do_evolution(num_generations)
         if hall_of_fame_update:

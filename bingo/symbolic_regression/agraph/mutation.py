@@ -14,18 +14,18 @@ from ...chromosomes.mutation import Mutation
 from ...util.argument_validation import argument_validation
 from ...util.probability_mass_function import ProbabilityMassFunction
 
-COMMAND_MUTATION = 0
-NODE_MUTATION = 1
-PARAMETER_MUTATION = 2
-PRUNE_MUTATION = 3
-FORK_MUTATION = 4
+COMMAND_MUTATION = "command"
+NODE_MUTATION = "node"
+PARAMETER_MUTATION = "parameter"
+PRUNE_MUTATION = "prune"
+FORK_MUTATION = "fork"
 
 
 class AGraphMutation(Mutation):
     """Mutation of acyclic graph individual
 
     Mutation of an agraph individual my modification of its command array.
-    Mutation randomly takes one of the following 4 forms
+    Mutation randomly takes one of the following 5 forms
       * command mutation: An entire command (row) of the command array is
         replaced by a new random one
       * node mutation: The node of a command is replaced by a random new one.
@@ -34,6 +34,9 @@ class AGraphMutation(Mutation):
       * parameter mutation: The parameters of a command are randomly changed.
       * pruning: The command array is adjusted to remove an operator from
         the evaluation of the `AGraph`. Pruning a terminal does nothing.
+      * forking: A random command is selected to become the child of a
+        new command (e.g., X_0 -> sin(X_0)). Forking on an equation with no
+        non-utilized commands does nothing.
 
     Parameters
     ----------
@@ -47,6 +50,13 @@ class AGraphMutation(Mutation):
         probability of pruning. Default 0.2
     fork_probability : float
         probability of forking. Default 0.2
+
+    Attributes
+    ----------
+    types : iterable of str
+        an iterable of the possible mutation types
+    last_mutation_type : str
+        the last mutation type that happened (or None)
 
     Notes
     -----
@@ -80,7 +90,9 @@ class AGraphMutation(Mutation):
                                      prune_probability,
                                      fork_probability])
         self._last_mutation_location = None
-        self._last_mutation_type = None
+        self.last_mutation_type = None
+        self.types = [COMMAND_MUTATION, NODE_MUTATION, PARAMETER_MUTATION,
+                      PRUNE_MUTATION, FORK_MUTATION]
 
     def __call__(self, parent):
         """Single point mutation.
@@ -104,7 +116,7 @@ class AGraphMutation(Mutation):
         mutation_location = \
             self._get_random_command_mutation_location(individual)
         self._last_mutation_location = mutation_location
-        self._last_mutation_type = COMMAND_MUTATION
+        self.last_mutation_type = COMMAND_MUTATION
 
         old_command = individual.command_array[mutation_location]
         new_command = \
@@ -126,7 +138,7 @@ class AGraphMutation(Mutation):
     def _mutate_node(self, individual):
         mutation_location = self._get_random_node_mutation_location(individual)
         self._last_mutation_location = mutation_location
-        self._last_mutation_type = NODE_MUTATION
+        self.last_mutation_type = NODE_MUTATION
 
         old_command = individual.command_array[mutation_location]
         new_command = old_command.copy()
@@ -161,7 +173,7 @@ class AGraphMutation(Mutation):
     def _mutate_parameters(self, individual):
         mutation_location = self._get_random_param_mut_location(individual)
         self._last_mutation_location = mutation_location
-        self._last_mutation_type = PARAMETER_MUTATION
+        self.last_mutation_type = PARAMETER_MUTATION
         if mutation_location is None:
             return
 
@@ -208,7 +220,7 @@ class AGraphMutation(Mutation):
     def _prune_branch(self, individual):
         mutation_location = self._get_random_prune_location(individual)
         self._last_mutation_location = mutation_location
-        self._last_mutation_type = PRUNE_MUTATION
+        self.last_mutation_type = PRUNE_MUTATION
         if mutation_location is None:
             return
 
@@ -260,7 +272,7 @@ class AGraphMutation(Mutation):
 
         if n_unutilized_commands < 2:
             self._last_mutation_location = None
-            self._last_mutation_type = FORK_MUTATION
+            self.last_mutation_type = FORK_MUTATION
             return
 
         max_fork = min(n_unutilized_commands, MAX_FORK_SIZE)
@@ -282,7 +294,7 @@ class AGraphMutation(Mutation):
         individual.mutable_command_array[:] = new_stack
 
         self._last_mutation_location = mutation_location
-        self._last_mutation_type = FORK_MUTATION
+        self.last_mutation_type = FORK_MUTATION
 
     def _insert_fork(self, stack, fork_size, mutated_command_location, start_i,
                      end_i):

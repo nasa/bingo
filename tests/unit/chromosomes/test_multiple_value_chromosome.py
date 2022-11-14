@@ -1,6 +1,7 @@
 # Ignoring some linting rules in tests
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
+import numpy as np
 import pytest
 
 from bingo.chromosomes.multiple_values import MultipleValueChromosome, \
@@ -44,6 +45,15 @@ def test_generator_throws_error_for_invalid_chromosome_length(mocker):
         MultipleValueChromosomeGenerator(random_value_function, -1)
 
 
+def test_mutation_sets_types(chromosome):
+    mutation = SinglePointMutation(lambda: DUMMY_VALUE)
+
+    _ = mutation(chromosome)
+
+    assert mutation.types == ["single_point"]
+    assert mutation.last_mutation_type == "single_point"
+
+
 def test_mutation_doesnt_change_parent(chromosome):
     def dummy_function():
         return DUMMY_VALUE
@@ -66,6 +76,18 @@ def test_mutation_resets_fitness(chromosome):
     mutation = SinglePointMutation(dummy_function)
     child = mutation(chromosome)
     assert not child.fit_set
+
+
+def test_crossover_sets_types():
+    parent_1 = MultipleValueChromosome([1] * 10)
+    parent_2 = MultipleValueChromosome([2] * 10)
+    crossover = SinglePointCrossover()
+
+    _, _ = crossover(parent_1, parent_2)
+
+    assert crossover.types == ["single_point"]
+    np.testing.assert_array_equal(crossover.last_crossover_types,
+                                  ("single_point", "single_point"))
 
 
 def test_crossover_is_single_point():

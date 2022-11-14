@@ -17,11 +17,7 @@ def test_all_phases_occur_in_correct_order(mocker):
     mocked_variation = mocker.Mock(return_value=dummy_offspring)
     mocked_evaluation = mocker.Mock()
     mocked_selection = mocker.Mock(return_value=dummy_next_gen)
-    mocker.patch(
-        "bingo.evolutionary_algorithms."
-        "evolutionary_algorithm.EaDiagnostics",
-        autospec=True,
-    )
+    mocked_ead = mocker.Mock()
     mocker.patch(
         "bingo.evolutionary_algorithms." "generalized_crowding.VarAnd",
         autospec=True,
@@ -32,6 +28,11 @@ def test_all_phases_occur_in_correct_order(mocker):
         "generalized_crowding.DeterministicCrowding",
         autospec=True,
         return_value=mocked_selection,
+    )
+    mocker.patch(
+        "bingo.evolutionary_algorithms.evolutionary_algorithm.EaDiagnostics",
+        autospec=True,
+        return_value=mocked_ead,
     )
 
     evo_alg = GeneralizedCrowdingEA(
@@ -53,7 +54,7 @@ def test_all_phases_occur_in_correct_order(mocker):
     assert (
         mocked_selection.call_args[0][0] == dummy_population + dummy_offspring
     )
-    ead.update.assert_called_once_with(
+    mocked_ead.update.assert_called_once_with(
         dummy_population,
         dummy_offspring,
         mocked_variation.offspring_parents,
@@ -89,3 +90,30 @@ def test_creates_var_and(mocker):
         mocked_crossover, mocked_mutation, 0.5, 0.3
     )
     generalized_crowding.DeterministicCrowding.assert_called_once()
+
+
+def test_creates_ea_diagnostics(mocker):
+    mocked_crossover = mocker.Mock()
+    mocked_mutation = mocker.Mock()
+    mocked_evaluation = mocker.Mock()
+    mocked_variation = mocker.Mock()
+    mocker.patch(
+        "bingo.evolutionary_algorithms.generalized_crowding.VarAnd",
+        return_value=mocked_variation,
+    )
+    ead = mocker.patch(
+        "bingo.evolutionary_algorithms.evolutionary_algorithm.EaDiagnostics",
+        autospec=True,
+    )
+
+    _ = GeneralizedCrowdingEA(
+        mocked_evaluation,
+        mocked_crossover,
+        mocked_mutation,
+        crossover_probability=0.5,
+        mutation_probability=0.3,
+    )
+
+    ead.assert_called_once_with(
+        mocked_variation.crossover_types, mocked_variation.mutation_types
+    )

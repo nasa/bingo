@@ -165,6 +165,7 @@ class SmcpyOptimizer(LocalOptimizer):
                 self._ess_threshold,
                 proposal=proposal,
                 required_phi=self._norm_phi,
+                progress_bar=False,
             )
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
             # print(e)

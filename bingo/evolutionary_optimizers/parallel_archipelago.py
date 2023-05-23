@@ -59,12 +59,12 @@ class ParallelArchipelago(Archipelago):
     """
 
     def __init__(
-        self, island, hall_of_fame=None, non_blocking=True, sync_frequency=10
+        self, island, hall_of_fame=None, non_blocking=True, sync_frequency=10, test_function=None
     ):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
-        super().__init__(self.comm_size, hall_of_fame)
+        super().__init__(self.comm_size, hall_of_fame, test_function)
         self.island = island
         self._non_blocking = non_blocking
         self._sync_frequency = sync_frequency

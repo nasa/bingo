@@ -102,8 +102,9 @@ class FitnessPredictorIsland(Island):
         trainer_population_size=16,
         trainer_update_frequency=50,
         hall_of_fame=None,
+        test_function=None,
     ):
-        super().__init__(evolution_algorithm, generator, population_size, None)
+        super().__init__(evolution_algorithm, generator, population_size, None, test_function)
 
         self._hof_w_true_fitness = hall_of_fame
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)

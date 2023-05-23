@@ -37,8 +37,8 @@ class SerialArchipelago(Archipelago):
         An object containing the best individuals seen in the archipelago
     """
 
-    def __init__(self, template_island, num_islands=2, hall_of_fame=None):
-        super().__init__(num_islands, hall_of_fame)
+    def __init__(self, template_island, num_islands=2, hall_of_fame=None, test_function=None):
+        super().__init__(num_islands, hall_of_fame, test_function)
         self._template_island = template_island
         self.islands = self._generate_islands(template_island, num_islands)
         for i in self.islands:

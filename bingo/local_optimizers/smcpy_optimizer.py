@@ -141,7 +141,7 @@ class SmcpyOptimizer(LocalOptimizer):
                 individual, self._num_particles
             )
         except (ValueError, np.linalg.LinAlgError, RuntimeError) as e:
-            return np.nan, None, None
+            return np.nan, "proposal error", e
 
         param_names = self._get_parameter_names(individual)
         priors = [ImproperUniform() for _ in range(len(param_names))]
@@ -169,7 +169,7 @@ class SmcpyOptimizer(LocalOptimizer):
             )
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
             # print(e)
-            return np.nan, None, None
+            return np.nan, "sample error", e
 
         max_idx = np.argmax(step_list[-1].log_likes)
         maps = step_list[-1].params[max_idx]
@@ -206,7 +206,7 @@ class SmcpyOptimizer(LocalOptimizer):
                     break
             if not param_dists:
                 raise RuntimeError(
-                    "Could not generate any valid proposal " "distributions"
+                    "Could not generate any valid proposal distributions"
                 )
 
             pdf, samples = self._get_samples_and_pdf(param_dists, num_samples)

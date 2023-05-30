@@ -9,6 +9,7 @@ appropriate fitness evaluator and a corresponding training data container.
 """
 import logging
 import numpy as np
+from .agraph.agraph import AGraph
 
 from ..evaluation.fitness_function import VectorBasedFunction
 from ..evaluation.gradient_mixin import VectorGradientMixin
@@ -114,12 +115,15 @@ class ExplicitTrainingData(TrainingData):
         dependent variable
     """
     def __init__(self, x, y):
-        if x.ndim == 1:
-            # warnings.warn("Explicit training x should be 2 dim array, " +
-            #               "reshaping array")
-            x = x.reshape([-1, 1])
-        if x.ndim > 2:
-            raise TypeError('Explicit training x should be 2 dim array')
+        try:
+            if x.ndim == 1:
+                # warnings.warn("Explicit training x should be 2 dim array, " +
+                #               "reshaping array")
+                x = x.reshape([-1, 1])
+            if x.ndim > 2:
+                raise TypeError('Explicit training x should be 2 dim array')
+        except AttributeError:
+            pass
 
         if y.ndim == 1:
             # warnings.warn("Explicit training y should be 2 dim array, " +
@@ -165,4 +169,7 @@ class ExplicitTrainingData(TrainingData):
         int :
             index-able size
         """
-        return self._x.shape[0]
+        try:
+            return self._x.size(1)
+        except TypeError:
+            return self._x.shape[0]

@@ -438,7 +438,7 @@ class AGraph(Equation):
         return dist
 
     def __deepcopy__(self, memodict=None):
-        duplicate = AGraph()
+        duplicate = self.__class__()
         self._copy_agraph_values_to_new_graph(duplicate)
         return duplicate
 

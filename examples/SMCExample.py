@@ -72,6 +72,7 @@ def make_island(
     operators,
     crossover_prob,
     mutation_prob,
+    use_pytorch=False
 ):
 
     # generation
@@ -82,6 +83,7 @@ def make_island(
         component_generator.add_operator(comp)
     generator = AGraphGenerator(
         stack_size, component_generator, use_simplification=True,
+        use_pytorch=use_pytorch
     )
 
     # variation
@@ -118,8 +120,9 @@ def make_island(
 
 
 if __name__ == "__main__":
-
+    import random
     np.random.seed(0)
+    random.seed(0)
 
     # DATA PARAMS
     MINX = 0
@@ -148,7 +151,6 @@ if __name__ == "__main__":
     # EVOLUTION PARAMS
     NUM_GENERATIONS = 10
 
-    np.random.seed(0)
     TRAINING_DATA = get_training_data(TRU_EQU, MINX, MAXX, NUMX, NOISE_RATIO)
     NML = make_fitness_function(
         TRAINING_DATA, NUM_MCMC_STEPS, NUM_PARTICLES, NUM_MULTISTARTS,
@@ -160,6 +162,7 @@ if __name__ == "__main__":
         OPERATORS,
         CROSSOVER_PROB,
         MUTATION_PROB,
+        use_pytorch=True
     )
 
     for _ in range(2):

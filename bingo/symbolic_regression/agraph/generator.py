@@ -13,6 +13,7 @@ except (ImportError, KeyError, ModuleNotFoundError) as e:
     BINGOCPP = False
 from .agraph import AGraph as pyAGraph
 from .agraph import force_use_of_python_simplification
+from .pytorch_agraph import PytorchAGraph as torchAGraph
 from ...chromosomes.generator import Generator
 from ...util.argument_validation import argument_validation
 
@@ -29,12 +30,14 @@ class AGraphGenerator(Generator):
     """
     @argument_validation(agraph_size={">=": 1})
     def __init__(self, agraph_size, component_generator, use_python=False,
-                 use_simplification=False):
+                 use_simplification=False, use_pytorch=False):
         self.agraph_size = agraph_size
         self.component_generator = component_generator
         self._use_simplification = use_simplification
         if use_python:
             self._backend_generator_function = self._python_generator_function
+        elif use_pytorch:
+            self._backend_generator_function = self._pytorch_generator_function
         else:
             self._backend_generator_function = self._generator_function
 
@@ -57,6 +60,9 @@ class AGraphGenerator(Generator):
 
     def _python_generator_function(self):
         return pyAGraph(use_simplification=self._use_simplification)
+
+    def _pytorch_generator_function(self):
+        return torchAGraph(use_simplification=self._use_simplification)
 
     def _generator_function(self):
         return AGraph(use_simplification=self._use_simplification)

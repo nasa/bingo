@@ -10,7 +10,11 @@ def _integer_forward_eval(param1, _param2, x, _constants, _forwardeval):
 
 # Load x column
 def _loadx_forward_eval(param1, _param2, x, _constants, _forwardeval):
-    return x[param1].view(x.size(1), 1)
+    loaded_x = x[param1]
+    if len(loaded_x.size()) > 1:
+        return x[param1]
+    else:
+        return x[param1].view(x.size(1), 1)
 
 
 # Load constant

@@ -126,6 +126,9 @@ def _evaluate_with_derivative(pytorch_repr, x, constants, wrt_param_x_or_c):
 def evaluate_with_partials(pytorch_repr, x, constants, partial_order):
     if isinstance(x, np.ndarray):
         x = torch.from_numpy(x.T).double()
+    final_eval = evaluate(pytorch_repr, x, constants, final=True)
+
+    x = x[:, :, None].expand(-1, -1, constants.shape[0])
     x.requires_grad = True
     constants = _get_torch_const(constants, x.size(1))
     eval = evaluate(pytorch_repr, x, constants, final=False)
@@ -141,6 +144,6 @@ def evaluate_with_partials(pytorch_repr, x, constants, partial_order):
                 partial = torch.zeros_like(x[0])
         except (IndexError, RuntimeError):
             partial = torch.zeros_like(x[0])
-        partials.append(partial.reshape((-1, 1)).detach().numpy())
+        partials.append(partial.detach().numpy())
 
-    return _reshape_output(eval.detach().numpy(), constants, x), partials
+    return _reshape_output(final_eval.detach().numpy(), constants, x), partials

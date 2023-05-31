@@ -275,6 +275,7 @@ class SmcpyOptimizer(LocalOptimizer):
 
     def evaluate_model(self, params, individual):
         individual.set_local_optimization_params(params.T)
+        individual._simplified_constants = np.array(params.T)
         result = self._objective_fn.evaluate_fitness_vector(individual).T
         if len(result.shape) < 2:
             # TODO, would it be better to remove the flatten in explicit

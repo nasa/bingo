@@ -24,18 +24,20 @@ OPERATOR_LIST = [INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION,
                  POWER, ABS, SQRT]
 
 
-@pytest.fixture(params=["Python", "pytorch", CPP_PARAM])
+@pytest.fixture(params=["Python", "pytorch_cpp", CPP_PARAM])
 def engine(request):
     return request.param
 
 
 @pytest.fixture
 def eval_backend(engine):
+    print(engine)
     if engine == "Python":
         return py_eval_backend
-    else:
+    elif engine == "pytorch_cpp":
         return pytorch_eval_backend
-    # return cpp_eval_backend
+    else:
+        return cpp_eval_backend
 
 
 @pytest.fixture

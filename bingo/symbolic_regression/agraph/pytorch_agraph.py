@@ -21,7 +21,8 @@ class PytorchAGraph(AGraph):
         except (ArithmeticError, OverflowError, ValueError,
                 FloatingPointError) as err:
             LOGGER.warning("%s in stack evaluation", err)
-            return torch.full((len(x[0]), 1), float("nan"))
+            nan_f_of_x = torch.full((len(x[0]), 1), float("nan"))
+            return nan_f_of_x.detach().numpy()
 
     def evaluate_equation_with_x_gradient_at(self, x):
         """Evaluate `AGraph` and get its derivatives.
@@ -85,19 +86,3 @@ class PytorchAGraph(AGraph):
             nan_df_dc = torch.full(
                 (len(x[0]), self._simplified_constants.shape[0]), float("nan"))
             return nan_f_of_x.detach().numpy(), nan_df_dc.detach().numpy()
-
-    def evaluate_equation_with_x_partial_at(self, x, partial_order):
-        if self._modified:
-            self._update()
-        try:
-            f_of_x, df_dx = evaluation_backend.evaluate_with_partials(
-                self._simplified_command_array, x,
-                self._simplified_constants,
-                partial_order)
-            return f_of_x, df_dx
-        except (ArithmeticError, OverflowError, ValueError,
-                FloatingPointError) as err:
-            LOGGER.warning("%s in stack evaluation/partial-deriv", err)
-            nan_f_of_x = torch.full((len(x[0]), 1), float("nan"))
-            nan_df_dx = torch.full((len(x[0]), len(x)), float("nan"))
-            return nan_f_of_x.detach().numpy(), nan_df_dx.detach().numpy()

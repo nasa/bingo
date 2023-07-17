@@ -7,6 +7,7 @@ import pytest
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.evaluation_backend \
     import evaluation_backend as py_eval_backend
+from bingo.symbolic_regression.agraph.pytorch_evaluation_backend import evaluation_backend as pytorch_eval_backend
 
 try:
     from bingocpp import evaluation_backend as cpp_eval_backend
@@ -23,7 +24,7 @@ OPERATOR_LIST = [INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION,
                  POWER, ABS, SQRT]
 
 
-@pytest.fixture(params=["Python", CPP_PARAM])
+@pytest.fixture(params=["Python", "pytorch", CPP_PARAM])
 def engine(request):
     return request.param
 
@@ -32,7 +33,9 @@ def engine(request):
 def eval_backend(engine):
     if engine == "Python":
         return py_eval_backend
-    return cpp_eval_backend
+    else:
+        return pytorch_eval_backend
+    # return cpp_eval_backend
 
 
 @pytest.fixture

@@ -1,6 +1,3 @@
-# TODO doc
-
-import numpy as np
 import logging
 import torch
 

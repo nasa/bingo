@@ -4,9 +4,11 @@ from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.normalized_marginal_likelihood import (
     NormalizedMarginalLikelihood,
 )
+
+# !IMPORTANT need to use python ExplicitRegression and ExplicitTrainingData for pytorch
+from bingo.symbolic_regression.explicit_regression import ExplicitRegression, ExplicitTrainingData
+
 from bingo.symbolic_regression import (
-    ExplicitRegression,
-    ExplicitTrainingData,
     AGraph,
     AGraphGenerator,
     ComponentGenerator,
@@ -143,6 +145,7 @@ if __name__ == "__main__":
     OPERATORS = ["+", "-", "*"]
     STACK_SIZE = 64
     USE_SIMPLIFICATION = True
+    USE_PYTORCH = True
 
     # VARIATION PARAMS
     CROSSOVER_PROB = 0.4
@@ -162,7 +165,7 @@ if __name__ == "__main__":
         OPERATORS,
         CROSSOVER_PROB,
         MUTATION_PROB,
-        use_pytorch=True
+        use_pytorch=USE_PYTORCH
     )
 
     for _ in range(2):

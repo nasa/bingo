@@ -82,7 +82,7 @@ def make_island(
     for comp in operators:
         component_generator.add_operator(comp)
     generator = AGraphGenerator(
-        stack_size, component_generator, use_simplification=True,
+        stack_size, component_generator, use_simplification=USE_SIMPLIFICATION,
         use_pytorch=use_pytorch
     )
 

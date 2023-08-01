@@ -1,5 +1,6 @@
 import logging
 import torch
+import numpy as np
 
 from .agraph import AGraph
 from .pytorch_evaluation_backend import evaluation_backend
@@ -83,3 +84,39 @@ class PytorchAGraph(AGraph):
             nan_df_dc = torch.full(
                 (len(x[0]), self._simplified_constants.shape[0]), float("nan"))
             return nan_f_of_x.detach().numpy(), nan_df_dc.detach().numpy()
+
+    def evaluate_with_x_hessian_at(self, x):
+        if self._modified:
+            self._update()
+        try:
+            f_of_x, x_hessian = evaluation_backend.evaluate_with_hessian(
+                self._simplified_command_array, x,
+                self._simplified_constants,
+                True)
+            return f_of_x, x_hessian
+        except (ArithmeticError, OverflowError, ValueError,
+                FloatingPointError) as err:
+            LOGGER.warning("%s in stack evaluation/hessian", err)
+            nan_f_of_x = torch.full((len(x[0]), 1), float("nan"))
+            nan_hessian = torch.full([len(x[0]), 1, *x.shape, *x.shape],
+                                     float("nan"))
+            return nan_f_of_x.detach().numpy(), nan_hessian.detach().numpy()
+
+    def evaluate_with_local_opt_hessian_at(self, x):
+        if self._modified:
+            self._update()
+        try:
+            f_of_x, c_hessian = evaluation_backend.evaluate_with_hessian(
+                self._simplified_command_array, x,
+                self._simplified_constants,
+                False)
+            return f_of_x, c_hessian
+        except (ArithmeticError, OverflowError, ValueError,
+                FloatingPointError) as err:
+            LOGGER.warning("%s in stack evaluation/const-hessian", err)
+            nan_f_of_x = torch.full((len(x[0]), 1), float("nan"))
+
+            constant_shapes = np.array(self._simplified_constants).shape
+            nan_hessian = torch.full(
+                (len(x[0]), 1, *constant_shapes, *constant_shapes), float("nan"))
+            return nan_f_of_x.detach().numpy(), nan_hessian.detach().numpy()

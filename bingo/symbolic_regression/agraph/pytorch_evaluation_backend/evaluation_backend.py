@@ -6,6 +6,7 @@ represented by an `AGraph`.  It can also perform derivatives.
 import numpy as np
 
 import torch
+from torch.func import hessian as get_hessian
 from torch_eval import evaluate as cpp_evaluate
 from torch_eval import evaluate_with_deriv as cpp_evaluate_with_deriv
 
@@ -52,3 +53,19 @@ def evaluate_with_derivative(cmd_arr, x, constants, wrt_param_x_or_c):
     if deriv.ndim == 3:
         deriv = deriv[:, :, 0]
     return _reshape_output(eval.detach().numpy(), constants, x), deriv.T.detach().numpy()
+
+
+def evaluate_with_hessian(cmd_arr, x, constants, wrt_param_x_or_c):
+    if isinstance(x, np.ndarray):
+        x = torch.from_numpy(x.T).double()
+    evaluation = evaluate(cmd_arr, x, constants)
+
+    torch_constants = torch.from_numpy(np.array(constants)).double()
+
+    deriv_argnum = 2  # wrt c
+    if wrt_param_x_or_c:  # wrt x
+        deriv_argnum = 1
+    hessian = get_hessian(cpp_evaluate, argnums=deriv_argnum)(cmd_arr, x,
+                                                              torch_constants)
+
+    return evaluation, hessian

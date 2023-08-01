@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+torch.set_num_threads(1)
 
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.normalized_marginal_likelihood import (

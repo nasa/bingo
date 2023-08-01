@@ -2,6 +2,8 @@
 # pylint: disable=redefined-outer-name
 # pylint: disable=missing-docstring
 import numpy as np
+import torch
+torch.set_num_threads(1)
 
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
 from bingo.evaluation.evaluation import Evaluation
@@ -36,7 +38,6 @@ if __name__ == '__main__':
         crossover = AGraphCrossover()
         mutation = AGraphMutation(component_generator)
     
-        # set the use_pytorch flag here also!
         agraph_generator = AGraphGenerator(STACK_SIZE, component_generator,
                                            use_simplification=False,
                                            use_pytorch=use_pytorch)

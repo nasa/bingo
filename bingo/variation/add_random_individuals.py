@@ -22,13 +22,13 @@ class AddRandomIndividuals(Variation):
         The number of random individuals to generate per call
     """
     def __init__(self, variation, chromosome_generator, num_rand_indvs=1):
-        super().__init__()
+        super().__init__(variation.crossover_types, variation.mutation_types)
         self._variation = variation
         self._chromosome_generator = chromosome_generator
         self._num_rand_indvs = num_rand_indvs
 
     def __call__(self, population, number_offspring):
-        """Generates a number of random individuals and adds the to the
+        """Generates a number of random individuals and adds them to the
         population then performs variation on the new population.
 
         Parameters
@@ -45,8 +45,8 @@ class AddRandomIndividuals(Variation):
             new random individuals
         """
         children = self._variation(population, number_offspring)
-        self.mutation_offspring = self._variation.mutation_offspring
-        self.crossover_offspring = self._variation.crossover_offspring
+        self.mutation_offspring_type = self._variation.mutation_offspring_type
+        self.crossover_offspring_type = self._variation.crossover_offspring_type
         self.offspring_parents = self._variation.offspring_parents
         return self._generate_new_pop(children)
 
@@ -55,8 +55,8 @@ class AddRandomIndividuals(Variation):
             random_indv = self._chromosome_generator()
             population.append(random_indv)
         self.offspring_parents.extend([[]] * self._num_rand_indvs)
-        self.crossover_offspring = np.hstack((self.crossover_offspring,
-                                              [False] * self._num_rand_indvs))
-        self.mutation_offspring = np.hstack((self.mutation_offspring,
-                                             [False] * self._num_rand_indvs))
+        self.crossover_offspring_type = np.hstack(
+            (self.crossover_offspring_type, np.zeros(self._num_rand_indvs)))
+        self.mutation_offspring_type = np.hstack(
+            (self.mutation_offspring_type, np.zeros(self._num_rand_indvs)))
         return population

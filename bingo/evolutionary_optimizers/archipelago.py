@@ -30,9 +30,10 @@ class Archipelago(EvolutionaryOptimizer, metaclass=ABCMeta):
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the archipelago
     """
-    def __init__(self, num_islands, hall_of_fame=None):
-        super().__init__(hall_of_fame)
+
+    def __init__(self, num_islands, hall_of_fame=None, test_function=None):
         self._num_islands = num_islands
+        super().__init__(hall_of_fame, test_function)
 
     def _do_evolution(self, num_generations):
         self._coordinate_migration_between_islands()

@@ -44,9 +44,16 @@ class Island(EvolutionaryOptimizer):
         independent of the `FitnessFunction` used in evolution
 
     """
+
     @argument_validation(population_size={">=": 0})
-    def __init__(self, evolution_algorithm, generator, population_size,
-                 hall_of_fame=None, test_function=None):
+    def __init__(
+        self,
+        evolution_algorithm,
+        generator,
+        population_size,
+        hall_of_fame=None,
+        test_function=None,
+    ):
         super().__init__(hall_of_fame, test_function)
         self._generator = generator
         self.population = [generator() for _ in range(population_size)]
@@ -137,8 +144,9 @@ class Island(EvolutionaryOptimizer):
 
     def regenerate_population(self):
         """Randomly regenerates the population"""
-        self.population = [self._generator()
-                           for _ in range(len(self.population))]
+        self.population = [
+            self._generator() for _ in range(len(self.population))
+        ]
 
     def reset_fitness(self, population=None):
         """

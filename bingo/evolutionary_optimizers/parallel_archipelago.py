@@ -57,12 +57,14 @@ class ParallelArchipelago(Archipelago):
     hall_of_fame: HallOfFame
         An object containing the best individuals seen in the archipelago
     """
-    def __init__(self, island, hall_of_fame=None, non_blocking=True,
-                 sync_frequency=10):
+
+    def __init__(
+        self, island, hall_of_fame=None, non_blocking=True, sync_frequency=10, test_function=None
+    ):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
         self.comm_size = self.comm.Get_size()
-        super().__init__(self.comm_size, hall_of_fame)
+        super().__init__(self.comm_size, hall_of_fame, test_function)
         self.island = island
         self._non_blocking = non_blocking
         self._sync_frequency = sync_frequency
@@ -100,9 +102,9 @@ class ParallelArchipelago(Archipelago):
                 self._sync_frequency = 1
             self._non_blocking_execution(num_steps)
         else:
-            self.island.evolve(num_steps,
-                               hall_of_fame_update=False,
-                               suppress_logging=True)
+            self.island.evolve(
+                num_steps, hall_of_fame_update=False, suppress_logging=True
+            )
 
     def _non_blocking_execution(self, num_steps):
         if self.comm_rank == 0:
@@ -116,9 +118,11 @@ class ParallelArchipelago(Archipelago):
         target_age = average_age + num_steps
 
         while average_age < target_age:
-            self.island.evolve(self._sync_frequency,
-                               hall_of_fame_update=False,
-                               suppress_logging=True)
+            self.island.evolve(
+                self._sync_frequency,
+                hall_of_fame_update=False,
+                suppress_logging=True,
+            )
             self._gather_updated_ages(total_age)
             average_age = (sum(total_age.values())) / self.comm.size
 
@@ -129,25 +133,27 @@ class ParallelArchipelago(Archipelago):
     def _gather_updated_ages(self, total_age):
         total_age.update({0: self.island.generational_age})
         status = MPI.Status()
-        while self.comm.iprobe(source=MPI.ANY_SOURCE,
-                               tag=AGE_UPDATE,
-                               status=status):
-            data = self.comm.recv(source=status.Get_source(),
-                                  tag=AGE_UPDATE)
+        while self.comm.iprobe(
+            source=MPI.ANY_SOURCE, tag=AGE_UPDATE, status=status
+        ):
+            data = self.comm.recv(source=status.Get_source(), tag=AGE_UPDATE)
             total_age.update(data)
 
     def _send_exit_notifications(self):
         for destination in range(1, self.comm_size):
-            req = self.comm.isend(True, dest=destination,
-                                  tag=EXIT_NOTIFICATION)
+            req = self.comm.isend(
+                True, dest=destination, tag=EXIT_NOTIFICATION
+            )
             req.Wait()
 
     def _non_blocking_execution_helper(self):
         self._send_updated_age()
         while not self._has_exit_notification():
-            self.island.evolve(self._sync_frequency,
-                               hall_of_fame_update=False,
-                               suppress_logging=True)
+            self.island.evolve(
+                self._sync_frequency,
+                hall_of_fame_update=False,
+                suppress_logging=True,
+            )
             self._send_updated_age()
         self.comm.Barrier()
 
@@ -196,25 +202,32 @@ class ParallelArchipelago(Archipelago):
 
     def _population_exchange_program(self, partner):
         population_to_send = self.island.dump_fraction_of_population(0.5)
-        received_population = self.comm.sendrecv(population_to_send,
-                                                 dest=partner,
-                                                 sendtag=MIGRATION,
-                                                 source=partner,
-                                                 recvtag=MIGRATION)
+        received_population = self.comm.sendrecv(
+            population_to_send,
+            dest=partner,
+            sendtag=MIGRATION,
+            source=partner,
+            recvtag=MIGRATION,
+        )
         self.island.population += received_population
 
     def _log_evolution(self, start_time):
         elapsed_time = datetime.now() - start_time
-        LOGGER.log(DETAILED_INFO, "Evolution time %s\t age %d\t fitness %.3le",
-                   elapsed_time, self.island.generational_age,
-                   self.get_best_fitness())
+        LOGGER.log(
+            DETAILED_INFO,
+            "Evolution time %s\t age %d\t fitness %.3le",
+            elapsed_time,
+            self.island.generational_age,
+            self.get_best_fitness(),
+        )
 
     def _get_potential_hof_members(self):
         self.island.update_hall_of_fame()
         potential_members = list(self.island.hall_of_fame)
         all_potential_members = self.comm.allgather(potential_members)
-        all_potential_members = [i for hof in all_potential_members
-                                 for i in hof]
+        all_potential_members = [
+            i for hof in all_potential_members for i in hof
+        ]
         return all_potential_members
 
     def get_fitness_evaluation_count(self):
@@ -260,8 +273,9 @@ class ParallelArchipelago(Archipelago):
 
         if self.comm_rank == 0:
             with open(filename, "wb") as dump_file:
-                dill.dump(all_par_archs, dump_file,
-                          protocol=dill.HIGHEST_PROTOCOL)
+                dill.dump(
+                    all_par_archs, dump_file, protocol=dill.HIGHEST_PROTOCOL
+                )
             LOGGER.log(DETAILED_INFO, "Saved successfully")
 
     def _copy_without_mpi(self):
@@ -273,8 +287,10 @@ class ParallelArchipelago(Archipelago):
 
     def _remove_stale_checkpoint(self):
         if self.comm_rank == 0:
-            LOGGER.debug("Removing stale checkpoint file: %s",
-                         self._previous_checkpoints[0])
+            LOGGER.debug(
+                "Removing stale checkpoint file: %s",
+                self._previous_checkpoints[0],
+            )
             os.remove(self._previous_checkpoints.pop(0))
 
 
@@ -303,8 +319,9 @@ def load_parallel_archipelago_from_file(filename):
             if comm_size < loaded_size:
                 all_par_archs = all_par_archs[:comm_size]
             elif comm_size > loaded_size:
-                all_par_archs = [all_par_archs[i % loaded_size]
-                                 for i in range(comm_size)]
+                all_par_archs = [
+                    all_par_archs[i % loaded_size] for i in range(comm_size)
+                ]
     else:
         all_par_archs = None
 

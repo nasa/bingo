@@ -42,16 +42,29 @@ class GeneralizedCrowdingEA(EvolutionaryAlgorithm):
     diagnostics : `bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics`
         Public to the EA diagnostics
     """
-    def __init__(self, evaluation, crossover, mutation, crossover_probability,
-                 mutation_probability, selection=None):
+
+    def __init__(
+        self,
+        evaluation,
+        crossover,
+        mutation,
+        crossover_probability,
+        mutation_probability,
+        selection=None,
+    ):
         if selection is None:
             selection = DeterministicCrowding()
 
-        super().__init__(variation=VarAnd(crossover, mutation,
-                                          crossover_probability,
-                                          mutation_probability),
-                         evaluation=evaluation,
-                         selection=selection)
+        super().__init__(
+            variation=VarAnd(
+                crossover,
+                mutation,
+                crossover_probability,
+                mutation_probability,
+            ),
+            evaluation=evaluation,
+            selection=selection,
+        )
 
     def generational_step(self, population):
         """Performs selection on individuals.

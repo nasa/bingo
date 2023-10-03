@@ -9,6 +9,8 @@ from smcpy import ImproperUniform
 
 from .local_optimizer import LocalOptimizer
 
+import matplotlib.pyplot as plt
+
 
 class SmcpyOptimizer(LocalOptimizer):
     """An optimizer that uses SMCPy for probabilistic parameter calibration
@@ -232,6 +234,10 @@ class SmcpyOptimizer(LocalOptimizer):
         if self._uniformly_weighted_proposal:
             pdf = np.ones_like(pdf)
 
+        # print(samples)
+        # plt.hist(samples[:, 0], bins=25)
+        # plt.savefig("debug_proposal_hist_L.png")
+
         samples = dict(zip(param_names, samples.T))
         return samples, pdf
 
@@ -242,12 +248,26 @@ class SmcpyOptimizer(LocalOptimizer):
 
     def _estimate_covariance(self, individual):
         self._deterministic_optimizer(individual)
-        f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(
+        
+        # # RALPH data approx method
+        # f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(
+        #     individual
+        # )
+        # ssqe = np.sum((f) ** 2)
+        # var_ols = ssqe / len(f)
+        # cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
+
+        # LAPLACE approx
+        f, g = self._objective_fn.get_fitness_vector_and_jacobian(
             individual
         )
+        # print(f"f shape {f.shape}")
+        h = np.squeeze(individual.evaluate_with_local_opt_hessian_at(self.objective_fn.training_data.x)[1].detach().numpy(),1)
+        A = 2*np.sum(np.einsum('...i,...j->...ij', g, g) 
+                     + np.expand_dims(f, axis=(1,2))*h, axis=0)
         ssqe = np.sum((f) ** 2)
         var_ols = ssqe / len(f)
-        cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
+        cov = np.linalg.inv(A)
         return individual.constants, cov, var_ols, ssqe
 
     @staticmethod

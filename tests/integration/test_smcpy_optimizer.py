@@ -13,8 +13,10 @@ from bingo.symbolic_regression.explicit_regression import (
     ExplicitRegression as pyExplicitRegression,
 )
 from bingo.symbolic_regression.agraph.agraph import (
-    AGraph as pyagraph,
     force_use_of_python_backends,
+)
+from bingo.symbolic_regression.agraph.pytorch_agraph import (
+    PytorchAGraph as pyagraph,
 )
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression import AGraphGenerator, ComponentGenerator

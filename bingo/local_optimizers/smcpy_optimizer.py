@@ -59,6 +59,7 @@ class SmcpyOptimizer(LocalOptimizer):
         std=None,
         num_multistarts=1,
         uniformly_weighted_proposal=True,
+        reuse_starting_point=True,
     ):
 
         self._num_particles = num_particles
@@ -69,6 +70,7 @@ class SmcpyOptimizer(LocalOptimizer):
         self._uniformly_weighted_proposal = uniformly_weighted_proposal
         self._objective_fn = objective_fn
         self._deterministic_optimizer = deterministic_optimizer
+        self._reuse_starting_point = reuse_starting_point
 
         self._norm_phi = self._calculate_norm_phi()
 
@@ -192,13 +194,20 @@ class SmcpyOptimizer(LocalOptimizer):
         if not param_names:
             cov_estimates.append(self._estimate_covariance(individual))
         else:
-            for _ in range(8 * num_multistarts):
-                mean, cov, var_ols, ssqe = self._estimate_covariance(
-                    individual
-                )
+            for i in range(3 * num_multistarts):
                 try:
+                    do_det_opt = not self._reuse_starting_point or i != 0
+                    mean, cov, var_ols, ssqe = self._estimate_covariance(
+                        individual, do_det_opt
+                    )
+                    cov = 0.5*(cov + cov.T) # ensuring symmetry 
+                    evals, Q = np.linalg.eig(cov)
+                    if np.min(evals) < 0:  # this approximation attempts to correct for cov matrices that are not positive semidefinite
+                        D = np.diag(evals)
+                        D[D<0] = 0
+                        cov = Q.dot(D).dot(Q.T)
                     dists = mvn(mean, cov, allow_singular=True)
-                except ValueError as e:
+                except (ValueError, np.linalg.LinAlgError) as e:
                     continue
                 cov_estimates.append((mean, cov, var_ols, ssqe))
                 param_dists.append(dists)
@@ -240,8 +249,9 @@ class SmcpyOptimizer(LocalOptimizer):
         num_params = individual.get_number_local_optimization_params()
         return [f"p{i}" for i in range(num_params)]
 
-    def _estimate_covariance(self, individual):
-        self._deterministic_optimizer(individual)
+    def _estimate_covariance(self, individual, do_det_opt=True):
+        if do_det_opt:
+            self._deterministic_optimizer(individual)
         
         # # RALPH data approx method
         # f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(

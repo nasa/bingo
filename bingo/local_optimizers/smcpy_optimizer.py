@@ -2,10 +2,14 @@ import numpy as np
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
 
-from smcpy.mcmc.vector_mcmc import VectorMCMC
-from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
-from smcpy import AdaptiveSampler
-from smcpy import ImproperUniform
+from smcpy import (
+    VectorMCMC,
+    VectorMCMCKernel,
+    AdaptiveSampler,
+    ImproperUniform
+)
+from smcpy.paths import GeometricPath
+from smcpy.proposals import MultivarIndependent
 
 from .local_optimizer import LocalOptimizer
 
@@ -36,8 +40,6 @@ class SmcpyOptimizer(LocalOptimizer):
     num_multistarts : int
         (Optional) The number of deterministic optimizations performed when 
         developing the SMC proposal
-    uniformly_weighted_proposal : bool
-        Whether to equally weight particles in the proposal. Default True.  
 
     Attributes
     ----------
@@ -58,7 +60,6 @@ class SmcpyOptimizer(LocalOptimizer):
         ess_threshold=0.75,
         std=None,
         num_multistarts=1,
-        uniformly_weighted_proposal=True,
     ):
 
         self._num_particles = num_particles
@@ -66,7 +67,6 @@ class SmcpyOptimizer(LocalOptimizer):
         self._ess_threshold = ess_threshold
         self._std = std
         self._num_multistarts = num_multistarts
-        self._uniformly_weighted_proposal = uniformly_weighted_proposal
         self._objective_fn = objective_fn
         self._deterministic_optimizer = deterministic_optimizer
 
@@ -115,7 +115,6 @@ class SmcpyOptimizer(LocalOptimizer):
             "ess_threshold": self._ess_threshold,
             "std": self._std,
             "num_multistarts": self._num_multistarts,
-            "uniformly_weighted_proposal": self._uniformly_weighted_proposal,
         }
 
     @options.setter
@@ -130,16 +129,10 @@ class SmcpyOptimizer(LocalOptimizer):
             self._std = value["std"]
         if "num_multistarts" in value:
             self._num_multistarts = value["num_multistarts"]
-        if "uniformly_weighted_proposal" in value:
-            self._uniformly_weighted_proposal = value[
-                "uniformly_weighted_proposal"
-            ]
 
     def __call__(self, individual):
         try:
-            proposal = self._generate_proposal_samples(
-                individual, self._num_particles
-            )
+            proposal = self._generate_proposals(individual)
         except (ValueError, np.linalg.LinAlgError, RuntimeError) as e:
             return np.nan, "proposal error", e
 
@@ -149,23 +142,22 @@ class SmcpyOptimizer(LocalOptimizer):
             priors.append(ImproperUniform(0, None))
             param_names.append("std_dev")
 
-        vector_mcmc = VectorMCMC(
+        path = GeometricPath(proposal=proposal, required_phi=self._norm_phi)
+        vmcmc = VectorMCMC(
             lambda x: self.evaluate_model(x, individual),
             np.zeros(len(self.training_data)),
             priors,
             log_like_args=self._std,
         )
-        mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
-        smc = AdaptiveSampler(mcmc_kernel)
+        kernel = VectorMCMCKernel(vmcmc, param_order=param_names, path=path)
+        smc = AdaptiveSampler(kernel)
 
         try:
             step_list, marginal_log_likes = smc.sample(
-                self._num_particles,
-                self._mcmc_steps,
-                self._ess_threshold,
-                proposal=proposal,
-                required_phi=self._norm_phi,
-                progress_bar=False,
+               self._num_particles,
+               self._mcmc_steps,
+               self._ess_threshold,
+               progress_bar=False,
             )
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
             # print(e)
@@ -179,14 +171,12 @@ class SmcpyOptimizer(LocalOptimizer):
             marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]
         )
 
-        return log_nml, step_list, vector_mcmc
+        return log_nml, step_list, vmcmc
 
-    def _generate_proposal_samples(self, individual, num_samples):
+    def _generate_proposals(self, individual):
         param_names = self._get_parameter_names(individual)
-        pdf = np.ones((num_samples, 1))
-        samples = np.ones((num_samples, len(param_names)))
-
         num_multistarts = self._num_multistarts
+
         param_dists = []
         cov_estimates = []
         if not param_names:
@@ -209,7 +199,7 @@ class SmcpyOptimizer(LocalOptimizer):
                     "Could not generate any valid proposal distributions"
                 )
 
-            pdf, samples = self._get_samples_and_pdf(param_dists, num_samples)
+            param_mix_dist = MixtureDist(*param_dists)
 
         if self._std is None:
             len_data = len(self.training_data)
@@ -221,19 +211,11 @@ class SmcpyOptimizer(LocalOptimizer):
                 shape = (0.01 + len_data) / 2
                 scale = max((0.01 * var_ols + ssqe) / 2, 1e-12 * scale_data)
                 noise_dists.append(invgamma(shape, scale=scale))
-            noise_pdf, noise_samples = self._get_samples_and_pdf(
-                noise_dists, num_samples
-            )
-
             param_names.append("std_dev")
-            samples = np.concatenate((samples, np.sqrt(noise_samples)), axis=1)
-            pdf *= noise_pdf
 
-        if self._uniformly_weighted_proposal:
-            pdf = np.ones_like(pdf)
+            noise_mix_dist = MixtureDist(*noise_dists)
 
-        samples = dict(zip(param_names, samples.T))
-        return samples, pdf
+        return MultivarIndependent(param_mix_dist, noise_mix_dist)
 
     @staticmethod
     def _get_parameter_names(individual):
@@ -263,29 +245,6 @@ class SmcpyOptimizer(LocalOptimizer):
         cov = np.linalg.inv(A)
         return individual.constants, cov, var_ols, ssqe
 
-    @staticmethod
-    def _get_samples_and_pdf(distributions, num_samples):
-        sub_samples = num_samples // len(distributions)
-        samples = np.vstack(
-            [
-                proposal.rvs(sub_samples).reshape(sub_samples, -1)
-                for proposal in distributions
-            ]
-        )
-        if samples.shape[0] != num_samples:
-            missed_samples = num_samples - samples.shape[0]
-            new_samples = (
-                np.random.choice(distributions)
-                .rvs(missed_samples)
-                .reshape((missed_samples, -1))
-            )
-            samples = np.vstack([samples, new_samples])
-        pdf = np.zeros((samples.shape[0], 1))
-        for dist in distributions:
-            pdf += dist.pdf(samples).reshape(-1, 1)
-        pdf /= len(distributions)
-        return pdf, samples
-
     def evaluate_model(self, params, individual):
         individual.set_local_optimization_params(params.T)
         result = self._objective_fn.evaluate_fitness_vector(individual).T
@@ -295,3 +254,34 @@ class SmcpyOptimizer(LocalOptimizer):
             result = result.reshape(-1, len(self._objective_fn.training_data))
         return result
 
+
+class MixtureDist:
+
+    def __init__(self, *args):
+        self._dists = args
+
+    def rvs(self, num_samples):
+        candidate_samples = np.zeros((
+            len(self._dists),
+            num_samples,
+            self._dists[0].dim if hasattr(self._dists[0], 'dim') else 1
+        ))
+
+        for i, d in enumerate(self._dists):
+            candidate_samples[i, :, :] = \
+                d.rvs(num_samples).reshape(num_samples, -1)
+
+        rng = np.random.default_rng()
+        dist_indices = rng.integers(0, len(self._dists), num_samples)
+        sample_indices = np.arange(0, num_samples)
+
+        return candidate_samples[dist_indices, sample_indices, :]
+
+    def logpdf(self, x):
+        num_samples = x.shape[0]
+        pdfs = np.zeros((len(self._dists), num_samples, 1))
+
+        for i, d in enumerate(self._dists):
+            pdfs[i, :, :] = d.pdf(x).reshape(num_samples, 1)
+
+        return np.log(pdfs.sum(axis=0) / len(self._dists))

@@ -60,6 +60,7 @@ def evaluate_with_hessian(cmd_arr, x, constants, wrt_param_x_or_c):
         x = torch.from_numpy(x.T).double()
     evaluation = evaluate(cmd_arr, x, constants)
 
+    # torch_constants = _get_torch_const(constants, x.size(1))
     torch_constants = torch.from_numpy(np.array(constants)).double()
 
     deriv_argnum = 2  # wrt c
@@ -67,5 +68,12 @@ def evaluate_with_hessian(cmd_arr, x, constants, wrt_param_x_or_c):
         deriv_argnum = 1
     hessian = get_hessian(cpp_evaluate, argnums=deriv_argnum)(cmd_arr, x,
                                                               torch_constants)
+    
+    if len(hessian.shape) == 2:
+        # print("trying to correct hessian shape")
+        # print(hessian.shape)
+        hessian = hessian.unsqueeze(0).unsqueeze(1).tile(x.size(1), 1, 1, 1)
+        # print(hessian.shape)
+    
 
     return evaluation, hessian

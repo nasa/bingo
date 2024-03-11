@@ -156,10 +156,10 @@ class SmcpyOptimizer(LocalOptimizer):
 
         try:
             step_list, marginal_log_likes = smc.sample(
-               self._num_particles,
-               self._mcmc_steps,
-               self._ess_threshold,
-               progress_bar=False,
+                self._num_particles,
+                self._mcmc_steps,
+                self._ess_threshold,
+                progress_bar=False,
             )
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
             # print(e)
@@ -169,8 +169,10 @@ class SmcpyOptimizer(LocalOptimizer):
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
 
+        norm_phi = 1/np.sqrt(len(self.training_data))
+        norm_phi_index = np.argmin(np.abs(np.array(smc._phi_sequence) - norm_phi))
         log_nml = (
-            marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]
+            marginal_log_likes[-1] - marginal_log_likes[norm_phi_index]
         )
 
         return log_nml, step_list, vmcmc
@@ -219,7 +221,7 @@ class SmcpyOptimizer(LocalOptimizer):
             for _, _, var_ols, ssqe in cov_estimates:
                 shape = (0.01 + len_data) / 2
                 scale = max((0.01 * var_ols + ssqe) / 2, 1e-12 * scale_data)
-                noise_dists.append(invgamma(shape, scale=scale))
+                noise_dists.append(SqrtInvGamma(shape, scale=scale))
             param_names.append("std_dev")
 
             noise_mix_dist = MixtureDist(*noise_dists)
@@ -252,7 +254,17 @@ class SmcpyOptimizer(LocalOptimizer):
                      + np.expand_dims(f, axis=(1,2))*h, axis=0)
         ssqe = np.sum((f) ** 2)
         var_ols = ssqe / len(f)
+        # try:
         cov = np.linalg.inv(A)
+        # except np.linalg.LinAlgError:
+        #     # print(A)
+        #     # A = A+np.empty_like(A)*1e-8  # adding nugget for invertability
+        #     # print(A)
+        #     # cov = np.linalg.inv(A)
+        #     # print(cov)
+        #     cov = np.linalg.pinv(A)
+        #     # print(cov)
+
         return individual.constants, cov, var_ols, ssqe
 
     def evaluate_model(self, params, individual):
@@ -281,7 +293,7 @@ class MixtureDist:
             candidate_samples[i, :, :] = \
                 d.rvs(num_samples).reshape(num_samples, -1)
 
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(seed=np.random.randint(np.iinfo(np.int16).max))
         dist_indices = rng.integers(0, len(self._dists), num_samples)
         sample_indices = np.arange(0, num_samples)
 
@@ -295,3 +307,15 @@ class MixtureDist:
             pdfs[i, :, :] = d.pdf(x).reshape(num_samples, 1)
 
         return np.log(pdfs.sum(axis=0) / len(self._dists))
+
+
+class SqrtInvGamma:
+
+    def __init__(self, shape, scale):
+        self._dist = invgamma(shape, scale=scale)
+
+    def rvs(self, *args, **kwargs):
+        return np.sqrt(self._dist.rvs(*args, **kwargs))
+
+    def pdf(self, x, *args, **kwargs):
+        return self._dist.pdf(np.square(x), *args, **kwargs)

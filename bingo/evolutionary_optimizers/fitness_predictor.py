@@ -46,6 +46,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         self._next_trainer_to_update = 0
         self.point_eval_count = 0
         self._fitness_function = deepcopy(full_fitness_function)
+        self._full_fitness_function = deepcopy(full_fitness_function)
         self._trainers, self._true_fitness_for_trainers = \
             self._make_initial_trainer_population(potential_trainers,
                                                   num_trainers)
@@ -129,8 +130,7 @@ class FitnessPredictorFitnessFunction(FitnessFunction):
         fitness : numeric
             true (full) fitness of trainer
         """
-        self._fitness_function.training_data = self.training_data
-        predicted_fitness = self._fitness_function(trainer)
+        predicted_fitness = self._full_fitness_function(trainer)
         self.point_eval_count += len(self.training_data)
         return predicted_fitness
 

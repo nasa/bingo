@@ -3,6 +3,7 @@
 This module defines the basic form of the evaluation phase of bingo
 evolutionary algorithms.
 """
+
 from multiprocessing import Pool
 
 
@@ -36,6 +37,7 @@ class Evaluation:
     eval_count : int
         the number of fitness function evaluations that have occurred
     """
+
     def __init__(self, fitness_function, redundant=False, multiprocess=False):
         self.fitness_function = fitness_function
         self._redundant = redundant
@@ -51,7 +53,7 @@ class Evaluation:
         self.fitness_function.eval_count = value
 
     def __call__(self, population):
-        """Evaluates the fitness of an individual
+        """Evaluates the fitness of a population
 
         Parameters
         ----------
@@ -69,16 +71,15 @@ class Evaluation:
                 indv.fitness = self.fitness_function(indv)
 
     def _multiprocess_eval(self, population):
-        num_procs = self._multiprocess if isinstance(self._multiprocess, int) \
-            else None
+        num_procs = self._multiprocess if isinstance(self._multiprocess, int) else None
 
         with Pool(processes=num_procs) as pool:
             results = []
             for i, indv in enumerate(population):
                 if self._redundant or not indv.fit_set:
                     results.append(
-                            pool.apply_async(_fitness_job,
-                                             (indv, self.fitness_function, i)))
+                        pool.apply_async(_fitness_job, (indv, self.fitness_function, i))
+                    )
 
             for res in results:
                 indv, extra_evals, i = res.get()

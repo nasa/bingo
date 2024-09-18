@@ -3,6 +3,7 @@
 This file contains several classes that are used for chromosomes
 that contains a list of genetic information.
 """
+
 import numpy as np
 
 from .chromosome import Chromosome
@@ -13,7 +14,7 @@ from ..util.argument_validation import argument_validation
 
 
 class MultipleValueChromosome(Chromosome):
-    """ Multiple value individual
+    """Multiple value individual
 
     The constructor for a chromosome that holds a list
     of values as opposed to a single value.
@@ -29,6 +30,7 @@ class MultipleValueChromosome(Chromosome):
              the genetic information of the individual
 
     """
+
     def __init__(self, values):
         super().__init__()
         self.values = values
@@ -50,8 +52,17 @@ class MultipleValueChromosome(Chromosome):
         dist : float
             The distance between self and another chromosome
         """
-        dist = sum([v1 != v2 for v1, v2 in zip(self.values, other.values)])
+        dist = sum(v1 != v2 for v1, v2 in zip(self.values, other.values))
         return dist
+
+    def get_number_local_optimization_params(self):
+        raise NotImplementedError
+
+    def needs_local_optimization(self):
+        raise NotImplementedError
+
+    def set_local_optimization_params(self, params):
+        raise NotImplementedError
 
 
 class MultipleValueChromosomeGenerator(Generator):
@@ -65,6 +76,7 @@ class MultipleValueChromosomeGenerator(Generator):
     values_per_chromosome : int
         the number of values that each chromosome will hold
     """
+
     @argument_validation(values_per_chromosome={">=": 0})
     def __init__(self, random_value_function, values_per_chromosome):
         super().__init__()
@@ -106,10 +118,12 @@ class SinglePointMutation(Mutation):
     last_mutation_type : str
         the last mutation type that happened (or None)
     """
+
     def __init__(self, mutation_function):
         super().__init__()
         self.types = ["single_point"]
         self._mutation_function = mutation_function
+        self.last_mutation_type = None
 
     def __call__(self, parent):
         """Performs single-point mutation using the user-defined
@@ -149,10 +163,12 @@ class SinglePointCrossover(Crossover):
         the crossover type (or None) that happened to create the first child
         and second child, respectively
     """
+
     def __init__(self):
         super().__init__()
         self.types = ["single_point"]
         self._crossover_point = 0
+        self.last_crossover_types = (None, None)
 
     def __call__(self, parent_1, parent_2):
         """Performs single-point crossover of two parent chromosomes
@@ -174,10 +190,14 @@ class SinglePointCrossover(Crossover):
         child_1.fit_set = False
         child_2.fit_set = False
         self._crossover_point = np.random.randint(len(parent_1.values))
-        child_1.values = parent_1.values[:self._crossover_point] \
-                         + parent_2.values[self._crossover_point:]
-        child_2.values = parent_2.values[:self._crossover_point] \
-                         + parent_1.values[self._crossover_point:]
+        child_1.values = (
+            parent_1.values[: self._crossover_point]
+            + parent_2.values[self._crossover_point :]
+        )
+        child_2.values = (
+            parent_2.values[: self._crossover_point]
+            + parent_1.values[self._crossover_point :]
+        )
         if parent_1.genetic_age > parent_2.genetic_age:
             age = parent_1.genetic_age
         else:

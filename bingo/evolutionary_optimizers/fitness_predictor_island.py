@@ -14,6 +14,7 @@ Lipson [1]_.
        predictors." IEEE Transactions on Evolutionary Computation 12.6 (2008):
        736-749.
 """
+
 import logging
 from copy import copy, deepcopy
 import numpy as np
@@ -104,7 +105,9 @@ class FitnessPredictorIsland(Island):
         hall_of_fame=None,
         test_function=None,
     ):
-        super().__init__(evolution_algorithm, generator, population_size, None, test_function)
+        super().__init__(
+            evolution_algorithm, generator, population_size, None, test_function
+        )
 
         self._hof_w_true_fitness = hall_of_fame
         self._hof_w_predicted_fitness = deepcopy(hall_of_fame)
@@ -250,9 +253,7 @@ class FitnessPredictorIsland(Island):
 
     def _get_predictor_computation_ratio(self):
         predictor_expense = self._predictor_fitness_function.point_eval_count
-        island_expense = (
-            self._fitness_function.eval_count * self._predictor_size
-        )
+        island_expense = self._fitness_function.eval_count * self._predictor_size
         return predictor_expense / (predictor_expense + island_expense)
 
     def _get_potential_hof_members(self):
@@ -260,8 +261,10 @@ class FitnessPredictorIsland(Island):
         potential_members = []
         for indv_w_ped_fitness in self._hof_w_predicted_fitness:
             indv_w_true_fitness = deepcopy(indv_w_ped_fitness)
-            indv_w_true_fitness.fitness = self._predictor_fitness_function.get_true_fitness_for_trainer(
-                indv_w_true_fitness
+            indv_w_true_fitness.fitness = (
+                self._predictor_fitness_function.get_true_fitness_for_trainer(
+                    indv_w_true_fitness
+                )
             )
             potential_members.append(indv_w_true_fitness)
         return potential_members
@@ -278,7 +281,7 @@ class FitnessPredictorIsland(Island):
             The chromosomes with the lowest fitness value
         """
         best_indv = super().get_best_individual().copy()
-        best_indv.fitness = self._predictor_fitness_function.get_true_fitness_for_trainer(
-            best_indv
+        best_indv.fitness = (
+            self._predictor_fitness_function.get_true_fitness_for_trainer(best_indv)
         )
         return best_indv

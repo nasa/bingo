@@ -13,14 +13,14 @@ from .local_optimizer import LocalOptimizer
 class SmcpyOptimizer(LocalOptimizer):
     """An optimizer that uses SMCPy for probabilistic parameter calibration
 
-    A class for probabilistic parameter calibration for the parameters of a 
+    A class for probabilistic parameter calibration for the parameters of a
     `Chromosome` using SMCPy
 
     Parameters
     ----------
     objective_fn : VectorBasedFunction, VectorGradientMixin
-        A `VectorBasedFunction` with `VectorGradientMixin` (e.g., 
-        ExplicitRegression).  It should produce a vector where the target value 
+        A `VectorBasedFunction` with `VectorGradientMixin` (e.g.,
+        ExplicitRegression).  It should produce a vector where the target value
         is 0.
     deterministic_optimizer : LocalOptimizer
         A deterministic local optimizer e.g., `ScipyOptimizer`
@@ -29,15 +29,15 @@ class SmcpyOptimizer(LocalOptimizer):
     mcmc_steps : int
         The number of MCMC steps to perform with each SMC update
     ess_threshold : float (0-1)
-        The effective sample size (ratio) below which SMC particles will be 
+        The effective sample size (ratio) below which SMC particles will be
         resampled
     std : float
         (Optional) The fixed noise level, if it is known
     num_multistarts : int
-        (Optional) The number of deterministic optimizations performed when 
+        (Optional) The number of deterministic optimizations performed when
         developing the SMC proposal
     uniformly_weighted_proposal : bool
-        Whether to equally weight particles in the proposal. Default True.  
+        Whether to equally weight particles in the proposal. Default True.
 
     Attributes
     ----------
@@ -78,8 +78,8 @@ class SmcpyOptimizer(LocalOptimizer):
 
     @property
     def objective_fn(self):
-        """A `VectorBasedFunction` with `VectorGradientMixin` (e.g., 
-        ExplicitRegression). It should produce a vector where the target value 
+        """A `VectorBasedFunction` with `VectorGradientMixin` (e.g.,
+        ExplicitRegression). It should produce a vector where the target value
         is 0."""
         return self._objective_fn
 
@@ -131,15 +131,11 @@ class SmcpyOptimizer(LocalOptimizer):
         if "num_multistarts" in value:
             self._num_multistarts = value["num_multistarts"]
         if "uniformly_weighted_proposal" in value:
-            self._uniformly_weighted_proposal = value[
-                "uniformly_weighted_proposal"
-            ]
+            self._uniformly_weighted_proposal = value["uniformly_weighted_proposal"]
 
     def __call__(self, individual):
         try:
-            proposal = self._generate_proposal_samples(
-                individual, self._num_particles
-            )
+            proposal = self._generate_proposal_samples(individual, self._num_particles)
         except (ValueError, np.linalg.LinAlgError, RuntimeError) as e:
             return np.nan, "proposal error", e
 
@@ -175,9 +171,7 @@ class SmcpyOptimizer(LocalOptimizer):
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
 
-        log_nml = (
-            marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]
-        )
+        log_nml = marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]
 
         return log_nml, step_list, vector_mcmc
 
@@ -193,12 +187,10 @@ class SmcpyOptimizer(LocalOptimizer):
             cov_estimates.append(self._estimate_covariance(individual))
         else:
             for _ in range(8 * num_multistarts):
-                mean, cov, var_ols, ssqe = self._estimate_covariance(
-                    individual
-                )
+                mean, cov, var_ols, ssqe = self._estimate_covariance(individual)
                 try:
                     dists = mvn(mean, cov, allow_singular=True)
-                except ValueError as e:
+                except ValueError as _:
                     continue
                 cov_estimates.append((mean, cov, var_ols, ssqe))
                 param_dists.append(dists)
@@ -242,9 +234,7 @@ class SmcpyOptimizer(LocalOptimizer):
 
     def _estimate_covariance(self, individual):
         self._deterministic_optimizer(individual)
-        f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(
-            individual
-        )
+        f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(individual)
         ssqe = np.sum((f) ** 2)
         var_ols = ssqe / len(f)
         cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
@@ -281,4 +271,3 @@ class SmcpyOptimizer(LocalOptimizer):
             # regression and add a flatten to the scipy wrapper?
             result = result.reshape(-1, len(self._objective_fn.training_data))
         return result
-

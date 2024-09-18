@@ -3,6 +3,7 @@
 This module defines the Archipelago data structure that runs serially on
 one processor.
 """
+
 import copy
 import logging
 import numpy as np
@@ -37,7 +38,9 @@ class SerialArchipelago(Archipelago):
         An object containing the best individuals seen in the archipelago
     """
 
-    def __init__(self, template_island, num_islands=2, hall_of_fame=None, test_function=None):
+    def __init__(
+        self, template_island, num_islands=2, hall_of_fame=None, test_function=None
+    ):
         super().__init__(num_islands, hall_of_fame, test_function)
         self._template_island = template_island
         self.islands = self._generate_islands(template_island, num_islands)
@@ -79,19 +82,17 @@ class SerialArchipelago(Archipelago):
         return list_of_best_indvs[0]
 
     def get_fitness_evaluation_count(self):
-        """ Gets the number of fitness evaluations performed
+        """Gets the number of fitness evaluations performed
 
         Returns
         -------
         int :
             number of fitness evaluations
         """
-        return sum(
-            [island.get_fitness_evaluation_count() for island in self.islands]
-        )
+        return sum(island.get_fitness_evaluation_count() for island in self.islands)
 
     def get_ea_diagnostic_info(self):
-        """ Gets diagnostic info from the evolutionary algorithm(s)
+        """Gets diagnostic info from the evolutionary algorithm(s)
 
         Returns
         -------

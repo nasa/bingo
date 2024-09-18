@@ -10,17 +10,17 @@ import numpy as np
 
 
 # Fitness metric functions, outside of FitnessFunction for use in GradientMixin
-def mean_absolute_error(vector, individual=None):
+def mean_absolute_error(vector, individual=None):  # pylint: disable=unused-argument
     """Calculate the mean absolute error of an error vector"""
     return np.mean(np.abs(vector))
 
 
-def root_mean_squared_error(vector, individual=None):
+def root_mean_squared_error(vector, individual=None):  # pylint: disable=unused-argument
     """Calculate the root mean squared error of an error vector"""
     return np.sqrt(np.mean(np.square(vector)))
 
 
-def mean_squared_error(vector, individual=None):
+def mean_squared_error(vector, individual=None):  # pylint: disable=unused-argument
     """Calculate the mean squared error of an error vector"""
     return np.mean(np.square(vector))
 

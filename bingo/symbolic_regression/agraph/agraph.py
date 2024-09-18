@@ -47,9 +47,11 @@ Node      Name                                     Math
 15        hyperbolic cosine                        :math:`cosh(p1)`
 ========  =======================================  =================
 """
+
 import logging
 import numpy as np
 from sympy.core import Expr
+import warnings
 
 from .string_parsing import eq_string_to_command_array_and_constants
 from .string_generation import get_formatted_string
@@ -62,6 +64,7 @@ try:
 except ImportError:
     from .evaluation_backend import evaluation_backend
     from .simplification_backend import simplification_backend
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -113,6 +116,7 @@ class AGraph(Equation):
     constants : tuple of numeric
         numeric constants that are used in the equation
     """
+
     def __init__(self, use_simplification=False, equation=None):
         super().__init__()
 
@@ -139,8 +143,9 @@ class AGraph(Equation):
             self._needs_opt = False
             self._modified = False
         elif isinstance(equation, (Expr, str)):
-            command_array, constants = \
-                eq_string_to_command_array_and_constants(str(equation))
+            command_array, constants = eq_string_to_command_array_and_constants(
+                str(equation)
+            )
 
             self.set_local_optimization_params(constants)
             if len(constants) > 0:
@@ -195,11 +200,13 @@ class AGraph(Equation):
 
     def _update(self):
         if self._use_simplification:
-            self._simplified_command_array = \
-                simplification_backend.simplify_stack(self._command_array)
+            self._simplified_command_array = simplification_backend.simplify_stack(
+                self._command_array
+            )
         else:
-            self._simplified_command_array = \
-                simplification_backend.reduce_stack(self._command_array)
+            self._simplified_command_array = simplification_backend.reduce_stack(
+                self._command_array
+            )
 
         const_commands = self._simplified_command_array[:, 0] == CONSTANT
         num_const = np.count_nonzero(const_commands)
@@ -207,11 +214,13 @@ class AGraph(Equation):
         self._simplified_command_array[const_commands, 2] = np.arange(num_const)
 
         optimization_aggression = 0
-        if optimization_aggression == 0 \
-                and num_const <= len(self._simplified_constants):
+        if optimization_aggression == 0 and num_const <= len(
+            self._simplified_constants
+        ):
             self._simplified_constants = self._simplified_constants[:num_const]
-        elif optimization_aggression == 1 \
-                and num_const == len(self._simplified_constants):
+        elif optimization_aggression == 1 and num_const == len(
+            self._simplified_constants
+        ):
             self._simplified_constants = self._simplified_constants[:num_const]
         else:
             self._simplified_constants = (1.0,) * num_const
@@ -282,8 +291,7 @@ class AGraph(Equation):
         list of bool of length N
             Boolean values for whether each command is utilized.
         """
-        return simplification_backend.get_utilized_commands(
-            self._command_array)
+        return simplification_backend.get_utilized_commands(self._command_array)
 
     def evaluate_equation_at(self, x):
         """Evaluate the `AGraph` equation.
@@ -304,13 +312,12 @@ class AGraph(Equation):
         if self._modified:
             self._update()
         try:
-            f_of_x = \
-                evaluation_backend.evaluate(self._simplified_command_array, x,
-                                            self._simplified_constants)
+            f_of_x = evaluation_backend.evaluate(
+                self._simplified_command_array, x, self._simplified_constants
+            )
             return f_of_x
-        except (ArithmeticError, OverflowError, ValueError,
-                FloatingPointError) as err:
-            LOGGER.warning("%s in stack evaluation", err)
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
+            warnings.warn(f"{err} in stack evaluation")
             return np.full(x.shape, np.nan)
 
     def evaluate_equation_with_x_gradient_at(self, x):
@@ -333,12 +340,11 @@ class AGraph(Equation):
             self._update()
         try:
             f_of_x, df_dx = evaluation_backend.evaluate_with_derivative(
-                self._simplified_command_array, x,
-                self._simplified_constants, True)
+                self._simplified_command_array, x, self._simplified_constants, True
+            )
             return f_of_x, df_dx
-        except (ArithmeticError, OverflowError, ValueError,
-                FloatingPointError) as err:
-            LOGGER.warning("%s in stack evaluation/deriv", err)
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
+            warnings.warn(f"{err} in stack evaluation/deriv")
             nan_array = np.full(x.shape, np.nan)
             return nan_array, np.array(nan_array)
 
@@ -363,14 +369,12 @@ class AGraph(Equation):
             self._update()
         try:
             f_of_x, df_dc = evaluation_backend.evaluate_with_derivative(
-                self._simplified_command_array, x,
-                self._simplified_constants, False)
+                self._simplified_command_array, x, self._simplified_constants, False
+            )
             return f_of_x, df_dc
-        except (ArithmeticError, OverflowError, ValueError,
-                FloatingPointError) as err:
-            LOGGER.warning("%s in stack evaluation/const-deriv", err)
-            nan_array = np.full((x.shape[0], len(self._simplified_constants)),
-                                np.nan)
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
+            warnings.warn(f"{err} in stack evaluation/const-deriv")
+            nan_array = np.full((x.shape[0], len(self._simplified_constants)), np.nan)
             return nan_array, np.array(nan_array)
 
     def __str__(self):
@@ -404,8 +408,9 @@ class AGraph(Equation):
             return get_formatted_string(format_, self._command_array, tuple())
         if self._modified:
             self._update()
-        return get_formatted_string(format_, self._simplified_command_array,
-                                    self._simplified_constants)
+        return get_formatted_string(
+            format_, self._simplified_command_array, self._simplified_constants
+        )
 
     def get_complexity(self):
         """Calculate complexity of agraph equation.
@@ -448,10 +453,10 @@ class AGraph(Equation):
         agraph_duplicate._fitness = self._fitness
         agraph_duplicate._fit_set = self._fit_set
         agraph_duplicate._command_array = np.copy(self.command_array)
-        agraph_duplicate._simplified_command_array = \
-            np.copy(self._simplified_command_array)
-        agraph_duplicate._simplified_constants = \
-            tuple(self._simplified_constants)
+        agraph_duplicate._simplified_command_array = np.copy(
+            self._simplified_command_array
+        )
+        agraph_duplicate._simplified_constants = tuple(self._simplified_constants)
         agraph_duplicate._needs_opt = self._needs_opt
         agraph_duplicate._modified = self._modified
         agraph_duplicate._use_simplification = self._use_simplification

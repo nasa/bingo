@@ -3,25 +3,37 @@
 This module defines the basis of fitness evaluation in bingo evolutionary
 analyses.
 """
+
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
 
 
 # Fitness metric functions, outside of FitnessFunction for use in GradientMixin
-def mean_absolute_error(vector):
+def mean_absolute_error(vector, individual=None):
     """Calculate the mean absolute error of an error vector"""
     return np.mean(np.abs(vector))
 
 
-def root_mean_squared_error(vector):
+def root_mean_squared_error(vector, individual=None):
     """Calculate the root mean squared error of an error vector"""
     return np.sqrt(np.mean(np.square(vector)))
 
 
-def mean_squared_error(vector):
+def mean_squared_error(vector, individual=None):
     """Calculate the mean squared error of an error vector"""
     return np.mean(np.square(vector))
+
+
+def negative_nmll_laplace(vector, individual):
+    """Calculate the nmll squared error of an error vector"""
+    n = len(vector)
+    k = individual.get_number_local_optimization_params() + 1
+    b = 1 / np.sqrt(n)
+    mse = np.mean(np.square(vector))
+    log_like = -n / 2 * np.log(mse) - n / 2 - n / 2 * np.log(2 * np.pi)
+    nmll_laplace = (1 - b) * log_like + np.log(b) / 2 * k
+    return -nmll_laplace
 
 
 class FitnessFunction(metaclass=ABCMeta):
@@ -42,6 +54,7 @@ class FitnessFunction(metaclass=ABCMeta):
     training_data : TrainingData
         (Optional) data that can be used in fitness evaluation
     """
+
     def __init__(self, training_data=None):
         self.eval_count = 0
         self.training_data = training_data
@@ -80,6 +93,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
         'mean absolute error'/'mae', 'mean squared error'/'mse', and
         'root mean squared error'/'rmse'
     """
+
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data)
 
@@ -89,6 +103,8 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
             self._metric = mean_squared_error
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = root_mean_squared_error
+        elif metric in ["negative nmll laplace"]:
+            self._metric = negative_nmll_laplace
         else:
             raise ValueError("Invalid metric for Fitness Function")
 
@@ -110,7 +126,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
             fitness of the individual
         """
         fitness_vector = self.evaluate_fitness_vector(individual)
-        return self._metric(fitness_vector)
+        return self._metric(fitness_vector, individual)
 
     @abstractmethod
     def evaluate_fitness_vector(self, individual):

@@ -7,8 +7,10 @@ The classes in this module encapsulate the parts of bingo evolutionary analysis
 that are unique to explicit symbolic regression. Namely, these classes are an
 appropriate fitness evaluator and a corresponding training data container.
 """
+
 import logging
 import numpy as np
+from scipy.stats import linregress
 
 from ..evaluation.fitness_function import VectorBasedFunction
 from ..evaluation.gradient_mixin import VectorGradientMixin
@@ -33,13 +35,19 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
     relative : bool
         Whether to use relative, pointwise normalization of errors. Default:
         False.
+    use_linear_correction : bool
+        Whether to adjust outputs of equations by a least squares linear correction. Default: False.
     """
-    def __init__(self, training_data, metric="mae", relative=False):
+
+    def __init__(
+        self, training_data, metric="mae", relative=False, use_linear_correction=False
+    ):
         super().__init__(training_data, metric)
         self._relative = relative
+        self._linear_correction = use_linear_correction
 
     def evaluate_fitness_vector(self, individual):
-        """ Traditional fitness evaluation for symbolic regression
+        """Traditional fitness evaluation for symbolic regression
 
         fitness = y - f(x) where x and y are in the training_data (i.e.
         training_data.x and training_data.y) and the function f is defined by
@@ -57,6 +65,16 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
         """
         self.eval_count += 1
         f_of_x = individual.evaluate_equation_at(self.training_data.x)
+
+        if self._linear_correction:
+            try:
+                slope, intercept, _, _, _ = linregress(
+                    f_of_x.flatten(), self.training_data.y.flatten()
+                )
+                f_of_x = intercept + slope * f_of_x
+            except ValueError:
+                pass
+
         error = f_of_x - self.training_data.y
         if not self._relative:
             return np.squeeze(error)
@@ -90,14 +108,24 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
             to the individual's constants
         """
         self.eval_count += 1
-        f_of_x, df_dc = \
-            individual.evaluate_equation_with_local_opt_gradient_at(
-                    self.training_data.x)
+        f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(
+            self.training_data.x
+        )
+
+        if self._linear_correction:
+            try:
+                slope, intercept, _, _, _ = linregress(
+                    f_of_x.flatten(), self.training_data.y.flatten()
+                )
+                f_of_x = intercept + slope * f_of_x
+                df_dc *= slope
+            except ValueError:
+                pass
+
         error = f_of_x - self.training_data.y
         if not self._relative:
             return np.squeeze(error), df_dc
-        return np.squeeze(error / self.training_data.y), \
-            df_dc / self.training_data.y
+        return np.squeeze(error / self.training_data.y), df_dc / self.training_data.y
 
 
 class ExplicitTrainingData(TrainingData):
@@ -113,20 +141,21 @@ class ExplicitTrainingData(TrainingData):
     y : 2D numpy array
         dependent variable
     """
+
     def __init__(self, x, y):
         if x.ndim == 1:
             # warnings.warn("Explicit training x should be 2 dim array, " +
             #               "reshaping array")
             x = x.reshape([-1, 1])
         if x.ndim > 2:
-            raise TypeError('Explicit training x should be 2 dim array')
+            raise TypeError("Explicit training x should be 2 dim array")
 
         if y.ndim == 1:
             # warnings.warn("Explicit training y should be 2 dim array, " +
             #               "reshaping array")
             y = y.reshape([-1, 1])
         if y.ndim > 2:
-            raise TypeError('Explicit training y should be 2 dim array')
+            raise TypeError("Explicit training y should be 2 dim array")
 
         self._x = x
         self._y = y
@@ -158,7 +187,7 @@ class ExplicitTrainingData(TrainingData):
         return temp
 
     def __len__(self):
-        """ gets the length of the first dimension of the data
+        """gets the length of the first dimension of the data
 
         Returns
         -------

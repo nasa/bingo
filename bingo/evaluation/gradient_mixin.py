@@ -4,11 +4,16 @@ gradient- and jacobian-based continuous local optimization methods.
 This module defines the basis of gradient and jacobian partial derivatives
 of fitness functions used in bingo evolutionary analyses.
 """
+
 from abc import ABCMeta, abstractmethod
 import numpy as np
 
-from .fitness_function \
-    import mean_absolute_error, mean_squared_error, root_mean_squared_error
+from .fitness_function import (
+    mean_absolute_error,
+    mean_squared_error,
+    root_mean_squared_error,
+    negative_nmll_laplace,
+)
 
 
 class GradientMixin(metaclass=ABCMeta):
@@ -17,6 +22,7 @@ class GradientMixin(metaclass=ABCMeta):
     An abstract base class/mixin used to implement the gradients
     of fitness functions.
     """
+
     @abstractmethod
     def get_fitness_and_gradient(self, individual):
         """Fitness function evaluation and gradient
@@ -53,21 +59,28 @@ class VectorGradientMixin(GradientMixin):
         'mean absolute error', 'mean squared error', and
         'root mean squared error'
     """
+
     def __init__(self, training_data=None, metric="mae"):
         super().__init__(training_data, metric)
 
         if metric in ["mean absolute error", "mae"]:
             self._metric = mean_absolute_error
-            self._metric_derivative = \
+            self._metric_derivative = (
                 VectorGradientMixin._mean_absolute_error_derivative
+            )
         elif metric in ["mean squared error", "mse"]:
             self._metric = mean_squared_error
-            self._metric_derivative = \
-                VectorGradientMixin._mean_squared_error_derivative
+            self._metric_derivative = VectorGradientMixin._mean_squared_error_derivative
         elif metric in ["root mean squared error", "rmse"]:
             self._metric = root_mean_squared_error
-            self._metric_derivative = \
+            self._metric_derivative = (
                 VectorGradientMixin._root_mean_squared_error_derivative
+            )
+        elif metric in ["negative nmll laplace"]:
+            self._metric = negative_nmll_laplace
+            self._metric_derivative = (
+                VectorGradientMixin._negative_nmll_laplace_derivative
+            )
         else:
             raise ValueError("Invalid metric for vector gradient mixin")
 
@@ -90,10 +103,10 @@ class VectorGradientMixin(GradientMixin):
             fitness of the individual and the gradient of this function
             with respect to the individual's constants
         """
-        fitness_vector, jacobian = \
-            self.get_fitness_vector_and_jacobian(individual)
-        return self._metric(fitness_vector), \
-               self._metric_derivative(fitness_vector, jacobian.transpose())
+        fitness_vector, jacobian = self.get_fitness_vector_and_jacobian(individual)
+        return self._metric(fitness_vector, individual), self._metric_derivative(
+            fitness_vector, jacobian.transpose()
+        )
 
     @abstractmethod
     def get_fitness_vector_and_jacobian(self, individual):
@@ -133,5 +146,17 @@ class VectorGradientMixin(GradientMixin):
 
     @staticmethod
     def _root_mean_squared_error_derivative(fitness_vector, fitness_partials):
-        return 1/np.sqrt(np.mean(np.square(fitness_vector))) \
-               * np.mean(fitness_vector * fitness_partials, axis=1)
+        return (
+            1
+            / np.sqrt(np.mean(np.square(fitness_vector)))
+            * np.mean(fitness_vector * fitness_partials, axis=1)
+        )
+
+    @staticmethod
+    def _negative_nmll_laplace_derivative(fitness_vector, fitness_partials):
+        n = len(fitness_vector)
+        b = 1 / np.sqrt(n)
+        dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
+        dll = -0.5 * n / dmse
+        dnmll = (1 - b) * dll
+        return -dnmll

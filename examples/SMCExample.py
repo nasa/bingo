@@ -49,7 +49,10 @@ def get_training_data(equ, minx, maxx, numx, noise_ratio):
 
 
 def make_fitness_function(
-    training_data, mcmc_steps, num_particles, num_multistarts,
+    training_data,
+    mcmc_steps,
+    num_particles,
+    num_multistarts,
 ):
     fitness = ExplicitRegression(training_data=training_data, metric="mse")
 
@@ -81,7 +84,9 @@ def make_island(
     for comp in operators:
         component_generator.add_operator(comp)
     generator = AGraphGenerator(
-        stack_size, component_generator, use_simplification=True,
+        stack_size,
+        component_generator,
+        use_simplification=True,
     )
 
     # variation
@@ -111,9 +116,7 @@ def make_island(
             x.command_array, y.command_array
         ),
     )
-    island = Island(
-        ea, generator, population_size=population_size, hall_of_fame=hof
-    )
+    island = Island(ea, generator, population_size=population_size, hall_of_fame=hof)
     return island
 
 
@@ -134,11 +137,11 @@ if __name__ == "__main__":
     NUM_MULTISTARTS = 8
 
     # ISLAND PARAMS
-    POPULATION_SIZE = 100
+    POPULATION_SIZE = 20
 
     # AGRAPH PARAMS
     OPERATORS = ["+", "-", "*"]
-    STACK_SIZE = 64
+    STACK_SIZE = 16
     USE_SIMPLIFICATION = True
 
     # VARIATION PARAMS
@@ -146,12 +149,15 @@ if __name__ == "__main__":
     MUTATION_PROB = 0.4
 
     # EVOLUTION PARAMS
-    NUM_GENERATIONS = 10
+    NUM_GENERATIONS = 1
 
     np.random.seed(0)
     TRAINING_DATA = get_training_data(TRU_EQU, MINX, MAXX, NUMX, NOISE_RATIO)
     NML = make_fitness_function(
-        TRAINING_DATA, NUM_MCMC_STEPS, NUM_PARTICLES, NUM_MULTISTARTS,
+        TRAINING_DATA,
+        NUM_MCMC_STEPS,
+        NUM_PARTICLES,
+        NUM_MULTISTARTS,
     )
     ISLAND = make_island(
         NML,
@@ -162,7 +168,7 @@ if __name__ == "__main__":
         MUTATION_PROB,
     )
 
-    for _ in range(2):
+    for _ in range(NUM_GENERATIONS):
         ISLAND.evolve(1)
 
     print("HOF")

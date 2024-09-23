@@ -36,6 +36,8 @@ jobs:
     - name: Set pythonpath
       run: |
         echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
+        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+
 
     - name: Build bingocpp
       run: |

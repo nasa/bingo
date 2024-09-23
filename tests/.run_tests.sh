@@ -24,7 +24,7 @@ do
       $MPI_EXEC -n 2 coverage run --parallel-mode --source=bingo $i
     elif [ $RUN_MODE == "normal" ]
     then
-      $MPI_EXEC -n 2 python $i
+      $MPI_EXEC -n 2 --bind-to none python $i
     fi
   fi
 done

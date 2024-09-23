@@ -3,11 +3,11 @@
 set -e
 
 echo "Finding MPI install"
-MPI_EXEC=`which mpiexec`
-if [ $MPI_EXEC == ""]
-then 
-  MPI_EXEC=$(python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];print(os.path.dirname(filename)+'/mpiexec');")
-fi
+# MPI_EXEC=`which mpiexec`
+# if [ $MPI_EXEC == ""]
+# then 
+MPI_EXEC=$(python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];print(os.path.dirname(filename)+'/mpiexec');")
+# fi
 echo "found $MPI_EXEC"
 
 RUN_MODE=${1-"coverage"}

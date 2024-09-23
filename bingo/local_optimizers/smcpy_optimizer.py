@@ -1,3 +1,10 @@
+"""A module for probabilistic calibration of parameters.
+
+Probabilistic calibration of model parameters can be useful in cases where data
+is sparse and/or noisy.  Using a calibration of this type can allow for a better 
+estimate of true fitness while being a bit more robust to overfitting.
+"""
+
 import numpy as np
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
@@ -264,6 +271,19 @@ class SmcpyOptimizer(LocalOptimizer):
         return pdf, samples
 
     def evaluate_model(self, params, individual):
+        """Evaluate an individual given a set of parameters
+
+        Parameters
+        ----------
+        params : numpy array
+            parameters for which to evaluate the individual
+        individual : Equation
+            individual for which to evaluate fitness
+
+        Returns
+        -------
+        numpy array : fitness vector outputs for the individual w/ the params
+        """
         individual.set_local_optimization_params(params.T)
         result = self._objective_fn.evaluate_fitness_vector(individual).T
         if len(result.shape) < 2:

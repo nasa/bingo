@@ -9,6 +9,7 @@ that are unique to implicit symbolic regression. Namely, these classes are
 appropriate fitness evaluators, a corresponding training data container, and
 two helper functions.
 """
+
 import logging
 
 import numpy as np
@@ -20,7 +21,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ImplicitRegression(VectorBasedFunction):
-    """ Implicit Regression, version 2
+    """Implicit Regression, version 2
 
     Fitness of this metric is related to the cos of angle between between
     :math:`df_dx(x)` and :math:`dx_dt`. :math:`df_dx(x)` is calculated
@@ -36,6 +37,7 @@ class ImplicitRegression(VectorBasedFunction):
     required_params : int
         (optional) minimum number of nonzero components of dot
     """
+
     def __init__(self, training_data, required_params=None):
         super().__init__(training_data)
         self._required_params = required_params
@@ -60,7 +62,8 @@ class ImplicitRegression(VectorBasedFunction):
         """
         self.eval_count += 1
         _, df_dx = individual.evaluate_equation_with_x_gradient_at(
-            x=self.training_data.x)
+            x=self.training_data.x
+        )
 
         dot_product = df_dx * self.training_data.dx_dt
 
@@ -110,17 +113,18 @@ class ImplicitTrainingData(TrainingData):
     points where is doesnt make sense to calculate partial derivatives), they
     should be split in the input `x` by a row of np.nan.
     """
+
     def __init__(self, x, dx_dt=None):
         if x.ndim == 1:
             x = x.reshape([-1, 1])
         if x.ndim > 2:
-            raise TypeError('Explicit training x should be 2 dim array')
+            raise TypeError("Explicit training x should be 2 dim array")
 
         if dx_dt is None:
             x, dx_dt, _ = _calculate_partials(x)
         else:
             if dx_dt.ndim != 2:
-                raise TypeError('Implicit training dx_dt must be 2 dim array')
+                raise TypeError("Implicit training dx_dt must be 2 dim array")
 
         self._x = x
         self._dx_dt = dx_dt
@@ -162,28 +166,28 @@ class ImplicitTrainingData(TrainingData):
         return self._x.shape[0]
 
 
-def _calculate_partials(X):
+def _calculate_partials(x):
     """Calculate derivatives with respect to time (first dimension).
 
     Parameters
     ----------
-     X : 2d numpy array
+     x : 2d numpy array
         array for which derivatives will be calculated in the first dimension.
         Distinct trajectories can be specified by separating the datasets
-        within X by rows of np.nan
+        within x by rows of np.nan
 
     Returns
     -------
     2d numpy array :
-        updated X array and corresponding time derivatives
+        updated x array and corresponding time derivatives
     """
     # find splits
-    break_points = np.where(np.any(np.isnan(X), 1))[0].tolist()
-    break_points.append(X.shape[0])
+    break_points = np.where(np.any(np.isnan(x), 1))[0].tolist()
+    break_points.append(x.shape[0])
 
     start = 0
     for end in break_points:
-        x_seg = np.copy(X[start:end, :])
+        x_seg = np.copy(x[start:end, :])
         # calculate time derivs using filter
         time_deriv = np.empty(x_seg.shape)
         for i in range(x_seg.shape[1]):
@@ -198,11 +202,9 @@ def _calculate_partials(X):
             inds_all = np.arange(start + 3, end - 4)
         else:
             x_all = np.vstack((x_all, np.copy(x_seg)))
-            time_deriv_all = np.vstack((time_deriv_all,
-                                        np.copy(time_deriv)))
+            time_deriv_all = np.vstack((time_deriv_all, np.copy(time_deriv)))
 
-            inds_all = np.hstack((inds_all,
-                                  np.arange(start + 3, end - 4)))
+            inds_all = np.hstack((inds_all, np.arange(start + 3, end - 4)))
         start = end + 1
 
     return x_all, time_deriv_all, inds_all
@@ -265,19 +267,20 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
         evaluated at gp_i, order gp_k, over 2gp_m+1 points
         """
         if gp_k > 0:
-            gram_poly = (4. * gp_k - 2.) / (gp_k * (2. * gp_m - gp_k + 1.)) * \
-                        (gp_i * gram_polynomial(gp_i, gp_m, gp_k - 1, gp_s) +
-                         gp_s * gram_polynomial(gp_i, gp_m, gp_k - 1,
-                                                gp_s - 1)) - \
-                        ((gp_k - 1.) * (2. * gp_m + gp_k)) / \
-                        (gp_k * (2. * gp_m - gp_k + 1.)) * \
-                        gram_polynomial(gp_i, gp_m, gp_k - 2, gp_s)
+            gram_poly = (4.0 * gp_k - 2.0) / (gp_k * (2.0 * gp_m - gp_k + 1.0)) * (
+                gp_i * gram_polynomial(gp_i, gp_m, gp_k - 1, gp_s)
+                + gp_s * gram_polynomial(gp_i, gp_m, gp_k - 1, gp_s - 1)
+            ) - ((gp_k - 1.0) * (2.0 * gp_m + gp_k)) / (
+                gp_k * (2.0 * gp_m - gp_k + 1.0)
+            ) * gram_polynomial(
+                gp_i, gp_m, gp_k - 2, gp_s
+            )
 
         else:
             if gp_k == 0 and gp_s == 0:
-                gram_poly = 1.
+                gram_poly = 1.0
             else:
-                gram_poly = 0.
+                gram_poly = 0.0
         return gram_poly
 
     def gram_weight(gw_i, gw_t, gw_m, gw_n, gw_s):
@@ -288,19 +291,22 @@ def _savitzky_golay_gram(y, window_size, order, deriv=0):
         """
         weight = 0
         for k in range(gw_n + 1):
-            weight += (2. * k + 1.) * generalized_factorial(2 * gw_m, k) / \
-                      generalized_factorial(2 * gw_m + k + 1, k + 1) * \
-                      gram_polynomial(gw_i, gw_m, k, 0) * \
-                      gram_polynomial(gw_t, gw_m, k, gw_s)
+            weight += (
+                (2.0 * k + 1.0)
+                * generalized_factorial(2 * gw_m, k)
+                / generalized_factorial(2 * gw_m + k + 1, k + 1)
+                * gram_polynomial(gw_i, gw_m, k, 0)
+                * gram_polynomial(gw_t, gw_m, k, gw_s)
+            )
         return weight
 
     # fill weights
     weights = np.empty((2 * m_half_filter_size + 1, 2 * m_half_filter_size + 1))
     for i in range(-m_half_filter_size, m_half_filter_size + 1):
         for j in range(-m_half_filter_size, m_half_filter_size + 1):
-            weights[i + m_half_filter_size, j + m_half_filter_size] = \
-                gram_weight(i, j, m_half_filter_size, n_order,
-                            s_derivative_order)
+            weights[i + m_half_filter_size, j + m_half_filter_size] = gram_weight(
+                i, j, m_half_filter_size, n_order, s_derivative_order
+            )
 
     # do convolution
     y_len = len(y)

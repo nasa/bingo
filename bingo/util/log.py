@@ -3,6 +3,7 @@ This Logging module is just a simplified interface to the python built-in
 logging library.  Its sets up default logging options which are typical of most
 bingo runs.
 """
+
 import logging
 import warnings
 
@@ -56,9 +57,7 @@ def configure_logging(
     root_logger.addHandler(console_handler)
 
     if logfile is not None:
-        logfile_handler = _make_logfile_handler(
-            logfile, level, module, timestamp
-        )
+        logfile_handler = _make_logfile_handler(logfile, level, module, timestamp)
         root_logger.addHandler(logfile_handler)
 
     if stats_file is not None:
@@ -66,9 +65,7 @@ def configure_logging(
         root_logger.addHandler(stats_file_handler)
 
     if diagnostics_file is not None:
-        diagnostics_file_handler = _make_diagnostics_file_handler(
-            diagnostics_file
-        )
+        diagnostics_file_handler = _make_diagnostics_file_handler(diagnostics_file)
         root_logger.addHandler(diagnostics_file_handler)
 
 
@@ -111,9 +108,7 @@ def _get_log_level_from_verbosity(verbosity):
         return verbosity_map[verbosity]
     if isinstance(verbosity, int):
         return verbosity
-    warnings.warn(
-        "Unrecognized verbosity level provided. " "Using standard verbosity."
-    )
+    warnings.warn("Unrecognized verbosity level provided. Using standard verbosity.")
     return INFO
 
 

@@ -4,6 +4,7 @@ This module contains the implementation of a fitness function wrapper
 that will perform probabilistic local optimization of a `Chromosome` using 
 SMCPy.  The normaized marginal likelihood from the SMC optimization is returned.
 """
+
 import numpy as np
 from bingo.local_optimizers.smcpy_optimizer import SmcpyOptimizer
 from ..evaluation.fitness_function import FitnessFunction
@@ -12,7 +13,7 @@ from ..evaluation.fitness_function import FitnessFunction
 class NormalizedMarginalLikelihood(FitnessFunction):
     """Normalized marginal likelihood calculation using SMCPy
 
-    A class for fitness evaluation of individuals that have local optimization 
+    A class for fitness evaluation of individuals that have local optimization
     parameters
 
     Parameters
@@ -35,12 +36,9 @@ class NormalizedMarginalLikelihood(FitnessFunction):
     """
 
     def __init__(
-        self,
-        fitness_function,
-        deterministic_optimizer,
-        log_scale=True,
-        **kwargs
+        self, fitness_function, deterministic_optimizer, log_scale=True, **kwargs
     ):
+        # pylint: disable=super-init-not-called
         self._log_scale = log_scale
         self.optimizer = SmcpyOptimizer(
             fitness_function, deterministic_optimizer, **kwargs
@@ -70,7 +68,7 @@ class NormalizedMarginalLikelihood(FitnessFunction):
         Parameters
         ----------
         individual : `Chromosome`
-            Individual to calculate the normalized marginal likelihood of. 
+            Individual to calculate the normalized marginal likelihood of.
             Probabilistic local optimization is performed during evaluation.
 
         Returns

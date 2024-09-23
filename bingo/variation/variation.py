@@ -40,9 +40,7 @@ class Variation(metaclass=ABCMeta):
 
     def __init__(self, crossover_types=None, mutation_types=None):
         self.crossover_offspring_type = np.zeros(shape=(0,), dtype=object)
-        self._crossover_types = (
-            [] if crossover_types is None else crossover_types
-        )
+        self._crossover_types = [] if crossover_types is None else crossover_types
 
         self.mutation_offspring_type = np.zeros(shape=(0,), dtype=object)
         self._mutation_types = [] if mutation_types is None else mutation_types
@@ -50,10 +48,12 @@ class Variation(metaclass=ABCMeta):
 
     @property
     def crossover_types(self):
+        """Types of crossover allowed in variation"""
         return self._crossover_types
 
     @property
     def mutation_types(self):
+        """Types of mutation allowed in variation"""
         return self._mutation_types
 
     @abstractmethod

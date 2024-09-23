@@ -49,9 +49,9 @@ Node      Name                                     Math
 """
 
 import logging
+import warnings
 import numpy as np
 from sympy.core import Expr
-import warnings
 
 from .string_parsing import eq_string_to_command_array_and_constants
 from .string_generation import get_formatted_string

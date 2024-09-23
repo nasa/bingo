@@ -4,6 +4,7 @@ This module contains the implementation of a fitness function wrapper
 that will perform local optimization of a `Chromosome` as necessary
 using a `LocalOptimizer` before evaluating it.
 """
+
 from ..evaluation.fitness_function import FitnessFunction
 
 
@@ -29,7 +30,9 @@ class LocalOptFitnessFunction(FitnessFunction):
     training_data : `TrainingData`
         data that can be used in the wrapped fitness function
     """
+
     def __init__(self, fitness_function, optimizer):
+        # pylint: disable=super-init-not-called
         self._fitness_function = fitness_function
         self.optimizer = optimizer
 

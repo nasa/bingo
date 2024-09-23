@@ -4,12 +4,18 @@ This module contains the implementation of mutation for acyclic graph
 individuals, which is composed of 4 possible mutation strategies: command
 mutation, node mutation, parameter mutation and pruning.
 """
+
 from random import randint, randrange
 
 import numpy as np
 
-from .operator_definitions import IS_ARITY_2_MAP, IS_TERMINAL_MAP, \
-    CONSTANT, VARIABLE, INTEGER
+from .operator_definitions import (
+    IS_ARITY_2_MAP,
+    IS_TERMINAL_MAP,
+    CONSTANT,
+    VARIABLE,
+    INTEGER,
+)
 from ...chromosomes.mutation import Mutation
 from ...util.argument_validation import argument_validation
 from ...util.probability_mass_function import ProbabilityMassFunction
@@ -19,6 +25,10 @@ NODE_MUTATION = "node"
 PARAMETER_MUTATION = "parameter"
 PRUNE_MUTATION = "prune"
 FORK_MUTATION = "fork"
+
+# NOTE (David Randall): Increasing past 4 should work but has not been
+# tested
+MAX_FORK_SIZE = 4
 
 
 class AGraphMutation(Mutation):
@@ -69,30 +79,48 @@ class AGraphMutation(Mutation):
         constant.
     """
 
-    @argument_validation(command_probability={">=": 0, "<=": 1},
-                         node_probability={">=": 0, "<=": 1},
-                         parameter_probability={">=": 0, "<=": 1},
-                         prune_probability={">=": 0, "<=": 1},
-                         fork_probability={">=": 0, "<=": 1})
-    def __init__(self, component_generator, command_probability=0.2,
-                 node_probability=0.2, parameter_probability=0.2,
-                 prune_probability=0.2, fork_probability=0.2):
+    @argument_validation(
+        command_probability={">=": 0, "<=": 1},
+        node_probability={">=": 0, "<=": 1},
+        parameter_probability={">=": 0, "<=": 1},
+        prune_probability={">=": 0, "<=": 1},
+        fork_probability={">=": 0, "<=": 1},
+    )
+    def __init__(
+        self,
+        component_generator,
+        command_probability=0.2,
+        node_probability=0.2,
+        parameter_probability=0.2,
+        prune_probability=0.2,
+        fork_probability=0.2,
+    ):
         self._component_generator = component_generator
-        self._mutation_function_pmf = \
-            ProbabilityMassFunction([self._mutate_command,
-                                     self._mutate_node,
-                                     self._mutate_parameters,
-                                     self._prune_branch,
-                                     self._fork_mutation],
-                                    [command_probability,
-                                     node_probability,
-                                     parameter_probability,
-                                     prune_probability,
-                                     fork_probability])
+        self._mutation_function_pmf = ProbabilityMassFunction(
+            [
+                self._mutate_command,
+                self._mutate_node,
+                self._mutate_parameters,
+                self._prune_branch,
+                self._fork_mutation,
+            ],
+            [
+                command_probability,
+                node_probability,
+                parameter_probability,
+                prune_probability,
+                fork_probability,
+            ],
+        )
         self._last_mutation_location = None
         self.last_mutation_type = None
-        self.types = [COMMAND_MUTATION, NODE_MUTATION, PARAMETER_MUTATION,
-                      PRUNE_MUTATION, FORK_MUTATION]
+        self.types = [
+            COMMAND_MUTATION,
+            NODE_MUTATION,
+            PARAMETER_MUTATION,
+            PRUNE_MUTATION,
+            FORK_MUTATION,
+        ]
 
     def __call__(self, parent):
         """Single point mutation.
@@ -113,18 +141,17 @@ class AGraphMutation(Mutation):
         return child
 
     def _mutate_command(self, individual):
-        mutation_location = \
-            self._get_random_command_mutation_location(individual)
+        mutation_location = self._get_random_command_mutation_location(individual)
         self._last_mutation_location = mutation_location
         self.last_mutation_type = COMMAND_MUTATION
 
         old_command = individual.command_array[mutation_location]
-        new_command = \
-            self._component_generator.random_command(mutation_location)
-        while np.array_equal(new_command, old_command) \
-                or old_command[0] == new_command[0] == CONSTANT:
-            new_command = \
-                self._component_generator.random_command(mutation_location)
+        new_command = self._component_generator.random_command(mutation_location)
+        while (
+            np.array_equal(new_command, old_command)
+            or old_command[0] == new_command[0] == CONSTANT
+        ):
+            new_command = self._component_generator.random_command(mutation_location)
 
         individual.mutable_command_array[mutation_location] = new_command
 
@@ -152,11 +179,13 @@ class AGraphMutation(Mutation):
         terminals_ok = self._component_generator.get_number_of_terminals() > 1
         operators_ok = self._component_generator.get_number_of_operators() > 1
         indices = []
-        for i, (x, node) in enumerate(zip(utilized_commands,
-                                          child.command_array[:, 0])):
+        for i, (x, node) in enumerate(
+            zip(utilized_commands, child.command_array[:, 0])
+        ):
             if x:
-                if (IS_TERMINAL_MAP[node] and terminals_ok) or \
-                        (not IS_TERMINAL_MAP[node] and operators_ok):
+                if (IS_TERMINAL_MAP[node] and terminals_ok) or (
+                    not IS_TERMINAL_MAP[node] and operators_ok
+                ):
                     indices.append(i)
         index = np.random.randint(len(indices))
         return indices[index]
@@ -164,8 +193,7 @@ class AGraphMutation(Mutation):
     def _randomize_node(self, command):
         if IS_TERMINAL_MAP[command[0]]:
             command[0] = self._component_generator.random_terminal()
-            command[1] = \
-                self._component_generator.random_terminal_parameter(command[0])
+            command[1] = self._component_generator.random_terminal_parameter(command[0])
             command[2] = command[1]
         else:
             command[0] = self._component_generator.random_operator()
@@ -190,12 +218,13 @@ class AGraphMutation(Mutation):
         if self._component_generator.input_x_dimension <= 1:
             no_param_mut += [VARIABLE]
 
-        indices = [i for i, x in enumerate(utilized_commands)
-                   if x and
-                   individual.command_array[i, 0] not in no_param_mut]
+        indices = [
+            i
+            for i, x in enumerate(utilized_commands)
+            if x and individual.command_array[i, 0] not in no_param_mut
+        ]
 
-        if 1 in indices and \
-                not IS_TERMINAL_MAP[individual.command_array[1, 0]]:
+        if 1 in indices and not IS_TERMINAL_MAP[individual.command_array[1, 0]]:
             indices.remove(1)
 
         if not indices:
@@ -205,17 +234,16 @@ class AGraphMutation(Mutation):
 
     def _randomize_parameters(self, command, mutation_location):
         if IS_TERMINAL_MAP[command[0]]:
-            command[1] = \
-                self._component_generator.random_terminal_parameter(command[0])
+            command[1] = self._component_generator.random_terminal_parameter(command[0])
             command[2] = command[1]
         else:
-            command[1] = \
-                self._component_generator.random_operator_parameter(
-                    mutation_location)
+            command[1] = self._component_generator.random_operator_parameter(
+                mutation_location
+            )
             if IS_ARITY_2_MAP[command[0]]:
-                command[2] = \
-                    self._component_generator.random_operator_parameter(
-                        mutation_location)
+                command[2] = self._component_generator.random_operator_parameter(
+                    mutation_location
+                )
 
     def _prune_branch(self, individual):
         mutation_location = self._get_random_prune_location(individual)
@@ -229,25 +257,29 @@ class AGraphMutation(Mutation):
             pruned_param_num = np.random.randint(2)
         else:
             pruned_param_num = 0
-        pruned_param = individual.command_array[mutation_location,
-                                                1 + pruned_param_num]
+        pruned_param = individual.command_array[mutation_location, 1 + pruned_param_num]
 
-        for i, (node, p_1, p_2) in \
-                enumerate(individual.command_array[mutation_location:]):
+        for i, (node, p_1, p_2) in enumerate(
+            individual.command_array[mutation_location:]
+        ):
             if not IS_TERMINAL_MAP[node]:
                 if p_1 == mutation_location:
-                    individual.mutable_command_array[
-                        mutation_location + i, 1] = pruned_param
+                    individual.mutable_command_array[mutation_location + i, 1] = (
+                        pruned_param
+                    )
                 if p_2 == mutation_location:
-                    individual.mutable_command_array[
-                        mutation_location + i, 2] = pruned_param
+                    individual.mutable_command_array[mutation_location + i, 2] = (
+                        pruned_param
+                    )
 
     @staticmethod
     def _get_random_prune_location(individual):
         utilized_commands = individual.get_utilized_commands()
-        indices = [i for i, x in enumerate(utilized_commands[:-1])
-                   if x and
-                   not IS_TERMINAL_MAP[individual.command_array[i, 0]]]
+        indices = [
+            i
+            for i, x in enumerate(utilized_commands[:-1])
+            if x and not IS_TERMINAL_MAP[individual.command_array[i, 0]]
+        ]
         if not indices:
             return None
         index = np.random.randint(len(indices))
@@ -263,9 +295,6 @@ class AGraphMutation(Mutation):
         individual : `AGraph`
             individual to mutate on
         """
-        # NOTE (David Randall): Increasing past 4 should work but has not been
-        # tested
-        MAX_FORK_SIZE = 4
 
         utilized_commands = individual.get_utilized_commands()
         n_unutilized_commands = utilized_commands.count(False)
@@ -282,22 +311,24 @@ class AGraphMutation(Mutation):
         mutation_location = np.random.choice(inds)
         stack = individual.mutable_command_array
 
-        new_stack, new_utilized_commands, index_shifts, \
-        mutated_command_location, unutilized_range = \
-            self._move_utilized_commands(stack, utilized_commands,
-                                         mutation_location)
+        (
+            new_stack,
+            new_utilized_commands,
+            index_shifts,
+            mutated_command_location,
+            unutilized_range,
+        ) = self._move_utilized_commands(stack, utilized_commands, mutation_location)
         self._fix_indices(new_stack, new_utilized_commands, index_shifts)
 
-        new_stack = self._insert_fork(new_stack, fork_size,
-                                      mutated_command_location,
-                                      *unutilized_range)
+        new_stack = self._insert_fork(
+            new_stack, fork_size, mutated_command_location, *unutilized_range
+        )
         individual.mutable_command_array[:] = new_stack
 
         self._last_mutation_location = mutation_location
         self.last_mutation_type = FORK_MUTATION
 
-    def _insert_fork(self, stack, fork_size, mutated_command_location, start_i,
-                     end_i):
+    def _insert_fork(self, stack, fork_size, mutated_command_location, start_i, end_i):
         """
         Inserts commands/a fork of size fork_size in the stack's
         unutilized command section
@@ -311,43 +342,50 @@ class AGraphMutation(Mutation):
 
             for i in range(start_i, start_i + fork_size):
                 if i < start_i + n_terminals:
-                    stack[i] = \
-                        self._component_generator.random_terminal_command()
+                    stack[i] = self._component_generator.random_terminal_command()
                     # insert terminals
                 elif i == start_i + fork_size - 1:
                     # make sure end of the stack is always a utilized command
-                    stack[end_i] = \
-                        np.array([arity_2_op, mutated_command_location,
-                                  randrange(start_i, i)], dtype=int)
+                    stack[end_i] = np.array(
+                        [arity_2_op, mutated_command_location, randrange(start_i, i)],
+                        dtype=int,
+                    )
                     # insert an arity 2 operator that
                     # links to the mutated_command
                 else:
-                    stack[i] = \
-                        np.array([self._component_generator.random_operator(),
-                                  randrange(start_i, i), randrange(start_i, i)],
-                                 dtype=int)
+                    stack[i] = np.array(
+                        [
+                            self._component_generator.random_operator(),
+                            randrange(start_i, i),
+                            randrange(start_i, i),
+                        ],
+                        dtype=int,
+                    )
                     # insert a random operator that connects
                     # to previously generated commands in the fork
         except RuntimeError:  # case where we only have ar1 ops
             for i in range(start_i, start_i + fork_size):
                 if i == start_i:
-                    stack[i] = \
-                        np.array([self._component_generator.random_operator(),
-                                  mutated_command_location,
-                                  mutated_command_location],
-                                 dtype=int)
+                    stack[i] = np.array(
+                        [
+                            self._component_generator.random_operator(),
+                            mutated_command_location,
+                            mutated_command_location,
+                        ],
+                        dtype=int,
+                    )
                     # insert a random operator that links to the mutated command
                 elif i == start_i + fork_size - 1:
                     # make sure end of the stack is always a utilized command
-                    stack[end_i] = \
-                        np.array([self._component_generator.random_operator(),
-                                  i - 1,
-                                  i - 1], dtype=int)
+                    stack[end_i] = np.array(
+                        [self._component_generator.random_operator(), i - 1, i - 1],
+                        dtype=int,
+                    )
                 else:
-                    stack[i] = \
-                        np.array([self._component_generator.random_operator(),
-                                  i - 1,
-                                  i - 1], dtype=int)
+                    stack[i] = np.array(
+                        [self._component_generator.random_operator(), i - 1, i - 1],
+                        dtype=int,
+                    )
                     # insert a random operator that connects
                     # to the previous command in the fork
         return stack
@@ -372,8 +410,9 @@ class AGraphMutation(Mutation):
         unutilized = []
         after_mutation_location = []
 
-        for i, stack_util_index_tuple in \
-                enumerate(zip(stack, utilized_commands, indices)):
+        for i, stack_util_index_tuple in enumerate(
+            zip(stack, utilized_commands, indices)
+        ):
             if stack_util_index_tuple[1]:  # if utilized
                 if i <= mutation_location:
                     before_mutation_location.append(stack_util_index_tuple)
@@ -382,22 +421,28 @@ class AGraphMutation(Mutation):
             else:
                 unutilized.append(stack_util_index_tuple)
 
-        final_tuples = before_mutation_location + unutilized + \
-                       after_mutation_location
+        final_tuples = before_mutation_location + unutilized + after_mutation_location
         new_stack, new_utilized_commands, new_indices = zip(*final_tuples)
 
         index_shifts = dict(zip(new_indices, indices))  # dictionary that shows
         # how to translate old indices to new indices
         mutated_command_location = index_shifts[mutation_location]
-        index_shifts[mutation_location] = \
+        index_shifts[mutation_location] = (
             len(before_mutation_location) + len(unutilized) - 1
+        )
         # change the mutation location
         # to be at the end of the unutilized commands
 
-        return np.array(new_stack), list(new_utilized_commands), \
-               index_shifts, mutated_command_location, \
-               [len(before_mutation_location),
-                len(before_mutation_location) + len(unutilized) - 1]
+        return (
+            np.array(new_stack),
+            list(new_utilized_commands),
+            index_shifts,
+            mutated_command_location,
+            [
+                len(before_mutation_location),
+                len(before_mutation_location) + len(unutilized) - 1,
+            ],
+        )
 
     def _fix_indices(self, stack, utilized_commands, index_shifts):
         """
@@ -407,8 +452,7 @@ class AGraphMutation(Mutation):
         """
         non_terminals = ~np.vectorize(IS_TERMINAL_MAP.get)(stack[:, 0])
         utilized_operators = np.logical_and(non_terminals, utilized_commands)
-        index_shifts = \
-            dict(sorted(index_shifts.items(), key=lambda pair: pair[0]))
+        index_shifts = dict(sorted(index_shifts.items(), key=lambda pair: pair[0]))
         index_values = np.array(list(index_shifts.values()))
         # convert index_shifts to an array corresponding to how each index
         # has changed e.g. [0, 2, 1] means that index 0 stayed the same
@@ -416,19 +460,17 @@ class AGraphMutation(Mutation):
 
         # convert parameters in utilized operators according to index shifts
         for i in range(1, 3):
-            stack[utilized_operators, i] = \
-                index_values[stack[utilized_operators, i]]
+            stack[utilized_operators, i] = index_values[stack[utilized_operators, i]]
 
         # fix any non-terminal command parameters that are invalid
         # by generating new ones
         indices = np.array(range(len(stack)))[non_terminals]
         for i in range(1, 3):
-            indices_to_fix = \
-                indices[np.where(stack[non_terminals][:, i] >= indices)[0]]
+            indices_to_fix = indices[np.where(stack[non_terminals][:, i] >= indices)[0]]
             if len(indices_to_fix) > 0:
                 stack[:, i][indices_to_fix] = np.vectorize(
-                        self._component_generator.random_operator_parameter)(
-                        indices_to_fix)
+                    self._component_generator.random_operator_parameter
+                )(indices_to_fix)
 
     def _get_arity_operator(self, arity):
         """
@@ -440,15 +482,13 @@ class AGraphMutation(Mutation):
         if arity == 1:
             while operator is None or IS_ARITY_2_MAP[operator]:
                 if attempts >= 100:
-                    raise RuntimeError("Could not generate arity "
-                                       f"{arity} operator")
+                    raise RuntimeError("Could not generate arity " f"{arity} operator")
                 operator = self._component_generator.random_operator()
                 attempts += 1
         else:
             while operator is None or not IS_ARITY_2_MAP[operator]:
                 if attempts >= 100:
-                    raise RuntimeError("Could not generate arity "
-                                       f"{arity} operator")
+                    raise RuntimeError("Could not generate arity " f"{arity} operator")
                 operator = self._component_generator.random_operator()
                 attempts += 1
         return operator

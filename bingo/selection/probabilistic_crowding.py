@@ -5,6 +5,7 @@ algorithm in bingo analyses. The next generation is selected by pairing parents
 with their offspring and selecting the child with a probility that is related
 to the fitness of the paired child and parent.
 """
+
 import numpy as np
 from .generalized_crowding import GeneralizedCrowding
 
@@ -21,7 +22,7 @@ class ProbabilisticCrowding(GeneralizedCrowding):
     log_scale : bool
         Whether fitnesses of the individuals is in log space. Default True.
     negative : bool
-        Whether to invert the fitness of the individual (before log). Default 
+        Whether to invert the fitness of the individual (before log). Default
         True.
     """
 
@@ -48,4 +49,3 @@ class ProbabilisticCrowding(GeneralizedCrowding):
         else:
             prob = c_fit / (p_fit + c_fit)
         return child if np.random.random() < prob else parent
-

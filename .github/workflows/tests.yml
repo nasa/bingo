@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository and submodules
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
 
@@ -20,9 +20,10 @@ jobs:
         python-version: 3.12
 
     - name: Install MPI
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mpich libmpich-dev
+      uses: mpi4py/setup-mpi@v1
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y mpich libmpich-dev
 
     - name: Install dependencies
       run: |

@@ -3,11 +3,11 @@
 set -e
 
 echo "Finding MPI install"
-# MPI_EXEC=`which mpiexec`
-# if [ $MPI_EXEC == ""]
-# then 
-MPI_EXEC=$(python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];print(os.path.dirname(filename)+'/mpiexec');")
-# fi
+MPI_EXEC=`which mpiexec`
+if [ $MPI_EXEC == ""]
+then 
+  MPI_EXEC=$(python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];print(os.path.dirname(filename)+'/mpiexec');")
+fi
 echo "found $MPI_EXEC"
 
 RUN_MODE=${1-"coverage"}
@@ -21,10 +21,10 @@ do
     echo "Running mpitest: $i in $RUN_MODE mode"
     if [ $RUN_MODE == "coverage" ]
     then
-      $MPI_EXEC -np 3 coverage run --parallel-mode --source=bingo $i
+      $MPI_EXEC -np 2 coverage run --parallel-mode --source=bingo $i
     elif [ $RUN_MODE == "normal" ]
     then
-      $MPI_EXEC -np 3 python $i
+      $MPI_EXEC -np 2 python $i
     fi
   fi
 done

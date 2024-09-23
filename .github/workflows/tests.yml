@@ -37,6 +37,7 @@ jobs:
       run: |
         echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
         echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
+        echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
 
 
     - name: Build bingocpp

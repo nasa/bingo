@@ -21,10 +21,10 @@ do
     echo "Running mpitest: $i in $RUN_MODE mode"
     if [ $RUN_MODE == "coverage" ]
     then
-      $MPI_EXEC -n 3 coverage run --parallel-mode --source=bingo $i
+      $MPI_EXEC -n 2 coverage run --parallel-mode --source=bingo $i
     elif [ $RUN_MODE == "normal" ]
     then
-      $MPI_EXEC -n 3 python $i
+      $MPI_EXEC -n 2 python $i
     fi
   fi
 done

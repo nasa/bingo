@@ -131,6 +131,9 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         # TODO make private attribute,
         #  as well as other attributes not defined in __init__?
         self.generator = None
+        self.component_generator = None
+        self.mutation = None
+        self.crossover = None
         self.best_ind = None
 
         self.random_state = random_state
@@ -190,16 +193,16 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
     # pylint: disable=attribute-defined-outside-init
     def _get_archipelago(self, X, y, n_processes):
-        component_generator = ComponentGenerator(X.shape[1])
+        self.component_generator = ComponentGenerator(X.shape[1])
         for operator in self.operators:
-            component_generator.add_operator(operator)
+            self.component_generator.add_operator(operator)
 
-        crossover = AGraphCrossover()
-        mutation = AGraphMutation(component_generator)
+        self.crossover = AGraphCrossover()
+        self.mutation = AGraphMutation(self.component_generator)
 
         self.generator = AGraphGenerator(
             self.stack_size,
-            component_generator,
+            self.component_generator,
             use_simplification=self.use_simplification,
             use_python=True,
         )
@@ -211,8 +214,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             evo_alg = self.evolutionary_algorithm(
                 evaluator,
                 self.generator,
-                crossover,
-                mutation,
+                self.crossover,
+                self.mutation,
                 self.crossover_prob,
                 self.mutation_prob,
                 self.population_size,
@@ -220,8 +223,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         elif self.evolutionary_algorithm == GeneralizedCrowdingEA:
             evo_alg = self.evolutionary_algorithm(
                 evaluator,
-                crossover,
-                mutation,
+                self.crossover,
+                self.mutation,
                 self.crossover_prob,
                 self.mutation_prob,
             )

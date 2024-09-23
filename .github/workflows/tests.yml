@@ -33,7 +33,6 @@ jobs:
     - name: Set pythonpath
       run: |
         echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
-        echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
 
     - name: Set safe forking var
       run: |

@@ -21,9 +21,6 @@ jobs:
 
     - name: Install MPI
       uses: mpi4py/setup-mpi@v1
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y mpich libmpich-dev
 
     - name: Install dependencies
       run: |
@@ -36,9 +33,11 @@ jobs:
     - name: Set pythonpath
       run: |
         echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
-        echo "OMP_NUM_THREADS=1" >> $GITHUB_ENV
         echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
 
+    - name: Set safe forking var
+      run: |
+        echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
 
     - name: Build bingocpp
       run: |

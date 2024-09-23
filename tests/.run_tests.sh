@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
 set -e
+echo "importing os"
+python -c "import mpi4py;"
+echo "importing mpi4py"
+python -c "import os;"
+echo "getting filename"
+python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];"
 echo "Finding MPI install"
 MPI_EXEC=$(python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];print(os.path.dirname(filename)+'/mpiexec');")
 echo $MPI_EXEC

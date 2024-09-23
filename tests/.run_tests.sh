@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 set -e
-
+echo "Finding MPI install"
 MPI_EXEC=$(python -c "import mpi4py;import os;filename = next(iter(mpi4py.get_config().items()))[1];print(os.path.dirname(filename)+'/mpiexec');")
+echo $MPI_EXEC
 RUN_MODE=${1-"coverage"}
+echo $RUN_MODE
 
 echo "Running tests in $RUN_MODE mode"
 

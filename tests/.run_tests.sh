@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
 
 set -e
-echo "importing os"
-python -c "import mpi4py;"
-echo "importing mpi4py"
-python -c "import os;"
-echo "getting mpi4py config"
-which mpirun
-MPI_EXEC=$(python -c "import mpi4py;import os;print(mpi4py.get_config());")
-echo $MPI_EXEC
-python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];"
-echo "Finding MPI install"
-MPI_EXEC=$(python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];print(os.path.dirname(filename)+'/mpiexec');")
-echo $MPI_EXEC
-RUN_MODE=${1-"coverage"}
-echo $RUN_MODE
 
+echo "Finding MPI install"
+MPI_EXEC=`which mpiexec`
+if [ $MPI_EXEC == ""]
+then 
+  MPI_EXEC=$(python -c "import mpi4py;import os;filename = list(mpi4py.get_config().values())[0];print(os.path.dirname(filename)+'/mpiexec');")
+fi
+echo "found $MPI_EXEC"
+
+RUN_MODE=${1-"coverage"}
 echo "Running tests in $RUN_MODE mode"
 
 # run mpi tests

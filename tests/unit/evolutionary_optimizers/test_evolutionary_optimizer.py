@@ -4,6 +4,8 @@
 import pytest
 import os
 from collections import namedtuple
+from time import sleep, time
+import numpy as np
 
 from bingo.evolutionary_optimizers.evolutionary_optimizer import (
     EvolutionaryOptimizer,
@@ -12,7 +14,12 @@ from bingo.evolutionary_optimizers.evolutionary_optimizer import (
 from bingo.stats.hall_of_fame import HallOfFame
 
 
-DummyIndv = namedtuple("DummyIndv", ["fitness",])
+DummyIndv = namedtuple(
+    "DummyIndv",
+    [
+        "fitness",
+    ],
+)
 
 
 class DummyDiagnostics:
@@ -27,9 +34,7 @@ class DummyDiagnostics:
 
 
 class DummyEO(EvolutionaryOptimizer):
-    def __init__(
-        self, convergence_rate, hall_of_fame=None, test_function=None
-    ):
+    def __init__(self, convergence_rate, hall_of_fame=None, test_function=None):
         self.best_fitness = 1.0
         self.convergence_rate = convergence_rate
         super().__init__(hall_of_fame, test_function)
@@ -52,6 +57,52 @@ class DummyEO(EvolutionaryOptimizer):
 
     def _get_potential_hof_members(self):
         return [DummyIndv(self.best_fitness)]
+
+
+def get_gamma_params(mean, std):
+    scale = std**2 / mean
+    shape = mean**2 / std**2
+    return shape, scale
+
+
+class DummyVariableTimeEO(EvolutionaryOptimizer):
+    def __init__(
+        self,
+        evo_time_mean,
+        evo_time_std,
+        evo_time_slowdown,
+        hall_of_fame=None,
+        test_function=None,
+    ):
+        self._evo_mean = evo_time_mean
+        self._evo_std = evo_time_std
+        self._evo_slowdown = evo_time_slowdown
+        super().__init__(hall_of_fame, test_function)
+
+    def _do_evolution(self, num_generations):
+        wait_time = 0
+        for _ in range(num_generations):
+            wait_time += np.random.gamma(
+                *get_gamma_params(self._evo_mean, self._evo_std)
+            )
+            self._evo_mean += self._evo_slowdown
+            self.generational_age += 1
+        sleep(wait_time)
+
+    def get_best_fitness(self):
+        return 1.0
+
+    def get_best_individual(self):
+        return DummyIndv(1.0)
+
+    def get_fitness_evaluation_count(self):
+        return 0
+
+    def get_ea_diagnostic_info(self):
+        return DummyDiagnostics()
+
+    def _get_potential_hof_members(self):
+        return [DummyIndv(1.0)]
 
 
 @pytest.fixture
@@ -220,9 +271,7 @@ def test_dump_then_load(converging_eo):
     converging_eo.evolve(1)
     converging_eo.dump_to_file("testing_dump_and_load.pkl")
     converging_eo.evolve(1)
-    converging_eo = load_evolutionary_optimizer_from_file(
-        "testing_dump_and_load.pkl"
-    )
+    converging_eo = load_evolutionary_optimizer_from_file("testing_dump_and_load.pkl")
 
     assert 1 == converging_eo.generational_age
     converging_eo.evolve(1)
@@ -278,12 +327,27 @@ def test_hof_integration(converging_eo):
 
 def test_that_test_function_is_used(mocker):
     mocked_test_function = mocker.Mock(return_value=1.0)
-    convergeing_eo_with_test_func = DummyEO(
-        0.5, test_function=mocked_test_function
-    )
+    convergeing_eo_with_test_func = DummyEO(0.5, test_function=mocked_test_function)
     _ = convergeing_eo_with_test_func.evolve_until_convergence(
         max_generations=2,
         convergence_check_frequency=1,
         fitness_threshold=0.126,
     )
     assert mocked_test_function.call_count == 3
+
+
+def test_strict_time_limit():
+    np.random.seed(0)
+    eo = DummyVariableTimeEO(0.01, 0.02, 0)
+    max_time = 1.0
+    t0 = time()
+    optim_result = eo.evolve_until_convergence(
+        max_generations=9e99,
+        convergence_check_frequency=20,
+        fitness_threshold=0,
+        max_time=max_time,
+    )
+    elapsed_time = time() - t0
+
+    assert elapsed_time < max_time
+    assert optim_result.status == 5

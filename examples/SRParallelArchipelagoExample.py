@@ -5,19 +5,19 @@ import numpy as np
 from mpi4py import MPI
 
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
-from bingo.evolutionary_optimizers.parallel_archipelago \
-    import ParallelArchipelago
+from bingo.evolutionary_optimizers.parallel_archipelago import ParallelArchipelago
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
-from bingo.local_optimizers.local_opt_fitness \
-    import LocalOptFitnessFunction
-from bingo.symbolic_regression import ComponentGenerator, \
-                                      AGraphGenerator, \
-                                      AGraphCrossover, \
-                                      AGraphMutation, \
-                                      ExplicitRegression, \
-                                      ExplicitTrainingData
+from bingo.local_optimizers.local_opt_fitness import LocalOptFitnessFunction
+from bingo.symbolic_regression import (
+    ComponentGenerator,
+    AGraphGenerator,
+    AGraphCrossover,
+    AGraphMutation,
+    ExplicitRegression,
+    ExplicitTrainingData,
+)
 
 POP_SIZE = 100
 STACK_SIZE = 10
@@ -28,7 +28,7 @@ def init_x_vals(start, stop, num_points):
 
 
 def equation_eval(x):
-    return x**2 + 3.5*x**3
+    return x**2 + 3.5 * x**3
 
 
 def execute_generational_steps():
@@ -58,19 +58,21 @@ def execute_generational_steps():
     agraph_generator = AGraphGenerator(STACK_SIZE, component_generator)
 
     fitness = ExplicitRegression(training_data=training_data)
-    optimizer = ScipyOptimizer(fitness, method='lm')
+    optimizer = ScipyOptimizer(fitness, method="lm")
     local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
     evaluator = Evaluation(local_opt_fitness)
 
-    ea = AgeFitnessEA(evaluator, agraph_generator, crossover,
-                      mutation, 0.4, 0.4, POP_SIZE)
+    ea = AgeFitnessEA(
+        evaluator, agraph_generator, crossover, mutation, 0.4, 0.4, POP_SIZE
+    )
 
     island = Island(ea, agraph_generator, POP_SIZE)
 
     archipelago = ParallelArchipelago(island)
 
-    opt_result = archipelago.evolve_until_convergence(max_generations=500,
-                                                      fitness_threshold=1.0e-4)
+    opt_result = archipelago.evolve_until_convergence(
+        max_generations=500, fitness_threshold=1.0e-4
+    )
     best_indv = archipelago.get_best_individual()
     if opt_result.success:
         if rank == 0:
@@ -81,7 +83,5 @@ def main():
     execute_generational_steps()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-    
-

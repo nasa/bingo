@@ -3,6 +3,7 @@ This module contains the basic structure for evolutionary optimization in
 bingo.  The general framework allows access to an evolve_until_convergence
 function.
 """
+
 from abc import ABCMeta, abstractmethod
 from collections import namedtuple
 import os
@@ -13,6 +14,7 @@ import dill
 
 from ..util.argument_validation import argument_validation
 from ..util.log import INFO, DETAILED_INFO
+from .checkpoint_controller import CheckpointController
 
 LOGGER = logging.getLogger(__name__)
 STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
@@ -33,7 +35,7 @@ OptimizeResult = namedtuple(
 
 
 class EvolutionaryOptimizer(metaclass=ABCMeta):
-    """ Fundamental bingo object that coordinates evolutionary optimization
+    """Fundamental bingo object that coordinates evolutionary optimization
 
     Abstract base class for evolutionary optimization.  The primary role of
     this class is to house the evolve_until_convergence function. Classes which
@@ -129,16 +131,18 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         start_time = datetime.now()
         self._starting_age = self.generational_age
         self._update_best_fitness()
-        self._update_checkpoints(
-            checkpoint_base_name, num_checkpoints, reset=True
-        )
+        self._update_checkpoints(checkpoint_base_name, num_checkpoints, reset=True)
         self._log_optimization(start_time)
+        checkpoint_timer = CheckpointController(
+            start_time, max_time, convergence_check_frequency
+        )
 
         while self.generational_age - self._starting_age < min_generations:
             self.evolve(convergence_check_frequency)
             self._update_best_fitness()
             self._update_checkpoints(checkpoint_base_name, num_checkpoints)
             self._log_optimization(start_time)
+            checkpoint_timer.record_check(convergence_check_frequency)
 
         _exit, result = self._check_exit_criteria(
             fitness_threshold,
@@ -146,16 +150,19 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             max_fitness_evaluations,
             max_time,
             start_time,
+            checkpoint_timer.estimate_remaining_checkpoints(),
         )
         if _exit:
             self._log_exit(result)
             return result
 
         while self.generational_age - self._starting_age < max_generations:
-            self.evolve(convergence_check_frequency)
+            gens_to_evolve = checkpoint_timer.get_gens_to_evolve()
+            self.evolve(gens_to_evolve)
             self._update_best_fitness()
             self._update_checkpoints(checkpoint_base_name, num_checkpoints)
             self._log_optimization(start_time)
+            checkpoint_timer.record_check(gens_to_evolve)
 
             _exit, result = self._check_exit_criteria(
                 fitness_threshold,
@@ -163,6 +170,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                 max_fitness_evaluations,
                 max_time,
                 start_time,
+                checkpoint_timer.estimate_remaining_checkpoints(),
             )
             if _exit:
                 self._log_exit(result)
@@ -223,9 +231,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         STATS_LOGGER.log(INFO, stats_string)
 
     def _log_diagnostics(self, elapsed_time):
-        diag_string = (
-            f"{self.generational_age}, {elapsed_time.total_seconds():e}, "
-        )
+        diag_string = f"{self.generational_age}, {elapsed_time.total_seconds():e}, "
         diagnostics = self.get_ea_diagnostic_info()
         diag_string += ", ".join([str(i) for i in diagnostics.get_log_stats()])
         DIAGNOSTICS_LOGGER.log(INFO, diag_string)
@@ -236,16 +242,12 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if last_best_fitness is None or self._best_fitness < last_best_fitness:
             self._fitness_improvement_age = self.generational_age
 
-    def _update_checkpoints(
-        self, checkpoint_base_name, num_checkpoints, reset=False
-    ):
+    def _update_checkpoints(self, checkpoint_base_name, num_checkpoints, reset=False):
         if reset:
             self._previous_checkpoints = []
 
         if checkpoint_base_name is not None:
-            checkpoint_file_name = (
-                f"{checkpoint_base_name}_{self.generational_age}.pkl"
-            )
+            checkpoint_file_name = f"{checkpoint_base_name}_{self.generational_age}.pkl"
             self.dump_to_file(checkpoint_file_name)
             if num_checkpoints is not None:
                 self._previous_checkpoints.append(checkpoint_file_name)
@@ -265,6 +267,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         max_fitness_evaluations,
         max_time,
         start_time,
+        estimated_remaining_checkpoints,
     ):
         if self._convergence(fitness_threshold):
             return (
@@ -279,12 +282,16 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if self._hit_max_evals(max_fitness_evaluations):
             return (
                 True,
-                self._make_optim_result(
-                    3, start_time, max_fitness_evaluations
-                ),
+                self._make_optim_result(3, start_time, max_fitness_evaluations),
             )
         if self._hit_time_limit(max_time, start_time):
             return True, self._make_optim_result(4, start_time, max_time)
+        if self._not_enough_time_for_another_checkpoint(
+            estimated_remaining_checkpoints
+        ):
+            return True, self._make_optim_result(
+                5, start_time, estimated_remaining_checkpoints
+            )
         return False, None
 
     def _convergence(self, threshold):
@@ -308,14 +315,19 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         run_time = (datetime.now() - start_time).total_seconds()
         return run_time >= threshold
 
+    @staticmethod
+    def _not_enough_time_for_another_checkpoint(estimated_remaining_checkpoints):
+        if estimated_remaining_checkpoints is None:
+            return False
+        return estimated_remaining_checkpoints < 0.25
+
     def _make_optim_result(self, status, start_time, aux_info):
         ngen = self.generational_age - self._starting_age
         run_time = (datetime.now() - start_time).total_seconds()
         ea_diagnostics = self.get_ea_diagnostic_info().summary
         if status == 0:
             message = (
-                "Absolute convergence occurred with best fitness < "
-                + f"{aux_info}"
+                "Absolute convergence occurred with best fitness < " + f"{aux_info}"
             )
             success = True
         elif status == 1:
@@ -326,8 +338,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             success = False
         elif status == 2:
             message = (
-                "The maximum number of generational steps "
-                + f"({aux_info}) occurred"
+                "The maximum number of generational steps " + f"({aux_info}) occurred"
             )
             success = False
         elif status == 3:
@@ -337,8 +348,11 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
                 + f"evals: {self.get_fitness_evaluation_count()}"
             )
             success = False
-        else:  # status == 4:
+        elif status == 4:
             message = f"The maximum time ({aux_info}) was exceeded."
+            success = False
+        else:  # status ==5
+            message = f"Preemtively stopping because maximum time would be exceeded before next checkpoint. {aux_info:.2f}"
             success = False
         return OptimizeResult(
             success,
@@ -359,9 +373,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         if self.hall_of_fame is not None:
             LOGGER.log(INFO, "Hall of Fame:\n%s", self.hall_of_fame)
 
-    def evolve(
-        self, num_generations, hall_of_fame_update=True, suppress_logging=False
-    ):
+    def evolve(self, num_generations, hall_of_fame_update=True, suppress_logging=False):
         """The function responsible for generational evolution.
 
         Parameters
@@ -429,7 +441,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
     @abstractmethod
     def get_best_individual(self):
-        """ Gets the most fit individual
+        """Gets the most fit individual
 
         Returns
         -------
@@ -440,7 +452,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
     @abstractmethod
     def get_best_fitness(self):
-        """ Gets the fitness value of the most fit individual
+        """Gets the fitness value of the most fit individual
 
         Returns
         -------
@@ -451,7 +463,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
     @abstractmethod
     def get_fitness_evaluation_count(self):
-        """ Gets the number of fitness evaluations performed
+        """Gets the number of fitness evaluations performed
 
         Returns
         -------
@@ -462,7 +474,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
     @abstractmethod
     def get_ea_diagnostic_info(self):
-        """ Gets diagnostic info from the evolutionary algorithm(s)
+        """Gets diagnostic info from the evolutionary algorithm(s)
 
         Returns
         -------
@@ -472,7 +484,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
         raise NotImplementedError
 
     def dump_to_file(self, filename):
-        """ Dump the evolutionary_optimizers object to a pickle file
+        """Dump the evolutionary_optimizers object to a pickle file
 
         Parameters
         ----------
@@ -486,7 +498,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
 
 
 def load_evolutionary_optimizer_from_file(filename):
-    """ Load an evolutionary_optimizers object from a pickle file
+    """Load an evolutionary_optimizers object from a pickle file
 
     Parameters
     ----------

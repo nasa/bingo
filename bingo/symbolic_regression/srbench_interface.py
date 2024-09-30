@@ -1,3 +1,9 @@
+# pylint: disable=redefined-outer-name
+"""
+An interface for Bingo with the symbolic regression benchmarking suite 
+SRBENCH: github.com/cavalab/srbench
+"""
+
 from .symbolic_regressor import SymbolicRegressor  # , CrossValRegressor
 
 # from sklearn.model_selection import KFold
@@ -21,7 +27,7 @@ est = SymbolicRegressor(
     crossover_prob=0.3,
     mutation_prob=0.45,
     metric="mse",
-    parallel=False,
+    # parallel=False,
     clo_alg="lm",
     max_time=350,
     max_evals=int(1e19),

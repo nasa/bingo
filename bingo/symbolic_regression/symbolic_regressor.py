@@ -23,7 +23,8 @@ from bingo.evolutionary_optimizers.island import Island
 # from bingo.evolutionary_optimizers.serial_archipelago import SerialArchipelago
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.local_opt_fitness import LocalOptFitnessFunction
-from bingo.stats.hall_of_fame import HallOfFame
+
+# from bingo.stats.hall_of_fame import HallOfFame
 from bingo.stats.pareto_front import ParetoFront
 from bingo.symbolic_regression.agraph.component_generator import (
     ComponentGenerator,
@@ -294,7 +295,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         return self
 
-    def _find_best_population(self, X, y, max_pop=BEST_POP_MAX, pareto_only=False):
+    def _find_best_population(self, X, y, max_pop=BEST_POP_MAX):
         if len(self.archipelago.hall_of_fame) == 0:
             self.archipelago.update_hall_of_fame()
 
@@ -305,7 +306,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
             # TODO: this could be improved by only taking unique equations
             for equ in np.random.choice(
-                self.archipelago.population,  # TODO: this will have to change if/when archipelago changes from an island/fpi
+                self.archipelago.population,
+                # TODO: this^ will have to change if/when archipelago changes from an island/fpi
                 max_pop - len(best_equs),
                 replace=False,
             ):
@@ -381,7 +383,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             and x.complexity == y.complexity,
         )
         hof.update(self.best_pop)
-        return [i for i in hof]
+        return list(hof)
 
     def predict(self, X):
         """Use the best individual to predict the outputs of `X`.

@@ -24,6 +24,7 @@ from bingo.evolutionary_optimizers.island import Island
 from bingo.local_optimizers.scipy_optimizer import ScipyOptimizer
 from bingo.local_optimizers.local_opt_fitness import LocalOptFitnessFunction
 from bingo.stats.hall_of_fame import HallOfFame
+from bingo.stats.pareto_front import ParetoFront
 from bingo.symbolic_regression.agraph.component_generator import (
     ComponentGenerator,
 )
@@ -36,7 +37,10 @@ from bingo.symbolic_regression.explicit_regression import (
 )  # this forces use of python fit funcs
 
 DEFAULT_OPERATORS = {"+", "-", "*", "/"}
-SUPPORTED_EA_STRS = ["AgeFitnessEA", "GeneralizedCrowdingEA"]
+SUPPORTED_EA_STRS = {
+    "AgeFitnessEA": AgeFitnessEA,
+    "GeneralizedCrowdingEA": GeneralizedCrowdingEA,
+}
 INF_REPLACEMENT = 1e100
 
 
@@ -96,7 +100,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         max_time=1800,
         max_evals=int(1e19),
         evolutionary_algorithm=None,
-        clo_threshold=1.0e-8,
+        clo_threshold=1.0e-5,
         scale_max_evals=False,
         random_state=None,
     ):
@@ -124,6 +128,8 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         if evolutionary_algorithm is None:
             evolutionary_algorithm = AgeFitnessEA
+        elif evolutionary_algorithm in SUPPORTED_EA_STRS:
+            evolutionary_algorithm = SUPPORTED_EA_STRS[evolutionary_algorithm]
         self.evolutionary_algorithm = evolutionary_algorithm
 
         self.clo_threshold = clo_threshold
@@ -135,6 +141,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.mutation = None
         self.crossover = None
         self.best_ind = None
+        self.archipelago = None
 
         self.random_state = random_state
 
@@ -145,17 +152,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         super().set_params(**new_params)
         self.__init__(**new_params)
         return self
-
-    def _make_island(self, dset_size, ea, hof):
-        if dset_size < 1200:
-            return Island(ea, self.generator, self.population_size, hall_of_fame=hof)
-        return FitnessPredictorIsland(
-            ea,
-            self.generator,
-            self.population_size,
-            hall_of_fame=hof,
-            predictor_size_ratio=800 / dset_size,
-        )
 
     def _get_local_opt(self, X, y, tol):
         training_data = ExplicitTrainingData(X, y)
@@ -234,8 +230,10 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                 "evolutionary algorithm"
             )
 
-        # TODO pareto front based on complexity?
-        hof = HallOfFame(10)
+        hof = ParetoFront(
+            secondary_key=lambda ag: ag.get_complexity(),
+            similarity_function=agraph_similarity,
+        )
 
         island = self._make_island(len(X), evo_alg, hof)
         self._force_diversity_in_island(island)
@@ -343,3 +341,10 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         # convert nan to 0, inf to large number, and -inf to small number
         return np.nan_to_num(output, posinf=INF_REPLACEMENT, neginf=-INF_REPLACEMENT)
+
+
+def agraph_similarity(ag_1, ag_2):
+    """a similarity metric between agraphs"""
+    return (
+        ag_1.fitness == ag_2.fitness and ag_1.get_complexity() == ag_2.get_complexity()
+    )

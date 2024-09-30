@@ -42,6 +42,7 @@ SUPPORTED_EA_STRS = {
     "GeneralizedCrowdingEA": GeneralizedCrowdingEA,
 }
 INF_REPLACEMENT = 1e100
+BEST_POP_MAX = 100
 
 
 # pylint: disable=too-many-instance-attributes, too-many-locals
@@ -244,19 +245,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         return island
 
-    def _refit_best_individual(self, X, y, tol):
-        fit_func = self._get_local_opt(X, y, tol)
-        best_fitness = fit_func(self.best_ind)
-        best_constants = tuple(self.best_ind.constants)
-        for _ in range(5):
-            self.best_ind._needs_opt = True
-            fitness = fit_func(self.best_ind)
-            if fitness < best_fitness:
-                best_fitness = fitness
-                best_constants = tuple(self.best_ind.constants)
-        self.best_ind.fitness = best_fitness
-        self.best_ind.set_local_optimization_params(best_constants)
-
     def fit(self, X, y, sample_weight=None):
         """Fit this model to the given data.
 
@@ -269,6 +257,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             Target/output values. M is the number of data points.
         sample_weight: Mx1 numpy array of numeric, optional
             Weights per sample/data point. M is the number of data points.
+            Not currently supported
 
         Returns
         -------
@@ -300,27 +289,99 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             convergence_check_frequency=10,
         )
 
-        # most likely found sol in 0 gens
-        if len(self.archipelago.hall_of_fame) == 0:
-            self.best_ind = self.archipelago.get_best_individual()
-        else:
-            self.best_ind = self.archipelago.hall_of_fame[0]
-
-        self._refit_best_individual(X, y, tol=1e-6)
+        self.best_pop = self._find_best_population(X, y)
+        self.best_ind = min(self.best_pop, key=lambda x: x.fitness)
 
         return self
+
+    def _find_best_population(self, X, y, max_pop=BEST_POP_MAX, pareto_only=False):
+        if len(self.archipelago.hall_of_fame) == 0:
+            self.archipelago.update_hall_of_fame()
+
+        best_equs = []
+        if len(self.archipelago.hall_of_fame) <= max_pop:
+            for equ in self.archipelago.hall_of_fame:
+                best_equs.append(equ)
+
+            # TODO: this could be improved by only taking unique equations
+            for equ in np.random.choice(
+                self.archipelago.population,  # TODO: this will have to change if/when archipelago changes from an island/fpi
+                max_pop - len(best_equs),
+                replace=False,
+            ):
+                best_equs.append(equ)
+        else:
+            best_equs.append(self.archipelago.hall_of_fame[0])
+            best_equs.append(self.archipelago.hall_of_fame[1])
+            for equ in np.random.choice(
+                self.archipelago.hall_of_fame[1:-1], max_pop - 2, replace=False
+            ):
+                best_equs.append(equ)
+
+        best_regressors = []
+        for equ in best_equs:
+            reg = EquationRegressor(equ, metric=self.metric, algo=self.clo_alg)
+            reg.fit(X, y)
+            best_regressors.append(reg)
+
+        return best_regressors
 
     def get_best_individual(self):
         """Gets the best model found from fit().
 
         Returns
         -------
-        best_ind: `AGraph`
+        best_individual: `RegressorMixin`
             Model with the best fitness from fit().
+
+        Raises
+        ------
+        ValueError
+            If fit() has not been called yet
         """
         if self.best_ind is None:
-            raise ValueError("Best individual not set")
+            raise ValueError("Best individual not set. Make sure fit() was called.")
         return self.best_ind
+
+    def get_best_population(self):
+        """Gets best group of models from fit()
+
+        Returns
+        -------
+        list of `RegressorMixin`
+            Models from pareto front and final population from fit().
+
+        Raises
+        ------
+        ValueError
+            If fit() has not been called yet
+        """
+        if self.best_pop is None:
+            raise ValueError("Best population not set. Make sure fit() was called.")
+        return self.best_pop
+
+    def get_pareto_front(self):
+        """Gets best group of models from fit()
+
+        Returns
+        -------
+        list of `RegressorMixin`
+            Models with the best fitnesses and complexities from fit().
+
+        Raises
+        ------
+        ValueError
+            If fit() has not been called yet
+        """
+        if self.best_pop is None:
+            raise ValueError("Pareto front not set. Make sure fit() was called.")
+        hof = ParetoFront(
+            secondary_key=lambda equ: equ.complexity,
+            similarity_function=lambda x, y: x.fitness == y.fitness
+            and x.complexity == y.complexity,
+        )
+        hof.update(self.best_pop)
+        return [i for i in hof]
 
     def predict(self, X):
         """Use the best individual to predict the outputs of `X`.
@@ -337,10 +398,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             Predicted target/output values. M is the number of data points.
         """
         best_ind = self.get_best_individual()
-        output = best_ind.evaluate_equation_at(X)
-
-        # convert nan to 0, inf to large number, and -inf to small number
-        return np.nan_to_num(output, posinf=INF_REPLACEMENT, neginf=-INF_REPLACEMENT)
+        return best_ind.predict(X)
 
 
 def agraph_similarity(ag_1, ag_2):
@@ -348,3 +406,101 @@ def agraph_similarity(ag_1, ag_2):
     return (
         ag_1.fitness == ag_2.fitness and ag_1.get_complexity() == ag_2.get_complexity()
     )
+
+
+class EquationRegressor(RegressorMixin, BaseEstimator):
+    """A thin scikit learn wrapper around bingo equations
+
+    Parameters
+    ----------
+    equation : `Equation`
+        equation that wiull be wrapped
+    metric : str, optional
+        metric used for local optimization on parameters during fit, by default "mse"
+    algo : str, optional
+        algorithm used for local optimization on parameters during fit, by default "lm"
+    tol : _type_, optional
+        tolerance used for local optimization on parameters during fit, by default 1e-6
+    fit_retries : int, optional
+        number of times to attempt to fit parameters. This is a hedge against the
+        variability of selecting a random starting point for the local optimization,
+        by default 5
+    """
+
+    def __init__(self, equation, metric="mse", algo="lm", tol=1e-6, fit_retries=5):
+        self.equation = equation
+        self.tol = tol
+        self.fit_retries = fit_retries
+        self.metric = metric
+        self.algo = algo
+        self.is_fitted_ = True
+
+    @property
+    def fitness(self):
+        """Fitness of equation"""
+        return self.equation.fitness
+
+    @property
+    def complexity(self):
+        """Complexity of equation"""
+        return self.equation.get_complexity()
+
+    def fit(self, X, y, sample_weight=None):
+        """Fit constants in equation to the given data.
+
+        Parameters
+        ----------
+        X: MxD numpy array of numeric
+            Input values. D is the number of dimensions and
+            M is the number of data points.
+        y: Mx1 numpy array of numeric
+            Target/output values. M is the number of data points.
+        sample_weight: Mx1 numpy array of numeric, optional
+            Weights per sample/data point. M is the number of data points.
+            Not currently supported
+        """
+        if sample_weight is not None:
+            print("sample weight not None, TODO")
+            raise NotImplementedError
+
+        if self.equation.get_number_local_optimization_params() == 0:
+            return
+
+        fit_func = self._get_local_opt(X, y)
+        best_fitness = fit_func(self.equation)
+        best_constants = tuple(self.equation.constants)
+        for _ in range(self.fit_retries):
+            self.equation._needs_opt = True
+            fitness = fit_func(self.equation)
+            if fitness < best_fitness:
+                best_fitness = fitness
+                best_constants = tuple(self.equation.constants)
+        self.equation.fitness = best_fitness
+        self.equation.set_local_optimization_params(best_constants)
+
+    def _get_local_opt(self, X, y):
+        training_data = ExplicitTrainingData(X, y)
+        fitness = ExplicitRegression(training_data=training_data, metric=self.metric)
+        optimizer = ScipyOptimizer(fitness, method=self.algo, tol=self.tol)
+        local_opt_fitness = LocalOptFitnessFunction(fitness, optimizer)
+        return local_opt_fitness
+
+    def predict(self, X):
+        """Evaluate the equation to predict the outputs of `X`.
+
+        Parameters
+        ----------
+        X: MxD numpy array of numeric
+            Input values. D is the number of dimensions and
+            M is the number of data points.
+
+        Returns
+        -------
+        pred_y: Mx1 numpy array of numeric
+            Predicted target/output values. M is the number of data points.
+        """
+        output = self.equation.evaluate_equation_at(X)
+        return np.nan_to_num(output, posinf=INF_REPLACEMENT, neginf=-INF_REPLACEMENT)
+
+    def __str__(self):
+        return str(self.equation)

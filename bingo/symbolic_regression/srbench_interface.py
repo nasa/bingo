@@ -5,6 +5,7 @@ SRBENCH: github.com/cavalab/srbench
 """
 
 from .symbolic_regressor import SymbolicRegressor  # , CrossValRegressor
+from .equation_regressor import EquationRegressor
 
 # from sklearn.model_selection import KFold
 
@@ -83,7 +84,10 @@ def model(est, X=None):
                 new_model = new_model.replace(k,v)
         ```
     """
-    model_str = str(est.get_best_individual())
+    if isinstance(est, EquationRegressor):
+        model_str = str(est)
+    else:
+        model_str = str(est.get_best_individual())
 
     try:
         # replace X_# with data variables names

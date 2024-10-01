@@ -7,14 +7,24 @@ import numpy as np
 import pytest
 
 from bingo.evaluation.evaluation import Evaluation
-from bingo.symbolic_regression import ExplicitTrainingData, \
-    ExplicitRegression, AGraphCrossover, AGraphMutation, ComponentGenerator
+from bingo.symbolic_regression import (
+    ExplicitTrainingData,
+    ExplicitRegression,
+    AGraphCrossover,
+    AGraphMutation,
+    ComponentGenerator,
+)
 from bingo.evolutionary_algorithms.age_fitness import AgeFitnessEA
-from bingo.evolutionary_optimizers.fitness_predictor_island import \
-    FitnessPredictorIsland
+from bingo.evolutionary_optimizers.fitness_predictor_island import (
+    FitnessPredictorIsland,
+)
 from bingo.evolutionary_optimizers.island import Island
-from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor, \
-    INF_REPLACEMENT, DEFAULT_OPERATORS, SUPPORTED_EA_STRS
+from bingo.symbolic_regression.symbolic_regressor import (
+    SymbolicRegressor,
+    DEFAULT_OPERATORS,
+    SUPPORTED_EA_STRS,
+    BEST_POP_MAX,
+)
 from bingo.symbolic_regression.agraph.agraph import AGraph
 from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 
@@ -25,8 +35,7 @@ from bingo.symbolic_regression.agraph.generator import AGraphGenerator
 
 
 def get_sym_reg_import(class_or_method_name):
-    return "bingo.symbolic_regression.symbolic_regressor." \
-           + class_or_method_name
+    return "bingo.symbolic_regression.symbolic_regressor." + class_or_method_name
 
 
 def patch_import(mocker, class_name):
@@ -79,9 +88,15 @@ def sample_ea(basic_data, sample_comp_gen, sample_agraph_gen):
     crossover = AGraphCrossover()
     mutation = AGraphMutation(sample_comp_gen)
 
-    evo_alg = AgeFitnessEA(evaluation, sample_agraph_gen, crossover, mutation,
-                           crossover_probability=0.4, mutation_probability=0.4,
-                           population_size=100)
+    evo_alg = AgeFitnessEA(
+        evaluation,
+        sample_agraph_gen,
+        crossover,
+        mutation,
+        crossover_probability=0.4,
+        mutation_probability=0.4,
+        population_size=100,
+    )
     return evo_alg
 
 
@@ -96,21 +111,25 @@ def test_get_local_opt(mocker, basic_data, clo_alg):
 
     local_opt = regr._get_local_opt(X, y, tol)
 
-    np.testing.assert_array_equal(local_opt._fitness_function.training_data.x,
-                                  X)
-    np.testing.assert_array_equal(local_opt._fitness_function.training_data.y,
-                                  y)
+    np.testing.assert_array_equal(local_opt._fitness_function.training_data.x, X)
+    np.testing.assert_array_equal(local_opt._fitness_function.training_data.y, y)
     assert local_opt.optimizer.options["method"] == clo_alg
     assert local_opt.optimizer.options["tol"] == tol
 
 
 # TODO test predictor_size_ratio?
-@pytest.mark.parametrize("dataset_size, expected_island",
-                         [(100, Island), (1199, Island),
-                          (1200, FitnessPredictorIsland),
-                          (1500, FitnessPredictorIsland)])
-def test_make_island(mocker, sample_ea, sample_agraph_gen, dataset_size,
-                     expected_island):
+@pytest.mark.parametrize(
+    "dataset_size, expected_island",
+    [
+        (100, Island),
+        (1199, Island),
+        (1200, FitnessPredictorIsland),
+        (1500, FitnessPredictorIsland),
+    ],
+)
+def test_make_island(
+    mocker, sample_ea, sample_agraph_gen, dataset_size, expected_island
+):
     pop_size = 100
     hof = mocker.Mock()
 
@@ -167,9 +186,16 @@ def test_cant_force_diversity_in_island(mocker, sample_ea, sample_agraph):
 
 
 def patch_all_get_archipelago(mocker):
-    imports = ["ComponentGenerator", "AGraphCrossover", "AGraphMutation",
-               "AGraphGenerator", "Evaluation", "AgeFitnessEA",
-               "GeneralizedCrowdingEA", "HallOfFame"]
+    imports = [
+        "ComponentGenerator",
+        "AGraphCrossover",
+        "AGraphMutation",
+        "AGraphGenerator",
+        "Evaluation",
+        "AgeFitnessEA",
+        "GeneralizedCrowdingEA",
+        "ParetoFront",
+    ]
     fns = ["_get_local_opt", "_make_island", "_force_diversity_in_island"]
 
     patched_imports = {name: patch_import(mocker, name) for name in imports}
@@ -251,16 +277,20 @@ def test_get_archipelago_agraph_generator(mocker):
 
     stack_size = mocker.Mock()
     use_simplification = mocker.Mock()
-    regr = SymbolicRegressor(stack_size=stack_size,
-                             use_simplification=use_simplification)
+    regr = SymbolicRegressor(
+        stack_size=stack_size, use_simplification=use_simplification
+    )
     X, y = get_mocked_data(mocker)
     n_proc = mocker.Mock()
 
     regr._get_archipelago(X, y, n_proc)
 
-    generator.assert_called_once_with(stack_size, comp_gen.return_value,
-                                      use_simplification=use_simplification,
-                                      use_python=True)
+    generator.assert_called_once_with(
+        stack_size,
+        comp_gen.return_value,
+        use_simplification=use_simplification,
+        use_python=True,
+    )
     assert regr.generator == generator.return_value
 
 
@@ -279,8 +309,7 @@ def test_get_archipelago_evaluation(mocker):
     regr._get_archipelago(X, y, n_proc)
 
     get_local_opt.assert_called_once_with(X, y, clo_tol)
-    evaluation.assert_called_once_with(get_local_opt.return_value,
-                                       multiprocess=n_proc)
+    evaluation.assert_called_once_with(get_local_opt.return_value, multiprocess=n_proc)
 
 
 @pytest.mark.parametrize("evo_alg_str", SUPPORTED_EA_STRS)
@@ -295,22 +324,31 @@ def test_get_archipelago_evo_alg_supported(mocker, evo_alg_str):
     cross_prob = mocker.Mock()
     mutation_prob = mocker.Mock()
     pop_size = mocker.Mock()
-    regr = SymbolicRegressor(crossover_prob=cross_prob,
-                             mutation_prob=mutation_prob,
-                             population_size=pop_size,
-                             evolutionary_algorithm=evo_alg)
+    regr = SymbolicRegressor(
+        crossover_prob=cross_prob,
+        mutation_prob=mutation_prob,
+        population_size=pop_size,
+        evolutionary_algorithm=evo_alg,
+    )
     X, y = get_mocked_data(mocker)
     n_proc = mocker.Mock()
 
     regr._get_archipelago(X, y, n_proc)
 
     if evo_alg_str == "AgeFitnessEA":
-        evo_alg.assert_called_once_with(evaluation, generator, crossover,
-                                        mutation, cross_prob, mutation_prob,
-                                        pop_size)
+        evo_alg.assert_called_once_with(
+            evaluation,
+            generator,
+            crossover,
+            mutation,
+            cross_prob,
+            mutation_prob,
+            pop_size,
+        )
     else:
-        evo_alg.assert_called_once_with(evaluation, crossover, mutation,
-                                        cross_prob, mutation_prob)
+        evo_alg.assert_called_once_with(
+            evaluation, crossover, mutation, cross_prob, mutation_prob
+        )
 
 
 def test_get_archipelago_evo_alg_unsupported(mocker):
@@ -328,7 +366,7 @@ def test_get_archipelago_evo_alg_unsupported(mocker):
 def test_get_archipelago_arch_and_return(mocker, evo_alg_str):
     patched_objs = patch_all_get_archipelago(mocker)
     evo_alg = patched_objs[evo_alg_str]
-    hof = patched_objs["HallOfFame"]
+    hof = patched_objs["ParetoFront"]
     make_island = patched_objs["_make_island"]
     force_diversity = patched_objs["_force_diversity_in_island"]
 
@@ -339,8 +377,10 @@ def test_get_archipelago_arch_and_return(mocker, evo_alg_str):
     arch = regr._get_archipelago(X, y, n_proc)
 
     make_island.assert_called_once()
-    expected_args = [(len(X), evo_alg.return_value, hof.return_value),
-                     (X.shape[0], evo_alg.return_value, hof.return_value)]
+    expected_args = [
+        (len(X), evo_alg.return_value, hof.return_value),
+        (X.shape[0], evo_alg.return_value, hof.return_value),
+    ]
     assert make_island.call_args.args in expected_args
 
     force_diversity.assert_called_once_with(make_island.return_value)
@@ -348,54 +388,9 @@ def test_get_archipelago_arch_and_return(mocker, evo_alg_str):
     assert arch == make_island.return_value
 
 
-class OptIndividual:
-    def __init__(self):
-        self._needs_opt = True
-        self.constants = [float("inf")]
-        self.fitness = float("inf")
-
-    def needs_local_optimization(self):
-        return self._needs_opt
-
-    def get_number_local_optimization_params(self):
-        return 1
-
-    def set_local_optimization_params(self, params):
-        self._needs_opt = False
-        self.constants = params
-
-
-def test_refit_best_individual(mocker):
-    get_local_opt = patch_regr_method(mocker, "_get_local_opt")
-
-    constant_iter = iter([5, 3, 4, 1, 2, 6])
-
-    def mocked_clo(indv):
-        if indv.needs_local_optimization():
-            next_constant = next(constant_iter)
-            indv.set_local_optimization_params([next_constant])
-            indv.fitness = next_constant
-        return indv.fitness
-    clo = mocker.Mock(side_effect=mocked_clo)
-    get_local_opt.return_value = clo
-
-    regr = SymbolicRegressor()
-    best_indv = OptIndividual()
-    regr.best_ind = best_indv
-
-    X, y = get_mocked_data(mocker)
-    tol = mocker.Mock()
-
-    regr._refit_best_individual(X, y, tol)
-
-    assert clo.call_count == 6
-    assert best_indv.fitness == 1
-    assert best_indv.constants == (1,)
-
-
 def patch_all_fit(mocker):
-    imports = ["np.random.seed", "random.seed"]
-    fns = ["_get_archipelago", "_refit_best_individual"]
+    imports = ["np.random.seed", "random.seed", "EquationRegressor"]
+    fns = ["_get_archipelago"]
 
     patched_imports = {name: patch_import(mocker, name) for name in imports}
     patched_fns = {name: patch_regr_method(mocker, name) for name in fns}
@@ -410,6 +405,8 @@ def test_fit_seed(mocker, seed):
     patched_objs = patch_all_fit(mocker)
     np_seed = patched_objs["np.random.seed"]
     random_seed = patched_objs["random.seed"]
+    find_best_pop = patch_regr_method(mocker, "_find_best_population")
+    find_best_pop.return_value = [mocker.Mock()]
 
     if seed == "mock":
         seed = mocker.Mock()
@@ -431,6 +428,8 @@ def test_fit_seed(mocker, seed):
 def test_fit_archipelago(mocker, n_cpus):
     patched_objs = patch_all_fit(mocker)
     get_archipelago = patched_objs["_get_archipelago"]
+    find_best_pop = patch_regr_method(mocker, "_find_best_population")
+    find_best_pop.return_value = [mocker.Mock()]
     evolve = get_archipelago.return_value.evolve_until_convergence
 
     if n_cpus is None:
@@ -438,15 +437,14 @@ def test_fit_archipelago(mocker, n_cpus):
         environ_dict = {}
     else:
         environ_dict = {"OMP_NUM_THREADS": str(n_cpus)}
-    mocker.patch.dict(get_sym_reg_import("os.environ"),
-                      environ_dict, clear=True)
+    mocker.patch.dict(get_sym_reg_import("os.environ"), environ_dict, clear=True)
 
     max_gens = mocker.Mock()
     fit_threshold = mocker.Mock()
     max_time = mocker.Mock()
-    regr = SymbolicRegressor(generations=max_gens,
-                             fitness_threshold=fit_threshold,
-                             max_time=max_time)
+    regr = SymbolicRegressor(
+        generations=max_gens, fitness_threshold=fit_threshold, max_time=max_time
+    )
     X, y = get_mocked_data(mocker)
 
     regr.fit(X, y)
@@ -460,30 +458,45 @@ def test_fit_archipelago(mocker, n_cpus):
     assert evolve.call_args.kwargs["max_time"] == max_time
 
 
-@pytest.mark.parametrize("hof_len", [0, 1])
-def test_fit_best_individual(mocker, hof_len):
+@pytest.mark.parametrize("hof_size", [0, 2, BEST_POP_MAX + 1])
+@pytest.mark.parametrize("pop_size", [1, BEST_POP_MAX, BEST_POP_MAX - 1])
+def test_get_best_population(mocker, hof_size, pop_size):
     patched_objs = patch_all_fit(mocker)
-    refit_best_indv = patched_objs["_refit_best_individual"]
     archipelago = patched_objs["_get_archipelago"].return_value
-    hof = [mocker.Mock() for _ in range(hof_len)]
-    archipelago.hall_of_fame = hof
+    archipelago.hall_of_fame = [mocker.Mock()] * hof_size
+    archipelago.population = [mocker.Mock()] * pop_size
+    eq_regressor_constructor = patched_objs["EquationRegressor"]
+    eq_regressor = eq_regressor_constructor.return_value
+    eq_regressor.fitness = 1
 
     regr = SymbolicRegressor()
     X, y = get_mocked_data(mocker)
 
     regr.fit(X, y)
 
-    if hof_len == 0:
-        assert regr.best_ind == archipelago.get_best_individual.return_value
-    else:
-        assert regr.best_ind == hof[0]
+    if hof_size == 0:
+        archipelago.update_hall_of_fame.assert_called_once()
 
-    refit_best_indv.assert_called_once()
-    assert (X, y) in refit_best_indv.call_args
+    expected_pop_size = min(hof_size + pop_size, BEST_POP_MAX)
+    assert eq_regressor_constructor.call_count == expected_pop_size
+    assert eq_regressor.fit.call_count == expected_pop_size
+    assert regr.get_best_population() == [eq_regressor] * expected_pop_size
+
+    assert regr.get_best_individual() == eq_regressor
+    regr.get_best_individual().fit.assert_called()
+
+
+def test_get_best_population_not_set():
+    regr = SymbolicRegressor()
+    with pytest.raises(ValueError) as exc_info:
+        regr.get_best_population()
+    assert "Best population not set" in str(exc_info.value)
 
 
 def test_fit_return(mocker):
-    patch_all_fit(mocker)
+    patched_objs = patch_all_fit(mocker)
+    find_best_pop = patch_regr_method(mocker, "_find_best_population")
+    find_best_pop.return_value = [mocker.Mock()]
 
     regr = SymbolicRegressor()
     X, y = get_mocked_data(mocker)
@@ -494,6 +507,7 @@ def test_fit_return(mocker):
 
 
 # TODO sample weight testing
+
 
 def test_get_best_individual_normal(mocker):
     regr = SymbolicRegressor()
@@ -513,23 +527,11 @@ def test_get_best_individual_not_set():
 def test_predict_normal(mocker):
     regr = SymbolicRegressor()
     best_ind = mocker.Mock()
-    best_ind.evaluate_equation_at = mocker.Mock(side_effect=lambda x: x)
+    best_ind.predict = mocker.Mock(side_effect=lambda x: x)
     regr.best_ind = best_ind
     X = mocker.Mock()
 
     assert regr.predict(X) == X
-
-
-def test_predict_bad_output(mocker):
-    regr = SymbolicRegressor()
-    best_ind = mocker.Mock()
-    best_ind.evaluate_equation_at = mocker.Mock(side_effect=lambda x:
-                                                [0, -np.inf, np.inf, np.nan,
-                                                 1, 2, 3])
-    regr.best_ind = best_ind
-    expected_output = [0, -INF_REPLACEMENT, INF_REPLACEMENT, 0, 1, 2, 3]
-
-    np.testing.assert_array_equal(regr.predict(mocker.Mock()), expected_output)
 
 
 @pytest.mark.parametrize("param", constructor_attrs())

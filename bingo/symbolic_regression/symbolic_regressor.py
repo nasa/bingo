@@ -122,7 +122,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.generations = generations
         self.fitness_threshold = fitness_threshold
-        self.max_time = max_time
+        self.max_time = max_time * 0.97  # reducing max_time to give buffer
         self.max_evals = max_evals
         self.scale_max_evals = scale_max_evals
 

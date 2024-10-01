@@ -21,6 +21,7 @@ from bingo.evolutionary_optimizers.fitness_predictor_island import (
 from bingo.evolutionary_optimizers.island import Island
 from bingo.symbolic_regression.symbolic_regressor import (
     SymbolicRegressor,
+    TIME_REDUCTION_FACTOR,
     DEFAULT_OPERATORS,
     SUPPORTED_EA_STRS,
     BEST_POP_MAX,
@@ -54,10 +55,16 @@ def constructor_attrs():
 
 @pytest.mark.parametrize("attribute", constructor_attrs())
 def test_init_sets_attributes(mocker, attribute):
-    attribute_value = mocker.Mock()
+    if attribute == "max_time":
+        attribute_value = 1
+        expected_value = TIME_REDUCTION_FACTOR
+    else:
+        attribute_value = mocker.Mock()
+        expected_value = attribute_value
+
     regr = SymbolicRegressor(**{attribute: attribute_value})
 
-    assert getattr(regr, attribute) == attribute_value
+    assert getattr(regr, attribute) == expected_value
 
 
 @pytest.fixture
@@ -441,7 +448,7 @@ def test_fit_archipelago(mocker, n_cpus):
 
     max_gens = mocker.Mock()
     fit_threshold = mocker.Mock()
-    max_time = mocker.Mock()
+    max_time = 1
     regr = SymbolicRegressor(
         generations=max_gens, fitness_threshold=fit_threshold, max_time=max_time
     )
@@ -455,7 +462,7 @@ def test_fit_archipelago(mocker, n_cpus):
     evolve.assert_called_once()
     assert evolve.call_args.kwargs["max_generations"] == max_gens
     assert evolve.call_args.kwargs["fitness_threshold"] == fit_threshold
-    assert evolve.call_args.kwargs["max_time"] == max_time
+    assert evolve.call_args.kwargs["max_time"] == TIME_REDUCTION_FACTOR
 
 
 @pytest.mark.parametrize("hof_size", [0, 2, BEST_POP_MAX + 1])
@@ -536,13 +543,18 @@ def test_predict_normal(mocker):
 
 @pytest.mark.parametrize("param", constructor_attrs())
 def test_can_set_all_params(mocker, param):
-    mocked_value = mocker.Mock(spec=object)  # spec=object so get_params()
-    # doesn't try to treat the mock like a dictionary
+    if param == "max_time":
+        param_value = 1
+        expected_value = TIME_REDUCTION_FACTOR
+    else:
+        param_value = mocker.Mock(spec=object)  # spec=object so get_params()
+        # doesn't try to treat the mock like a dictionary
+        expected_value = param_value
 
     regr = SymbolicRegressor()
-    output = regr.set_params(**{param: mocked_value})
+    output = regr.set_params(**{param: param_value})
 
-    assert regr.get_params()[param] == mocked_value
+    assert regr.get_params()[param] == expected_value
     assert output is regr
 
 

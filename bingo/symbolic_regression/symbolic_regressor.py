@@ -42,6 +42,7 @@ SUPPORTED_EA_STRS = {
     "GeneralizedCrowdingEA": GeneralizedCrowdingEA,
 }
 BEST_POP_MAX = 100
+TIME_REDUCTION_FACTOR = 0.97
 
 
 # pylint: disable=too-many-instance-attributes, too-many-locals
@@ -122,7 +123,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
         self.generations = generations
         self.fitness_threshold = fitness_threshold
-        self.max_time = max_time * 0.97  # reducing max_time to give buffer
+        self.max_time = max_time * TIME_REDUCTION_FACTOR
         self.max_evals = max_evals
         self.scale_max_evals = scale_max_evals
 

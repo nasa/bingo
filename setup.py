@@ -127,7 +127,7 @@ setup(
         "scikit-learn",
         "smcpy",
     ],
-    python_requires="~=3.4",
+    python_requires="~=3.9",
     classifiers=[
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",

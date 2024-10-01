@@ -150,7 +150,7 @@ def get_best_solution(est):
 
 eval_kwargs = {
     # "pre_train": pre_train_fn,
-    "test_params": {"test": True}
+    "test_params": {"generations": 2}
 }
 
 """

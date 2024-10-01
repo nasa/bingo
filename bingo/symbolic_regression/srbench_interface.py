@@ -113,7 +113,7 @@ def get_population(est):
     A list of scikit-learn compatible estimators
     """
 
-    return est.get_population()
+    return est.get_best_population()
 
 
 def get_best_solution(est):

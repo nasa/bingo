@@ -1,3 +1,0 @@
-{
-    "path": "../../../examples/sklearn_wrapper.ipynb"
-}

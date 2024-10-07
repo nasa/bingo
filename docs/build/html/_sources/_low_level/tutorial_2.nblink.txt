@@ -1,3 +1,0 @@
-{
-    "path": "../../../examples/Tutorial_2_Zero_Min.ipynb"
-}

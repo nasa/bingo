@@ -1,3 +1,0 @@
-{
-    "path": "../../../examples/physics_informed_fitness.ipynb"
-}

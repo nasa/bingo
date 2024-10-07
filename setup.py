@@ -116,7 +116,7 @@ setup(
         "bingo.variation",
     ],
     install_requires=[
-        "mpi4py",
+        "mpi4py>=2.0.0,<4.0",
         "numpy",
         "pytest",
         "pytest-mock",

@@ -1,0 +1,1188 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bingo package &#8212; Bingo 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_apidocs/bingo';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bingo.chromosomes package" href="bingo.chromosomes.html" />
+    <link rel="prev" title="bingo" href="modules.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">bingo package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html">bingo.chromosomes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html">bingo.evaluation package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html">bingo.evolutionary_algorithms package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html">bingo.evolutionary_optimizers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html">bingo.local_optimizers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html">bingo.selection package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html">bingo.stats package</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bingo.symbolic_regression.html">bingo.symbolic_regression package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bingo.symbolic_regression.agraph.html">bingo.symbolic_regression.agraph package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html">bingo.symbolic_regression.agraph.evaluation_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html">bingo.symbolic_regression.agraph.jax_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html">bingo.symbolic_regression.agraph.simplification_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html">bingo.symbolic_regression.agraph.torch_backend package</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html">bingo.util package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html">bingo.variation package</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">bingo</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">bingo package</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bingo-package">
+<h1>bingo package<a class="headerlink" href="#bingo-package" title="Link to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bingo.chromosomes.html">bingo.chromosomes package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes.chromosome">bingo.chromosomes.chromosome module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome"><code class="docutils literal notranslate"><span class="pre">Chromosome</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.fitness"><code class="docutils literal notranslate"><span class="pre">Chromosome.fitness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.genetic_age"><code class="docutils literal notranslate"><span class="pre">Chromosome.genetic_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.fit_set"><code class="docutils literal notranslate"><span class="pre">Chromosome.fit_set</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.copy"><code class="docutils literal notranslate"><span class="pre">Chromosome.copy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.distance"><code class="docutils literal notranslate"><span class="pre">Chromosome.distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#id0"><code class="docutils literal notranslate"><span class="pre">Chromosome.fit_set</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#id1"><code class="docutils literal notranslate"><span class="pre">Chromosome.fitness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#id2"><code class="docutils literal notranslate"><span class="pre">Chromosome.genetic_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.get_number_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">Chromosome.get_number_local_optimization_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.needs_local_optimization"><code class="docutils literal notranslate"><span class="pre">Chromosome.needs_local_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome.set_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">Chromosome.set_local_optimization_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes.crossover">bingo.chromosomes.crossover module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.crossover.Crossover"><code class="docutils literal notranslate"><span class="pre">Crossover</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes.generator">bingo.chromosomes.generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.generator.Generator"><code class="docutils literal notranslate"><span class="pre">Generator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes.multiple_floats">bingo.chromosomes.multiple_floats module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_floats.MultipleFloatChromosome"><code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_floats.MultipleFloatChromosome.get_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome.get_local_optimization_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_floats.MultipleFloatChromosome.get_number_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome.get_number_local_optimization_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_floats.MultipleFloatChromosome.needs_local_optimization"><code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome.needs_local_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_floats.MultipleFloatChromosome.set_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome.set_local_optimization_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_floats.MultipleFloatChromosomeGenerator"><code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosomeGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes.multiple_values">bingo.chromosomes.multiple_values module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosome"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosome.values"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome.values</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosome.distance"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome.distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosome.get_number_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome.get_number_local_optimization_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosome.needs_local_optimization"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome.needs_local_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosome.set_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome.set_local_optimization_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.MultipleValueChromosomeGenerator"><code class="docutils literal notranslate"><span class="pre">MultipleValueChromosomeGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.SinglePointCrossover"><code class="docutils literal notranslate"><span class="pre">SinglePointCrossover</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.SinglePointCrossover.types"><code class="docutils literal notranslate"><span class="pre">SinglePointCrossover.types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.SinglePointCrossover.last_crossover_types"><code class="docutils literal notranslate"><span class="pre">SinglePointCrossover.last_crossover_types</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.SinglePointMutation"><code class="docutils literal notranslate"><span class="pre">SinglePointMutation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.SinglePointMutation.types"><code class="docutils literal notranslate"><span class="pre">SinglePointMutation.types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.multiple_values.SinglePointMutation.last_mutation_type"><code class="docutils literal notranslate"><span class="pre">SinglePointMutation.last_mutation_type</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes.mutation">bingo.chromosomes.mutation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.mutation.Mutation"><code class="docutils literal notranslate"><span class="pre">Mutation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html#module-bingo.chromosomes">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.evaluation.html">bingo.evaluation package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#module-bingo.evaluation.evaluation">bingo.evaluation.evaluation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.evaluation.Evaluation"><code class="docutils literal notranslate"><span class="pre">Evaluation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.evaluation.Evaluation.fitness_function"><code class="docutils literal notranslate"><span class="pre">Evaluation.fitness_function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.evaluation.Evaluation.eval_count"><code class="docutils literal notranslate"><span class="pre">Evaluation.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#id0"><code class="docutils literal notranslate"><span class="pre">Evaluation.eval_count</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#module-bingo.evaluation.fitness_function">bingo.evaluation.fitness_function module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.FitnessFunction"><code class="docutils literal notranslate"><span class="pre">FitnessFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.FitnessFunction.eval_count"><code class="docutils literal notranslate"><span class="pre">FitnessFunction.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.FitnessFunction.training_data"><code class="docutils literal notranslate"><span class="pre">FitnessFunction.training_data</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction"><code class="docutils literal notranslate"><span class="pre">VectorBasedFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">VectorBasedFunction.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.mean_absolute_error"><code class="docutils literal notranslate"><span class="pre">mean_absolute_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.mean_squared_error"><code class="docutils literal notranslate"><span class="pre">mean_squared_error()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.negative_nmll_laplace"><code class="docutils literal notranslate"><span class="pre">negative_nmll_laplace()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.root_mean_squared_error"><code class="docutils literal notranslate"><span class="pre">root_mean_squared_error()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#module-bingo.evaluation.gradient_mixin">bingo.evaluation.gradient_mixin module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.GradientMixin"><code class="docutils literal notranslate"><span class="pre">GradientMixin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.GradientMixin.get_fitness_and_gradient"><code class="docutils literal notranslate"><span class="pre">GradientMixin.get_fitness_and_gradient()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.VectorGradientMixin"><code class="docutils literal notranslate"><span class="pre">VectorGradientMixin</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.VectorGradientMixin.get_fitness_and_gradient"><code class="docutils literal notranslate"><span class="pre">VectorGradientMixin.get_fitness_and_gradient()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.VectorGradientMixin.get_fitness_vector_and_jacobian"><code class="docutils literal notranslate"><span class="pre">VectorGradientMixin.get_fitness_vector_and_jacobian()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#module-bingo.evaluation.random_subset_evaluation">bingo.evaluation.random_subset_evaluation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.random_subset_evaluation.RandomSubsetEvaluation"><code class="docutils literal notranslate"><span class="pre">RandomSubsetEvaluation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.random_subset_evaluation.RandomSubsetEvaluation.fitness_function"><code class="docutils literal notranslate"><span class="pre">RandomSubsetEvaluation.fitness_function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.random_subset_evaluation.RandomSubsetEvaluation.eval_count"><code class="docutils literal notranslate"><span class="pre">RandomSubsetEvaluation.eval_count</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#module-bingo.evaluation.training_data">bingo.evaluation.training_data module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.training_data.TrainingData"><code class="docutils literal notranslate"><span class="pre">TrainingData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html#module-bingo.evaluation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.evolutionary_algorithms.html">bingo.evolutionary_algorithms package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms.age_fitness">bingo.evolutionary_algorithms.age_fitness module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA"><code class="docutils literal notranslate"><span class="pre">AgeFitnessEA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.variation"><code class="docutils literal notranslate"><span class="pre">AgeFitnessEA.variation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.evaluation"><code class="docutils literal notranslate"><span class="pre">AgeFitnessEA.evaluation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.selection"><code class="docutils literal notranslate"><span class="pre">AgeFitnessEA.selection</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms.ea_diagnostics">bingo.evolutionary_algorithms.ea_diagnostics module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.summary"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.crossover_type_summary"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.crossover_type_summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.mutation_type_summary"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.mutation_type_summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.crossover_mutation_type_summary"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.crossover_mutation_type_summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#id0"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.crossover_mutation_type_summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#id1"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.crossover_type_summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.get_log_header"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.get_log_header()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.get_log_stats"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.get_log_stats()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#id2"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.mutation_type_summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#id3"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.summary</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics.update"><code class="docutils literal notranslate"><span class="pre">EaDiagnostics.update()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.beneficial_crossover_mutation_rate"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary.beneficial_crossover_mutation_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.beneficial_crossover_rate"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary.beneficial_crossover_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.beneficial_mutation_rate"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary.beneficial_mutation_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.detrimental_crossover_mutation_rate"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary.detrimental_crossover_mutation_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.detrimental_crossover_rate"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary.detrimental_crossover_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.detrimental_mutation_rate"><code class="docutils literal notranslate"><span class="pre">EaDiagnosticsSummary.detrimental_mutation_rate</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary"><code class="docutils literal notranslate"><span class="pre">GeneticOperatorSummary</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary.beneficial_rate"><code class="docutils literal notranslate"><span class="pre">GeneticOperatorSummary.beneficial_rate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary.detrimental_rate"><code class="docutils literal notranslate"><span class="pre">GeneticOperatorSummary.detrimental_rate</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms.evolutionary_algorithm">bingo.evolutionary_algorithms.evolutionary_algorithm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm.variation"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm.variation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm.evaluation"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm.evaluation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm.selection"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm.selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm.diagnostics"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm.diagnostics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm.generational_step"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm.generational_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm.update_diagnostics"><code class="docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm.update_diagnostics()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms.generalized_crowding">bingo.evolutionary_algorithms.generalized_crowding module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowdingEA</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.evaluation"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowdingEA.evaluation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.selection"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowdingEA.selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.variation"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowdingEA.variation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.diagnostics"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowdingEA.diagnostics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.generational_step"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowdingEA.generational_step()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms.mu_comma_lambda">bingo.evolutionary_algorithms.mu_comma_lambda module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda"><code class="docutils literal notranslate"><span class="pre">MuCommaLambda</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.variation"><code class="docutils literal notranslate"><span class="pre">MuCommaLambda.variation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.evaluation"><code class="docutils literal notranslate"><span class="pre">MuCommaLambda.evaluation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.selection"><code class="docutils literal notranslate"><span class="pre">MuCommaLambda.selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.diagnostics"><code class="docutils literal notranslate"><span class="pre">MuCommaLambda.diagnostics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.generational_step"><code class="docutils literal notranslate"><span class="pre">MuCommaLambda.generational_step()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms.mu_plus_lambda">bingo.evolutionary_algorithms.mu_plus_lambda module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda"><code class="docutils literal notranslate"><span class="pre">MuPlusLambda</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.variation"><code class="docutils literal notranslate"><span class="pre">MuPlusLambda.variation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.evaluation"><code class="docutils literal notranslate"><span class="pre">MuPlusLambda.evaluation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.selection"><code class="docutils literal notranslate"><span class="pre">MuPlusLambda.selection</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.diagnostics"><code class="docutils literal notranslate"><span class="pre">MuPlusLambda.diagnostics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.generational_step"><code class="docutils literal notranslate"><span class="pre">MuPlusLambda.generational_step()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html#module-bingo.evolutionary_algorithms">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.evolutionary_optimizers.html">bingo.evolutionary_optimizers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.archipelago">bingo.evolutionary_optimizers.archipelago module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.archipelago.Archipelago"><code class="docutils literal notranslate"><span class="pre">Archipelago</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.archipelago.Archipelago.generational_age"><code class="docutils literal notranslate"><span class="pre">Archipelago.generational_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.archipelago.Archipelago.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">Archipelago.hall_of_fame</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.checkpoint_controller">bingo.evolutionary_optimizers.checkpoint_controller module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController"><code class="docutils literal notranslate"><span class="pre">CheckpointController</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.estimate_remaining_checkpoints"><code class="docutils literal notranslate"><span class="pre">CheckpointController.estimate_remaining_checkpoints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.get_gens_to_evolve"><code class="docutils literal notranslate"><span class="pre">CheckpointController.get_gens_to_evolve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.record_check"><code class="docutils literal notranslate"><span class="pre">CheckpointController.record_check()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.evolutionary_optimizer">bingo.evolutionary_optimizers.evolutionary_optimizer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.generational_age"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.generational_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.hall_of_fame</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.test_function"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.test_function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.dump_to_file"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.dump_to_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.evolve()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve_until_convergence"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.evolve_until_convergence()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_best_fitness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_individual"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_fitness_evaluation_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.update_hall_of_fame"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.update_hall_of_fame()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult"><code class="docutils literal notranslate"><span class="pre">OptimizeResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ea_diagnostics"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.ea_diagnostics</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.fitness"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.fitness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.message"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ngen"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.ngen</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.status"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.success"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.success</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.time"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.time</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.evolutionary_optimizer.load_evolutionary_optimizer_from_file"><code class="docutils literal notranslate"><span class="pre">load_evolutionary_optimizer_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.fitness_predictor">bingo.evolutionary_optimizers.fitness_predictor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.add_trainer"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction.add_trainer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.get_true_fitness_for_trainer"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction.get_true_fitness_for_trainer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction.predict_fitness_for_trainer()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorIndexGenerator"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIndexGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.fitness_predictor_island">bingo.evolutionary_optimizers.fitness_predictor_island module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.generational_age"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.generational_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.population"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.hall_of_fame</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.get_best_individual"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.get_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#id0"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.hall_of_fame</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.island">bingo.evolutionary_optimizers.island module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island"><code class="docutils literal notranslate"><span class="pre">Island</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.generational_age"><code class="docutils literal notranslate"><span class="pre">Island.generational_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.population"><code class="docutils literal notranslate"><span class="pre">Island.population</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">Island.hall_of_fame</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.test_function"><code class="docutils literal notranslate"><span class="pre">Island.test_function</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.dump_fraction_of_population"><code class="docutils literal notranslate"><span class="pre">Island.dump_fraction_of_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.evaluate_population"><code class="docutils literal notranslate"><span class="pre">Island.evaluate_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">Island.get_best_fitness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.get_best_individual"><code class="docutils literal notranslate"><span class="pre">Island.get_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">Island.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">Island.get_fitness_evaluation_count()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.regenerate_population"><code class="docutils literal notranslate"><span class="pre">Island.regenerate_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.island.Island.reset_fitness"><code class="docutils literal notranslate"><span class="pre">Island.reset_fitness()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.parallel_archipelago">bingo.evolutionary_optimizers.parallel_archipelago module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.island"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.island</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.generational_age"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.generational_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.hall_of_fame</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.dump_to_file"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.dump_to_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_best_fitness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_individual"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_fitness_evaluation_count()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.parallel_archipelago.load_parallel_archipelago_from_file"><code class="docutils literal notranslate"><span class="pre">load_parallel_archipelago_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers.serial_archipelago">bingo.evolutionary_optimizers.serial_archipelago module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.islands"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.islands</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.generational_age"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.generational_age</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.hall_of_fame</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_best_fitness()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_individual"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.evolutionary_optimizers.html#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_fitness_evaluation_count()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html#module-bingo.evolutionary_optimizers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.local_optimizers.html">bingo.local_optimizers package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#module-bingo.local_optimizers.local_opt_fitness">bingo.local_optimizers.local_opt_fitness module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.local_opt_fitness.LocalOptFitnessFunction"><code class="docutils literal notranslate"><span class="pre">LocalOptFitnessFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.local_opt_fitness.LocalOptFitnessFunction.eval_count"><code class="docutils literal notranslate"><span class="pre">LocalOptFitnessFunction.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.local_opt_fitness.LocalOptFitnessFunction.training_data"><code class="docutils literal notranslate"><span class="pre">LocalOptFitnessFunction.training_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id0"><code class="docutils literal notranslate"><span class="pre">LocalOptFitnessFunction.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id1"><code class="docutils literal notranslate"><span class="pre">LocalOptFitnessFunction.training_data</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#module-bingo.local_optimizers.local_optimizer">bingo.local_optimizers.local_optimizer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.local_optimizer.LocalOptimizer"><code class="docutils literal notranslate"><span class="pre">LocalOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.local_optimizer.LocalOptimizer.objective_fn"><code class="docutils literal notranslate"><span class="pre">LocalOptimizer.objective_fn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.local_optimizer.LocalOptimizer.options"><code class="docutils literal notranslate"><span class="pre">LocalOptimizer.options</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#module-bingo.local_optimizers.normalized_marginal_likelihood">bingo.local_optimizers.normalized_marginal_likelihood module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.eval_count"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.training_data"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.training_data</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id2"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id3"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.training_data</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#module-bingo.local_optimizers.scipy_optimizer">bingo.local_optimizers.scipy_optimizer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.scipy_optimizer.ScipyOptimizer"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.scipy_optimizer.ScipyOptimizer.objective_fn"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.objective_fn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.scipy_optimizer.ScipyOptimizer.options"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id6"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.objective_fn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id7"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.options</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#module-bingo.local_optimizers.smcpy_optimizer">bingo.local_optimizers.smcpy_optimizer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.objective_fn"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.objective_fn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.options"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.eval_count"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.eval_count</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.evaluate_model"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.evaluate_model()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id8"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.objective_fn</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#id9"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.options</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.local_optimizers.html#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.training_data"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.training_data</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html#module-bingo.local_optimizers">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.selection.html">bingo.selection package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.age_fitness">bingo.selection.age_fitness module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.age_fitness.AgeFitness"><code class="docutils literal notranslate"><span class="pre">AgeFitness</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.selection.html#bingo.selection.age_fitness.AgeFitness.WORST_CASE_FACTOR"><code class="docutils literal notranslate"><span class="pre">AgeFitness.WORST_CASE_FACTOR</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.deterministic_crowding">bingo.selection.deterministic_crowding module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.deterministic_crowding.DeterministicCrowding"><code class="docutils literal notranslate"><span class="pre">DeterministicCrowding</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.generalized_crowding">bingo.selection.generalized_crowding module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.generalized_crowding.GeneralizedCrowding"><code class="docutils literal notranslate"><span class="pre">GeneralizedCrowding</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.probabilistic_crowding">bingo.selection.probabilistic_crowding module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.probabilistic_crowding.ProbabilisticCrowding"><code class="docutils literal notranslate"><span class="pre">ProbabilisticCrowding</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.probabilistic_tournament">bingo.selection.probabilistic_tournament module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.probabilistic_tournament.ProbabilisticTournament"><code class="docutils literal notranslate"><span class="pre">ProbabilisticTournament</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.selection">bingo.selection.selection module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.selection.Selection"><code class="docutils literal notranslate"><span class="pre">Selection</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection.tournament">bingo.selection.tournament module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.selection.html#bingo.selection.tournament.Tournament"><code class="docutils literal notranslate"><span class="pre">Tournament</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html#module-bingo.selection">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.stats.html">bingo.stats package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html#module-bingo.stats.hall_of_fame">bingo.stats.hall_of_fame module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame"><code class="docutils literal notranslate"><span class="pre">HallOfFame</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame.clear"><code class="docutils literal notranslate"><span class="pre">HallOfFame.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame.insert"><code class="docutils literal notranslate"><span class="pre">HallOfFame.insert()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame.remove"><code class="docutils literal notranslate"><span class="pre">HallOfFame.remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame.update"><code class="docutils literal notranslate"><span class="pre">HallOfFame.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html#module-bingo.stats.pareto_front">bingo.stats.pareto_front module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.stats.html#bingo.stats.pareto_front.ParetoFront"><code class="docutils literal notranslate"><span class="pre">ParetoFront</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.stats.html#bingo.stats.pareto_front.ParetoFront.update"><code class="docutils literal notranslate"><span class="pre">ParetoFront.update()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html#module-bingo.stats">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.symbolic_regression.html">bingo.symbolic_regression package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html">bingo.symbolic_regression.agraph package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.agraph">bingo.symbolic_regression.agraph.agraph module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.component_generator">bingo.symbolic_regression.agraph.component_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.crossover">bingo.symbolic_regression.agraph.crossover module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.generator">bingo.symbolic_regression.agraph.generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.mutation">bingo.symbolic_regression.agraph.mutation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.operator_definitions">bingo.symbolic_regression.agraph.operator_definitions module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.string_generation">bingo.symbolic_regression.agraph.string_generation module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.string_parsing">bingo.symbolic_regression.agraph.string_parsing module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.torchagraph">bingo.symbolic_regression.agraph.torchagraph module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.atomic_potential_regression">bingo.symbolic_regression.atomic_potential_regression module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential"><code class="docutils literal notranslate"><span class="pre">PairwiseAtomicPotential</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">PairwiseAtomicPotential.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicTrainingData"><code class="docutils literal notranslate"><span class="pre">PairwiseAtomicTrainingData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.equation">bingo.symbolic_regression.equation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation.Equation"><code class="docutils literal notranslate"><span class="pre">Equation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation.Equation.evaluate_equation_at"><code class="docutils literal notranslate"><span class="pre">Equation.evaluate_equation_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation.Equation.evaluate_equation_with_local_opt_gradient_at"><code class="docutils literal notranslate"><span class="pre">Equation.evaluate_equation_with_local_opt_gradient_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation.Equation.evaluate_equation_with_x_gradient_at"><code class="docutils literal notranslate"><span class="pre">Equation.evaluate_equation_with_x_gradient_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation.Equation.get_complexity"><code class="docutils literal notranslate"><span class="pre">Equation.get_complexity()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.equation_regressor">bingo.symbolic_regression.equation_regressor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor"><code class="docutils literal notranslate"><span class="pre">EquationRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor.complexity"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.complexity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor.fit"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor.fitness"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.fitness</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor.predict"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor.set_fit_request"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.set_fit_request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation_regressor.EquationRegressor.set_score_request"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.set_score_request()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.explicit_regression">bingo.symbolic_regression.explicit_regression module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitRegression"><code class="docutils literal notranslate"><span class="pre">ExplicitRegression</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitRegression.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">ExplicitRegression.evaluate_fitness_vector()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitRegression.get_fitness_vector_and_jacobian"><code class="docutils literal notranslate"><span class="pre">ExplicitRegression.get_fitness_vector_and_jacobian()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData"><code class="docutils literal notranslate"><span class="pre">ExplicitTrainingData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.x"><code class="docutils literal notranslate"><span class="pre">ExplicitTrainingData.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.y"><code class="docutils literal notranslate"><span class="pre">ExplicitTrainingData.y</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.implicit_regression">bingo.symbolic_regression.implicit_regression module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression.ImplicitRegression"><code class="docutils literal notranslate"><span class="pre">ImplicitRegression</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression.ImplicitRegression.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">ImplicitRegression.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.x"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.x</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.dx_dt"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.dx_dt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#id0"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.dx_dt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#id1"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.x</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.implicit_regression_schmidt">bingo.symbolic_regression.implicit_regression_schmidt module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt"><code class="docutils literal notranslate"><span class="pre">ImplicitRegressionSchmidt</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">ImplicitRegressionSchmidt.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.srbench_interface">bingo.symbolic_regression.srbench_interface module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.srbench_interface.eval_kwargs"><code class="docutils literal notranslate"><span class="pre">eval_kwargs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.srbench_interface.get_best_solution"><code class="docutils literal notranslate"><span class="pre">get_best_solution()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.srbench_interface.get_population"><code class="docutils literal notranslate"><span class="pre">get_population()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.srbench_interface.hyper_params"><code class="docutils literal notranslate"><span class="pre">hyper_params</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.srbench_interface.model"><code class="docutils literal notranslate"><span class="pre">model()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression.symbolic_regressor">bingo.symbolic_regression.symbolic_regressor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.fit"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_individual"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.get_best_individual()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_population"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.get_best_population()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_pareto_front"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.get_pareto_front()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.predict"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_fit_request"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.set_fit_request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_params"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.set_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_score_request"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.set_score_request()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.symbolic_regressor.agraph_similarity"><code class="docutils literal notranslate"><span class="pre">agraph_similarity()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.html#module-bingo.symbolic_regression">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.util.html">bingo.util package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html#module-bingo.util.argument_validation">bingo.util.argument_validation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.argument_validation.FunctionArgChecker"><code class="docutils literal notranslate"><span class="pre">FunctionArgChecker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.argument_validation.argument_validation"><code class="docutils literal notranslate"><span class="pre">argument_validation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html#module-bingo.util.log">bingo.util.log module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.log.DiagnosticsFilter"><code class="docutils literal notranslate"><span class="pre">DiagnosticsFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.log.DiagnosticsFilter.filter"><code class="docutils literal notranslate"><span class="pre">DiagnosticsFilter.filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.log.MpiFilter"><code class="docutils literal notranslate"><span class="pre">MpiFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.log.MpiFilter.filter"><code class="docutils literal notranslate"><span class="pre">MpiFilter.filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.log.StatsFilter"><code class="docutils literal notranslate"><span class="pre">StatsFilter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.log.StatsFilter.filter"><code class="docutils literal notranslate"><span class="pre">StatsFilter.filter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.log.configure_logging"><code class="docutils literal notranslate"><span class="pre">configure_logging()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html#module-bingo.util.probability_mass_function">bingo.util.probability_mass_function module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.util.html#bingo.util.probability_mass_function.ProbabilityMassFunction"><code class="docutils literal notranslate"><span class="pre">ProbabilityMassFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.probability_mass_function.ProbabilityMassFunction.items"><code class="docutils literal notranslate"><span class="pre">ProbabilityMassFunction.items</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.probability_mass_function.ProbabilityMassFunction.normalized_weights"><code class="docutils literal notranslate"><span class="pre">ProbabilityMassFunction.normalized_weights</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.probability_mass_function.ProbabilityMassFunction.add_item"><code class="docutils literal notranslate"><span class="pre">ProbabilityMassFunction.add_item()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.util.html#bingo.util.probability_mass_function.ProbabilityMassFunction.draw_sample"><code class="docutils literal notranslate"><span class="pre">ProbabilityMassFunction.draw_sample()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html#module-bingo.util">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bingo.variation.html">bingo.variation package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html#module-bingo.variation.add_random_individuals">bingo.variation.add_random_individuals module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.variation.html#bingo.variation.add_random_individuals.AddRandomIndividuals"><code class="docutils literal notranslate"><span class="pre">AddRandomIndividuals</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html#module-bingo.variation.var_and">bingo.variation.var_and module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_and.VarAnd"><code class="docutils literal notranslate"><span class="pre">VarAnd</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_and.VarAnd.crossover_offspring"><code class="docutils literal notranslate"><span class="pre">VarAnd.crossover_offspring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_and.VarAnd.mutation_offspring"><code class="docutils literal notranslate"><span class="pre">VarAnd.mutation_offspring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_and.VarAnd.offspring_parents"><code class="docutils literal notranslate"><span class="pre">VarAnd.offspring_parents</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html#module-bingo.variation.var_or">bingo.variation.var_or module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_or.VarOr"><code class="docutils literal notranslate"><span class="pre">VarOr</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_or.VarOr.crossover_offspring"><code class="docutils literal notranslate"><span class="pre">VarOr.crossover_offspring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_or.VarOr.mutation_offspring"><code class="docutils literal notranslate"><span class="pre">VarOr.mutation_offspring</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.var_or.VarOr.offspring_parents"><code class="docutils literal notranslate"><span class="pre">VarOr.offspring_parents</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html#module-bingo.variation.variation">bingo.variation.variation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.variation.html#bingo.variation.variation.Variation"><code class="docutils literal notranslate"><span class="pre">Variation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.variation.Variation.crossover_offspring_type"><code class="docutils literal notranslate"><span class="pre">Variation.crossover_offspring_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.variation.Variation.crossover_types"><code class="docutils literal notranslate"><span class="pre">Variation.crossover_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.variation.Variation.mutation_offspring_type"><code class="docutils literal notranslate"><span class="pre">Variation.mutation_offspring_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.variation.Variation.mutation_types"><code class="docutils literal notranslate"><span class="pre">Variation.mutation_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#bingo.variation.variation.Variation.offspring_parents"><code class="docutils literal notranslate"><span class="pre">Variation.offspring_parents</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#id0"><code class="docutils literal notranslate"><span class="pre">Variation.crossover_types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.variation.html#id1"><code class="docutils literal notranslate"><span class="pre">Variation.mutation_types</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html#module-bingo.variation">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="module-bingo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bingo" title="Link to this heading">#</a></h2>
+<p>Copyright 2018 United States Government as represented by the Administrator
+of the National Aeronautics and Space Administration. No copyright is claimed
+in the United States under Title 17, U.S. Code. All Other Rights Reserved.
+The Bingo Mini-app platform is licensed under the Apache License, Version 2.0
+(the “License”); you may not use this file except in compliance with the
+License. You may obtain a copy of the License at
+<a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a>.</p>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="modules.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">bingo</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bingo.chromosomes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">bingo.chromosomes package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo">Module contents</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_apidocs/bingo.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, United States Government as represented by the Administrator of the National Aeronautics and Space Administration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

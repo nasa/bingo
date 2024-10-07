@@ -1,0 +1,1741 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bingo.symbolic_regression package &#8212; Bingo 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_apidocs/bingo.symbolic_regression';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bingo.symbolic_regression.agraph package" href="bingo.symbolic_regression.agraph.html" />
+    <link rel="prev" title="bingo.stats package" href="bingo.stats.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="bingo.html">bingo package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html">bingo.chromosomes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html">bingo.evaluation package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html">bingo.evolutionary_algorithms package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_optimizers.html">bingo.evolutionary_optimizers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html">bingo.local_optimizers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html">bingo.selection package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html">bingo.stats package</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">bingo.symbolic_regression package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bingo.symbolic_regression.agraph.html">bingo.symbolic_regression.agraph package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html">bingo.symbolic_regression.agraph.evaluation_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html">bingo.symbolic_regression.agraph.jax_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html">bingo.symbolic_regression.agraph.simplification_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html">bingo.symbolic_regression.agraph.torch_backend package</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html">bingo.util package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html">bingo.variation package</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">bingo</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="bingo.html" class="nav-link">bingo package</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">bingo.symbol...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bingo-symbolic-regression-package">
+<h1>bingo.symbolic_regression package<a class="headerlink" href="#bingo-symbolic-regression-package" title="Link to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bingo.symbolic_regression.agraph.html">bingo.symbolic_regression.agraph package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html">bingo.symbolic_regression.agraph.evaluation_backend package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html#module-bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend">bingo.symbolic_regression.agraph.evaluation_backend.evaluation_backend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html#module-bingo.symbolic_regression.agraph.evaluation_backend.operator_eval">bingo.symbolic_regression.agraph.evaluation_backend.operator_eval module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html#module-bingo.symbolic_regression.agraph.evaluation_backend">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html">bingo.symbolic_regression.agraph.jax_backend package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html#bingo-symbolic-regression-agraph-jax-backend-evaluation-backend-module">bingo.symbolic_regression.agraph.jax_backend.evaluation_backend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html#bingo-symbolic-regression-agraph-jax-backend-operator-eval-module">bingo.symbolic_regression.agraph.jax_backend.operator_eval module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.jax_backend.html#module-bingo.symbolic_regression.agraph.jax_backend">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html">bingo.symbolic_regression.agraph.simplification_backend package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification">bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.constant_folding">bingo.symbolic_regression.agraph.simplification_backend.constant_folding module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.expression">bingo.symbolic_regression.agraph.simplification_backend.expression module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.interpreter">bingo.symbolic_regression.agraph.simplification_backend.interpreter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.optional_expression_modification">bingo.symbolic_regression.agraph.simplification_backend.optional_expression_modification module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.simplification_backend">bingo.symbolic_regression.agraph.simplification_backend.simplification_backend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend.simplify">bingo.symbolic_regression.agraph.simplification_backend.simplify module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html#module-bingo.symbolic_regression.agraph.simplification_backend">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html">bingo.symbolic_regression.agraph.torch_backend package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html#bingo-symbolic-regression-agraph-torch-backend-evaluation-backend-module">bingo.symbolic_regression.agraph.torch_backend.evaluation_backend module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html#bingo-symbolic-regression-agraph-torch-backend-operator-eval-module">bingo.symbolic_regression.agraph.torch_backend.operator_eval module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.torch_backend.html#module-bingo.symbolic_regression.agraph.torch_backend">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.agraph">bingo.symbolic_regression.agraph.agraph module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#stack">Stack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#nodes">Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph"><code class="docutils literal notranslate"><span class="pre">AGraph</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.command_array"><code class="docutils literal notranslate"><span class="pre">AGraph.command_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.mutable_command_array"><code class="docutils literal notranslate"><span class="pre">AGraph.mutable_command_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.constants"><code class="docutils literal notranslate"><span class="pre">AGraph.constants</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#id0"><code class="docutils literal notranslate"><span class="pre">AGraph.command_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#id1"><code class="docutils literal notranslate"><span class="pre">AGraph.constants</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.distance"><code class="docutils literal notranslate"><span class="pre">AGraph.distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.engine"><code class="docutils literal notranslate"><span class="pre">AGraph.engine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.evaluate_equation_at"><code class="docutils literal notranslate"><span class="pre">AGraph.evaluate_equation_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.evaluate_equation_with_local_opt_gradient_at"><code class="docutils literal notranslate"><span class="pre">AGraph.evaluate_equation_with_local_opt_gradient_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.evaluate_equation_with_x_gradient_at"><code class="docutils literal notranslate"><span class="pre">AGraph.evaluate_equation_with_x_gradient_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.get_complexity"><code class="docutils literal notranslate"><span class="pre">AGraph.get_complexity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.get_formatted_string"><code class="docutils literal notranslate"><span class="pre">AGraph.get_formatted_string()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.get_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">AGraph.get_local_optimization_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.get_number_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">AGraph.get_number_local_optimization_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.get_utilized_commands"><code class="docutils literal notranslate"><span class="pre">AGraph.get_utilized_commands()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#id2"><code class="docutils literal notranslate"><span class="pre">AGraph.mutable_command_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.needs_local_optimization"><code class="docutils literal notranslate"><span class="pre">AGraph.needs_local_optimization()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.AGraph.set_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">AGraph.set_local_optimization_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.force_use_of_python_backends"><code class="docutils literal notranslate"><span class="pre">force_use_of_python_backends()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.agraph.force_use_of_python_simplification"><code class="docutils literal notranslate"><span class="pre">force_use_of_python_simplification()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.component_generator">bingo.symbolic_regression.agraph.component_generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.input_x_dimension"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.input_x_dimension</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.add_operator"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.add_operator()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.get_number_of_operators"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.get_number_of_operators()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.get_number_of_terminals"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.get_number_of_terminals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_command"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_operator"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_operator()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_operator_command"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_operator_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_operator_parameter"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_operator_parameter()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_terminal"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_terminal()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_terminal_command"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_terminal_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_terminal_parameter"><code class="docutils literal notranslate"><span class="pre">ComponentGenerator.random_terminal_parameter()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.crossover">bingo.symbolic_regression.agraph.crossover module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.crossover.AGraphCrossover"><code class="docutils literal notranslate"><span class="pre">AGraphCrossover</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.crossover.AGraphCrossover.types"><code class="docutils literal notranslate"><span class="pre">AGraphCrossover.types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.crossover.AGraphCrossover.last_crossover_types"><code class="docutils literal notranslate"><span class="pre">AGraphCrossover.last_crossover_types</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.generator">bingo.symbolic_regression.agraph.generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.generator.AGraphGenerator"><code class="docutils literal notranslate"><span class="pre">AGraphGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.mutation">bingo.symbolic_regression.agraph.mutation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.mutation.AGraphMutation"><code class="docutils literal notranslate"><span class="pre">AGraphMutation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.mutation.AGraphMutation.types"><code class="docutils literal notranslate"><span class="pre">AGraphMutation.types</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.mutation.AGraphMutation.last_mutation_type"><code class="docutils literal notranslate"><span class="pre">AGraphMutation.last_mutation_type</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.operator_definitions">bingo.symbolic_regression.agraph.operator_definitions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.operator_definitions.IS_ARITY_2_MAP"><code class="docutils literal notranslate"><span class="pre">IS_ARITY_2_MAP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.operator_definitions.IS_TERMINAL_MAP"><code class="docutils literal notranslate"><span class="pre">IS_TERMINAL_MAP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.operator_definitions.OPERATOR_NAMES"><code class="docutils literal notranslate"><span class="pre">OPERATOR_NAMES</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.string_generation">bingo.symbolic_regression.agraph.string_generation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_generation.STACK_PRINT_MAP"><code class="docutils literal notranslate"><span class="pre">STACK_PRINT_MAP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_generation.LATEX_PRINT_MAP"><code class="docutils literal notranslate"><span class="pre">LATEX_PRINT_MAP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_generation.SYMPY_PRINT_MAP"><code class="docutils literal notranslate"><span class="pre">SYMPY_PRINT_MAP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_generation.CONSOLE_PRINT_MAP"><code class="docutils literal notranslate"><span class="pre">CONSOLE_PRINT_MAP</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_generation.get_formatted_string"><code class="docutils literal notranslate"><span class="pre">get_formatted_string()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.string_parsing">bingo.symbolic_regression.agraph.string_parsing module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_parsing.eq_string_to_command_array_and_constants"><code class="docutils literal notranslate"><span class="pre">eq_string_to_command_array_and_constants()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_parsing.eq_string_to_infix_tokens"><code class="docutils literal notranslate"><span class="pre">eq_string_to_infix_tokens()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_parsing.infix_to_postfix"><code class="docutils literal notranslate"><span class="pre">infix_to_postfix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.string_parsing.postfix_to_command_array_and_constants"><code class="docutils literal notranslate"><span class="pre">postfix_to_command_array_and_constants()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph.torchagraph">bingo.symbolic_regression.agraph.torchagraph module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#id3">Stack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#id4">Nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph"><code class="docutils literal notranslate"><span class="pre">TorchAGraph</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.command_array"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.command_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.mutable_command_array"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.mutable_command_array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.constants"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.constants</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.engine"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.engine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.evaluate_equation_at"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.evaluate_equation_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.evaluate_equation_with_local_opt_gradient_at"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.evaluate_equation_with_local_opt_gradient_at()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.TorchAGraph.evaluate_equation_with_x_gradient_at"><code class="docutils literal notranslate"><span class="pre">TorchAGraph.evaluate_equation_with_x_gradient_at()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.force_use_of_python_backends"><code class="docutils literal notranslate"><span class="pre">force_use_of_python_backends()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#bingo.symbolic_regression.agraph.torchagraph.force_use_of_python_simplification"><code class="docutils literal notranslate"><span class="pre">force_use_of_python_simplification()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.symbolic_regression.agraph.html#module-bingo.symbolic_regression.agraph">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-bingo.symbolic_regression.atomic_potential_regression">
+<span id="bingo-symbolic-regression-atomic-potential-regression-module"></span><h2>bingo.symbolic_regression.atomic_potential_regression module<a class="headerlink" href="#module-bingo.symbolic_regression.atomic_potential_regression" title="Link to this heading">#</a></h2>
+<p>Symbolic Regression of Inter-atomic Potentials</p>
+<p>Symbolic regression of inter-atomic potentials is defined in this module as the
+search for a function, f, such that sum( f(r_i) ) - U. U is the total potential
+energy of an atomic configuration with a set of atoms separated at distances of
+r_i.</p>
+<p>The classes in this module encapsulate the parts of bingo evolutionary analysis
+that are unique to symbolic regression of inter-atomic potentials. Namely,
+these classes are an appropriate fitness evaluator and a corresponding training
+data container.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.atomic_potential_regression.</span></span><span class="sig-name descname"><span class="pre">PairwiseAtomicPotential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction" title="bingo.evaluation.fitness_function.VectorBasedFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorBasedFunction</span></code></a></p>
+<p>Fitness based on total potential energy of a set of configurations.</p>
+<p>Pairwise atomic potential which is fit with total potential energy for a
+set of configurations. Fitness is calculated as how well total potential
+energies are matched by the summation of pairwise energies which are
+calculated by the <cite>Equation</cite> individual</p>
+<dl class="simple">
+<dt>fitness = sum(abs(sum(<span class="math notranslate nohighlight">\(f(r_i)\)</span>) - <span class="math notranslate nohighlight">\(U_{{true}_i}\)</span>))</dt><dd><p>for i in config</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>training_data</strong> (<a class="reference internal" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicTrainingData" title="bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicTrainingData"><em>PairwiseAtomicTrainingData</em></a>) – data that is used in fitness evaluation.  Must have
+attributes r, potential_energy and config_lims_r.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential.evaluate_fitness_vector">
+<span class="sig-name descname"><span class="pre">evaluate_fitness_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential.evaluate_fitness_vector" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the fitness of an individual based on how well
+<cite>training_data</cite>’s total potential energies are matched by the
+summation of pairwise energies calculated by the individual.</p>
+<dl class="simple">
+<dt>fitness = sum(abs(sum(<span class="math notranslate nohighlight">\(f(r_i)\)</span>) - <span class="math notranslate nohighlight">\(U_{{true}_i}\)</span>))</dt><dd><p>for i in config</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>individual</strong> (<a class="reference internal" href="#bingo.symbolic_regression.equation.Equation" title="bingo.symbolic_regression.equation.Equation"><em>Equation</em></a>) – individual whose fitness will be evaluated</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fitness</strong> – a vector of <cite>individual</cite>’s fitness values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicTrainingData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.atomic_potential_regression.</span></span><span class="sig-name descname"><span class="pre">PairwiseAtomicTrainingData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">potential_energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configurations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_lims_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicTrainingData" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.training_data.TrainingData" title="bingo.evaluation.training_data.TrainingData"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainingData</span></code></a></p>
+<p>PairwiseAtomicTrainingData:</p>
+<p>Training data of this type contains distances (r) between atoms in several
+atomic configurations. Each configuration has an associated potential
+energy.  The r values belonging to each configuration are bounded by
+configuration limits (config_lims_r)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>potential_energy</strong> (<em>1d numpy array</em>) – potential energy for each configuration</p></li>
+<li><p><strong>configurations</strong> (<em>(</em><em>optional</em><em>) </em><em>list</em><em> of </em><em>tuples</em><em> (</em><em>structure</em><em>, </em><em>period</em><em>, </em><em>r_cutoff</em><em>)</em><em>,</em>) – where the structure is an array of x,y,z locations of
+atoms. Period is the periodic size of the configuration.
+rcutoff is the cutoff distance after which the pairwise
+interaction does not effect the potential energy.</p></li>
+<li><p><strong>r_list</strong> (<em>2d numpy array</em>) – (optional) list of all pairwise distances</p></li>
+<li><p><strong>config_lims_r</strong> (<em>1d numpy array</em>) – (optional) bounds of all of the r_indices corresponding to
+each configuration</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Initialization must be performed with either configurations or a
+combination of r_list and config_lims_r.</p>
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.equation">
+<span id="bingo-symbolic-regression-equation-module"></span><h2>bingo.symbolic_regression.equation module<a class="headerlink" href="#module-bingo.symbolic_regression.equation" title="Link to this heading">#</a></h2>
+<p>The base of equation chromosomes in bingo.</p>
+<p>This module defines the basis of equations in bingo evolutionary analyses.
+Equations are commonly used in symbolic regression, a specific application of
+genetic programming.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation.Equation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.equation.</span></span><span class="sig-name descname"><span class="pre">Equation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genetic_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation.Equation" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.chromosome.Chromosome" title="bingo.chromosomes.chromosome.Chromosome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Chromosome</span></code></a></p>
+<p>Base representation of an equation</p>
+<p>This class is the base of a equations used in symbolic regression analyses
+in bingo.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation.Equation.evaluate_equation_at">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate_equation_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation.Equation.evaluate_equation_at" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate the equation.</p>
+<p>Get value of the equation at points x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>MxD array</em><em> of </em><em>numeric.</em>) – Values at which to evaluate the equations. D is the number of
+dimensions in x and M is the number of data points in x.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(f(x)\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mx1 array of numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation.Equation.evaluate_equation_with_local_opt_gradient_at">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate_equation_with_local_opt_gradient_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation.Equation.evaluate_equation_with_local_opt_gradient_at" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate equation and get its derivatives.</p>
+<p>Get value the equation at x and its gradient with respect to
+optimization parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>MxD array</em><em> of </em><em>numeric.</em>) – Values at which to evaluate the equations. D is the number of
+dimensions in x and M is the number of data points in x.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(f(x)\)</span> and <span class="math notranslate nohighlight">\(df(x)/dc_i\)</span>. L is the number of
+optimization parameters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple(Mx1 array of numeric, MxL array of numeric)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation.Equation.evaluate_equation_with_x_gradient_at">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">evaluate_equation_with_x_gradient_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation.Equation.evaluate_equation_with_x_gradient_at" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate equation and get its derivatives.</p>
+<p>Get value the equation at x and its gradient with respect to x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>MxD array</em><em> of </em><em>numeric.</em>) – Values at which to evaluate the equations. D is the number of
+dimensions in x and M is the number of data points in x.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(f(x)\)</span> and <span class="math notranslate nohighlight">\(df(x)/dx_i\)</span></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple(Mx1 array of numeric, MxD array of numeric)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation.Equation.get_complexity">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_complexity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation.Equation.get_complexity" title="Link to this definition">#</a></dt>
+<dd><p>Calculate complexity of equation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>complexity measure of equation</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.equation_regressor">
+<span id="bingo-symbolic-regression-equation-regressor-module"></span><h2>bingo.symbolic_regression.equation_regressor module<a class="headerlink" href="#module-bingo.symbolic_regression.equation_regressor" title="Link to this heading">#</a></h2>
+<p>This module contains a wrapper around the bingo Equation object to match the
+regressor interface in scikit-learn. Calling <cite>fit</cite> performs a fitting of the
+numerical constants in the equation.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.equation_regressor.</span></span><span class="sig-name descname"><span class="pre">EquationRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">equation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mse'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_retries</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>A thin scikit learn wrapper around bingo equations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>equation</strong> (<cite>Equation</cite>) – equation that wiull be wrapped</p></li>
+<li><p><strong>metric</strong> (<em>str</em><em>, </em><em>optional</em>) – metric used for local optimization on parameters during fit, by default “mse”</p></li>
+<li><p><strong>algo</strong> (<em>str</em><em>, </em><em>optional</em>) – algorithm used for local optimization on parameters during fit, by default “lm”</p></li>
+<li><p><strong>tol</strong> (<em>_type_</em><em>, </em><em>optional</em>) – tolerance used for local optimization on parameters during fit, by default 1e-6</p></li>
+<li><p><strong>fit_retries</strong> (<em>int</em><em>, </em><em>optional</em>) – number of times to attempt to fit parameters. This is a hedge against the
+variability of selecting a random starting point for the local optimization,
+by default 5</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor.complexity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">complexity</span></span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.complexity" title="Link to this definition">#</a></dt>
+<dd><p>Complexity of equation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit constants in equation to the given data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>MxD numpy array</em><em> of </em><em>numeric</em>) – Input values. D is the number of dimensions and
+M is the number of data points.</p></li>
+<li><p><strong>y</strong> (<em>Mx1 numpy array</em><em> of </em><em>numeric</em>) – Target/output values. M is the number of data points.</p></li>
+<li><p><strong>sample_weight</strong> (<em>Mx1 numpy array</em><em> of </em><em>numeric</em><em>, </em><em>optional</em>) – Weights per sample/data point. M is the number of data points.
+Not currently supported</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor.fitness">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fitness</span></span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.fitness" title="Link to this definition">#</a></dt>
+<dd><p>Fitness of equation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.predict" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate the equation to predict the outputs of <cite>X</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>MxD numpy array</em><em> of </em><em>numeric</em>) – Input values. D is the number of dimensions and
+M is the number of data points.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pred_y</strong> – Predicted target/output values. M is the number of data points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mx1 numpy array of numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor.set_fit_request">
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor" title="bingo.symbolic_regression.equation_regressor.EquationRegressor"><span class="pre">EquationRegressor</span></a></span></span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.set_fit_request" title="Link to this definition">#</a></dt>
+<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
+<p>Note that this method is only relevant if
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please see <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is only relevant if this estimator is used as a
+sub-estimator of a meta-estimator, e.g. used inside a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sample_weight</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.equation_regressor.EquationRegressor.set_score_request">
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor" title="bingo.symbolic_regression.equation_regressor.EquationRegressor"><span class="pre">EquationRegressor</span></a></span></span><a class="headerlink" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.set_score_request" title="Link to this definition">#</a></dt>
+<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
+<p>Note that this method is only relevant if
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please see <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">score</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is only relevant if this estimator is used as a
+sub-estimator of a meta-estimator, e.g. used inside a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sample_weight</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.explicit_regression">
+<span id="bingo-symbolic-regression-explicit-regression-module"></span><h2>bingo.symbolic_regression.explicit_regression module<a class="headerlink" href="#module-bingo.symbolic_regression.explicit_regression" title="Link to this heading">#</a></h2>
+<p>Explicit Symbolic Regression</p>
+<p>Explicit symbolic regression is the search for a function, f, such that
+f(x) = y.</p>
+<p>The classes in this module encapsulate the parts of bingo evolutionary analysis
+that are unique to explicit symbolic regression. Namely, these classes are an
+appropriate fitness evaluator and a corresponding training data container.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitRegression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.explicit_regression.</span></span><span class="sig-name descname"><span class="pre">ExplicitRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_linear_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.VectorGradientMixin" title="bingo.evaluation.gradient_mixin.VectorGradientMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorGradientMixin</span></code></a>, <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction" title="bingo.evaluation.fitness_function.VectorBasedFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorBasedFunction</span></code></a></p>
+<p>The traditional fitness evaluation for symbolic regression</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>training_data</strong> (<a class="reference internal" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData" title="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData"><em>ExplicitTrainingData</em></a>) – data that is used in fitness evaluation.</p></li>
+<li><p><strong>metric</strong> (<em>str</em>) – String defining the measure of error to use. Available options are:
+‘mean absolute error’, ‘mean squared error’, and
+‘root mean squared error’</p></li>
+<li><p><strong>relative</strong> (<em>bool</em>) – Whether to use relative, pointwise normalization of errors. Default:
+False.</p></li>
+<li><p><strong>use_linear_correction</strong> (<em>bool</em>) – Whether to adjust outputs of equations by a least squares linear correction. Default: False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitRegression.evaluate_fitness_vector">
+<span class="sig-name descname"><span class="pre">evaluate_fitness_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression.evaluate_fitness_vector" title="Link to this definition">#</a></dt>
+<dd><p>Traditional fitness evaluation for symbolic regression</p>
+<p>fitness = y - f(x) where x and y are in the training_data (i.e.
+training_data.x and training_data.y) and the function f is defined by
+the input Equation individual.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>individual</strong> (<a class="reference internal" href="#bingo.symbolic_regression.equation.Equation" title="bingo.symbolic_regression.equation.Equation"><em>Equation</em></a>) – individual whose fitness is evaluated on <cite>training_data</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the fitness of the input Equation individual</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitRegression.get_fitness_vector_and_jacobian">
+<span class="sig-name descname"><span class="pre">get_fitness_vector_and_jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression.get_fitness_vector_and_jacobian" title="Link to this definition">#</a></dt>
+<dd><p>Fitness and jacobian evaluation of individual</p>
+<p>fitness = y - f(x) where x and y are in the training_data (i.e.
+training_data.x and training_data.y) and the function f is defined by
+the input Equation individual.</p>
+<dl class="simple">
+<dt>jacobian = [[<span class="math notranslate nohighlight">\(df_1/dc_1\)</span>, <span class="math notranslate nohighlight">\(df_1/dc_2\)</span>, …],</dt><dd><p>[<span class="math notranslate nohighlight">\(df_2/dc_1\)</span>, <span class="math notranslate nohighlight">\(df_2/dc_2\)</span>, …],
+…]</p>
+</dd>
+</dl>
+<p>where <span class="math notranslate nohighlight">\(f_\#\)</span> is the fitness function corresponding with the
+#th fitness vector entry and <span class="math notranslate nohighlight">\(c_\#\)</span> is the corresponding
+constant of the individual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>individual</strong> (<a class="reference internal" href="#bingo.symbolic_regression.equation.Equation" title="bingo.symbolic_regression.equation.Equation"><em>Equation</em></a>) – individual whose fitness will be evaluated on <cite>training_data</cite>
+and whose constants will be used for evaluating the jacobian</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the vectorized fitness of the individual and
+the partial derivatives of each fitness function with respect
+to the individual’s constants</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>fitness_vector, jacobian</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.explicit_regression.</span></span><span class="sig-name descname"><span class="pre">ExplicitTrainingData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.training_data.TrainingData" title="bingo.evaluation.training_data.TrainingData"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainingData</span></code></a></p>
+<p>ExplicitTrainingData: Training data of this type contains an input array of
+data (x)  and an output array of data (y).  Both must be 2 dimensional
+numpy arrays</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2D numpy array</em>) – independent variable</p></li>
+<li><p><strong>y</strong> (<em>2D numpy array</em>) – dependent variable</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.x">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.x" title="Link to this definition">#</a></dt>
+<dd><p>independent x data</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.y">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.y" title="Link to this definition">#</a></dt>
+<dd><p>dependent y data</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.implicit_regression">
+<span id="bingo-symbolic-regression-implicit-regression-module"></span><h2>bingo.symbolic_regression.implicit_regression module<a class="headerlink" href="#module-bingo.symbolic_regression.implicit_regression" title="Link to this heading">#</a></h2>
+<p>Implicit Symbolic Regression</p>
+<p>Explicit symbolic regression is the search for a function, f, such that
+f(x) = constant.  One of the most difficult part of this task is avoiding
+trivial solutions like f(x) = 0*x.</p>
+<p>The classes in this module encapsulate the parts of bingo evolutionary analysis
+that are unique to implicit symbolic regression. Namely, these classes are
+appropriate fitness evaluators, a corresponding training data container, and
+two helper functions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression.ImplicitRegression">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.implicit_regression.</span></span><span class="sig-name descname"><span class="pre">ImplicitRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression.ImplicitRegression" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction" title="bingo.evaluation.fitness_function.VectorBasedFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorBasedFunction</span></code></a></p>
+<p>Implicit Regression, version 2</p>
+<p>Fitness of this metric is related to the cos of angle between between
+<span class="math notranslate nohighlight">\(df_dx(x)\)</span> and <span class="math notranslate nohighlight">\(dx_dt\)</span>. <span class="math notranslate nohighlight">\(df_dx(x)\)</span> is calculated
+through derivatives of the input Equation individual at training_data.x.
+<span class="math notranslate nohighlight">\(dx_dt\)</span> is from training_data.dx_dt.</p>
+<p>Different normalization and error checking are available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>training_data</strong> (<cite>ImplicitTrainingData</cite>) – data that is used in fitness evaluation.</p></li>
+<li><p><strong>required_params</strong> (<em>int</em>) – (optional) minimum number of nonzero components of dot</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression.ImplicitRegression.evaluate_fitness_vector">
+<span class="sig-name descname"><span class="pre">evaluate_fitness_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression.ImplicitRegression.evaluate_fitness_vector" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the fitness of an implicit individual</p>
+<p>Evaluates the fitness of the input Equation individual based
+on the cos of the angle between <span class="math notranslate nohighlight">\(df_dx(x)\)</span> and <span class="math notranslate nohighlight">\(dx_dt\)</span>.
+Where <span class="math notranslate nohighlight">\(df_dx\)</span> comes from the equation’s output w.r.t.
+training_data.x and <span class="math notranslate nohighlight">\(dx_dt\)</span> is training_data.dx_dt.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>individual</strong> (<a class="reference internal" href="#bingo.symbolic_regression.equation.Equation" title="bingo.symbolic_regression.equation.Equation"><em>Equation</em></a>) – individual whose fitness is evaluated on <cite>training_data</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the fitness of the input Equation individual</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression.ImplicitTrainingData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.implicit_regression.</span></span><span class="sig-name descname"><span class="pre">ImplicitTrainingData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx_dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.training_data.TrainingData" title="bingo.evaluation.training_data.TrainingData"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainingData</span></code></a></p>
+<p>ImplicitTrainingData: Training data of this type contains an input array of
+data (x)  and its time derivative (dx_dt).  Both must be 2 dimensional
+numpy arrays</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>2D numpy array</em>) – independent variable</p></li>
+<li><p><strong>dx_dt</strong> (<em>2D numpy array</em>) – (optional) time derivative of x.  If not provided dx_dt is calculated
+from x.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.x" title="Link to this definition">#</a></dt>
+<dd><p>independent variable</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2D numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.dx_dt">
+<span class="sig-name descname"><span class="pre">dx_dt</span></span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.dx_dt" title="Link to this definition">#</a></dt>
+<dd><p>time derivative of x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>2D numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<p>If dx_dt partials are calculated, smoothing of the data will occur.
+Because accuracy of the derivatives degrades near the boundaries, the
+first 3 and last 4 points are removed from the dataset.</p>
+<p>If the dataset is broken into multiple trajectories (i.e., there are break
+points where is doesnt make sense to calculate partial derivatives), they
+should be split in the input <cite>x</cite> by a row of np.nan.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dx_dt</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<dd><p>derivative of x data</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<dd><p>x data</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.implicit_regression_schmidt">
+<span id="bingo-symbolic-regression-implicit-regression-schmidt-module"></span><h2>bingo.symbolic_regression.implicit_regression_schmidt module<a class="headerlink" href="#module-bingo.symbolic_regression.implicit_regression_schmidt" title="Link to this heading">#</a></h2>
+<p>Implicit Regression, Adapted from Schmidt and Lipson papers</p>
+<p>Fitness in this method is the difference of partial derivatives pairs
+calculated with the data and the input <cite>Equation</cite> individual.</p>
+<p>This may not be a correct implementation of this algorithm.  Importantly,
+it couldn’t reproduce the  results in the papers. Currently, there is no effort
+to maintain functionality of this module.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.implicit_regression_schmidt.</span></span><span class="sig-name descname"><span class="pre">ImplicitRegressionSchmidt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction" title="bingo.evaluation.fitness_function.VectorBasedFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorBasedFunction</span></code></a></p>
+<p>Implicit Regression, Adapted from Schmidt and Lipson papers</p>
+<p>Fitness in this method is the difference of partial derivatives pairs
+calculated with the data and the input <cite>Equation</cite> individual.</p>
+<p>See “Symbolic Regression of Implicit Equations” by Michael Schmidt
+and Hod Lipson for more info.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>training_data</strong> (<a class="reference internal" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData" title="bingo.symbolic_regression.implicit_regression.ImplicitTrainingData"><em>ImplicitTrainingData</em></a>) – data that is used in fitness evaluation.  Must have attributes x and
+dx_dt.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt.evaluate_fitness_vector">
+<span class="sig-name descname"><span class="pre">evaluate_fitness_vector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt.evaluate_fitness_vector" title="Link to this definition">#</a></dt>
+<dd><p>Evaluates the fitness of an implicit individual</p>
+<p>Evaluates the fitness of the input Equation individual based on
+the ratio of partial derivatives between pairs of variables.</p>
+<p>fitness = <span class="math notranslate nohighlight">\(-\frac{1}{N} \sum_{i=1}^N \log \left(1 + |
+\frac{\Delta x_i}{\Delta y_i} + \frac{\delta x_i}{\delta y_i}| \right)\)</span>
+for each <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span> pair in training_data.x where
+<span class="math notranslate nohighlight">\(N\)</span> is the length of the training_data,
+<span class="math notranslate nohighlight">\(\frac{\Delta x_i}{\Delta y_i} = \frac{dx/dt}{dy/dt}\)</span> from
+training_data.dx_dt, and <span class="math notranslate nohighlight">\(\frac{\delta x_i}{\delta y_i} =
+\frac{\delta f / \delta y}{\delta f / \delta x}\)</span> from the input
+Equation individual’s output on training_data.x.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>individual</strong> (<a class="reference internal" href="#bingo.symbolic_regression.equation.Equation" title="bingo.symbolic_regression.equation.Equation"><em>Equation</em></a>) – individual whose fitness is evaluated on <cite>training_data</cite></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the fitness of the input Equation individual</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.srbench_interface">
+<span id="bingo-symbolic-regression-srbench-interface-module"></span><h2>bingo.symbolic_regression.srbench_interface module<a class="headerlink" href="#module-bingo.symbolic_regression.srbench_interface" title="Link to this heading">#</a></h2>
+<p>An interface for Bingo with the symbolic regression benchmarking suite
+SRBENCH: github.com/cavalab/srbench</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.srbench_interface.eval_kwargs">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.srbench_interface.</span></span><span class="sig-name descname"><span class="pre">eval_kwargs</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'test_params':</span> <span class="pre">{'generations':</span> <span class="pre">2}}</span></em><a class="headerlink" href="#bingo.symbolic_regression.srbench_interface.eval_kwargs" title="Link to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>a dictionary of variables passed to the evaluate_model()</dt><dd><p>function.
+Allows one to configure aspects of the training process.</p>
+</dd>
+</dl>
+<section id="options">
+<h3>Options<a class="headerlink" href="#options" title="Link to this heading">#</a></h3>
+<blockquote>
+<div><dl>
+<dt>test_params: dict, default = None</dt><dd><p>Used primarily to shorten run-times during testing.
+for running the tests. called as</p>
+<blockquote>
+<div><p>est = est.set_params(<a href="#id2"><span class="problematic" id="id3">**</span></a>test_params)</p>
+</div></blockquote>
+</dd>
+<dt>max_train_samples:int, default = 0</dt><dd><p>if training size is larger than this, sample it.
+if 0, use all training samples for fit.</p>
+</dd>
+<dt>scale_x: bool, default = True</dt><dd><p>Normalize the input data prior to fit.</p>
+</dd>
+<dt>scale_y: bool, default = True</dt><dd><p>Normalize the input label prior to fit.</p>
+</dd>
+<dt>pre_train: function, default = None</dt><dd><p>Adjust settings based on training data. Called prior to est.fit.
+The function signature should be (est, X, y).</p>
+<blockquote>
+<div><p>est: sklearn regressor; the fitted model.
+X: pd.DataFrame; the training data.
+y: training labels.</p>
+</div></blockquote>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>eval_kwargs</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.srbench_interface.get_best_solution">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.srbench_interface.</span></span><span class="sig-name descname"><span class="pre">get_best_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">est</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.srbench_interface.get_best_solution" title="Link to this definition">#</a></dt>
+<dd><p>Return the best solution from the final model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A scikit-learn compatible estimator</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.srbench_interface.get_population">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.srbench_interface.</span></span><span class="sig-name descname"><span class="pre">get_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">est</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.srbench_interface.get_population" title="Link to this definition">#</a></dt>
+<dd><p>Return the final population of the model. This final population should
+be a list with at most 100 individuals. Each of the individuals must
+be compatible with scikit-learn, so they should have a predict method.</p>
+<p>Also, it is expected that the <cite>model()</cite> function can operate with them,
+so they should have a way of getting a simpy string representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of scikit-learn compatible estimators</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.srbench_interface.hyper_params">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.srbench_interface.</span></span><span class="sig-name descname"><span class="pre">hyper_params</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[{'population_size':</span> <span class="pre">[100],</span> <span class="pre">'stack_size':</span> <span class="pre">[24]},</span> <span class="pre">{'population_size':</span> <span class="pre">[500],</span> <span class="pre">'stack_size':</span> <span class="pre">[24]},</span> <span class="pre">{'population_size':</span> <span class="pre">[2500],</span> <span class="pre">'stack_size':</span> <span class="pre">[32]}]</span></em><a class="headerlink" href="#bingo.symbolic_regression.srbench_interface.hyper_params" title="Link to this definition">#</a></dt>
+<dd><p>a sklearn-compatible regressor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>est</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.srbench_interface.model">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.srbench_interface.</span></span><span class="sig-name descname"><span class="pre">model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">est</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.srbench_interface.model" title="Link to this definition">#</a></dt>
+<dd><p>Return a sympy-compatible string of the final model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>est</strong> (<em>sklearn regressor</em>) – The fitted model.</p></li>
+<li><p><strong>X</strong> (<em>pd.DataFrame</em><em>, </em><em>default=None</em>) – The training data. This argument can be dropped if desired.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A sympy-compatible string of the final model.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Ensure that the variable names appearing in the model are identical to
+those in the training data, <cite>X</cite>, which is a <cite>pd.Dataframe</cite>.
+If your method names variables some other way, e.g. <cite>[x_0 … x_m]</cite>,
+you can specify a mapping in the <cite>model</cite> function such as:</p>
+<blockquote>
+<div><p><a href="#id4"><span class="problematic" id="id5">``</span></a>`
+def model(est, X):</p>
+<blockquote>
+<div><p>mapping = {’<a href="#id10"><span class="problematic" id="id11">x_</span></a>’+str(i):k for i,k in enumerate(X.columns)}
+new_model = <a href="#id12"><span class="problematic" id="id13">est.model_</span></a>
+for k,v in mapping.items():</p>
+<blockquote>
+<div><p>new_model = new_model.replace(k,v)</p>
+</div></blockquote>
+</div></blockquote>
+<p><a href="#id6"><span class="problematic" id="id7">``</span></a><a href="#id8"><span class="problematic" id="id9">`</span></a></p>
+</div></blockquote>
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression.symbolic_regressor">
+<span id="bingo-symbolic-regression-symbolic-regressor-module"></span><h2>bingo.symbolic_regression.symbolic_regressor module<a class="headerlink" href="#module-bingo.symbolic_regression.symbolic_regressor" title="Link to this heading">#</a></h2>
+<p>This module contains the implementation of an object used for symbolic
+regression via a scikit-learn interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.symbolic_regressor.</span></span><span class="sig-name descname"><span class="pre">SymbolicRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stack_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_simplification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mse'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clo_alg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000000000000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1800</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_evals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000000000000000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evolutionary_algorithm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clo_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_max_evals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
+<p>Class for performing symbolic regression using genetic programming.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>population_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of individuals in a population.</p></li>
+<li><p><strong>stack_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The max number of commands per individual.</p></li>
+<li><p><strong>operators</strong> (<em>iterable</em><em> of </em><em>str</em><em>, </em><em>optional</em>) – Potential operations that can be used.</p></li>
+<li><p><strong>use_simplification</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use simplification to speed up evaluation or not.</p></li>
+<li><p><strong>crossover_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – Probability in [0, 1] of crossover occurring on an individual.</p></li>
+<li><p><strong>mutation_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – Probability in [0, 1] of mutation occurring on an individual.</p></li>
+<li><p><strong>metric</strong> (<em>str</em><em>, </em><em>optional</em>) – Error metric to use for fitness (e.g., “rmse”, “mse”, “mae”).</p></li>
+<li><p><strong>clo_alg</strong> (<em>str</em><em>, </em><em>optional</em>) – Algorithm to use for local optimization (e.g., “lm”, “BFGS”, etc.).</p></li>
+<li><p><strong>generations</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of generations allowed for evolution.</p></li>
+<li><p><strong>fitness_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Error/fitness threshold to stop evolution at.</p></li>
+<li><p><strong>max_time</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of seconds to stop evolution at.</p></li>
+<li><p><strong>max_evals</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of fitness evaluation to stop evolution at.</p></li>
+<li><p><strong>evolutionary_algorithm</strong> (<cite>EvolutionaryAlgorithm</cite>, optional) – Evolutionary algorithm to use in evolution.</p></li>
+<li><p><strong>clo_threshold</strong> (<em>float</em><em>, </em><em>optional</em>) – Threshold/tolerance for local optimization.</p></li>
+<li><p><strong>scale_max_evals</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to scale <cite>max_evals</cite> based on fitness predictors or not.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em>) – Seed for random processes.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit this model to the given data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>MxD numpy array</em><em> of </em><em>numeric</em>) – Input values. D is the number of dimensions and
+M is the number of data points.</p></li>
+<li><p><strong>y</strong> (<em>Mx1 numpy array</em><em> of </em><em>numeric</em>) – Target/output values. M is the number of data points.</p></li>
+<li><p><strong>sample_weight</strong> (<em>Mx1 numpy array</em><em> of </em><em>numeric</em><em>, </em><em>optional</em>) – Weights per sample/data point. M is the number of data points.
+Not currently supported</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The fitted version of this object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>SymbolicRegressor</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_individual">
+<span class="sig-name descname"><span class="pre">get_best_individual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_individual" title="Link to this definition">#</a></dt>
+<dd><p>Gets the best model found from fit().</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>best_individual</strong> – Model with the best fitness from fit().</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>RegressorMixin</cite></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If fit() has not been called yet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_population">
+<span class="sig-name descname"><span class="pre">get_best_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_population" title="Link to this definition">#</a></dt>
+<dd><p>Gets best group of models from fit()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Models from pareto front and final population from fit().</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of <cite>RegressorMixin</cite></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If fit() has not been called yet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_pareto_front">
+<span class="sig-name descname"><span class="pre">get_pareto_front</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_pareto_front" title="Link to this definition">#</a></dt>
+<dd><p>Gets best group of models from fit()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Models with the best fitnesses and complexities from fit().</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of <cite>RegressorMixin</cite></p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If fit() has not been called yet</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.predict" title="Link to this definition">#</a></dt>
+<dd><p>Use the best individual to predict the outputs of <cite>X</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>MxD numpy array</em><em> of </em><em>numeric</em>) – Input values. D is the number of dimensions and
+M is the number of data points.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pred_y</strong> – Predicted target/output values. M is the number of data points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mx1 numpy array of numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_fit_request">
+<span class="sig-name descname"><span class="pre">set_fit_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor" title="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor"><span class="pre">SymbolicRegressor</span></a></span></span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_fit_request" title="Link to this definition">#</a></dt>
+<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
+<p>Note that this method is only relevant if
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please see <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">fit</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is only relevant if this estimator is used as a
+sub-estimator of a meta-estimator, e.g. used inside a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sample_weight</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">fit</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_params" title="Link to this definition">#</a></dt>
+<dd><p>Set the parameters of this estimator.</p>
+<p>The method works on simple estimators as well as on nested objects
+(such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>). The latter have
+parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
+possible to update each component of a nested object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**params</strong> (<em>dict</em>) – Estimator parameters.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – Estimator instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>estimator instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_score_request">
+<span class="sig-name descname"><span class="pre">set_score_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'$UNCHANGED$'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor" title="bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor"><span class="pre">SymbolicRegressor</span></a></span></span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_score_request" title="Link to this definition">#</a></dt>
+<dd><p>Request metadata passed to the <code class="docutils literal notranslate"><span class="pre">score</span></code> method.</p>
+<p>Note that this method is only relevant if
+<code class="docutils literal notranslate"><span class="pre">enable_metadata_routing=True</span></code> (see <code class="xref py py-func docutils literal notranslate"><span class="pre">sklearn.set_config()</span></code>).
+Please see <span class="xref std std-ref">User Guide</span> on how the routing
+mechanism works.</p>
+<p>The options for each parameter are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">True</span></code>: metadata is requested, and passed to <code class="docutils literal notranslate"><span class="pre">score</span></code> if provided. The request is ignored if metadata is not provided.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">False</span></code>: metadata is not requested and the meta-estimator will not pass it to <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: metadata is not requested, and the meta-estimator will raise an error if the user provides it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">str</span></code>: metadata should be passed to the meta-estimator with this given alias instead of the original name.</p></li>
+</ul>
+<p>The default (<code class="docutils literal notranslate"><span class="pre">sklearn.utils.metadata_routing.UNCHANGED</span></code>) retains the
+existing request. This allows you to change the request for some
+parameters and not others.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 1.3.</span></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This method is only relevant if this estimator is used as a
+sub-estimator of a meta-estimator, e.g. used inside a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>. Otherwise it has no effect.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sample_weight</strong> (<em>str</em><em>, </em><em>True</em><em>, </em><em>False</em><em>, or </em><em>None</em><em>,                     </em><em>default=sklearn.utils.metadata_routing.UNCHANGED</em>) – Metadata routing for <code class="docutils literal notranslate"><span class="pre">sample_weight</span></code> parameter in <code class="docutils literal notranslate"><span class="pre">score</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.symbolic_regressor.agraph_similarity">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.symbolic_regressor.</span></span><span class="sig-name descname"><span class="pre">agraph_similarity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ag_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ag_2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.symbolic_regressor.agraph_similarity" title="Link to this definition">#</a></dt>
+<dd><p>a similarity metric between agraphs</p>
+</dd></dl>
+
+</section>
+<section id="module-bingo.symbolic_regression">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bingo.symbolic_regression" title="Link to this heading">#</a></h2>
+<p>Import the core names of bingo symbolic_regression library</p>
+<p>Programs that want to build bingo symbolic regression apps
+without having to import specific modules can import this.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="bingo.stats.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">bingo.stats package</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bingo.symbolic_regression.agraph.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">bingo.symbolic_regression.agraph package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.atomic_potential_regression">bingo.symbolic_regression.atomic_potential_regression module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential"><code class="docutils literal notranslate"><span class="pre">PairwiseAtomicPotential</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicPotential.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">PairwiseAtomicPotential.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.atomic_potential_regression.PairwiseAtomicTrainingData"><code class="docutils literal notranslate"><span class="pre">PairwiseAtomicTrainingData</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.equation">bingo.symbolic_regression.equation module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation.Equation"><code class="docutils literal notranslate"><span class="pre">Equation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation.Equation.evaluate_equation_at"><code class="docutils literal notranslate"><span class="pre">Equation.evaluate_equation_at()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation.Equation.evaluate_equation_with_local_opt_gradient_at"><code class="docutils literal notranslate"><span class="pre">Equation.evaluate_equation_with_local_opt_gradient_at()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation.Equation.evaluate_equation_with_x_gradient_at"><code class="docutils literal notranslate"><span class="pre">Equation.evaluate_equation_with_x_gradient_at()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation.Equation.get_complexity"><code class="docutils literal notranslate"><span class="pre">Equation.get_complexity()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.equation_regressor">bingo.symbolic_regression.equation_regressor module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor"><code class="docutils literal notranslate"><span class="pre">EquationRegressor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.complexity"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.complexity</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.fit"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.fitness"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.fitness</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.predict"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.predict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.set_fit_request"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.set_fit_request()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.equation_regressor.EquationRegressor.set_score_request"><code class="docutils literal notranslate"><span class="pre">EquationRegressor.set_score_request()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.explicit_regression">bingo.symbolic_regression.explicit_regression module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression"><code class="docutils literal notranslate"><span class="pre">ExplicitRegression</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">ExplicitRegression.evaluate_fitness_vector()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression.get_fitness_vector_and_jacobian"><code class="docutils literal notranslate"><span class="pre">ExplicitRegression.get_fitness_vector_and_jacobian()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData"><code class="docutils literal notranslate"><span class="pre">ExplicitTrainingData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.x"><code class="docutils literal notranslate"><span class="pre">ExplicitTrainingData.x</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData.y"><code class="docutils literal notranslate"><span class="pre">ExplicitTrainingData.y</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.implicit_regression">bingo.symbolic_regression.implicit_regression module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression.ImplicitRegression"><code class="docutils literal notranslate"><span class="pre">ImplicitRegression</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression.ImplicitRegression.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">ImplicitRegression.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.x"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.x</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression.ImplicitTrainingData.dx_dt"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.dx_dt</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.dx_dt</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1"><code class="docutils literal notranslate"><span class="pre">ImplicitTrainingData.x</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.implicit_regression_schmidt">bingo.symbolic_regression.implicit_regression_schmidt module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt"><code class="docutils literal notranslate"><span class="pre">ImplicitRegressionSchmidt</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.implicit_regression_schmidt.ImplicitRegressionSchmidt.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">ImplicitRegressionSchmidt.evaluate_fitness_vector()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.srbench_interface">bingo.symbolic_regression.srbench_interface module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.srbench_interface.eval_kwargs"><code class="docutils literal notranslate"><span class="pre">eval_kwargs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.srbench_interface.get_best_solution"><code class="docutils literal notranslate"><span class="pre">get_best_solution()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.srbench_interface.get_population"><code class="docutils literal notranslate"><span class="pre">get_population()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.srbench_interface.hyper_params"><code class="docutils literal notranslate"><span class="pre">hyper_params</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.srbench_interface.model"><code class="docutils literal notranslate"><span class="pre">model()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.symbolic_regressor">bingo.symbolic_regression.symbolic_regressor module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.fit"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_individual"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.get_best_individual()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_best_population"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.get_best_population()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.get_pareto_front"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.get_pareto_front()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.predict"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.predict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_fit_request"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.set_fit_request()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_params"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.set_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.SymbolicRegressor.set_score_request"><code class="docutils literal notranslate"><span class="pre">SymbolicRegressor.set_score_request()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.symbolic_regressor.agraph_similarity"><code class="docutils literal notranslate"><span class="pre">agraph_similarity()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression">Module contents</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_apidocs/bingo.symbolic_regression.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, United States Government as represented by the Administrator of the National Aeronautics and Space Administration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

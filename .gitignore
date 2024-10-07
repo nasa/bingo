@@ -4,5 +4,4 @@
 *.cache/
 *.ipynb_checkpoints/
 .pytest_cache/
-docs/build/
 docs/source/_autosummary

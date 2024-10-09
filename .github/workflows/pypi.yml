@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/nasa-bingo
+      url: https://pypi.org/p/bingo-nasa
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
@@ -179,7 +179,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/nasa-bingo
+      url: https://test.pypi.org/p/bingo-nasa
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing

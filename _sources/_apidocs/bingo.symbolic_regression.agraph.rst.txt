@@ -1,0 +1,86 @@
+bingo.symbolic\_regression.agraph package
+=========================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bingo.symbolic_regression.agraph.evaluation_backend
+   bingo.symbolic_regression.agraph.simplification_backend
+
+Submodules
+----------
+
+bingo.symbolic\_regression.agraph.agraph module
+-----------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.agraph
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.component\_generator module
+-------------------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.component_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.crossover module
+--------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.crossover
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.generator module
+--------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.mutation module
+-------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.mutation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.operator\_definitions module
+--------------------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.operator_definitions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.string\_generation module
+-----------------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.string_generation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bingo.symbolic\_regression.agraph.string\_parsing module
+--------------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.string_parsing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: bingo.symbolic_regression.agraph
+   :members:
+   :undoc-members:
+   :show-inheritance:

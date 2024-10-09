@@ -1,0 +1,897 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Bingo Tutorial 2: Zero Min Problem &#8212; Bingo 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_low_level/tutorial_2';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bingo Tutorial 3: Archipelagos and Logging" href="tutorial_3.html" />
+    <link rel="prev" title="Bingo Tutorial 1: One Max Problem" href="tutorial_1.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_apidocs/modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_apidocs/modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorial_1.html">Bingo Tutorial 1: One Max Problem</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Bingo Tutorial 2: Zero Min Problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_3.html">Bingo Tutorial 3: Archipelagos and Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_4.html">Bingo Tutorial 4: Symbolic Regression</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Other:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="physics_fitness.html">Physics-Informed Fitness</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../low_level.html" class="nav-link">Low-Level User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Bingo...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Bingo-Tutorial-2:-Zero-Min-Problem">
+<h1>Bingo Tutorial 2: Zero Min Problem<a class="headerlink" href="#Bingo-Tutorial-2:-Zero-Min-Problem" title="Link to this heading">#</a></h1>
+<section id="Goal:-Find-a-list-of-numbers-with-zero-magnitude-through-genetic-optimization">
+<h2>Goal: Find a list of numbers with zero magnitude through genetic optimization<a class="headerlink" href="#Goal:-Find-a-list-of-numbers-with-zero-magnitude-through-genetic-optimization" title="Link to this heading">#</a></h2>
+<section id="Chromosome">
+<h3>Chromosome<a class="headerlink" href="#Chromosome" title="Link to this heading">#</a></h3>
+<p>The basic unit of bingo evolutionary analyses are Chromosomes. The chromosome used in this example is a <code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome</span></code>. The <code class="docutils literal notranslate"><span class="pre">MultipleFloatChromosome</span></code> contains a list of floating point values. It also has optional use of local optimization for some of those values.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_floats</span> <span class="kn">import</span> <span class="n">MultipleFloatChromosome</span>
+<span class="n">chromosome</span> <span class="o">=</span> <span class="n">MultipleFloatChromosome</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">3.</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">chromosome</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chromosome</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Chromosome-Generator">
+<h3>Chromosome Generator<a class="headerlink" href="#Chromosome-Generator" title="Link to this heading">#</a></h3>
+<p>Chromosomes are created with a Generator. Generation of <code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome</span></code> requires a function that returns floats to populate the list of values. In this example, that function is <code class="docutils literal notranslate"><span class="pre">get_random_float</span></code>.</p>
+<p>The Generator is initialized with the random value function, along with the desired size of the float list, and an optional list of indices on which to perform local optimization. The Generator is used to generate populations of Chromosomes on Islands.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_floats</span> <span class="kn">import</span> <span class="n">MultipleFloatChromosomeGenerator</span>
+
+<span class="n">VALUE_LIST_SIZE</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">get_random_float</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random_sample</span><span class="p">()</span>
+
+<span class="n">generator</span> <span class="o">=</span> <span class="n">MultipleFloatChromosomeGenerator</span><span class="p">(</span><span class="n">get_random_float</span><span class="p">,</span> <span class="n">VALUE_LIST_SIZE</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example of Generator</span>
+<span class="n">chromosome</span> <span class="o">=</span> <span class="n">generator</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chromosome</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chromosome</span><span class="o">.</span><span class="n">get_number_local_optimization_params</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Chromosome-Variation">
+<h3>Chromosome Variation<a class="headerlink" href="#Chromosome-Variation" title="Link to this heading">#</a></h3>
+<p>Variation of <code class="docutils literal notranslate"><span class="pre">MultipleValueChromosome</span></code> individuals is performed with single-point crossover and/or single-point mutation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_values</span> <span class="kn">import</span> <span class="n">SinglePointCrossover</span>
+<span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_values</span> <span class="kn">import</span> <span class="n">SinglePointMutation</span>
+
+<span class="n">crossover</span> <span class="o">=</span> <span class="n">SinglePointCrossover</span><span class="p">()</span>
+<span class="n">mutation</span> <span class="o">=</span> <span class="n">SinglePointMutation</span><span class="p">(</span><span class="n">get_random_float</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example of Mutation</span>
+<span class="n">before_mutation</span> <span class="o">=</span> <span class="n">MultipleFloatChromosome</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+<span class="n">after_mutation</span> <span class="o">=</span> <span class="n">mutation</span><span class="p">(</span><span class="n">before_mutation</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Mutation&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;before: &quot;</span><span class="p">,</span> <span class="n">before_mutation</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;after:  &quot;</span><span class="p">,</span> <span class="n">after_mutation</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example of Crossover</span>
+<span class="n">parent_1</span> <span class="o">=</span> <span class="n">MultipleFloatChromosome</span><span class="p">([</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">])</span>
+<span class="n">parent_2</span> <span class="o">=</span> <span class="n">MultipleFloatChromosome</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">])</span>
+<span class="n">child_1</span><span class="p">,</span> <span class="n">child_2</span> <span class="o">=</span> <span class="n">crossover</span><span class="p">(</span><span class="n">parent_1</span><span class="p">,</span> <span class="n">parent_2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Crossover&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;parent 1: &quot;</span><span class="p">,</span> <span class="n">parent_1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;parent 1: &quot;</span><span class="p">,</span> <span class="n">parent_2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child 1: &quot;</span><span class="p">,</span> <span class="n">child_1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;child 1: &quot;</span><span class="p">,</span> <span class="n">child_2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Fitness-and-Evaluation">
+<h3>Fitness and Evaluation<a class="headerlink" href="#Fitness-and-Evaluation" title="Link to this heading">#</a></h3>
+<p>In order to Evaluate Chromosomes and assign them a fitness value, first we must define a <code class="docutils literal notranslate"><span class="pre">FitnessFunction</span></code>. For the Zero Min Problem, this Fitness Function calculates fitness by finding the norm of all the values in a Chromosome’s list of values. Once a <code class="docutils literal notranslate"><span class="pre">FitnessFunction</span></code> has been defined, it can be passed to an Evaluation to be applied to a population. In this example, we also wrap the <code class="docutils literal notranslate"><span class="pre">FitnessFunction</span></code> with LocalOptFitnessFunction to perform local optimization on indicies specified in the
+Generator class.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evaluation.fitness_function</span> <span class="kn">import</span> <span class="n">FitnessFunction</span>
+<span class="kn">from</span> <span class="nn">bingo.local_optimizers.scipy_optimizer</span> <span class="kn">import</span> <span class="n">ScipyOptimizer</span>
+<span class="kn">from</span> <span class="nn">bingo.local_optimizers.local_opt_fitness</span> <span class="kn">import</span> <span class="n">LocalOptFitnessFunction</span>
+<span class="kn">from</span> <span class="nn">bingo.evaluation.evaluation</span> <span class="kn">import</span> <span class="n">Evaluation</span>
+
+<span class="k">class</span> <span class="nc">ZeroMinFitnessFunction</span><span class="p">(</span><span class="n">FitnessFunction</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+
+<span class="n">fitness</span> <span class="o">=</span> <span class="n">ZeroMinFitnessFunction</span><span class="p">()</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">ScipyOptimizer</span><span class="p">(</span><span class="n">fitness</span><span class="p">)</span>
+<span class="n">local_opt_fitness</span> <span class="o">=</span> <span class="n">LocalOptFitnessFunction</span><span class="p">(</span><span class="n">fitness</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluation</span><span class="p">(</span><span class="n">local_opt_fitness</span><span class="p">)</span> <span class="c1"># evaluates a population (list of chromosomes)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example of fitness</span>
+<span class="n">chromosome</span> <span class="o">=</span> <span class="n">MultipleFloatChromosome</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span>
+                                     <span class="n">needs_opt_list</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="c1"># perform local optimization on these indices</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fitness</span><span class="p">(</span><span class="n">chromosome</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chromosome</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">local_opt_fitness</span><span class="p">(</span><span class="n">chromosome</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">chromosome</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Notice that the values in the chromosome at indices 0 and 3 become very near zero. This occurs as part of the local optimization.</p>
+</section>
+<section id="Selection">
+<h3>Selection<a class="headerlink" href="#Selection" title="Link to this heading">#</a></h3>
+<p>For this example, we use Tournament Selection to select <code class="docutils literal notranslate"><span class="pre">GOAL_POPULATION_SIZE</span></code> individuals to advance to the next generation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.selection.tournament</span> <span class="kn">import</span> <span class="n">Tournament</span>
+
+<span class="n">GOAL_POPULATION_SIZE</span> <span class="o">=</span> <span class="mi">25</span>
+
+<span class="n">selection</span> <span class="o">=</span> <span class="n">Tournament</span><span class="p">(</span><span class="n">GOAL_POPULATION_SIZE</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evolutionary-Algorithm:-Mu-+-Lambda">
+<h3>Evolutionary Algorithm: Mu + Lambda<a class="headerlink" href="#Evolutionary-Algorithm:-Mu-+-Lambda" title="Link to this heading">#</a></h3>
+<p>The Evolutionary Algorithm used in this example is called <code class="docutils literal notranslate"><span class="pre">MuPlusLambda</span></code>. Mu represents the parent population and Lambda represents their offspring. MuPlusLambda means the parents and offspring are evaluated together and then the most fit individuals for the next generation are selected from both populations combined. We pass our previously defined Evaluation and Selection modules to MuPlusLambda, along with Crossover and Mutation which will be used to define the behaviors of Variation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_algorithms.mu_plus_lambda</span> <span class="kn">import</span> <span class="n">MuPlusLambda</span>
+
+<span class="n">MUTATION_PROBABILITY</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">CROSSOVER_PROBABILITY</span> <span class="o">=</span> <span class="mf">0.4</span>
+<span class="n">NUM_OFFSPRING</span> <span class="o">=</span> <span class="n">GOAL_POPULATION_SIZE</span>
+
+<span class="n">evo_alg</span> <span class="o">=</span> <span class="n">MuPlusLambda</span><span class="p">(</span><span class="n">evaluator</span><span class="p">,</span>
+                       <span class="n">selection</span><span class="p">,</span>
+                       <span class="n">crossover</span><span class="p">,</span>
+                       <span class="n">mutation</span><span class="p">,</span>
+                       <span class="n">CROSSOVER_PROBABILITY</span><span class="p">,</span>
+                       <span class="n">MUTATION_PROBABILITY</span><span class="p">,</span>
+                       <span class="n">NUM_OFFSPRING</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Hall-of-Fame">
+<h3>Hall of Fame<a class="headerlink" href="#Hall-of-Fame" title="Link to this heading">#</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">HallOfFame</span></code> object can be used to keep track of the best individuals that occur during the evolution of a population. It is initialized with the maximum number of members to track, i.e., the 5 best individuals will be saved in the hall of fame in the example below. Optionally, a similarity function can be given as an argument, in order to identify similar individuals (and track only unique ones). It is passed to an <code class="docutils literal notranslate"><span class="pre">island</span></code> on initialization (see next subsection).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.stats.hall_of_fame</span> <span class="kn">import</span> <span class="n">HallOfFame</span>
+
+<span class="k">def</span> <span class="nf">similar_mfcs</span><span class="p">(</span><span class="n">mfc_1</span><span class="p">,</span> <span class="n">mfc_2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;identifies if two MultpleFloatChromosomes have similar values&quot;&quot;&quot;</span>
+    <span class="n">difference_in_values</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mfc_1</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">mfc_2</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+        <span class="n">difference_in_values</span> <span class="o">+=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">difference_in_values</span> <span class="o">&lt;</span> <span class="mf">1e-4</span>
+
+<span class="n">hof</span> <span class="o">=</span> <span class="n">HallOfFame</span><span class="p">(</span><span class="n">max_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">similarity_function</span><span class="o">=</span><span class="n">similar_mfcs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Island">
+<h3>Island<a class="headerlink" href="#Island" title="Link to this heading">#</a></h3>
+<p>An <code class="docutils literal notranslate"><span class="pre">Island</span></code> is where evolution takes place in bingo analyses. The <code class="docutils literal notranslate"><span class="pre">Island</span></code> class takes as arguments an Evolutionary Algorithm, a Generator with which to generate an initial population, and thesize of the population on the island. The <code class="docutils literal notranslate"><span class="pre">Island</span></code> will create a population and then execute generational steps of the Evolutionary Algorithm to evolve the population.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_optimizers.island</span> <span class="kn">import</span> <span class="n">Island</span>
+
+<span class="n">POPULATION_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">island</span> <span class="o">=</span> <span class="n">Island</span><span class="p">(</span><span class="n">evo_alg</span><span class="p">,</span> <span class="n">generator</span><span class="p">,</span> <span class="n">POPULATION_SIZE</span><span class="p">,</span> <span class="n">hall_of_fame</span><span class="o">=</span><span class="n">hof</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Island age:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">generational_age</span><span class="p">,</span>
+      <span class="s2">&quot; with best fitness:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">get_best_fitness</span><span class="p">(),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">indv</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">island</span><span class="o">.</span><span class="n">population</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;indv&quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">indv</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evolution">
+<h3>Evolution<a class="headerlink" href="#Evolution" title="Link to this heading">#</a></h3>
+<p>There are two mechanisms for performing evolution in bingo.</p>
+<ol class="arabic simple">
+<li><p>Manually step through a set number of generations</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Island age:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">generational_age</span><span class="p">,</span>
+      <span class="s2">&quot; with best fitness:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">get_best_fitness</span><span class="p">())</span>
+
+<span class="n">island</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">num_generations</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Island age:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">generational_age</span><span class="p">,</span>
+      <span class="s2">&quot; with best fitness:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">get_best_fitness</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Evolve automatically until convergence</p></li>
+</ol>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">island</span><span class="o">.</span><span class="n">evolve_until_convergence</span><span class="p">(</span><span class="n">max_generations</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+                                <span class="n">fitness_threshold</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Island age:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">generational_age</span><span class="p">,</span>
+      <span class="s2">&quot; with best fitness:&quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">get_best_fitness</span><span class="p">(),</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best indv: &quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">get_best_individual</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">The hall of fame is automatically updated during evolution.</div>
+<div class="line">Note that, for the most part, it can be treated like a list of individuals, in ascending order of fitness.</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RANK      FITNESS&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hof</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">member</span><span class="o">.</span><span class="n">fitness</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Animation-of-Evolution">
+<h3>Animation of Evolution<a class="headerlink" href="#Animation-of-Evolution" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reinitialize and rerun island while documenting best individual</span>
+<span class="n">island</span> <span class="o">=</span> <span class="n">Island</span><span class="p">(</span><span class="n">evo_alg</span><span class="p">,</span> <span class="n">generator</span><span class="p">,</span> <span class="n">POPULATION_SIZE</span><span class="p">)</span>
+<span class="n">best_indv_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">best_indv_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">island</span><span class="o">.</span><span class="n">get_best_individual</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">):</span>
+    <span class="n">island</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">best_indv_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">island</span><span class="o">.</span><span class="n">get_best_individual</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.animation</span> <span class="k">as</span> <span class="nn">animation</span>
+
+<span class="k">def</span> <span class="nf">animate_data</span><span class="p">(</span><span class="n">list_of_best_indv_values</span><span class="p">):</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="n">num_generations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_best_indv_values</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_best_indv_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">list_of_best_indv_values</span>
+    <span class="n">zero</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">polygon</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">points</span><span class="p">,</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;bs&#39;</span><span class="p">)</span>
+    <span class="n">points</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Generation :&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span> <span class="n">shadow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">animate</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">artist</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
+            <span class="n">artist</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="n">polygon</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">zero</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># update the data</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Generation :&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+        <span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">polygon</span><span class="p">,</span> <span class="n">legend</span>
+
+
+    <span class="c1"># Init only required for blitting to give a clean slate.</span>
+    <span class="k">def</span> <span class="nf">init</span><span class="p">():</span>
+        <span class="n">points</span><span class="o">.</span><span class="n">set_ydata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">points</span><span class="p">,</span> <span class="n">polygon</span><span class="p">,</span> <span class="n">points</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Chromosome Value Index&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Value Magnitude&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Values of Best Individual in Island&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.01</span><span class="p">,</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">animation</span><span class="o">.</span><span class="n">FuncAnimation</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">animate</span><span class="p">,</span> <span class="n">num_generations</span><span class="p">,</span> <span class="n">init_func</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+                                   <span class="n">interval</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">blit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+<span class="n">HTML</span><span class="p">(</span><span class="n">animate_data</span><span class="p">(</span><span class="n">best_indv_values</span><span class="p">)</span><span class="o">.</span><span class="n">to_jshtml</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial_1.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Bingo Tutorial 1: One Max Problem</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tutorial_3.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Bingo Tutorial 3: Archipelagos and Logging</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Goal:-Find-a-list-of-numbers-with-zero-magnitude-through-genetic-optimization">Goal: Find a list of numbers with zero magnitude through genetic optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Chromosome">Chromosome</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Chromosome-Generator">Chromosome Generator</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Chromosome-Variation">Chromosome Variation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Fitness-and-Evaluation">Fitness and Evaluation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Selection">Selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Evolutionary-Algorithm:-Mu-+-Lambda">Evolutionary Algorithm: Mu + Lambda</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Hall-of-Fame">Hall of Fame</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Island">Island</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Evolution">Evolution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Animation-of-Evolution">Animation of Evolution</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_low_level/tutorial_2.nblink.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, United States Government as represented by the Administrator of the National Aeronautics and Space Administration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

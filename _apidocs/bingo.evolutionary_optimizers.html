@@ -1,0 +1,1656 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bingo.evolutionary_optimizers package &#8212; Bingo 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_apidocs/bingo.evolutionary_optimizers';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bingo.local_optimizers package" href="bingo.local_optimizers.html" />
+    <link rel="prev" title="bingo.evolutionary_algorithms package" href="bingo.evolutionary_algorithms.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="bingo.html">bingo package</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bingo.chromosomes.html">bingo.chromosomes package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evaluation.html">bingo.evaluation package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.evolutionary_algorithms.html">bingo.evolutionary_algorithms package</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">bingo.evolutionary_optimizers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.local_optimizers.html">bingo.local_optimizers package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.selection.html">bingo.selection package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.stats.html">bingo.stats package</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bingo.symbolic_regression.html">bingo.symbolic_regression package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bingo.symbolic_regression.agraph.html">bingo.symbolic_regression.agraph package</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.evaluation_backend.html">bingo.symbolic_regression.agraph.evaluation_backend package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bingo.symbolic_regression.agraph.simplification_backend.html">bingo.symbolic_regression.agraph.simplification_backend package</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.util.html">bingo.util package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bingo.variation.html">bingo.variation package</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="modules.html" class="nav-link">bingo</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="bingo.html" class="nav-link">bingo package</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">bingo.evolut...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bingo-evolutionary-optimizers-package">
+<h1>bingo.evolutionary_optimizers package<a class="headerlink" href="#bingo-evolutionary-optimizers-package" title="Link to this heading">#</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-bingo.evolutionary_optimizers.archipelago">
+<span id="bingo-evolutionary-optimizers-archipelago-module"></span><h2>bingo.evolutionary_optimizers.archipelago module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.archipelago" title="Link to this heading">#</a></h2>
+<p>The abstract-base class for the Archipelago.</p>
+<p>This module defines the data structure that manages a group of <cite>Islands</cite>.
+Archipelago implementations will control the generational steps for all
+the islands until convergence or until a maximal number of steps is reached.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.archipelago.Archipelago">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.archipelago.</span></span><span class="sig-name descname"><span class="pre">Archipelago</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_islands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hall_of_fame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.archipelago.Archipelago" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer" title="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolutionaryOptimizer</span></code></a></p>
+<p>A collection of islands</p>
+<p>Evolution of the Archipelago involves independent evolution of Islands
+combined with periodic migration of individuals between random pairs of
+islands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>template_island</strong> (<a class="reference internal" href="#bingo.evolutionary_optimizers.island.Island" title="bingo.evolutionary_optimizers.island.Island"><em>Island</em></a>) – Island that will be used as a template for islands in the archipelago</p></li>
+<li><p><strong>num_islands</strong> (<em>int</em>) – The size of the archipelago; the number of islands it contains</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.archipelago.Archipelago.generational_age">
+<span class="sig-name descname"><span class="pre">generational_age</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.archipelago.Archipelago.generational_age" title="Link to this definition">#</a></dt>
+<dd><p>The number of generations the archipelago has been evolved</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.archipelago.Archipelago.hall_of_fame">
+<span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.archipelago.Archipelago.hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>An object containing the best individuals seen in the archipelago</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame" title="bingo.stats.hall_of_fame.HallOfFame">HallOfFame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.checkpoint_controller">
+<span id="bingo-evolutionary-optimizers-checkpoint-controller-module"></span><h2>bingo.evolutionary_optimizers.checkpoint_controller module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.checkpoint_controller" title="Link to this heading">#</a></h2>
+<p>This module is a helper class for controlling times of checkpoints in a
+time-controlled evolutionary optimization.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.checkpoint_controller.</span></span><span class="sig-name descname"><span class="pre">CheckpointController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_check_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">safety_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.98</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Controller for times between checkpoints</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_time</strong> (<em>datetime</em>) – starting time of the optimization</p></li>
+<li><p><strong>max_time</strong> (<em>float</em>) – maximum allowed time of optimization in seconds</p></li>
+<li><p><strong>convergence_check_frequency</strong> (<em>int</em>) – number of evolutionary generations between standard checkpoints</p></li>
+<li><p><strong>safety_factor</strong> (<em>float</em><em>, </em><em>optional</em>) – favctor by which to reuce maximum time to help ensure finishing on time,
+by default 0.97</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.estimate_remaining_checkpoints">
+<span class="sig-name descname"><span class="pre">estimate_remaining_checkpoints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.estimate_remaining_checkpoints" title="Link to this definition">#</a></dt>
+<dd><p>Estimate number of checkpoints that can be performed before time limit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>estimated number of checkpoints that can be performed, can be
+fractional</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.get_gens_to_evolve">
+<span class="sig-name descname"><span class="pre">get_gens_to_evolve</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.get_gens_to_evolve" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the number of generations for next checkpoint</p>
+<p>Returns the default value unless a fractional-sized checkpoint is
+needed to stay under the time limit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of generations to evolve before next checkpoint</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.record_check">
+<span class="sig-name descname"><span class="pre">record_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_generations</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.record_check" title="Link to this definition">#</a></dt>
+<dd><p>Records that a checkpoint has just been reached</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>num_generations</strong> (<em>int</em>) – the number of generations that were evolved since the last checkpoint</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.evolutionary_optimizer">
+<span id="bingo-evolutionary-optimizers-evolutionary-optimizer-module"></span><h2>bingo.evolutionary_optimizers.evolutionary_optimizer module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.evolutionary_optimizer" title="Link to this heading">#</a></h2>
+<p>This module contains the basic structure for evolutionary optimization in
+bingo.  The general framework allows access to an evolve_until_convergence
+function.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.evolutionary_optimizer.</span></span><span class="sig-name descname"><span class="pre">EvolutionaryOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hall_of_fame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Fundamental bingo object that coordinates evolutionary optimization</p>
+<p>Abstract base class for evolutionary optimization.  The primary role of
+this class is to house the evolve_until_convergence function. Classes which
+extend this one will have access to this function’s capability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hall_of_fame</strong> (<a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame" title="bingo.stats.hall_of_fame.HallOfFame"><em>HallOfFame</em></a><em> (</em><em>optional</em><em>)</em>) – The hall of fame object to be used for storing best individuals</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.generational_age">
+<span class="sig-name descname"><span class="pre">generational_age</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.generational_age" title="Link to this definition">#</a></dt>
+<dd><p>The number of generations the optimizer has been evolved</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.hall_of_fame">
+<span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>(optional) An object containing the best individuals seen in the
+optimization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>HallOfFame</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.test_function">
+<span class="sig-name descname"><span class="pre">test_function</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.test_function" title="Link to this definition">#</a></dt>
+<dd><p>(optional) A function which can judges the fitness of an individual,
+independent of the <cite>FitnessFunction</cite> used in evolution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>FitnessFunction</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.dump_to_file">
+<span class="sig-name descname"><span class="pre">dump_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.dump_to_file" title="Link to this definition">#</a></dt>
+<dd><p>Dump the evolutionary_optimizers object to a pickle file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – the name of the pickle file to dump</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve">
+<span class="sig-name descname"><span class="pre">evolve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_generations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hall_of_fame_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suppress_logging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve" title="Link to this definition">#</a></dt>
+<dd><p>The function responsible for generational evolution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_generations</strong> (<em>int</em>) – The number of generations to evolve</p></li>
+<li><p><strong>hall_of_fame_update</strong> (<em>bool</em><em> (</em><em>optional</em><em>)</em>) – Used to manually turn on or off the hall of fame update. Default
+True.</p></li>
+<li><p><strong>suppress_logging</strong> (<em>bool</em><em> (</em><em>optional</em><em>)</em>) – Used to manually suppress the logging output of this function</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve_until_convergence">
+<span class="sig-name descname"><span class="pre">evolve_until_convergence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_generations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness_threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convergence_check_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_generations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stagnation_generations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_fitness_evaluations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_base_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_checkpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve_until_convergence" title="Link to this definition">#</a></dt>
+<dd><p>Evolution occurs until one of four convergence criteria is met</p>
+<dl class="simple">
+<dt>Convergence criteria:</dt><dd><ul class="simple">
+<li><p>a maximum number of generations have been evolved</p></li>
+<li><p>a fitness below an absolute threshold has been achieved</p></li>
+<li><p>improvement upon best fitness has not occurred for a set number of
+generations</p></li>
+<li><p>the maximum number of fitness function evaluations has been reached</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_generations</strong> (<em>int</em>) – The maximum number of generations the optimization will run.</p></li>
+<li><p><strong>fitness_threshold</strong> (<em>float</em>) – The minimum fitness that must be achieved in order for the
+algorithm to converge.</p></li>
+<li><p><strong>convergence_check_frequency</strong> (<em>int</em><em>, </em><em>default 1</em>) – The number of generations that will run between checking for
+convergence.</p></li>
+<li><p><strong>min_generations</strong> (<em>int</em><em>, </em><em>default 0</em>) – The minimum number of generations the algorithm will run.</p></li>
+<li><p><strong>stagnation_generations</strong> (<em>int</em>) – (optional) The number of generations after which evolution will
+stop if no improvement is seen.</p></li>
+<li><p><strong>max_fitness_evaluations</strong> (<em>int</em>) – (optional) The maximum number of fitness function evaluations
+(approximately) the optimizer will run.</p></li>
+<li><p><strong>max_time</strong> (<em>float</em>) – (optional) The time limit for the evolution, in seconds.</p></li>
+<li><p><strong>checkpoint_base_name</strong> (<em>str</em>) – (optional) base file name for checkpoint files</p></li>
+<li><p><strong>num_checkpoints</strong> (<em>int</em>) – (optional) number of recent checkpoints to keep, previous ones are
+removed</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Object containing information about the result of the evolution</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>OptimizeResult</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_fitness">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_best_fitness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_fitness" title="Link to this definition">#</a></dt>
+<dd><p>Gets the fitness value of the most fit individual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fitness</strong> – Fitness of best individual</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_individual">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_best_individual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_individual" title="Link to this definition">#</a></dt>
+<dd><p>Gets the most fit individual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Best individual</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_ea_diagnostic_info">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ea_diagnostic_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_ea_diagnostic_info" title="Link to this definition">#</a></dt>
+<dd><p>Gets diagnostic info from the evolutionary algorithm(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>summary of evolutionary algorithm diagnostics</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary" title="bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary">EaDiagnosticsSummary</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_fitness_evaluation_count">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_fitness_evaluation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_fitness_evaluation_count" title="Link to this definition">#</a></dt>
+<dd><p>Gets the number of fitness evaluations performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of fitness evaluations</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.update_hall_of_fame">
+<span class="sig-name descname"><span class="pre">update_hall_of_fame</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.update_hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>Manually update the hall of fame</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.evolutionary_optimizer.</span></span><span class="sig-name descname"><span class="pre">OptimizeResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">success</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ngen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ea_diagnostics</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ea_diagnostics">
+<span class="sig-name descname"><span class="pre">ea_diagnostics</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ea_diagnostics" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 6</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.fitness">
+<span class="sig-name descname"><span class="pre">fitness</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.fitness" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 4</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.message">
+<span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.message" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ngen">
+<span class="sig-name descname"><span class="pre">ngen</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ngen" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 3</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.status" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.success">
+<span class="sig-name descname"><span class="pre">success</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.success" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.time">
+<span class="sig-name descname"><span class="pre">time</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.time" title="Link to this definition">#</a></dt>
+<dd><p>Alias for field number 5</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.evolutionary_optimizer.load_evolutionary_optimizer_from_file">
+<span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.evolutionary_optimizer.</span></span><span class="sig-name descname"><span class="pre">load_evolutionary_optimizer_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.load_evolutionary_optimizer_from_file" title="Link to this definition">#</a></dt>
+<dd><p>Load an evolutionary_optimizers object from a pickle file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – the name of the pickle file to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an evolutionary optimizer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.fitness_predictor">
+<span id="bingo-evolutionary-optimizers-fitness-predictor-module"></span><h2>bingo.evolutionary_optimizers.fitness_predictor module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.fitness_predictor" title="Link to this heading">#</a></h2>
+<p>This module contains the utilities for fitness predictors.</p>
+<p>Fitness predictors in bingo are chromosomes that encode information necessary
+to make a prediction of fitness for other chromosomes types.  The type of
+fitness predictors used here are subset fitness predictors, which make a
+prediction of fitness by using only a subset of the training data used in
+preforming a full/true fitness calculation.  Subset fitness predictors use the
+MultipleValueChromosome.</p>
+<p>Check out the works of the works of Schmidt and Lipson for more details:
+e.g., “Coevolution of Fitness Predictors” (2008) .</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.fitness_predictor.</span></span><span class="sig-name descname"><span class="pre">FitnessPredictorFitnessFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_fitness_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potential_trainers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_trainers</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.FitnessFunction" title="bingo.evaluation.fitness_function.FitnessFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitnessFunction</span></code></a></p>
+<p>A fitness function for subset fitness predictors</p>
+<p>A fitness function for fitness predictors. The fitness of a fitness
+predictor is based upon its ability to predict true/full fitness of trainer
+individuals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>training_data</strong> (<cite>TrainingData</cite>) – Training data used in full/true fitness evaluation</p></li>
+<li><p><strong>full_fitness_function</strong> (<a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.FitnessFunction" title="bingo.evaluation.fitness_function.FitnessFunction"><em>FitnessFunction</em></a>) – The fitness function to be used in prediction (based on the training
+data)</p></li>
+<li><p><strong>potential_trainers</strong> (list of <cite>Chromosome</cite>) – a list of individuals that could potentially be used as trainers</p></li>
+<li><p><strong>num_trainers</strong> (<em>int</em>) – number of trainers to use</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.add_trainer">
+<span class="sig-name descname"><span class="pre">add_trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.add_trainer" title="Link to this definition">#</a></dt>
+<dd><p>Add a trainer to the trainer population</p>
+<p>Replaces one of the current trainers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trainer</strong> (<cite>Chromosome</cite>) – individual to add to the training population</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.get_true_fitness_for_trainer">
+<span class="sig-name descname"><span class="pre">get_true_fitness_for_trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.get_true_fitness_for_trainer" title="Link to this definition">#</a></dt>
+<dd><p>Gets true (full) fitness of trainer</p>
+<p>True fitness is the fitness calculated using the entire set of training
+data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trainer</strong> (<em>chromosomes</em>) – The chromosome to be evaluated</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fitness</strong> – true (full) fitness of trainer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer">
+<span class="sig-name descname"><span class="pre">predict_fitness_for_trainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">individual</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer" title="Link to this definition">#</a></dt>
+<dd><p>Get predicted value of fitness for a trainer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>individual</strong> (<cite>MultipleValueChromosome</cite>) – subset fitness predictor to use in calculating predicted fitness</p></li>
+<li><p><strong>trainer</strong> (<cite>Chromosome</cite>) – the trainer of which to calculate fitness</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>predicted fitness</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorIndexGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.fitness_predictor.</span></span><span class="sig-name descname"><span class="pre">FitnessPredictorIndexGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorIndexGenerator" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generator of ints within a range</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_size</strong> (<em>int</em>) – maximum value of randomly generated int (exclusive)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.fitness_predictor_island">
+<span id="bingo-evolutionary-optimizers-fitness-predictor-island-module"></span><h2>bingo.evolutionary_optimizers.fitness_predictor_island module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.fitness_predictor_island" title="Link to this heading">#</a></h2>
+<p>An Island implementation using fitness predictors</p>
+<p>The primary goal of this island is to be more computationally efficient than
+the simple Island in cases where lots of TrainingData is needed for fitness
+evaluation.  Fitness predictors use a subset of that training data to make a
+prediction of what fitness would be using the whole data set.</p>
+<p>The fitness predictors are evolved concurrently with the main island population
+so that their predictive power is growing as the population becomes more fit.
+A full description of the method can be found in the works of Schmidt and
+Lipson <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Schmidt, Michael D., and Hod Lipson. “Coevolution of fitness
+predictors.” IEEE Transactions on Evolutionary Computation 12.6 (2008):
+736-749.</p>
+</aside>
+</aside>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.fitness_predictor_island.</span></span><span class="sig-name descname"><span class="pre">FitnessPredictorIsland</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evolution_algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_update_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_size_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor_computation_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer_population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainer_update_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hall_of_fame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_optimizers.island.Island" title="bingo.evolutionary_optimizers.island.Island"><code class="xref py py-class docutils literal notranslate"><span class="pre">Island</span></code></a></p>
+<p>An island utilizing co-evolving fitness predictors</p>
+<p>The coevolution of fitness predictors is a evolutionary scheme meant to
+reduce computation cost and reduce overfitting and bloat.  It is similar
+in spirit to the use of mini-batches in stochastic gradient descent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evolution_algorithm</strong> (<a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm" title="bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm"><em>EvolutionaryAlgorithm</em></a>) – The desired algorithm to use in assessing the population</p></li>
+<li><p><strong>generator</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.generator.Generator" title="bingo.chromosomes.generator.Generator"><em>Generator</em></a>) – The generator class that returns an instance of a chromosome</p></li>
+<li><p><strong>population_size</strong> (<em>int</em>) – The desired size of the population</p></li>
+<li><p><strong>predictor_population_size</strong> (<em>int</em><em> (</em><em>Optional</em><em>)</em>) – The number of co-evolving fitness predictors. Default is 16.</p></li>
+<li><p><strong>predictor_update_frequency</strong> (<em>int</em><em> (</em><em>Optional</em><em>)</em>) – The number of generations between updates to the main fitness function.
+Default is 50.</p></li>
+<li><p><strong>predictor_size_ratio</strong> (<em>float</em><em> (</em><em>0 - 1</em><em>] </em><em>(</em><em>Optional</em><em>)</em>) – The fraction of the training data  that will be used by fitness
+predictors.  Default is 0.1.</p></li>
+<li><p><strong>predictor_computation_ratio</strong> (<em>float</em><em> [</em><em>0 - 1</em><em>) </em><em>(</em><em>Optional</em><em>)</em>) – The fraction of total computation that is devoted to evolution of
+fitness predictors. Default is 0.1.</p></li>
+<li><p><strong>trainer_population_size</strong> (<em>int</em><em> (</em><em>Optional</em><em>)</em>) – The number of individuals used in training of fitness predictors.
+Default is 16.</p></li>
+<li><p><strong>trainer_update_frequency</strong> (<em>int</em><em> (</em><em>Optional</em><em>)</em>) – The number of generations between updates to the trainer population.
+Default is 50.</p></li>
+<li><p><strong>hall_of_fame</strong> (<a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame" title="bingo.stats.hall_of_fame.HallOfFame"><em>HallOfFame</em></a><em> (</em><em>Optional</em><em>)</em>) – The hall of fame object to be used for storing best individuals</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.generational_age">
+<span class="sig-name descname"><span class="pre">generational_age</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.generational_age" title="Link to this definition">#</a></dt>
+<dd><p>The number of generational steps that have been executed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.population">
+<span class="sig-name descname"><span class="pre">population</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.population" title="Link to this definition">#</a></dt>
+<dd><p>The population that is evolving</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.hall_of_fame">
+<span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>An object containing the best individuals seen in the optimization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame" title="bingo.stats.hall_of_fame.HallOfFame">HallOfFame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.get_best_individual">
+<span class="sig-name descname"><span class="pre">get_best_individual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.get_best_individual" title="Link to this definition">#</a></dt>
+<dd><p>Finds the individual with the lowest fitness in a population.</p>
+<p>This assures  that the fitness is the true fitness value and not the
+predicted fitness.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>best</strong> – The chromosomes with the lowest fitness value</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<dd><p>The hall of fame object which is updated during evolution</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.island">
+<span id="bingo-evolutionary-optimizers-island-module"></span><h2>bingo.evolutionary_optimizers.island module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.island" title="Link to this heading">#</a></h2>
+<p>This module contains the code for an island in an island-based GA optimization</p>
+<p>it is general enough to work on any representation/fitness</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.island.</span></span><span class="sig-name descname"><span class="pre">Island</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evolution_algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hall_of_fame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer" title="bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolutionaryOptimizer</span></code></a></p>
+<p>Island: a basic unit of evolutionary optimization.  It performs the
+generation and evolution of a single population using a generator and
+evolutionary algorithm, respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>evolution_algorithm</strong> (<cite>EvolutionaryAlgorithm</cite>) – The desired algorithm to use in assessing the population</p></li>
+<li><p><strong>generator</strong> (<cite>Generator</cite>) – The generator class that returns an instance of a chromosome</p></li>
+<li><p><strong>population_size</strong> (<em>int</em>) – The desired size of the population</p></li>
+<li><p><strong>hall_of_fame</strong> (<cite>HallOfFame</cite>) – (optional) The hall of fame object to be used for storing best
+individuals</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.generational_age">
+<span class="sig-name descname"><span class="pre">generational_age</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.generational_age" title="Link to this definition">#</a></dt>
+<dd><p>The number of generational steps that have been executed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.population">
+<span class="sig-name descname"><span class="pre">population</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.population" title="Link to this definition">#</a></dt>
+<dd><p>The population that is evolving</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.hall_of_fame">
+<span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>An object containing the best individuals seen in the optimization</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>HallOfFame</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.test_function">
+<span class="sig-name descname"><span class="pre">test_function</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.test_function" title="Link to this definition">#</a></dt>
+<dd><p>(optional) A function which can judges the fitness of an individual,
+independent of the <cite>FitnessFunction</cite> used in evolution</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>FitnessFunction</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.dump_fraction_of_population">
+<span class="sig-name descname"><span class="pre">dump_fraction_of_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fraction</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.dump_fraction_of_population" title="Link to this definition">#</a></dt>
+<dd><p>Dumps a portion of the population to a list</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fraction</strong> (<em>float</em><em> [</em><em>0.0 - 1.0</em><em>]</em>) – The fraction of the population to dump</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A portion of the population</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.evaluate_population">
+<span class="sig-name descname"><span class="pre">evaluate_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.evaluate_population" title="Link to this definition">#</a></dt>
+<dd><p>Manually trigger evaluation of population</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.get_best_fitness">
+<span class="sig-name descname"><span class="pre">get_best_fitness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.get_best_fitness" title="Link to this definition">#</a></dt>
+<dd><p>finds the fitness value of the most fit individual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fitness</strong> – Fitness of best individual</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.get_best_individual">
+<span class="sig-name descname"><span class="pre">get_best_individual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.get_best_individual" title="Link to this definition">#</a></dt>
+<dd><p>Finds the individual with the lowest fitness in a population</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>best</strong> – The chromosomes with the lowest fitness value</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.get_ea_diagnostic_info">
+<span class="sig-name descname"><span class="pre">get_ea_diagnostic_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.get_ea_diagnostic_info" title="Link to this definition">#</a></dt>
+<dd><p>Gets diagnostic info from the evolutionary algorithm(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>summary of evolutionary algorithm diagnostics</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary" title="bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary">EaDiagnosticsSummary</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.get_fitness_evaluation_count">
+<span class="sig-name descname"><span class="pre">get_fitness_evaluation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.get_fitness_evaluation_count" title="Link to this definition">#</a></dt>
+<dd><p>Gets the number of fitness evaluations performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of fitness evaluations</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.regenerate_population">
+<span class="sig-name descname"><span class="pre">regenerate_population</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.regenerate_population" title="Link to this definition">#</a></dt>
+<dd><p>Randomly regenerates the population</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.island.Island.reset_fitness">
+<span class="sig-name descname"><span class="pre">reset_fitness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.island.Island.reset_fitness" title="Link to this definition">#</a></dt>
+<dd><p>Mark each individual in the population as needing fitness evaluation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>population</strong> (list of <cite>Chromosome</cite>) – (Optional) Population to be reset. Default: the island’s current
+population</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.parallel_archipelago">
+<span id="bingo-evolutionary-optimizers-parallel-archipelago-module"></span><h2>bingo.evolutionary_optimizers.parallel_archipelago module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.parallel_archipelago" title="Link to this heading">#</a></h2>
+<p>The parallel implementation of the Archipelago</p>
+<p>This module defines the Archipelago data structure that runs in parallel on
+multiple processors.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.parallel_archipelago.</span></span><span class="sig-name descname"><span class="pre">ParallelArchipelago</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">island</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hall_of_fame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sync_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_optimizers.archipelago.Archipelago" title="bingo.evolutionary_optimizers.archipelago.Archipelago"><code class="xref py py-class docutils literal notranslate"><span class="pre">Archipelago</span></code></a></p>
+<p>A collection of islands that evolves in parallel</p>
+<p>Evolution of the Archipelago involves independent evolution of Islands
+combined with periodic migration of individuals between random pairs of
+islands. Each mpi process is responsible for the evolution of a single
+island which has two effects:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>scaling to more islands requires use of more processes</p></li>
+<li><p>scripts written for the Parallel Archipelago should be independent of
+the number of processors: i.e., scripts don’t need to be changed in
+order to run with more processors. Simply run the same script with more
+mpi processes.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>island</strong> (<cite>Island</cite>) – The island that the processor will evolve</p></li>
+<li><p><strong>non_blocking</strong> (<em>bool</em>) – Specifies whether to use blocking or non-blocking execution. Default
+is non-blocking (True).</p></li>
+<li><p><strong>sync_frequency</strong> (<em>int</em><em>, </em><em>optional</em>) – How frequently to update the average age for each island. Default 10.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.island">
+<span class="sig-name descname"><span class="pre">island</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.island" title="Link to this definition">#</a></dt>
+<dd><p>The island where the current processor’s evolution occurs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>Island</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.generational_age">
+<span class="sig-name descname"><span class="pre">generational_age</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.generational_age" title="Link to this definition">#</a></dt>
+<dd><p>The number of generations the archipelago has been evolved</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.hall_of_fame">
+<span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>An object containing the best individuals seen in the archipelago</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame" title="bingo.stats.hall_of_fame.HallOfFame">HallOfFame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.dump_to_file">
+<span class="sig-name descname"><span class="pre">dump_to_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.dump_to_file" title="Link to this definition">#</a></dt>
+<dd><p>Dump the ParallelArchipelago object to a pickle file</p>
+<p>The file will contain a pickle dump of a list of all the processors’
+ParallelArchipelago objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – the name of the pickle file to dump</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_fitness">
+<span class="sig-name descname"><span class="pre">get_best_fitness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_fitness" title="Link to this definition">#</a></dt>
+<dd><p>Gets the fitness of most fit member</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fitness</strong> – Fitness of best individual in the archipelago</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_individual">
+<span class="sig-name descname"><span class="pre">get_best_individual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_individual" title="Link to this definition">#</a></dt>
+<dd><p>Returns the best individual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The individual with lowest fitness</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>chromosomes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_ea_diagnostic_info">
+<span class="sig-name descname"><span class="pre">get_ea_diagnostic_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_ea_diagnostic_info" title="Link to this definition">#</a></dt>
+<dd><p>Gets diagnostic info from the evolutionary algorithm(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>summary of evolutionary algorithm diagnostics</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary" title="bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary">EaDiagnosticsSummary</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_fitness_evaluation_count">
+<span class="sig-name descname"><span class="pre">get_fitness_evaluation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_fitness_evaluation_count" title="Link to this definition">#</a></dt>
+<dd><p>Gets the total number of fitness evaluations performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of fitness evaluations</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.parallel_archipelago.load_parallel_archipelago_from_file">
+<span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.parallel_archipelago.</span></span><span class="sig-name descname"><span class="pre">load_parallel_archipelago_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.parallel_archipelago.load_parallel_archipelago_from_file" title="Link to this definition">#</a></dt>
+<dd><p>Load a ParallelArchipelago objects from a pickle file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – the name of the pickle file to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an evolutionary optimizer</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers.serial_archipelago">
+<span id="bingo-evolutionary-optimizers-serial-archipelago-module"></span><h2>bingo.evolutionary_optimizers.serial_archipelago module<a class="headerlink" href="#module-bingo.evolutionary_optimizers.serial_archipelago" title="Link to this heading">#</a></h2>
+<p>The serial implementation of the Archipelago</p>
+<p>This module defines the Archipelago data structure that runs serially on
+one processor.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_optimizers.serial_archipelago.</span></span><span class="sig-name descname"><span class="pre">SerialArchipelago</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">template_island</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_islands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hall_of_fame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_optimizers.archipelago.Archipelago" title="bingo.evolutionary_optimizers.archipelago.Archipelago"><code class="xref py py-class docutils literal notranslate"><span class="pre">Archipelago</span></code></a></p>
+<p>An collection of islands that evolve serially.</p>
+<p>Evolution of the Archipelago involves independent evolution of Islands
+combined with periodic migration of individuals between random pairs of
+islands. The evolution occurs on one Island at a time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>template_island</strong> (<cite>Island</cite>) – The island that acts as a template for all islands in the archipelago</p></li>
+<li><p><strong>num_islands</strong> (<em>int</em>) – The number of islands to create in the archipelago’s list of islands</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.islands">
+<span class="sig-name descname"><span class="pre">islands</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.islands" title="Link to this definition">#</a></dt>
+<dd><p>direct access to the islands in the archipelago</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of <cite>Island</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.generational_age">
+<span class="sig-name descname"><span class="pre">generational_age</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.generational_age" title="Link to this definition">#</a></dt>
+<dd><p>The number of generations the archipelago has been evolved</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.hall_of_fame">
+<span class="sig-name descname"><span class="pre">hall_of_fame</span></span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.hall_of_fame" title="Link to this definition">#</a></dt>
+<dd><p>An object containing the best individuals seen in the archipelago</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bingo.stats.html#bingo.stats.hall_of_fame.HallOfFame" title="bingo.stats.hall_of_fame.HallOfFame">HallOfFame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_fitness">
+<span class="sig-name descname"><span class="pre">get_best_fitness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_fitness" title="Link to this definition">#</a></dt>
+<dd><p>Gets the fitness of most fit member</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fitness</strong> – Fitness of best individual in the archipelago</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_individual">
+<span class="sig-name descname"><span class="pre">get_best_individual</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_individual" title="Link to this definition">#</a></dt>
+<dd><p>Returns the best individual</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The individual with lowest fitness</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>Chromosome</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_ea_diagnostic_info">
+<span class="sig-name descname"><span class="pre">get_ea_diagnostic_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_ea_diagnostic_info" title="Link to this definition">#</a></dt>
+<dd><p>Gets diagnostic info from the evolutionary algorithm(s)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>summary of evolutionary algorithm diagnostics</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>EaDiagnosticsSummary</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_fitness_evaluation_count">
+<span class="sig-name descname"><span class="pre">get_fitness_evaluation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_fitness_evaluation_count" title="Link to this definition">#</a></dt>
+<dd><p>Gets the number of fitness evaluations performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>number of fitness evaluations</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bingo.evolutionary_optimizers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bingo.evolutionary_optimizers" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="bingo.evolutionary_algorithms.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">bingo.evolutionary_algorithms package</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bingo.local_optimizers.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">bingo.local_optimizers package</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.archipelago">bingo.evolutionary_optimizers.archipelago module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.archipelago.Archipelago"><code class="docutils literal notranslate"><span class="pre">Archipelago</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.archipelago.Archipelago.generational_age"><code class="docutils literal notranslate"><span class="pre">Archipelago.generational_age</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.archipelago.Archipelago.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">Archipelago.hall_of_fame</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.checkpoint_controller">bingo.evolutionary_optimizers.checkpoint_controller module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController"><code class="docutils literal notranslate"><span class="pre">CheckpointController</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.estimate_remaining_checkpoints"><code class="docutils literal notranslate"><span class="pre">CheckpointController.estimate_remaining_checkpoints()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.get_gens_to_evolve"><code class="docutils literal notranslate"><span class="pre">CheckpointController.get_gens_to_evolve()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.checkpoint_controller.CheckpointController.record_check"><code class="docutils literal notranslate"><span class="pre">CheckpointController.record_check()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.evolutionary_optimizer">bingo.evolutionary_optimizers.evolutionary_optimizer module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.generational_age"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.generational_age</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.hall_of_fame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.test_function"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.test_function</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.dump_to_file"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.dump_to_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.evolve()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.evolve_until_convergence"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.evolve_until_convergence()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_best_fitness()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_best_individual"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_best_individual()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.get_fitness_evaluation_count()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.EvolutionaryOptimizer.update_hall_of_fame"><code class="docutils literal notranslate"><span class="pre">EvolutionaryOptimizer.update_hall_of_fame()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult"><code class="docutils literal notranslate"><span class="pre">OptimizeResult</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ea_diagnostics"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.ea_diagnostics</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.fitness"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.fitness</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.message"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.message</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.ngen"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.ngen</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.status"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.status</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.success"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.success</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.OptimizeResult.time"><code class="docutils literal notranslate"><span class="pre">OptimizeResult.time</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.evolutionary_optimizer.load_evolutionary_optimizer_from_file"><code class="docutils literal notranslate"><span class="pre">load_evolutionary_optimizer_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.fitness_predictor">bingo.evolutionary_optimizers.fitness_predictor module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.add_trainer"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction.add_trainer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.get_true_fitness_for_trainer"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction.get_true_fitness_for_trainer()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorFitnessFunction.predict_fitness_for_trainer"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorFitnessFunction.predict_fitness_for_trainer()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor.FitnessPredictorIndexGenerator"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIndexGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.fitness_predictor_island">bingo.evolutionary_optimizers.fitness_predictor_island module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.generational_age"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.generational_age</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.population"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.population</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.hall_of_fame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.fitness_predictor_island.FitnessPredictorIsland.get_best_individual"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.get_best_individual()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id0"><code class="docutils literal notranslate"><span class="pre">FitnessPredictorIsland.hall_of_fame</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.island">bingo.evolutionary_optimizers.island module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island"><code class="docutils literal notranslate"><span class="pre">Island</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.generational_age"><code class="docutils literal notranslate"><span class="pre">Island.generational_age</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.population"><code class="docutils literal notranslate"><span class="pre">Island.population</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">Island.hall_of_fame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.test_function"><code class="docutils literal notranslate"><span class="pre">Island.test_function</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.dump_fraction_of_population"><code class="docutils literal notranslate"><span class="pre">Island.dump_fraction_of_population()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.evaluate_population"><code class="docutils literal notranslate"><span class="pre">Island.evaluate_population()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">Island.get_best_fitness()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.get_best_individual"><code class="docutils literal notranslate"><span class="pre">Island.get_best_individual()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">Island.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">Island.get_fitness_evaluation_count()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.regenerate_population"><code class="docutils literal notranslate"><span class="pre">Island.regenerate_population()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.island.Island.reset_fitness"><code class="docutils literal notranslate"><span class="pre">Island.reset_fitness()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.parallel_archipelago">bingo.evolutionary_optimizers.parallel_archipelago module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.island"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.island</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.generational_age"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.generational_age</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.hall_of_fame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.dump_to_file"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.dump_to_file()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_best_fitness()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_best_individual"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_best_individual()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.ParallelArchipelago.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">ParallelArchipelago.get_fitness_evaluation_count()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.parallel_archipelago.load_parallel_archipelago_from_file"><code class="docutils literal notranslate"><span class="pre">load_parallel_archipelago_from_file()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers.serial_archipelago">bingo.evolutionary_optimizers.serial_archipelago module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.islands"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.islands</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.generational_age"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.generational_age</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.hall_of_fame"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.hall_of_fame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_fitness"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_best_fitness()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_best_individual"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_best_individual()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_ea_diagnostic_info"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_ea_diagnostic_info()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evolutionary_optimizers.serial_archipelago.SerialArchipelago.get_fitness_evaluation_count"><code class="docutils literal notranslate"><span class="pre">SerialArchipelago.get_fitness_evaluation_count()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.evolutionary_optimizers">Module contents</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_apidocs/bingo.evolutionary_optimizers.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, United States Government as represented by the Administrator of the National Aeronautics and Space Administration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

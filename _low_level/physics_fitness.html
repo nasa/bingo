@@ -1,0 +1,875 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Physics-Informed Fitness &#8212; Bingo 1.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_low_level/physics_fitness';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bingo" href="../_apidocs/modules.html" />
+    <link rel="prev" title="Bingo Tutorial 4: Symbolic Regression" href="tutorial_4.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
+    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_apidocs/modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../get_started.html">
+    Get Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../high_level.html">
+    High-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../low_level.html">
+    Low-Level User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_apidocs/modules.html">
+    API Docs
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/nasa/bingo" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github-square fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorial_1.html">Bingo Tutorial 1: One Max Problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_2.html">Bingo Tutorial 2: Zero Min Problem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_3.html">Bingo Tutorial 3: Archipelagos and Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_4.html">Bingo Tutorial 4: Symbolic Regression</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Other:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Physics-Informed Fitness</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../low_level.html" class="nav-link">Low-Level User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Physics-Info...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Physics-Informed-Fitness">
+<h1>Physics-Informed Fitness<a class="headerlink" href="#Physics-Informed-Fitness" title="Link to this heading">#</a></h1>
+<section id="Goal:-Show-how-fitness-functions-can-be-customized-to-enforce-problem-specific-constraints.">
+<h2>Goal: Show how fitness functions can be customized to enforce problem-specific constraints.<a class="headerlink" href="#Goal:-Show-how-fitness-functions-can-be-customized-to-enforce-problem-specific-constraints." title="Link to this heading">#</a></h2>
+<section id="Pre-Requisites">
+<h3>Pre-Requisites<a class="headerlink" href="#Pre-Requisites" title="Link to this heading">#</a></h3>
+<p>It is recommended to check out the <a class="reference external" href="tutorial_4.html">symbolic regression tutorial</a> before continuing.</p>
+</section>
+<section id="Problem-Description">
+<h3>Problem Description<a class="headerlink" href="#Problem-Description" title="Link to this heading">#</a></h3>
+<p>A basic physics problem that benefits from using physics-informed fitness is modeling the velocity of an object falling through a viscous liquid. Here we’ll model a the velocity of a ball falling through honey. Using Newton’s 2nd law (<span class="math notranslate nohighlight">\(F = ma \to a = F/m\)</span>), we can derive that <span class="math notranslate nohighlight">\(a = g - cv/m\)</span> where <span class="math notranslate nohighlight">\(g\)</span> is the acceleration due to gravity, <span class="math notranslate nohighlight">\(c\)</span> is a drag term, <span class="math notranslate nohighlight">\(v\)</span> is the velocity of the ball, and <span class="math notranslate nohighlight">\(m\)</span> is the mass of the ball. We can use this fact to enforce that the
+models Bingo produces for velocity are physically consistent.</p>
+<p><strong>TODO free-body diagram showing problem, note that we are not factoring buoyancy here</strong></p>
+</section>
+<section id="Creating-Training-Data">
+<h3>Creating Training Data<a class="headerlink" href="#Creating-Training-Data" title="Link to this heading">#</a></h3>
+<p>We can integrate <span class="math notranslate nohighlight">\(a = g - cv/m\)</span> to get the true equation of the ball’s velocity as it falls through a fluid: <span class="math notranslate nohighlight">\(\frac{mg}{c} \left(1 - \exp \left(\frac{ct}{m}\right)\right)\)</span>. Note that while we can derive the true equation in this case, there are problems where we can’t do so and only have training data. So, we will only be using this true equation to generate training data and use GPSR to get a model from the data.</p>
+<p>Let’s assume our ball has a mass of 1 <span class="math notranslate nohighlight">\(kg\)</span> and a radius of 3 <span class="math notranslate nohighlight">\(cm\)</span>; on Earth <span class="math notranslate nohighlight">\(g\)</span> is roughly 9.8 <span class="math notranslate nohighlight">\(m/s^2\)</span>; and for the ball dropping through honey, <span class="math notranslate nohighlight">\(c\)</span> is roughly <span class="math notranslate nohighlight">\(1.8 \pi \, kg/s \approx 5.655 \, kg/s\)</span> (Stokes’ Law without velocity) at <span class="math notranslate nohighlight">\(\text{20}^{\circ}\)</span>C.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">r</span> <span class="o">=</span> <span class="mf">3.0</span><span class="o">/</span><span class="mf">100.0</span>
+<span class="n">g</span> <span class="o">=</span> <span class="mf">9.8</span>
+<span class="n">c</span> <span class="o">=</span> <span class="mf">5.655</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">m</span> <span class="o">*</span> <span class="n">g</span> <span class="o">/</span> <span class="n">c</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="n">m</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;t (s)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;v (m/s)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Velocity of Ball Falling Through Honey&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_low_level_physics_fitness_5_0.png" src="../_images/_low_level_physics_fitness_5_0.png" />
+</div>
+</div>
+</section>
+<section id="Symbolic-Regression-Setup">
+<h3>Symbolic Regression Setup<a class="headerlink" href="#Symbolic-Regression-Setup" title="Link to this heading">#</a></h3>
+<p>See the <a class="reference external" href="tutorial_4.html">symbolic regression tutorial</a> for more information.</p>
+<section id="AGraph-Component-Generator">
+<h4>AGraph Component Generator<a class="headerlink" href="#AGraph-Component-Generator" title="Link to this heading">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">ComponentGenerator</span>
+
+<span class="n">component_generator</span> <span class="o">=</span> <span class="n">ComponentGenerator</span><span class="p">(</span><span class="n">input_x_dimension</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">component_generator</span><span class="o">.</span><span class="n">add_operator</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+<span class="n">component_generator</span><span class="o">.</span><span class="n">add_operator</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+<span class="n">component_generator</span><span class="o">.</span><span class="n">add_operator</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="n">component_generator</span><span class="o">.</span><span class="n">add_operator</span><span class="p">(</span><span class="s2">&quot;exp&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/__init__.py:31: UserWarning: Could not load C++ modules No module named &#39;bingocpp.build&#39;
+  warnings.warn(f&#34;Could not load C++ modules {import_err}&#34;)
+</pre></div></div>
+</div>
+</section>
+<section id="AGraph-Generator">
+<h4>AGraph Generator<a class="headerlink" href="#AGraph-Generator" title="Link to this heading">#</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">AGraphGenerator</span>
+
+<span class="n">AGRAPH_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="n">agraph_generator</span> <span class="o">=</span> <span class="n">AGraphGenerator</span><span class="p">(</span><span class="n">agraph_size</span><span class="o">=</span><span class="n">AGRAPH_SIZE</span><span class="p">,</span>
+                                   <span class="n">component_generator</span><span class="o">=</span><span class="n">component_generator</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="AGraph-Variation">
+<h4>AGraph Variation<a class="headerlink" href="#AGraph-Variation" title="Link to this heading">#</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">AGraphCrossover</span><span class="p">,</span> <span class="n">AGraphMutation</span>
+
+<span class="n">crossover</span> <span class="o">=</span> <span class="n">AGraphCrossover</span><span class="p">()</span>
+<span class="n">mutation</span> <span class="o">=</span> <span class="n">AGraphMutation</span><span class="p">(</span><span class="n">component_generator</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evaluation">
+<h4>Evaluation<a class="headerlink" href="#Evaluation" title="Link to this heading">#</a></h4>
+<section id="Defining-the-Custom-Fitness-Function">
+<h5>Defining the Custom Fitness Function<a class="headerlink" href="#Defining-the-Custom-Fitness-Function" title="Link to this heading">#</a></h5>
+<p>Here we’re going to create our own fitness function based on the existing <code class="docutils literal notranslate"><span class="pre">ExplicitRegression</span></code> which is used for typical symbolic regression.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">ExplicitRegression</span>
+
+<span class="k">class</span> <span class="nc">FallingBallRegression</span><span class="p">(</span><span class="n">ExplicitRegression</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_data</span><span class="p">,</span> <span class="n">mass_of_ball</span><span class="p">,</span> <span class="n">radius_of_ball</span><span class="p">,</span>
+                 <span class="n">g</span><span class="p">,</span> <span class="n">drag_term</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">training_data</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">relative</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">=</span> <span class="n">mass_of_ball</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">radius_of_ball</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">drag_term</span>
+
+    <span class="k">def</span> <span class="nf">evaluate_fitness_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+        <span class="n">typical_fitness_vector</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate_fitness_vector</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span>
+
+        <span class="n">v</span><span class="p">,</span> <span class="n">dv_dt</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">evaluate_equation_with_x_gradient_at</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">training_data</span><span class="o">.</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">dv_dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">flatten</span><span class="p">()),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">dv_dt</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="n">derivative_fitness_vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">*</span> <span class="n">v</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">m</span> <span class="o">-</span> <span class="n">dv_dt</span>
+
+        <span class="k">return</span> <span class="n">typical_fitness_vector</span> <span class="o">+</span> <span class="n">derivative_fitness_vector</span>
+</pre></div>
+</div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">__init__</span></code>, we are defining the same arguments that <code class="docutils literal notranslate"><span class="pre">ExplicitRegression</span></code> needs (<code class="docutils literal notranslate"><span class="pre">training_data</span></code>, <code class="docutils literal notranslate"><span class="pre">metric</span></code>, and <code class="docutils literal notranslate"><span class="pre">relative</span></code>) as well as information specific to our problem (<code class="docutils literal notranslate"><span class="pre">mass_of_ball</span></code>, <code class="docutils literal notranslate"><span class="pre">radius_of_ball</span></code>, <code class="docutils literal notranslate"><span class="pre">g</span></code>, and <code class="docutils literal notranslate"><span class="pre">drag_term</span></code>). Then we are setting up <code class="docutils literal notranslate"><span class="pre">ExplicitRegression</span></code> and storing the physics terms in our object.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code>, we are getting the normal fitness vector using <code class="docutils literal notranslate"><span class="pre">ExplicitRegression</span></code>’s <code class="docutils literal notranslate"><span class="pre">evaluate_fitness_vector</span></code> and adding it with a physics-informed <code class="docutils literal notranslate"><span class="pre">derivative_fitness_vector</span></code>. The <code class="docutils literal notranslate"><span class="pre">derivative_fitness_vector</span></code> penalizes the individual if its velocity predictions do not abide by the known <span class="math notranslate nohighlight">\(a = \frac{dv}{dt} = g - \frac{cv}{m}\)</span>. We can do this by using <code class="docutils literal notranslate"><span class="pre">AGraph</span></code>’s <code class="docutils literal notranslate"><span class="pre">evaluate_equation_with_x_gradient_at</span></code> which will normally give us <span class="math notranslate nohighlight">\(y\)</span>, <span class="math notranslate nohighlight">\(dy/dx\)</span>, but in
+our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span class="math notranslate nohighlight">\(y=v\)</span>, so we get <span class="math notranslate nohighlight">\(v\)</span>, <span class="math notranslate nohighlight">\(dv/dt\)</span>.</p>
+</section>
+<section id="Using-the-Custom-Fitness-Function-in-Evaluation">
+<h5>Using the Custom Fitness Function in Evaluation<a class="headerlink" href="#Using-the-Custom-Fitness-Function-in-Evaluation" title="Link to this heading">#</a></h5>
+<p>Let’s instantiate and wrap our custom fitness function with <code class="docutils literal notranslate"><span class="pre">ContinuousLocalOptimization</span></code> to allow for local optimization of <code class="docutils literal notranslate"><span class="pre">AGraph</span></code> constants.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">ExplicitTrainingData</span>
+<span class="kn">from</span> <span class="nn">bingo.local_optimizers.scipy_optimizer</span> <span class="kn">import</span> <span class="n">ScipyOptimizer</span>
+<span class="kn">from</span> <span class="nn">bingo.local_optimizers.local_opt_fitness</span> <span class="kn">import</span> <span class="n">LocalOptFitnessFunction</span>
+<span class="n">training_data</span> <span class="o">=</span> <span class="n">ExplicitTrainingData</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+<span class="n">fitness</span> <span class="o">=</span> <span class="n">FallingBallRegression</span><span class="p">(</span><span class="n">training_data</span><span class="o">=</span><span class="n">training_data</span><span class="p">,</span> <span class="n">mass_of_ball</span><span class="o">=</span><span class="n">m</span><span class="p">,</span>
+                                <span class="n">radius_of_ball</span><span class="o">=</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="o">=</span><span class="n">g</span><span class="p">,</span> <span class="n">drag_term</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">ScipyOptimizer</span><span class="p">(</span><span class="n">fitness</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;lm&#39;</span><span class="p">)</span>
+<span class="n">local_opt_fitness</span> <span class="o">=</span> <span class="n">LocalOptFitnessFunction</span><span class="p">(</span><span class="n">fitness</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can then use the fitness function in <code class="docutils literal notranslate"><span class="pre">Evaluation</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evaluation.evaluation</span> <span class="kn">import</span> <span class="n">Evaluation</span>
+
+<span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluation</span><span class="p">(</span><span class="n">local_opt_fitness</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Evolutionary-Algorithm">
+<h4>Evolutionary Algorithm<a class="headerlink" href="#Evolutionary-Algorithm" title="Link to this heading">#</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_algorithms.age_fitness</span> <span class="kn">import</span> <span class="n">AgeFitnessEA</span>
+
+<span class="n">POPULATION_SIZE</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">MUTATION_PROB</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">CROSSOVER_PROB</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="n">ea</span> <span class="o">=</span> <span class="n">AgeFitnessEA</span><span class="p">(</span><span class="n">evaluator</span><span class="p">,</span> <span class="n">agraph_generator</span><span class="p">,</span> <span class="n">crossover</span><span class="p">,</span> <span class="n">mutation</span><span class="p">,</span>
+                  <span class="n">CROSSOVER_PROB</span><span class="p">,</span> <span class="n">MUTATION_PROB</span><span class="p">,</span> <span class="n">POPULATION_SIZE</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Pareto-Front">
+<h4>Pareto Front<a class="headerlink" href="#Pareto-Front" title="Link to this heading">#</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.stats.pareto_front</span> <span class="kn">import</span> <span class="n">ParetoFront</span>
+
+<span class="k">def</span> <span class="nf">agraph_similarity</span><span class="p">(</span><span class="n">ag_1</span><span class="p">,</span> <span class="n">ag_2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;a similarity metric between agraphs&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ag_1</span><span class="o">.</span><span class="n">fitness</span> <span class="o">==</span> <span class="n">ag_2</span><span class="o">.</span><span class="n">fitness</span> <span class="ow">and</span> <span class="n">ag_1</span><span class="o">.</span><span class="n">get_complexity</span><span class="p">()</span> <span class="o">==</span> <span class="n">ag_2</span><span class="o">.</span><span class="n">get_complexity</span><span class="p">()</span>
+
+<span class="n">pareto_front</span> <span class="o">=</span> <span class="n">ParetoFront</span><span class="p">(</span><span class="n">secondary_key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">ag</span><span class="p">:</span> <span class="n">ag</span><span class="o">.</span><span class="n">get_complexity</span><span class="p">(),</span>
+                           <span class="n">similarity_function</span><span class="o">=</span><span class="n">agraph_similarity</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Evolutionary-Optimizer">
+<h4>Evolutionary Optimizer<a class="headerlink" href="#Evolutionary-Optimizer" title="Link to this heading">#</a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_optimizers.island</span> <span class="kn">import</span> <span class="n">Island</span>
+
+<span class="n">island</span> <span class="o">=</span> <span class="n">Island</span><span class="p">(</span><span class="n">ea</span><span class="p">,</span> <span class="n">agraph_generator</span><span class="p">,</span> <span class="n">POPULATION_SIZE</span><span class="p">,</span> <span class="n">hall_of_fame</span><span class="o">=</span><span class="n">pareto_front</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Running-Symbolic-Regression">
+<h3>Running Symbolic Regression<a class="headerlink" href="#Running-Symbolic-Regression" title="Link to this heading">#</a></h3>
+<p>Now we can run symbolic regression on our training data to produce a model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">MAX_GENS</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">ERR_THRESHOLD</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">island</span><span class="o">.</span><span class="n">evolve_until_convergence</span><span class="p">(</span><span class="n">MAX_GENS</span><span class="p">,</span> <span class="n">ERR_THRESHOLD</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:144: RuntimeWarning: overflow encountered in exp
+  return np.exp(forward_eval[param1])
+/tmp/ipykernel_4579/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
+  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] *\
+/tmp/ipykernel_4579/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
+  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:78: RuntimeWarning: overflow encountered in multiply
+  return forward_eval[param1] * forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in divide
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/opt/hostedtoolcache/Python/3.12.7/x64/lib/python3.12/site-packages/scipy/optimize/_minpack_py.py:499: RuntimeWarning: overflow encountered in matmul
+  cov_x = invR @ invR.T
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in divide
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:78: RuntimeWarning: overflow encountered in scalar multiply
+  return forward_eval[param1] * forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in add
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:89: RuntimeWarning: overflow encountered in divide
+  return forward_eval[param1] / forward_eval[param2]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(1.127388114513954e+22), time=14.79786, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.013994981879007527), detrimental_crossover_rate=np.float64(0.3765821020351268), beneficial_mutation_rate=np.float64(0.044349540078843626), detrimental_mutation_rate=np.float64(0.5463206307490145), beneficial_crossover_mutation_rate=np.float64(0.013684744044602128), detrimental_crossover_mutation_rate=np.float64(0.44804865686771417)))
+</pre></div></div>
+</div>
+</section>
+<section id="Results">
+<h3>Results<a class="headerlink" href="#Results" title="Link to this heading">#</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_individual</span> <span class="o">=</span> <span class="n">pareto_front</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">pred_v</span> <span class="o">=</span> <span class="n">best_individual</span><span class="o">.</span><span class="n">evaluate_equation_at</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">pred_v</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;t (s)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;v (m/s)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s2">&quot;actual&quot;</span><span class="p">,</span> <span class="s2">&quot;predicted&quot;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Velocity of Ball Falling Through Honey&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_low_level_physics_fitness_30_0.png" src="../_images/_low_level_physics_fitness_30_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial_4.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Bingo Tutorial 4: Symbolic Regression</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../_apidocs/modules.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">bingo</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Goal:-Show-how-fitness-functions-can-be-customized-to-enforce-problem-specific-constraints.">Goal: Show how fitness functions can be customized to enforce problem-specific constraints.</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Pre-Requisites">Pre-Requisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Problem-Description">Problem Description</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Creating-Training-Data">Creating Training Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Symbolic-Regression-Setup">Symbolic Regression Setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#AGraph-Component-Generator">AGraph Component Generator</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#AGraph-Generator">AGraph Generator</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#AGraph-Variation">AGraph Variation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Evaluation">Evaluation</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#Defining-the-Custom-Fitness-Function">Defining the Custom Fitness Function</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#Using-the-Custom-Fitness-Function-in-Evaluation">Using the Custom Fitness Function in Evaluation</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Evolutionary-Algorithm">Evolutionary Algorithm</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Pareto-Front">Pareto Front</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Evolutionary-Optimizer">Evolutionary Optimizer</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Running-Symbolic-Regression">Running Symbolic Regression</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Results">Results</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_low_level/physics_fitness.nblink.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, United States Government as represented by the Administrator of the National Aeronautics and Space Administration.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

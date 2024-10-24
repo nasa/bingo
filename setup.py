@@ -234,11 +234,8 @@ setup(
         "scikit-learn",
         "smcpy",
     ],
-    python_requires="~=3.9",
+    python_requires=">=3.9",
     classifiers=[
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: Apache Software License",
         "Development Status :: 3 - Alpha",

@@ -16,17 +16,19 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -34,13 +36,14 @@
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
@@ -54,6 +57,7 @@
     <link rel="prev" title="Bingo Tutorial 2: Zero Min Problem" href="tutorial_2.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -69,19 +73,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../search.html"
       method="get">
@@ -89,7 +82,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -97,8 +89,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -130,7 +122,7 @@
     
     
     <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
-    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+    <img src="../_static/transparent_logo.png" class="logo__image only-dark pst-js-only" alt="Bingo 1.0 documentation - Home"/>
   
   
 </a></div>
@@ -190,15 +182,11 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
@@ -225,15 +213,11 @@
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
@@ -252,7 +236,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -373,8 +358,6 @@
       
         <div class="header-article-item">
 
-
-
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
@@ -386,7 +369,7 @@
     
     <li class="breadcrumb-item"><a href="../low_level.html" class="nav-link">Low-Level User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Bingo...</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Bingo Tutorial 3: Archipelagos and Logging</span></li>
   </ul>
 </nav>
 </div>
@@ -640,16 +623,16 @@ Archipelago age: 10  with best fitness: 0.12439522102582232
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Generation: 10   Elapsed time: 0.000129          Best training fitness: 1.243952e-01
-Generation: 11   Elapsed time: 0.943207          Best training fitness: 8.348861e-02
-Generation: 12   Elapsed time: 1.937773          Best training fitness: 5.877228e-02
-Generation: 13   Elapsed time: 2.999031          Best training fitness: 5.877228e-02
-Generation: 14   Elapsed time: 4.069412          Best training fitness: 5.877228e-02
-Generation: 15   Elapsed time: 5.144811          Best training fitness: 5.710052e-02
-Generation: 16   Elapsed time: 6.214514          Best training fitness: 5.621542e-02
-Generation: 17   Elapsed time: 7.290779          Best training fitness: 5.446524e-02
-Generation: 18   Elapsed time: 8.356685          Best training fitness: 5.446524e-02
-Generation: 19   Elapsed time: 9.435309          Best training fitness: 4.966088e-02
+Generation: 10   Elapsed time: 0.000174          Best training fitness: 1.243952e-01
+Generation: 11   Elapsed time: 1.049609          Best training fitness: 8.348861e-02
+Generation: 12   Elapsed time: 2.177447          Best training fitness: 5.877228e-02
+Generation: 13   Elapsed time: 3.385284          Best training fitness: 5.877228e-02
+Generation: 14   Elapsed time: 4.561671          Best training fitness: 5.877228e-02
+Generation: 15   Elapsed time: 5.755381          Best training fitness: 5.710052e-02
+Generation: 16   Elapsed time: 6.957312          Best training fitness: 5.621542e-02
+Generation: 17   Elapsed time: 8.182546          Best training fitness: 5.446524e-02
+Generation: 18   Elapsed time: 9.394383          Best training fitness: 5.446524e-02
+Generation: 19   Elapsed time: 10.582330         Best training fitness: 4.966088e-02
 /home/runner/work/bingo/bingo/bingo/evolutionary_algorithms/ea_diagnostics.py:90: RuntimeWarning: invalid value encountered in scalar divide
   cross_mut_tots[1] / cross_mut_tots[0],
 /home/runner/work/bingo/bingo/bingo/evolutionary_algorithms/ea_diagnostics.py:91: RuntimeWarning: invalid value encountered in scalar divide
@@ -719,16 +702,16 @@ RANK      FITNESS
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Generation: 10   Elapsed time: 0.000129          Best training fitness: 1.243952e-01
-Generation: 11   Elapsed time: 0.943207          Best training fitness: 8.348861e-02
-Generation: 12   Elapsed time: 1.937773          Best training fitness: 5.877228e-02
-Generation: 13   Elapsed time: 2.999031          Best training fitness: 5.877228e-02
-Generation: 14   Elapsed time: 4.069412          Best training fitness: 5.877228e-02
-Generation: 15   Elapsed time: 5.144811          Best training fitness: 5.710052e-02
-Generation: 16   Elapsed time: 6.214514          Best training fitness: 5.621542e-02
-Generation: 17   Elapsed time: 7.290779          Best training fitness: 5.446524e-02
-Generation: 18   Elapsed time: 8.356685          Best training fitness: 5.446524e-02
-Generation: 19   Elapsed time: 9.435309          Best training fitness: 4.966088e-02
+Generation: 10   Elapsed time: 0.000174          Best training fitness: 1.243952e-01
+Generation: 11   Elapsed time: 1.049609          Best training fitness: 8.348861e-02
+Generation: 12   Elapsed time: 2.177447          Best training fitness: 5.877228e-02
+Generation: 13   Elapsed time: 3.385284          Best training fitness: 5.877228e-02
+Generation: 14   Elapsed time: 4.561671          Best training fitness: 5.877228e-02
+Generation: 15   Elapsed time: 5.755381          Best training fitness: 5.710052e-02
+Generation: 16   Elapsed time: 6.957312          Best training fitness: 5.621542e-02
+Generation: 17   Elapsed time: 8.182546          Best training fitness: 5.446524e-02
+Generation: 18   Elapsed time: 9.394383          Best training fitness: 5.446524e-02
+Generation: 19   Elapsed time: 10.582330         Best training fitness: 4.966088e-02
 Evolution successfully converged.
   Absolute convergence occurred with best fitness &lt; 0.05
 Hall of Fame:
@@ -1021,42 +1004,42 @@ input[type=range].anim-slider {
 </style>
 
 <div class="animation">
-  <img id="_anim_imgcf75e13b6dad47d49c9c343fd25123de">
+  <img id="_anim_imgd9bb8c6fae2245e2930bb1662ef6ec70">
   <div class="anim-controls">
-    <input id="_anim_slidercf75e13b6dad47d49c9c343fd25123de" type="range" class="anim-slider"
+    <input id="_anim_sliderd9bb8c6fae2245e2930bb1662ef6ec70" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="animcf75e13b6dad47d49c9c343fd25123de.set_frame(parseInt(this.value));">
+           oninput="animd9bb8c6fae2245e2930bb1662ef6ec70.set_frame(parseInt(this.value));">
     <div class="anim-buttons">
-      <button title="Decrease speed" aria-label="Decrease speed" onclick="animcf75e13b6dad47d49c9c343fd25123de.slower()">
+      <button title="Decrease speed" aria-label="Decrease speed" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.slower()">
           <i class="fa fa-minus"></i></button>
-      <button title="First frame" aria-label="First frame" onclick="animcf75e13b6dad47d49c9c343fd25123de.first_frame()">
+      <button title="First frame" aria-label="First frame" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.first_frame()">
         <i class="fa fa-fast-backward"></i></button>
-      <button title="Previous frame" aria-label="Previous frame" onclick="animcf75e13b6dad47d49c9c343fd25123de.previous_frame()">
+      <button title="Previous frame" aria-label="Previous frame" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.previous_frame()">
           <i class="fa fa-step-backward"></i></button>
-      <button title="Play backwards" aria-label="Play backwards" onclick="animcf75e13b6dad47d49c9c343fd25123de.reverse_animation()">
+      <button title="Play backwards" aria-label="Play backwards" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.reverse_animation()">
           <i class="fa fa-play fa-flip-horizontal"></i></button>
-      <button title="Pause" aria-label="Pause" onclick="animcf75e13b6dad47d49c9c343fd25123de.pause_animation()">
+      <button title="Pause" aria-label="Pause" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.pause_animation()">
           <i class="fa fa-pause"></i></button>
-      <button title="Play" aria-label="Play" onclick="animcf75e13b6dad47d49c9c343fd25123de.play_animation()">
+      <button title="Play" aria-label="Play" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.play_animation()">
           <i class="fa fa-play"></i></button>
-      <button title="Next frame" aria-label="Next frame" onclick="animcf75e13b6dad47d49c9c343fd25123de.next_frame()">
+      <button title="Next frame" aria-label="Next frame" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.next_frame()">
           <i class="fa fa-step-forward"></i></button>
-      <button title="Last frame" aria-label="Last frame" onclick="animcf75e13b6dad47d49c9c343fd25123de.last_frame()">
+      <button title="Last frame" aria-label="Last frame" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.last_frame()">
           <i class="fa fa-fast-forward"></i></button>
-      <button title="Increase speed" aria-label="Increase speed" onclick="animcf75e13b6dad47d49c9c343fd25123de.faster()">
+      <button title="Increase speed" aria-label="Increase speed" onclick="animd9bb8c6fae2245e2930bb1662ef6ec70.faster()">
           <i class="fa fa-plus"></i></button>
     </div>
-    <form title="Repetition mode" aria-label="Repetition mode" action="#n" name="_anim_loop_selectcf75e13b6dad47d49c9c343fd25123de"
+    <form title="Repetition mode" aria-label="Repetition mode" action="#n" name="_anim_loop_selectd9bb8c6fae2245e2930bb1662ef6ec70"
           class="anim-state">
-      <input type="radio" name="state" value="once" id="_anim_radio1_cf75e13b6dad47d49c9c343fd25123de"
+      <input type="radio" name="state" value="once" id="_anim_radio1_d9bb8c6fae2245e2930bb1662ef6ec70"
              >
-      <label for="_anim_radio1_cf75e13b6dad47d49c9c343fd25123de">Once</label>
-      <input type="radio" name="state" value="loop" id="_anim_radio2_cf75e13b6dad47d49c9c343fd25123de"
+      <label for="_anim_radio1_d9bb8c6fae2245e2930bb1662ef6ec70">Once</label>
+      <input type="radio" name="state" value="loop" id="_anim_radio2_d9bb8c6fae2245e2930bb1662ef6ec70"
              checked>
-      <label for="_anim_radio2_cf75e13b6dad47d49c9c343fd25123de">Loop</label>
-      <input type="radio" name="state" value="reflect" id="_anim_radio3_cf75e13b6dad47d49c9c343fd25123de"
+      <label for="_anim_radio2_d9bb8c6fae2245e2930bb1662ef6ec70">Loop</label>
+      <input type="radio" name="state" value="reflect" id="_anim_radio3_d9bb8c6fae2245e2930bb1662ef6ec70"
              >
-      <label for="_anim_radio3_cf75e13b6dad47d49c9c343fd25123de">Reflect</label>
+      <label for="_anim_radio3_d9bb8c6fae2245e2930bb1662ef6ec70">Reflect</label>
     </form>
   </div>
 </div>
@@ -1066,9 +1049,9 @@ input[type=range].anim-slider {
   /* Instantiate the Animation class. */
   /* The IDs given should match those used in the template above. */
   (function() {
-    var img_id = "_anim_imgcf75e13b6dad47d49c9c343fd25123de";
-    var slider_id = "_anim_slidercf75e13b6dad47d49c9c343fd25123de";
-    var loop_select_id = "_anim_loop_selectcf75e13b6dad47d49c9c343fd25123de";
+    var img_id = "_anim_imgd9bb8c6fae2245e2930bb1662ef6ec70";
+    var slider_id = "_anim_sliderd9bb8c6fae2245e2930bb1662ef6ec70";
+    var loop_select_id = "_anim_loop_selectd9bb8c6fae2245e2930bb1662ef6ec70";
     var frames = new Array(51);
 
   frames[0] = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAoAAAAHgCAYAAAA10dzkAAAAOXRFWHRTb2Z0d2FyZQBNYXRwbG90\
@@ -28147,7 +28130,7 @@ AcX1NP2v4QAAAABJRU5ErkJggg==\
     /* set a timeout to make sure all the above elements are created before
        the object is initialized. */
     setTimeout(function() {
-        animcf75e13b6dad47d49c9c343fd25123de = new Animation(frames, img_id, slider_id, 250.0,
+        animd9bb8c6fae2245e2930bb1662ef6ec70 = new Animation(frames, img_id, slider_id, 250.0,
                                  loop_select_id);
     }, 0);
   })()
@@ -28192,7 +28175,8 @@ AcX1NP2v4QAAAABJRU5ErkJggg==\
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -28251,8 +28235,8 @@ AcX1NP2v4QAAAABJRU5ErkJggg==\
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -28272,7 +28256,7 @@ AcX1NP2v4QAAAABJRU5ErkJggg==\
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
@@ -28285,7 +28269,7 @@ AcX1NP2v4QAAAABJRU5ErkJggg==\
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
 </p></div>
       
     </div>

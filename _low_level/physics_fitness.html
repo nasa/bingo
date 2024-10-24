@@ -16,17 +16,19 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-
-  
-  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -34,13 +36,14 @@
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
-  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
@@ -54,6 +57,7 @@
     <link rel="prev" title="Bingo Tutorial 4: Symbolic Regression" href="tutorial_4.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
   </head>
   
   
@@ -69,19 +73,8 @@
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-primary-sidebar-checkbox"/>
-  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          id="pst-secondary-sidebar-checkbox"/>
-  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
+  <dialog id="pst-search-dialog">
+    
 <form class="bd-search d-flex align-items-center"
       action="../search.html"
       method="get">
@@ -89,7 +82,6 @@
   <input type="search"
          class="form-control"
          name="q"
-         id="search-input"
          placeholder="Search the docs ..."
          aria-label="Search the docs ..."
          autocomplete="off"
@@ -97,8 +89,8 @@
          autocapitalize="off"
          spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
-  </div>
+</form>
+  </dialog>
 
   <div class="pst-async-banner-revealer d-none">
   <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
@@ -130,7 +122,7 @@
     
     
     <img src="../_static/transparent_logo.png" class="logo__image only-light" alt="Bingo 1.0 documentation - Home"/>
-    <script>document.write(`<img src="../_static/transparent_logo.png" class="logo__image only-dark" alt="Bingo 1.0 documentation - Home"/>`);</script>
+    <img src="../_static/transparent_logo.png" class="logo__image only-dark pst-js-only" alt="Bingo 1.0 documentation - Home"/>
   
   
 </a></div>
@@ -190,15 +182,11 @@
         <div class="navbar-item navbar-persistent--container">
           
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
         </div>
       
       
@@ -225,15 +213,11 @@
   
     <div class="navbar-persistent--mobile">
 
- <script>
- document.write(`
-   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <span class="search-button__default-text">Search</span>
-    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
-   </button>
- `);
- </script>
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
     </div>
   
 
@@ -252,7 +236,8 @@
       
       
       
-      <div class="bd-sidebar-primary bd-sidebar">
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
         
 
   
@@ -373,8 +358,6 @@
       
         <div class="header-article-item">
 
-
-
 <nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
@@ -386,7 +369,7 @@
     
     <li class="breadcrumb-item"><a href="../low_level.html" class="nav-link">Low-Level User Guide</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Physics-Info...</li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Physics-Informed Fitness</span></li>
   </ul>
 </nav>
 </div>
@@ -660,42 +643,48 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_5412/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
-  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:144: RuntimeWarning: overflow encountered in exp
   return np.exp(forward_eval[param1])
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
-/tmp/ipykernel_5412/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
+/tmp/ipykernel_4525/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
   derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:78: RuntimeWarning: overflow encountered in multiply
   return forward_eval[param1] * forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in multiply
   reverse_eval[param1] += reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/tmp/ipykernel_4525/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
+  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in add
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
 /opt/hostedtoolcache/Python/3.12.7/x64/lib/python3.12/site-packages/scipy/optimize/_minpack_py.py:499: RuntimeWarning: overflow encountered in matmul
   cov_x = invR @ invR.T
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in divide
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:78: RuntimeWarning: overflow encountered in scalar multiply
   return forward_eval[param1] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in scalar multiply
-  reverse_eval[param1] += reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in add
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar divide
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in divide
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in scalar divide
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:89: RuntimeWarning: overflow encountered in divide
   return forward_eval[param1] / forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in divide
   reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in scalar multiply
-  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in add
-  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar divide
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar multiply
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] *\
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -704,7 +693,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(1.2215426198686914e+22), time=12.79496, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.008869179600886918), detrimental_crossover_rate=np.float64(0.40964523281596454), beneficial_mutation_rate=np.float64(0.04033898305084746), detrimental_mutation_rate=np.float64(0.54), beneficial_crossover_mutation_rate=np.float64(0.009538152610441768), detrimental_crossover_mutation_rate=np.float64(0.4678714859437751)))
+OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(2.075894074210649e+22), time=15.978257, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.008888143551903404), detrimental_crossover_rate=np.float64(0.38817150204036), beneficial_mutation_rate=np.float64(0.037606278613472856), detrimental_mutation_rate=np.float64(0.5310660562459124), beneficial_crossover_mutation_rate=np.float64(0.009197751660705161), detrimental_crossover_mutation_rate=np.float64(0.46601941747572817)))
 </pre></div></div>
 </div>
 </section>
@@ -773,7 +762,8 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
             
             
               
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
 
   <div class="sidebar-secondary-item">
@@ -831,8 +821,8 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -852,7 +842,7 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
@@ -865,7 +855,7 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
 </p></div>
       
     </div>

@@ -243,8 +243,8 @@ setup(
         "Development Status :: 3 - Alpha",
     ],
     # add extension module
-    # ext_modules=[CMakeExtension("bingocpp", "bingocpp")],
+    ext_modules=[CMakeExtension("bingocpp", "bingocpp")],
     # add custom build_ext command
-    # cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )

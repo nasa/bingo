@@ -8,4 +8,4 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
-before-build = "apt-get install python-dev"
+before-build = "yum install python-devel"

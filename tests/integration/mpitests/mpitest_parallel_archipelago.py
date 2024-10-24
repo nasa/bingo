@@ -173,12 +173,11 @@ def test_dump_then_load_equal_procs():
                                        non_blocking=True)
     file_name = "testing_pa_dump_and_load_eq.pkl"
     archipelago.dump_to_file(file_name)
-    for i in os.listdir():
-        print(COMM_RANK, i)
     archipelago = \
         load_parallel_archipelago_from_file(file_name)
     if COMM_RANK == 0:
         os.remove(file_name)
+
     origin_proc = archipelago.island.population[0].values[0]
     return mpi_assert_equal(origin_proc, COMM_RANK)
 
@@ -190,9 +189,6 @@ def test_dump_then_load_more_procs():
     file_name = "testing_pa_dump_and_load_gt.pkl"
     archipelago.dump_to_file(file_name)
     _remove_proc_from_pickle(file_name)
-    
-    for i in os.listdir():
-        print(COMM_RANK, i)
     archipelago = \
         load_parallel_archipelago_from_file(file_name)
     if COMM_RANK == 0:
@@ -221,7 +217,6 @@ def test_dump_then_load_less_procs():
     file_name = "testing_pa_dump_and_load_lt.pkl"
     archipelago.dump_to_file(file_name)
     _add_proc_to_pickle(file_name)
-
     archipelago = \
         load_parallel_archipelago_from_file(file_name)
     if COMM_RANK == 0:

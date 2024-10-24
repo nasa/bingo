@@ -19,7 +19,7 @@ can be used as a general purpose evolutionary optimization package.
 # Quick Start
 
 ## Documentation
-[Full Documentation Here](https://nightdr.github.io/bingo/)
+[Full Documentation Here](https://nasa.github.io/bingo/)
 
 ## Installation
 
@@ -38,7 +38,7 @@ A no-fuss way of using Bingo is by using the scikit-learn wrapper:
 There are many options that can be set in `SymbolicRegressor`. Here we set some basic ones including
 `population_size` (the number of equations in a population), `stack_size` (the max number of nodes per equation), and `use_simplification`
 (whether to use simplification to speed up equation evaluation and for easier reading). You can see all of `SymbolicRegressor`'s
-options [here](https://nightdr.github.io/bingo/_apidocs/bingo.symbolic_regression.html#module-bingo.symbolic_regression.symbolic_regressor).
+options [here](https://nasa.github.io/bingo/_apidocs/bingo.symbolic_regression.html#module-bingo.symbolic_regression.symbolic_regressor).
 
 
 ```python
@@ -53,7 +53,7 @@ regressor = SymbolicRegressor(population_size=100, stack_size=16,
 
 ### Training Data
 Here we're just creating some dummy training data from the equation $5.0 X_0^2 + 3.5 X_0$. More on training data can be found
-in the [data formatting guide](https://nightdr.github.io/bingo/_high_level/data_formatting.html).
+in the [data formatting guide](https://nasa.github.io/bingo/_high_level/data_formatting.html).
 ```python
 import numpy as np
 X_0 = np.linspace(-10, 10, num=30).reshape((-1, 1))

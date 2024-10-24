@@ -8,4 +8,4 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
-before-build = "cp -r /host/home/runner/work/bingo/bingo/bingocpp /project/bingocpp  && ls bingocpp"
+before-build = "ls bingocpp"

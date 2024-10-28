@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository and submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
-      - name: Set up Python 3.12
+      - name: Set up Python 3.x
         uses: actions/setup-python@v2
         with:
-          python-version: 3.12
+          python-version: "3.x"
       - name: Install MPI
         uses: mpi4py/setup-mpi@v1
       - name: Build using pip
@@ -33,19 +33,19 @@ jobs:
           mv bingo_full bingo
 
 
-  deploy:
+  source-build:
     needs: pip_build
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository and submodules
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
-    - name: Set up Python 3.12
+    - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
-        python-version: 3.12
+        python-version: "3.x"
     - name: Install MPI
       uses: mpi4py/setup-mpi@v1
     - name: Install dependencies
@@ -109,8 +109,6 @@ jobs:
     #     path: dist/
 
     - uses: pypa/cibuildwheel@v2.21
-      env:
-        CIBW_ARCHS_MACOS: auto universal2
 
     - name: Verify clean directory
       run: git diff --exit-code

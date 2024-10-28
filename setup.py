@@ -233,6 +233,7 @@ setup(
         "sympy",
         "scikit-learn",
         "smcpy",
+        "pybind11[global]"
     ],
     python_requires=">=3.9",
     classifiers=[

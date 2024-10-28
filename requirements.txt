@@ -10,3 +10,4 @@ dill>=0.2.9
 sympy>=1.0
 scikit-learn>=1.1
 smcpy>=0.1.4
+pybind11

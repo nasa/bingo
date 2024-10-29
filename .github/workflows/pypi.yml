@@ -36,7 +36,6 @@ jobs:
   source-build:
     needs: pip_build_test
     name: Build source distribution 📦
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository and submodules
@@ -79,42 +78,12 @@ jobs:
   build:
     needs: pip_build_test
     name: Build binary distributions 📦
-    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-    # - name: Set up Python
-    #   uses: actions/setup-python@v5
-    #   with:
-    #     python-version: 3.12
-    # - name: Install cibuildwheel
-    #   run: python -m pip install cibuildwheel==2.21.3
-
-    # - name: Build wheels
-    #   run: python -m cibuildwheel --output-dir wheelhouse
-    #   # to supply options, put them in 'env', like:
-    #   # env:
-    #   #   CIBW_SOME_OPTION: value
-    # - name: see whats in the wheelhouse
-    #   run: ls wheelhouse
-
-    # - name: Install pypa/build
-    #   run: >-
-    #     python3 -m
-    #     pip install
-    #     build
-    #     --user
-    # - name: Build a binary wheel and a source tarball
-    #   run: python3 -m build
-
-    # - name: Store the distribution packages
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: python-package-distributions
-    #     path: dist/
 
     - uses: pypa/cibuildwheel@v2.21
 

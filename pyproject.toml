@@ -8,5 +8,28 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+dependencies = [
+    "mpi4py>=2.0.0,<4.0",
+    "numpy",
+    "scipy",
+    "dill",
+    "sympy",
+    "scikit-learn",
+    "smcpy",
+    "pybind11[global]",
+]
+
+[project.optional-dependencies]
+ONNX = ["onnx"]
+TESTS = [
+    "pytest",
+    "pytest-mock",
+    "pytest-timeout",
+    "pytest-cov",
+    "coverage",
+    "coveralls"
+]
+
 [tool.cibuildwheel]
 skip = "pp*"

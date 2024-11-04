@@ -6,6 +6,7 @@ from pathlib import Path
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+
 # from distutils.version import LooseVersion
 
 # Convert distutils Windows platform specifiers to CMake -A arguments
@@ -16,12 +17,14 @@ PLAT_TO_CMAKE = {
     "win-arm64": "ARM64",
 }
 
+
 def get_property(prop, project):
     result = re.search(
         r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop),
         open(project + "/__init__.py").read(),
     )
     return result.group(1)
+
 
 __version__ = get_property("__version__", "bingo")
 
@@ -78,7 +81,7 @@ class CMakeBuild(build_ext):
                     ninja_executable_path = Path(ninja.BIN_DIR) / "ninja"
                     cmake_args += [
                         "-GNinja",
-                        '-DCMAKE_JOB_POOLS:STRING=compile=1;link=1'
+                        "-DCMAKE_JOB_POOLS:STRING=compile=1;link=1"
                         f"-DCMAKE_MAKE_PROGRAM:FILEPATH={ninja_executable_path}",
                     ]
                 except ImportError:
@@ -161,19 +164,7 @@ setup(
         "bingo.util",
         "bingo.variation",
     ],
-    install_requires=[
-        "mpi4py>=2.0.0,<4.0",
-        "numpy",
-        "pytest",
-        "pytest-mock",
-        "pytest-timeout",
-        "scipy",
-        "dill",
-        "sympy",
-        "scikit-learn",
-        "smcpy",
-        "pybind11[global]"
-    ],
+    install_requires=[],
     python_requires=">=3.9",
     classifiers=[
         "Programming Language :: Python :: 3.12",

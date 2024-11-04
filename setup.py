@@ -128,13 +128,6 @@ with open("README.md", "r") as fh:
 
 
 setup(
-    name="bingo-nasa",
-    author="Geoffrey Bomarito",
-    author_email="geoffrey.f.bomarito@nasa.gov",
-    description="A package for genetic optimization and symbolic regression",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/nasa/bingo",
     packages=[
         "bingo",
         "bingo.chromosomes",
@@ -151,13 +144,6 @@ setup(
         "bingo.symbolic_regression.benchmarking",
         "bingo.util",
         "bingo.variation",
-    ],
-    install_requires=[],
-    python_requires=">=3.9",
-    classifiers=[
-        "Programming Language :: Python :: 3.12",
-        "License :: OSI Approved :: Apache Software License",
-        "Development Status :: 3 - Alpha",
     ],
     # add extension module
     ext_modules=[CMakeExtension("bingocpp", "bingocpp")],

@@ -10,7 +10,15 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bingo"
+name = "bingo-nasa"
+keywords = ["symbolic regression"]
+description = "A package for genetic optimization and symbolic regression"
+authors = [
+    {name = "Geoffrey Bomarito, email = "geoffrey.f.bomarito@nasa.gov" }
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
 dynamic = ["version"]
 dependencies = [
     "mpi4py>=2.0.0,<4.0",
@@ -22,6 +30,18 @@ dependencies = [
     "smcpy",
     "pybind11[global]",
 ]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Documentation = "https://nasa.github.io/bingo/"
+Repository = "https://github.com/nasa/bingo"
 
 [project.optional-dependencies]
 ONNX = ["onnx"]

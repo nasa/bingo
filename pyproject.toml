@@ -58,3 +58,4 @@ TESTS = [
 skip = "pp*"
 
 [tool.setuptools_scm]
+local_scheme = "no-local-version"

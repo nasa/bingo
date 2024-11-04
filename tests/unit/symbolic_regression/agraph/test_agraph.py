@@ -6,6 +6,10 @@ import pytest
 import dill
 import sympy
 
+from onnx import load
+from onnx.reference import ReferenceEvaluator
+from onnx.checker import check_model
+
 from bingo.symbolic_regression.agraph.operator_definitions import *
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
 
@@ -14,10 +18,9 @@ try:
 except ImportError:
     cppagraph = None
 
-CPP_PARAM = pytest.param("c++",
-                         marks=pytest.mark.skipif(not cppagraph,
-                                                  reason='BingoCpp import '
-                                                         'failure'))
+CPP_PARAM = pytest.param(
+    "c++", marks=pytest.mark.skipif(not cppagraph, reason="BingoCpp import " "failure")
+)
 
 
 @pytest.fixture(params=["Python", CPP_PARAM])
@@ -35,26 +38,25 @@ def agraph_implementation(engine):
 @pytest.fixture
 def addition_agraph(agraph_implementation):
     sample = agraph_implementation()
-    sample.command_array = np.array([[VARIABLE, 0, 0],
-                                     [VARIABLE, 1, 1],
-                                     [ADDITION, 1, 0]], dtype=int)
+    sample.command_array = np.array(
+        [[VARIABLE, 0, 0], [VARIABLE, 1, 1], [ADDITION, 1, 0]], dtype=int
+    )
     return sample
 
 
 @pytest.fixture
 def addition_agraph_with_constants(agraph_implementation):
     sample = agraph_implementation()
-    sample.command_array = np.array([[CONSTANT, -1, -1],
-                                     [CONSTANT, -1, -1],
-                                     [ADDITION, 1, 0]], dtype=int)
+    sample.command_array = np.array(
+        [[CONSTANT, -1, -1], [CONSTANT, -1, -1], [ADDITION, 1, 0]], dtype=int
+    )
     return sample
 
 
 @pytest.fixture
 def sin_agraph(agraph_implementation):
     sample = agraph_implementation()
-    sample.command_array = np.array([[VARIABLE, 0, 0],
-                                     [SIN, 0, 0]], dtype=int)
+    sample.command_array = np.array([[VARIABLE, 0, 0], [SIN, 0, 0]], dtype=int)
     return sample
 
 
@@ -62,10 +64,12 @@ def test_agraph_sympy_expr_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
-    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" \
-                              " cosh((X_3)^(X_4 + 3))"
-    sympy_expr = sympy.sympify(expected_console_string
-                               .replace(")(", ")*(").replace("^", "**"))
+    expected_console_string = (
+        "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" " cosh((X_3)^(X_4 + 3))"
+    )
+    sympy_expr = sympy.sympify(
+        expected_console_string.replace(")(", ")*(").replace("^", "**")
+    )
     agraph = agraph_implementation(equation=sympy_expr)
     assert agraph.get_formatted_string("console") == expected_console_string
 
@@ -74,17 +78,18 @@ def test_agraph_sympy_str_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
-    expected_console_string = "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" \
-                              " cosh((X_3)^(X_4 + 3))"
-    sympy_expr = sympy.sympify(expected_console_string
-                               .replace(")(", ")*(").replace("^", "**"))
+    expected_console_string = (
+        "(2.0)(log(X_0)) + (sin(X_1 - (X_2)))/(3) +" " cosh((X_3)^(X_4 + 3))"
+    )
+    sympy_expr = sympy.sympify(
+        expected_console_string.replace(")(", ")*(").replace("^", "**")
+    )
     sympy_str = str(sympy_expr)
     agraph = agraph_implementation(equation=sympy_str)
     assert agraph.get_formatted_string("console") == expected_console_string
 
 
-def test_agraph_sympy_unsimplified_str_constructor(
-        engine, agraph_implementation):
+def test_agraph_sympy_unsimplified_str_constructor(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
@@ -93,8 +98,7 @@ def test_agraph_sympy_unsimplified_str_constructor(
     assert agraph.get_formatted_string("console") == unsimplified_string
 
 
-def test_agraph_sympy_constructor_fixes_formatting(
-        engine, agraph_implementation):
+def test_agraph_sympy_constructor_fixes_formatting(engine, agraph_implementation):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
@@ -112,10 +116,10 @@ def test_agraph_sympy_constructor_invalid(engine, agraph_implementation):
     assert str(exception_info.value) == "equation is not in a valid format"
 
 
-@pytest.mark.parametrize("zoo_string", ["log(log(X_0/X_0)/(X_0/X_0))",
-                                        "zoo", "I", "oo", "nan"])
-def test_agraph_sympy_constructor_zoo(engine, agraph_implementation,
-                                      zoo_string):
+@pytest.mark.parametrize(
+    "zoo_string", ["log(log(X_0/X_0)/(X_0/X_0))", "zoo", "I", "oo", "nan"]
+)
+def test_agraph_sympy_constructor_zoo(engine, agraph_implementation, zoo_string):
     if engine == "c++":
         pytest.xfail(reason="Equation to agraph not yet implemented in c++")
 
@@ -207,3 +211,44 @@ def test_can_get_and_set_fit_set(addition_agraph):
 def test_can_get_and_set_genetic_age(addition_agraph):
     addition_agraph.genetic_age = 10
     assert addition_agraph.genetic_age == 10
+
+
+def test_agraph_get_onnx_model(engine, addition_agraph_with_constants):
+    if engine == "c++":
+        pytest.xfail(reason="Onnx interface to agraph not yet implemented in c++")
+
+    onnx_model = addition_agraph_with_constants.get_onnx_model()
+    check_model(onnx_model)
+
+    sess = ReferenceEvaluator(onnx_model)
+    x = np.array([[]], dtype=np.float32)
+    y = sess.run(None, {"X": x})[0]
+    expected_y = [2.0]
+    np.testing.assert_almost_equal(expected_y, y)
+
+
+def test_onnx_not_available(engine, mocker, addition_agraph_with_constants):
+    if engine == "c++":
+        pytest.xfail(reason="Onnx interface to agraph not yet implemented in c++")
+
+    mocker.patch("bingo.symbolic_regression.agraph.agraph.ONNX_AVAILABLE", False)
+    maker_mock = mocker.Mock()
+    mocker.patch("bingo.symbolic_regression.agraph.agraph.make_onnx_model", maker_mock)
+
+    with pytest.raises(ImportError):
+        _ = addition_agraph_with_constants.get_onnx_model()
+    assert not maker_mock.called
+
+
+def test_agraph_save_onnx_model(tmp_path, engine, addition_agraph_with_constants):
+    if engine == "c++":
+        pytest.xfail(reason="Onnx interface to agraph not yet implemented in c++")
+
+    addition_agraph_with_constants.save_onnx_model(
+        tmp_path / "my_model.onnx", "my_equation"
+    )
+    with open(tmp_path / "my_model.onnx", "rb") as onnx_file:
+        loaded_model = load(onnx_file)
+
+    expected_model = addition_agraph_with_constants.get_onnx_model("my_equation")
+    assert loaded_model == expected_model

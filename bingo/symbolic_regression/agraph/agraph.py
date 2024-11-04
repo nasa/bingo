@@ -65,6 +65,13 @@ except ImportError:
     from .evaluation_backend import evaluation_backend
     from .simplification_backend import simplification_backend
 
+try:
+    ONNX_AVAILABLE = True
+    from .onnx_interface import make_onnx_model
+except ImportError:
+    ONNX_AVAILABLE = False
+    make_onnx_model = None
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -441,6 +448,64 @@ class AGraph(Equation):
         """
         dist = np.sum(self.command_array != other.command_array)
         return dist
+
+    def get_onnx_model(self, name="bingo_equation"):
+        """Produce an onnx model for the agraph
+
+        This function builds an ONNX representation of the agraph. The onnx
+        package (an optional dependency) must be installed in order to use
+        this feature.
+
+        Parameters
+        ----------
+        name : str, optional
+            A name that can be given to the onnx model, by default
+            "bingo_equation"
+
+        Returns
+        -------
+        onnx Model
+            the onnx model represntation of the agraph
+
+        Raises
+        ------
+        ImportError
+            If the onnx package cannot be found
+        """
+        if not ONNX_AVAILABLE:
+            raise ImportError(
+                "Onnx package could not be imported. "
+                "Please install onnx in order to use this feature"
+            )
+        if self._modified:
+            self._update()
+        return make_onnx_model(
+            self._simplified_command_array, self._simplified_constants, name
+        )
+
+    def save_onnx_model(self, file_name, model_name="bingo_equation"):
+        """Save the agraph to an onnx binary file
+
+        This function builds an ONNX representation of the agraph and saves
+        it to disk. The onnx package (an optional dependency) must be
+        installed in order to use this feature.
+
+        Parameters
+        ----------
+        file_name : str
+            file name to save the onnx binary
+        model_name : str, optional
+            A name that can be given to the onnx model, by default
+            "bingo_equation"
+
+        Raises
+        ------
+        ImportError
+            If the onnx package cannot be found
+        """
+        model = self.get_onnx_model(model_name)
+        with open(file_name, "wb") as onnx_file:
+            onnx_file.write(model.SerializeToString())
 
     def __deepcopy__(self, memodict=None):
         duplicate = AGraph()

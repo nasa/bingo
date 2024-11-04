@@ -5,10 +5,13 @@ requires = [
     "ninja",
     "cmake>=3.12",
     "pybind11[global]",
+    "setuptools-scm>=8",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
+name = "bingo"
+dynamic = ["version"]
 dependencies = [
     "mpi4py>=2.0.0,<4.0",
     "numpy",
@@ -33,3 +36,5 @@ TESTS = [
 
 [tool.cibuildwheel]
 skip = "pp*"
+
+[tool.setuptools_scm]

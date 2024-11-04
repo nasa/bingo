@@ -18,17 +18,6 @@ PLAT_TO_CMAKE = {
 }
 
 
-def get_property(prop, project):
-    result = re.search(
-        r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop),
-        open(project + "/__init__.py").read(),
-    )
-    return result.group(1)
-
-
-__version__ = get_property("__version__", "bingo")
-
-
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):
         Extension.__init__(self, name, sources=[])
@@ -140,7 +129,6 @@ with open("README.md", "r") as fh:
 
 setup(
     name="bingo-nasa",
-    version=__version__,
     author="Geoffrey Bomarito",
     author_email="geoffrey.f.bomarito@nasa.gov",
     description="A package for genetic optimization and symbolic regression",

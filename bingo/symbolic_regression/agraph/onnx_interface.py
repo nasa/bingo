@@ -1,3 +1,9 @@
+"""Wrapper around ONNX for deploying bingo equations
+
+This module is a wrapper around the onnx package that allows for conversion of
+bingo AGraph objects to the onnx standard.
+"""
+
 import numpy as np
 from onnx import numpy_helper, TensorProto
 from onnx.helper import (
@@ -49,17 +55,31 @@ ABS_SAFETY = set([LOGARITHM, SQRT, SAFE_POWER])
 
 
 def make_onnx_model(command_array, constants, name="bingo_equation"):
+    """creates an onnx model from bingo agraph represntation
+
+    Parameters
+    ----------
+    command_array : Nx3 array of int
+        acyclic graph stack
+    constants : tuple of numeric
+        numeric constants that are used in the equation
+    name : str, optional
+        name for onnx model, by default "bingo_equation"
+
+    Returns
+    -------
+    onnx Model
+        onnx represntation of the AGraph
+    """
 
     nodes = []
     slice_inds = set()
 
-    X = make_tensor_value_info("X", TensorProto.FLOAT, [None, None])
-    Y = make_tensor_value_info("Y", TensorProto.FLOAT, [None])
-    C = numpy_helper.from_array(np.array(constants), name="C")
+    input_ = make_tensor_value_info("X", TensorProto.FLOAT, [None, None])
+    output = make_tensor_value_info("Y", TensorProto.FLOAT, [None])
+    initializer = numpy_helper.from_array(np.array(constants), name="C")
     nodes.append(make_node("Constant", [], ["ax0"], value_ints=[0]))
     nodes.append(make_node("Constant", [], ["ax1"], value_ints=[1]))
-
-    Y = make_tensor_value_info("Y", TensorProto.FLOAT, [None])
 
     for i, (op, p1, p2) in enumerate(command_array):
         output_name = f"O{i}" if i < len(command_array) - 1 else "Y"
@@ -85,15 +105,14 @@ def make_onnx_model(command_array, constants, name="bingo_equation"):
             )
         elif op in ABS_SAFETY:
             nodes.append(make_node("Abs", [f"O{p1}"], [f"{output_name}aux"]))
-            inputs = (
+            inps = (
                 [f"{output_name}aux", f"O{p2}"]
                 if IS_ARITY_2_MAP[op]
                 else [f"{output_name}aux"]
             )
-            nodes.append(make_node(ONNX_FUNCTIONS[op], inputs, [output_name]))
+            nodes.append(make_node(ONNX_FUNCTIONS[op], inps, [output_name]))
         else:
-            inputs = [f"O{p1}", f"O{p2}"] if IS_ARITY_2_MAP[op] else [f"O{p1}"]
-            nodes.append(make_node(ONNX_FUNCTIONS[op], inputs, [output_name]))
+            inps = [f"O{p1}", f"O{p2}"] if IS_ARITY_2_MAP[op] else [f"O{p1}"]
+            nodes.append(make_node(ONNX_FUNCTIONS[op], inps, [output_name]))
 
-    graph = make_graph(nodes, name, [X], [Y], [C])  # inputs  # outputs  # initializers
-    return make_model(graph)
+    return make_model(make_graph(nodes, name, [input_], [output], [initializer]))

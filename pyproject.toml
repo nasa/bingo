@@ -14,7 +14,7 @@ name = "bingo-nasa"
 keywords = ["symbolic regression"]
 description = "A package for genetic optimization and symbolic regression"
 authors = [
-    {name = "Geoffrey Bomarito, email = "geoffrey.f.bomarito@nasa.gov" }
+    {name = "Geoffrey Bomarito", email = "geoffrey.f.bomarito@nasa.gov" }
 ]
 requires-python = ">=3.9"
 readme = "README.md"

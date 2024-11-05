@@ -180,6 +180,7 @@ jobs:
 
   publish-to-testpypi:
     name: Publish Python 🐍 distribution 📦 to TestPyPI
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'  # publish to testPyPI on main and develop branches
     needs:
       - build
       - source-build

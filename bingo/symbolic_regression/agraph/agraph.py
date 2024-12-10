@@ -138,6 +138,7 @@ class AGraph(Equation):
         # self._needs_opt
         # self._modified
         self._init_command_array_and_const(equation)
+        self._hash = None
 
     # pylint: disable=attribute-defined-outside-init
     def _init_command_array_and_const(self, equation):
@@ -506,6 +507,15 @@ class AGraph(Equation):
         model = self.get_onnx_model(model_name)
         with open(file_name, "wb") as onnx_file:
             onnx_file.write(model.SerializeToString())
+
+    def __hash__(self):
+        if self._modified or self._hash is None:
+            self._update()
+            self._hash = hash(tuple(map(tuple, self._simplified_command_array)))
+        return self._hash
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
 
     def __deepcopy__(self, memodict=None):
         duplicate = AGraph()

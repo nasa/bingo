@@ -5,8 +5,6 @@ individuals, which is composed of 4 possible mutation strategies: command
 mutation, node mutation, parameter mutation and pruning.
 """
 
-from random import randint, randrange
-
 import numpy as np
 
 from .operator_definitions import (
@@ -338,7 +336,7 @@ class AGraphMutation(Mutation):
         """
         try:  # normal case
             arity_2_op = self._get_arity_operator(2)
-            n_terminals = randint(1, fork_size // 2)
+            n_terminals = np.random.randint(1, fork_size // 2 + 1)
 
             for i in range(start_i, start_i + fork_size):
                 if i < start_i + n_terminals:
@@ -347,7 +345,11 @@ class AGraphMutation(Mutation):
                 elif i == start_i + fork_size - 1:
                     # make sure end of the stack is always a utilized command
                     stack[end_i] = np.array(
-                        [arity_2_op, mutated_command_location, randrange(start_i, i)],
+                        [
+                            arity_2_op,
+                            mutated_command_location,
+                            np.random.randint(start_i, i),
+                        ],
                         dtype=int,
                     )
                     # insert an arity 2 operator that
@@ -356,8 +358,8 @@ class AGraphMutation(Mutation):
                     stack[i] = np.array(
                         [
                             self._component_generator.random_operator(),
-                            randrange(start_i, i),
-                            randrange(start_i, i),
+                            np.random.randint(start_i, i),
+                            np.random.randint(start_i, i),
                         ],
                         dtype=int,
                     )

@@ -53,6 +53,14 @@ bingo.symbolic\_regression.agraph.mutation module
    :undoc-members:
    :show-inheritance:
 
+bingo.symbolic\_regression.agraph.onnx\_interface module
+--------------------------------------------------------
+
+.. automodule:: bingo.symbolic_regression.agraph.onnx_interface
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bingo.symbolic\_regression.agraph.operator\_definitions module
 --------------------------------------------------------------
 

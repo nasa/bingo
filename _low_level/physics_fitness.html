@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,20 +27,20 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -338,9 +338,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -408,7 +413,7 @@ models Bingo produces for velocity are physically consistent.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">r</span> <span class="o">=</span> <span class="mf">3.0</span><span class="o">/</span><span class="mf">100.0</span>
@@ -424,7 +429,7 @@ models Bingo produces for velocity are physically consistent.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;t (s)&quot;</span><span class="p">)</span>
@@ -451,7 +456,7 @@ models Bingo produces for velocity are physically consistent.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">ComponentGenerator</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.symbolic_regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComponentGenerator</span>
 
 <span class="n">component_generator</span> <span class="o">=</span> <span class="n">ComponentGenerator</span><span class="p">(</span><span class="n">input_x_dimension</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">component_generator</span><span class="o">.</span><span class="n">add_operator</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
@@ -477,7 +482,7 @@ models Bingo produces for velocity are physically consistent.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">AGraphGenerator</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.symbolic_regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">AGraphGenerator</span>
 
 <span class="n">AGRAPH_SIZE</span> <span class="o">=</span> <span class="mi">10</span>
 
@@ -493,7 +498,7 @@ models Bingo produces for velocity are physically consistent.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">AGraphCrossover</span><span class="p">,</span> <span class="n">AGraphMutation</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.symbolic_regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">AGraphCrossover</span><span class="p">,</span> <span class="n">AGraphMutation</span>
 
 <span class="n">crossover</span> <span class="o">=</span> <span class="n">AGraphCrossover</span><span class="p">()</span>
 <span class="n">mutation</span> <span class="o">=</span> <span class="n">AGraphMutation</span><span class="p">(</span><span class="n">component_generator</span><span class="p">)</span>
@@ -510,10 +515,10 @@ models Bingo produces for velocity are physically consistent.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">ExplicitRegression</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.symbolic_regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExplicitRegression</span>
 
-<span class="k">class</span> <span class="nc">FallingBallRegression</span><span class="p">(</span><span class="n">ExplicitRegression</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_data</span><span class="p">,</span> <span class="n">mass_of_ball</span><span class="p">,</span> <span class="n">radius_of_ball</span><span class="p">,</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FallingBallRegression</span><span class="p">(</span><span class="n">ExplicitRegression</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training_data</span><span class="p">,</span> <span class="n">mass_of_ball</span><span class="p">,</span> <span class="n">radius_of_ball</span><span class="p">,</span>
                  <span class="n">g</span><span class="p">,</span> <span class="n">drag_term</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;mae&quot;</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">training_data</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">relative</span><span class="p">)</span>
 
@@ -522,7 +527,7 @@ models Bingo produces for velocity are physically consistent.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">g</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">drag_term</span>
 
-    <span class="k">def</span> <span class="nf">evaluate_fitness_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate_fitness_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
         <span class="n">typical_fitness_vector</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">evaluate_fitness_vector</span><span class="p">(</span><span class="n">individual</span><span class="p">)</span>
 
         <span class="n">v</span><span class="p">,</span> <span class="n">dv_dt</span> <span class="o">=</span> <span class="n">individual</span><span class="o">.</span><span class="n">evaluate_equation_with_x_gradient_at</span><span class="p">(</span>
@@ -545,9 +550,9 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.symbolic_regression</span> <span class="kn">import</span> <span class="n">ExplicitTrainingData</span>
-<span class="kn">from</span> <span class="nn">bingo.local_optimizers.scipy_optimizer</span> <span class="kn">import</span> <span class="n">ScipyOptimizer</span>
-<span class="kn">from</span> <span class="nn">bingo.local_optimizers.local_opt_fitness</span> <span class="kn">import</span> <span class="n">LocalOptFitnessFunction</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.symbolic_regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExplicitTrainingData</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bingo.local_optimizers.scipy_optimizer</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScipyOptimizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bingo.local_optimizers.local_opt_fitness</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalOptFitnessFunction</span>
 <span class="n">training_data</span> <span class="o">=</span> <span class="n">ExplicitTrainingData</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 
 <span class="n">fitness</span> <span class="o">=</span> <span class="n">FallingBallRegression</span><span class="p">(</span><span class="n">training_data</span><span class="o">=</span><span class="n">training_data</span><span class="p">,</span> <span class="n">mass_of_ball</span><span class="o">=</span><span class="n">m</span><span class="p">,</span>
@@ -562,7 +567,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evaluation.evaluation</span> <span class="kn">import</span> <span class="n">Evaluation</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evaluation.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluation</span>
 
 <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Evaluation</span><span class="p">(</span><span class="n">local_opt_fitness</span><span class="p">)</span>
 </pre></div>
@@ -576,7 +581,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_algorithms.age_fitness</span> <span class="kn">import</span> <span class="n">AgeFitnessEA</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evolutionary_algorithms.age_fitness</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgeFitnessEA</span>
 
 <span class="n">POPULATION_SIZE</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">MUTATION_PROB</span> <span class="o">=</span> <span class="mf">0.1</span>
@@ -594,9 +599,9 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.stats.pareto_front</span> <span class="kn">import</span> <span class="n">ParetoFront</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.stats.pareto_front</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParetoFront</span>
 
-<span class="k">def</span> <span class="nf">agraph_similarity</span><span class="p">(</span><span class="n">ag_1</span><span class="p">,</span> <span class="n">ag_2</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">agraph_similarity</span><span class="p">(</span><span class="n">ag_1</span><span class="p">,</span> <span class="n">ag_2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;a similarity metric between agraphs&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ag_1</span><span class="o">.</span><span class="n">fitness</span> <span class="o">==</span> <span class="n">ag_2</span><span class="o">.</span><span class="n">fitness</span> <span class="ow">and</span> <span class="n">ag_1</span><span class="o">.</span><span class="n">get_complexity</span><span class="p">()</span> <span class="o">==</span> <span class="n">ag_2</span><span class="o">.</span><span class="n">get_complexity</span><span class="p">()</span>
 
@@ -612,7 +617,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_optimizers.island</span> <span class="kn">import</span> <span class="n">Island</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evolutionary_optimizers.island</span><span class="w"> </span><span class="kn">import</span> <span class="n">Island</span>
 
 <span class="n">island</span> <span class="o">=</span> <span class="n">Island</span><span class="p">(</span><span class="n">ea</span><span class="p">,</span> <span class="n">agraph_generator</span><span class="p">,</span> <span class="n">POPULATION_SIZE</span><span class="p">,</span> <span class="n">hall_of_fame</span><span class="o">=</span><span class="n">pareto_front</span><span class="p">)</span>
 </pre></div>
@@ -627,7 +632,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
 
 <span class="n">MAX_GENS</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">ERR_THRESHOLD</span> <span class="o">=</span> <span class="mf">0.001</span>
@@ -645,38 +650,44 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="highlight"><pre>
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:144: RuntimeWarning: overflow encountered in exp
   return np.exp(forward_eval[param1])
-/tmp/ipykernel_4528/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
+/tmp/ipykernel_5101/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
   derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in multiply
+/opt/hostedtoolcache/Python/3.13.3/x64/lib/python3.13/site-packages/scipy/optimize/_minpack_py.py:497: RuntimeWarning: overflow encountered in matmul
+  cov_x = invR @ invR.T
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in add
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/tmp/ipykernel_5101/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
+  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in add
   reverse_eval[param1] += reverse_eval[reverse_index] *\
-/tmp/ipykernel_4528/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
-  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:78: RuntimeWarning: overflow encountered in multiply
   return forward_eval[param1] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] *\
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in multiply
   reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
-/opt/hostedtoolcache/Python/3.12.7/x64/lib/python3.12/site-packages/scipy/optimize/_minpack_py.py:499: RuntimeWarning: overflow encountered in matmul
-  cov_x = invR @ invR.T
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in divide
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar divide
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in scalar divide
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in divide
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] -= reverse_eval[reverse_index] *\
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:78: RuntimeWarning: overflow encountered in scalar multiply
   return forward_eval[param1] * forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:83: RuntimeWarning: overflow encountered in scalar multiply
   reverse_eval[param1] += reverse_eval[reverse_index]*forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in scalar multiply
-  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:94: RuntimeWarning: overflow encountered in divide
-  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar divide
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in divide
-  reverse_eval[param2] -= reverse_eval[reverse_index] *\
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:84: RuntimeWarning: overflow encountered in add
-  reverse_eval[param2] += reverse_eval[reverse_index]*forward_eval[param1]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:149: RuntimeWarning: overflow encountered in scalar multiply
   reverse_eval[param1] += reverse_eval[reverse_index] *\
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:89: RuntimeWarning: overflow encountered in scalar divide
+  return forward_eval[param1] / forward_eval[param2]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -685,7 +696,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(2.0438164649304566e+22), time=14.50288, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.009741331865712714), detrimental_crossover_rate=np.float64(0.41029168959823886), beneficial_mutation_rate=np.float64(0.04638655462184874), detrimental_mutation_rate=np.float64(0.5566386554621848), beneficial_crossover_mutation_rate=np.float64(0.010848126232741617), detrimental_crossover_mutation_rate=np.float64(0.48717948717948717)))
+OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(2.0505611742696884e+22), time=12.86424, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.009908114690578989), detrimental_crossover_rate=np.float64(0.39582641425882875), beneficial_mutation_rate=np.float64(0.03944315545243619), detrimental_mutation_rate=np.float64(0.5376201524693404), beneficial_crossover_mutation_rate=np.float64(0.010427010923535254), detrimental_crossover_mutation_rate=np.float64(0.47964250248262164)))
 </pre></div></div>
 </div>
 </section>
@@ -792,13 +803,13 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
   </nav></div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/_low_level/physics_fitness.nblink.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_low_level/physics_fitness.nblink.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -813,8 +824,8 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -847,7 +858,8 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,20 +27,20 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -338,9 +338,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -398,7 +403,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_values</span> <span class="kn">import</span> <span class="n">MultipleValueChromosome</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.chromosomes.multiple_values</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleValueChromosome</span>
 <span class="n">chromosome</span> <span class="o">=</span> <span class="n">MultipleValueChromosome</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">chromosome</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">chromosome</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -424,10 +429,10 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_values</span> <span class="kn">import</span> <span class="n">MultipleValueChromosomeGenerator</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bingo.chromosomes.multiple_values</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleValueChromosomeGenerator</span>
 
-<span class="k">def</span> <span class="nf">generate_0_or_1</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_0_or_1</span><span class="p">():</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
 <span class="n">generator</span> <span class="o">=</span> <span class="n">MultipleValueChromosomeGenerator</span><span class="p">(</span><span class="n">generate_0_or_1</span><span class="p">,</span>
@@ -450,7 +455,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[np.int64(1), np.int64(0), np.int64(0), np.int64(1), np.int64(1), np.int64(1), np.int64(0), np.int64(1), np.int64(1), np.int64(0), np.int64(1), np.int64(1), np.int64(0), np.int64(0), np.int64(1), np.int64(0)]
+[np.int64(1), np.int64(1), np.int64(0), np.int64(1), np.int64(1), np.int64(1), np.int64(1), np.int64(1), np.int64(0), np.int64(0), np.int64(0), np.int64(1), np.int64(1), np.int64(1), np.int64(1), np.int64(1)]
 </pre></div></div>
 </div>
 </section>
@@ -463,8 +468,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.chromosomes.multiple_values</span> <span class="kn">import</span> <span class="n">SinglePointCrossover</span><span class="p">,</span> <span class="n">SinglePointMutation</span>
-<span class="kn">from</span> <span class="nn">bingo.variation.var_or</span> <span class="kn">import</span> <span class="n">VarOr</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.chromosomes.multiple_values</span><span class="w"> </span><span class="kn">import</span> <span class="n">SinglePointCrossover</span><span class="p">,</span> <span class="n">SinglePointMutation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bingo.variation.var_or</span><span class="w"> </span><span class="kn">import</span> <span class="n">VarOr</span>
 
 <span class="n">crossover</span> <span class="o">=</span> <span class="n">SinglePointCrossover</span><span class="p">()</span>
 <span class="n">mutation</span> <span class="o">=</span> <span class="n">SinglePointMutation</span><span class="p">(</span><span class="n">generate_0_or_1</span><span class="p">)</span>
@@ -533,12 +538,12 @@ child 1:  [1, 1, 1, 1, 1, 0]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evaluation.fitness_function</span> <span class="kn">import</span> <span class="n">FitnessFunction</span>
-<span class="kn">from</span> <span class="nn">bingo.evaluation.evaluation</span> <span class="kn">import</span> <span class="n">Evaluation</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evaluation.fitness_function</span><span class="w"> </span><span class="kn">import</span> <span class="n">FitnessFunction</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evaluation.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Evaluation</span>
 
-<span class="k">class</span> <span class="nc">OneMaxFitnessFunction</span><span class="p">(</span><span class="n">FitnessFunction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OneMaxFitnessFunction</span><span class="p">(</span><span class="n">FitnessFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Callable class to calculate fitness&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">individual</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <span class="n">fitness</span> <span class="o">=</span> <span class="n">OneMaxFitnessFunction</span><span class="p">()</span>
@@ -572,7 +577,7 @@ Fitness: 4
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.selection.tournament</span> <span class="kn">import</span> <span class="n">Tournament</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.selection.tournament</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tournament</span>
 
 <span class="n">selection_phase</span> <span class="o">=</span> <span class="n">Tournament</span><span class="p">(</span><span class="n">tournament_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
@@ -583,7 +588,7 @@ Fitness: 4
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_algorithms.evolutionary_algorithm</span> <span class="kn">import</span> <span class="n">EvolutionaryAlgorithm</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evolutionary_algorithms.evolutionary_algorithm</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvolutionaryAlgorithm</span>
 
 <span class="n">ev_alg</span> <span class="o">=</span> <span class="n">EvolutionaryAlgorithm</span><span class="p">(</span><span class="n">variation_phase</span><span class="p">,</span> <span class="n">evaluation_phase</span><span class="p">,</span>
                                <span class="n">selection_phase</span><span class="p">)</span>
@@ -598,7 +603,7 @@ Fitness: 4
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bingo.evolutionary_optimizers.island</span> <span class="kn">import</span> <span class="n">Island</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bingo.evolutionary_optimizers.island</span><span class="w"> </span><span class="kn">import</span> <span class="n">Island</span>
 
 <span class="n">island</span> <span class="o">=</span> <span class="n">Island</span><span class="p">(</span><span class="n">ev_alg</span><span class="p">,</span> <span class="n">generator</span><span class="p">,</span> <span class="n">population_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best individual at start: &quot;</span><span class="p">,</span> <span class="n">island</span><span class="o">.</span><span class="n">get_best_individual</span><span class="p">())</span>
@@ -772,13 +777,13 @@ Best individual in generation 49 :  [np.int64(1), np.int64(1), np.int64(1), np.i
   </nav></div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/_low_level/tutorial_1.nblink.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_low_level/tutorial_1.nblink.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -793,8 +798,8 @@ Best individual in generation 49 :  [np.int64(1), np.int64(1), np.int64(1), np.i
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -827,7 +832,8 @@ Best individual in generation 49 :  [np.int64(1), np.int64(1), np.int64(1), np.i
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

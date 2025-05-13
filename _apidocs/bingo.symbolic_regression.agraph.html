@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,19 +27,19 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-dropdown.css?v=995e94df" />
     <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.min.css?v=21c0b90a" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -348,9 +348,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -810,6 +815,30 @@ processed version. Default False.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.agraph.AGraph.get_onnx_model">
+<span class="sig-name descname"><span class="pre">get_onnx_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bingo_equation'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_onnx_model" title="Link to this definition">#</a></dt>
+<dd><p>Produce an onnx model for the agraph</p>
+<p>This function builds an ONNX representation of the agraph. The onnx
+package (an optional dependency) must be installed in order to use
+this feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – A name that can be given to the onnx model, by default
+“bingo_equation”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the onnx model represntation of the agraph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>onnx Model</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ImportError</strong> – If the onnx package cannot be found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.agraph.AGraph.get_utilized_commands">
 <span class="sig-name descname"><span class="pre">get_utilized_commands</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_utilized_commands" title="Link to this definition">#</a></dt>
 <dd><p>Find which commands are utilized.</p>
@@ -849,6 +878,27 @@ last command relies. This is inclusive of the last command.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.agraph.AGraph.save_onnx_model">
+<span class="sig-name descname"><span class="pre">save_onnx_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bingo_equation'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph.save_onnx_model" title="Link to this definition">#</a></dt>
+<dd><p>Save the agraph to an onnx binary file</p>
+<p>This function builds an ONNX representation of the agraph and saves
+it to disk. The onnx package (an optional dependency) must be
+installed in order to use this feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em>) – file name to save the onnx binary</p></li>
+<li><p><strong>model_name</strong> (<em>str</em><em>, </em><em>optional</em>) – A name that can be given to the onnx model, by default
+“bingo_equation”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ImportError</strong> – If the onnx package cannot be found</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1212,6 +1262,33 @@ constant.</p></li>
 </dd></dl>
 
 </section>
+<section id="module-bingo.symbolic_regression.agraph.onnx_interface">
+<span id="bingo-symbolic-regression-agraph-onnx-interface-module"></span><h2>bingo.symbolic_regression.agraph.onnx_interface module<a class="headerlink" href="#module-bingo.symbolic_regression.agraph.onnx_interface" title="Link to this heading">#</a></h2>
+<p>Wrapper around ONNX for deploying bingo equations</p>
+<p>This module is a wrapper around the onnx package that allows for conversion of
+bingo AGraph objects to the onnx standard.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.onnx_interface.make_onnx_model">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.onnx_interface.</span></span><span class="sig-name descname"><span class="pre">make_onnx_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bingo_equation'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.onnx_interface.make_onnx_model" title="Link to this definition">#</a></dt>
+<dd><p>creates an onnx model from bingo agraph represntation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command_array</strong> (<em>Nx3 array</em><em> of </em><em>int</em>) – acyclic graph stack</p></li>
+<li><p><strong>constants</strong> (<em>tuple</em><em> of </em><em>numeric</em>) – numeric constants that are used in the equation</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – name for onnx model, by default “bingo_equation”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>onnx represntation of the AGraph</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>onnx Model</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-bingo.symbolic_regression.agraph.operator_definitions">
 <span id="bingo-symbolic-regression-agraph-operator-definitions-module"></span><h2>bingo.symbolic_regression.agraph.operator_definitions module<a class="headerlink" href="#module-bingo.symbolic_regression.agraph.operator_definitions" title="Link to this heading">#</a></h2>
 <dl class="py attribute">
@@ -1470,9 +1547,11 @@ corresponding to the expression given by the postfix_tokens</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_formatted_string"><code class="docutils literal notranslate"><span class="pre">AGraph.get_formatted_string()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">AGraph.get_local_optimization_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_number_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">AGraph.get_number_local_optimization_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_onnx_model"><code class="docutils literal notranslate"><span class="pre">AGraph.get_onnx_model()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.get_utilized_commands"><code class="docutils literal notranslate"><span class="pre">AGraph.get_utilized_commands()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"><code class="docutils literal notranslate"><span class="pre">AGraph.mutable_command_array</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.needs_local_optimization"><code class="docutils literal notranslate"><span class="pre">AGraph.needs_local_optimization()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.save_onnx_model"><code class="docutils literal notranslate"><span class="pre">AGraph.save_onnx_model()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.agraph.AGraph.set_local_optimization_params"><code class="docutils literal notranslate"><span class="pre">AGraph.set_local_optimization_params()</span></code></a></li>
 </ul>
 </li>
@@ -1517,6 +1596,10 @@ corresponding to the expression given by the postfix_tokens</p>
 </li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.agraph.onnx_interface">bingo.symbolic_regression.agraph.onnx_interface module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.onnx_interface.make_onnx_model"><code class="docutils literal notranslate"><span class="pre">make_onnx_model()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.symbolic_regression.agraph.operator_definitions">bingo.symbolic_regression.agraph.operator_definitions module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.operator_definitions.IS_ARITY_2_MAP"><code class="docutils literal notranslate"><span class="pre">IS_ARITY_2_MAP</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.operator_definitions.IS_TERMINAL_MAP"><code class="docutils literal notranslate"><span class="pre">IS_TERMINAL_MAP</span></code></a></li>
@@ -1543,13 +1626,13 @@ corresponding to the expression given by the postfix_tokens</p>
   </nav></div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/_apidocs/bingo.symbolic_regression.agraph.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_apidocs/bingo.symbolic_regression.agraph.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -1564,8 +1647,8 @@ corresponding to the expression given by the postfix_tokens</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1598,7 +1681,8 @@ corresponding to the expression given by the postfix_tokens</p>
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

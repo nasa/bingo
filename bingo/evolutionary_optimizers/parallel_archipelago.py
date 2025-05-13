@@ -1,3 +1,4 @@
+# pylint: disable=c-extension-no-member
 """The parallel implementation of the Archipelago
 
 This module defines the Archipelago data structure that runs in parallel on
@@ -59,7 +60,12 @@ class ParallelArchipelago(Archipelago):
     """
 
     def __init__(
-        self, island, hall_of_fame=None, non_blocking=True, sync_frequency=10, test_function=None
+        self,
+        island,
+        hall_of_fame=None,
+        non_blocking=True,
+        sync_frequency=10,
+        test_function=None,
     ):
         self.comm = MPI.COMM_WORLD
         self.comm_rank = self.comm.Get_rank()
@@ -133,17 +139,13 @@ class ParallelArchipelago(Archipelago):
     def _gather_updated_ages(self, total_age):
         total_age.update({0: self.island.generational_age})
         status = MPI.Status()
-        while self.comm.iprobe(
-            source=MPI.ANY_SOURCE, tag=AGE_UPDATE, status=status
-        ):
+        while self.comm.iprobe(source=MPI.ANY_SOURCE, tag=AGE_UPDATE, status=status):
             data = self.comm.recv(source=status.Get_source(), tag=AGE_UPDATE)
             total_age.update(data)
 
     def _send_exit_notifications(self):
         for destination in range(1, self.comm_size):
-            req = self.comm.isend(
-                True, dest=destination, tag=EXIT_NOTIFICATION
-            )
+            req = self.comm.isend(True, dest=destination, tag=EXIT_NOTIFICATION)
             req.Wait()
 
     def _non_blocking_execution_helper(self):
@@ -225,13 +227,11 @@ class ParallelArchipelago(Archipelago):
         self.island.update_hall_of_fame()
         potential_members = list(self.island.hall_of_fame)
         all_potential_members = self.comm.allgather(potential_members)
-        all_potential_members = [
-            i for hof in all_potential_members for i in hof
-        ]
+        all_potential_members = [i for hof in all_potential_members for i in hof]
         return all_potential_members
 
     def get_fitness_evaluation_count(self):
-        """ Gets the total number of fitness evaluations performed
+        """Gets the total number of fitness evaluations performed
 
         Returns
         -------
@@ -243,7 +243,7 @@ class ParallelArchipelago(Archipelago):
         return total_eval_count
 
     def get_ea_diagnostic_info(self):
-        """ Gets diagnostic info from the evolutionary algorithm(s)
+        """Gets diagnostic info from the evolutionary algorithm(s)
 
         Returns
         -------
@@ -255,7 +255,7 @@ class ParallelArchipelago(Archipelago):
         return sum(all_diagnostics)
 
     def dump_to_file(self, filename):
-        """ Dump the ParallelArchipelago object to a pickle file
+        """Dump the ParallelArchipelago object to a pickle file
 
         The file will contain a pickle dump of a list of all the processors'
         ParallelArchipelago objects.
@@ -273,9 +273,7 @@ class ParallelArchipelago(Archipelago):
 
         if self.comm_rank == 0:
             with open(filename, "wb") as dump_file:
-                dill.dump(
-                    all_par_archs, dump_file, protocol=dill.HIGHEST_PROTOCOL
-                )
+                dill.dump(all_par_archs, dump_file, protocol=dill.HIGHEST_PROTOCOL)
             LOGGER.log(DETAILED_INFO, "Saved successfully")
 
     def _copy_without_mpi(self):
@@ -295,7 +293,7 @@ class ParallelArchipelago(Archipelago):
 
 
 def load_parallel_archipelago_from_file(filename):
-    """ Load a ParallelArchipelago objects from a pickle file
+    """Load a ParallelArchipelago objects from a pickle file
 
     Parameters
     ----------

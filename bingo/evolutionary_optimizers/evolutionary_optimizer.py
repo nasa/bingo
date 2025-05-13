@@ -352,7 +352,10 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             message = f"The maximum time ({aux_info}) was exceeded."
             success = False
         else:  # status ==5
-            message = f"Preemtively stopping because maximum time would be exceeded before next checkpoint. {aux_info:.2f}"
+            message = (
+                "Preemtively stopping because maximum time would be "
+                f"exceeded before next checkpoint. {aux_info:.2f}"
+            )
             success = False
         return OptimizeResult(
             success,

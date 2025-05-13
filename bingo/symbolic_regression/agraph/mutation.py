@@ -185,7 +185,7 @@ class AGraphMutation(Mutation):
                     not IS_TERMINAL_MAP[node] and operators_ok
                 ):
                     indices.append(i)
-        index = np.random.randint(len(indices))
+        index = int(np.random.randint(len(indices)))
         return indices[index]
 
     def _randomize_node(self, command):

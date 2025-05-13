@@ -34,6 +34,7 @@ class Chromosome(metaclass=ABCMeta):
     fit_set : bool
         whether the fitness has been calculated for the individual
     """
+
     def __init__(self, genetic_age=0, fitness=None, fit_set=False):
         self._genetic_age = genetic_age
         self._fitness = fitness
@@ -111,9 +112,11 @@ class Chromosome(metaclass=ABCMeta):
         bool
             Whether `Chromosome` needs optimization
         """
-        raise NotImplementedError("This Chromosome cannot be used in local "
-                                  "optimization until its local optimization "
-                                  "interface has been implemented")
+        raise NotImplementedError(
+            "This Chromosome cannot be used in local "
+            "optimization until its local optimization "
+            "interface has been implemented"
+        )
 
     def get_number_local_optimization_params(self):
         """Get number of parameters in local optimization
@@ -123,9 +126,7 @@ class Chromosome(metaclass=ABCMeta):
         int
             Number of parameters to be optimized
         """
-        raise NotImplementedError("This Chromosome cannot be used in local "
-                                  "optimization until its local optimization "
-                                  "interface has been implemented")
+        return 0
 
     def set_local_optimization_params(self, params):
         """Set local optimization parameters
@@ -135,6 +136,8 @@ class Chromosome(metaclass=ABCMeta):
         params : list-like of numeric
             Values to set the parameters to
         """
-        raise NotImplementedError("This Chromosome cannot be used in local "
-                                  "optimization until its local optimization "
-                                  "interface has been implemented")
+        raise NotImplementedError(
+            "This Chromosome cannot be used in local "
+            "optimization until its local optimization "
+            "interface has been implemented"
+        )

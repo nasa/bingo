@@ -22,7 +22,11 @@ LOGGER = logging.getLogger(__name__)
 class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
     """ExplicitRegression
 
-    The traditional fitness evaluation for symbolic regression
+    The traditional fitness evaluation for symbolic regression.
+    fitness = M(y - f(x)) where x and y are in the training_data (i.e.
+    training_data.x and training_data.y) and the function f is defined by
+    the input Equation individual.  M is an aggregation metric such as mean
+    squared error.
 
     Parameters
     ----------
@@ -30,8 +34,8 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
         data that is used in fitness evaluation.
     metric : str
         String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', and
-        'root mean squared error'
+        'mean absolute error', 'mean squared error', 'root mean squared error',
+        and "negative nmll laplace"
     relative : bool
         Whether to use relative, pointwise normalization of errors. Default:
         False.

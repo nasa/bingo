@@ -1,7 +1,9 @@
 """The definition of fitness evaluations for individuals.
 
 This module defines the basis of fitness evaluation in bingo evolutionary
-analyses.
+analyses.  It defines a fitness function class and a version of the fitness
+function which is built around the idea that there is a vector of fitness
+values that can be aggregated in numerous different ways.
 """
 
 from abc import ABCMeta, abstractmethod
@@ -26,7 +28,7 @@ def mean_squared_error(vector, individual=None):  # pylint: disable=unused-argum
 
 
 def negative_nmll_laplace(vector, individual):
-    """Calculate the nmll squared error of an error vector"""
+    """Calculate the nmll of an error vector"""
     n = len(vector)
     k = individual.get_number_local_optimization_params() + 1
     b = 1 / np.sqrt(n)
@@ -84,14 +86,17 @@ class FitnessFunction(metaclass=ABCMeta):
 class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     """Fitness evaluation based on vectorized fitness
 
+    An aggregation metric is needed to quantify Fitness relative to a vector
+    of fitness (error) measures.
+
     Parameters
     ----------
     training_data : TrainingData
         data that is used in fitness evaluation.
     metric : str
         String defining the measure of error to use. Available options are:
-        'mean absolute error'/'mae', 'mean squared error'/'mse', and
-        'root mean squared error'/'rmse'
+        'mean absolute error'/'mae', 'mean squared error'/'mse',
+        'root mean squared error'/'rmse', and "negative nmll laplace"
     """
 
     def __init__(self, training_data=None, metric="mae"):

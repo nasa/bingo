@@ -26,10 +26,10 @@ from bingo.local_optimizers.local_opt_fitness import LocalOptFitnessFunction
 
 # from bingo.stats.hall_of_fame import HallOfFame
 from bingo.stats.pareto_front import ParetoFront
+from bingo.symbolic_regression import AGraphGenerator
 from .agraph.component_generator import ComponentGenerator
 from .agraph.crossover import AGraphCrossover
 from .agraph.mutation import AGraphMutation
-from bingo.symbolic_regression import AGraphGenerator
 from .explicit_regression import (
     ExplicitRegression,
     ExplicitTrainingData,

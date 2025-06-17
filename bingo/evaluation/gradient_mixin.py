@@ -56,8 +56,8 @@ class VectorGradientMixin(GradientMixin):
         data that is used in fitness evaluation (passed to parent).
     metric : str
         String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', and
-        'root mean squared error'
+        'mean absolute error', 'mean squared error',
+        'root mean squared error', and "negative nmll laplace"
     """
 
     def __init__(self, training_data=None, metric="mae"):

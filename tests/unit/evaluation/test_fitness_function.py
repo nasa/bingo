@@ -98,19 +98,19 @@ def test_fitness_function_has_eval_count_and_data(
 def test_vector_based_function_metrics(
     engine, mocker, vector_based_function, metric, expected_fit, dummy_individual
 ):
+    if engine == "Cpp" and metric == "negative nmll laplace":
+        pytest.skip("Functionality not yet implemented in c++")
+
     if engine == "Python":
         mocker.patch.object(
             vector_based_function, "__abstractmethods__", new_callable=set
         )
-    else:
-        if metric == "negative_nmll_laplace":
-            return  # not currently implemented for c++ backend
+        mocker.patch.object(
+            dummy_individual, "get_number_local_optimization_params", return_value=2
+        )
 
     mocker.patch.object(
         vector_based_function, "evaluate_fitness_vector", return_value=[-2, -1, 0, 1, 2]
-    )
-    mocker.patch.object(
-        dummy_individual, "get_number_local_optimization_params", return_value=2
     )
     fit_func = vector_based_function(metric=metric)
 
@@ -145,13 +145,17 @@ def test_vector_based_function_invalid_metric(engine, mocker, vector_based_funct
 def test_vector_based_function_with_nan(
     engine, mocker, vector_based_function, agraph, metric, dummy_individual
 ):
+    if engine == "Cpp" and metric == "negative nmll laplace":
+        pytest.skip("Functionality not yet implemented in c++")
+
     if engine == "Python":
         mocker.patch.object(
             vector_based_function, "__abstractmethods__", new_callable=set
         )
-    else:
-        if metric == "negative_nmll_laplace":
-            pytest.skip("Functionality not yet implemented in c++")
+        mocker.patch.object(
+            dummy_individual, "get_number_local_optimization_params", return_value=2
+        )
+
     mocker.patch.object(
         vector_based_function,
         "evaluate_fitness_vector",

@@ -163,8 +163,8 @@ def test_vector_gradient(
     metric,
     expected_fitness,
     expected_fit_grad,
+    engine,
 ):
-
     if engine == "Cpp" and metric == "negative nmll laplace":
         pytest.skip("Functionality not yet implemented in c++")
 

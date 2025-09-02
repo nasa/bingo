@@ -11,10 +11,10 @@ INFO = 25
 DETAILED_INFO = 20
 
 try:
-    import mpi4py
+    from mpi4py import MPI
 
-    MPISIZE = mpi4py.MPI.COMM_WORLD.Get_size()
-    MPIRANK = mpi4py.MPI.COMM_WORLD.Get_rank()
+    MPISIZE = MPI.COMM_WORLD.Get_size()
+    MPIRANK = MPI.COMM_WORLD.Get_rank()
     USING_MPI = MPISIZE > 1
 except (ImportError, AttributeError):
     USING_MPI = False

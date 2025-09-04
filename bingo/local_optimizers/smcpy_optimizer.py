@@ -1,18 +1,10 @@
-"""A module for probabilistic calibration of parameters.
-
-Probabilistic calibration of model parameters can be useful in cases where data
-is sparse and/or noisy.  Using a calibration of this type can allow for a better 
-estimate of true fitness while being a bit more robust to overfitting.
-"""
-
 import numpy as np
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
 
-from smcpy.mcmc.vector_mcmc import VectorMCMC
-from smcpy.mcmc.vector_mcmc_kernel import VectorMCMCKernel
-from smcpy import AdaptiveSampler
-from smcpy import ImproperUniform
+from smcpy import VectorMCMC, VectorMCMCKernel, AdaptiveSampler, ImproperUniform
+from smcpy.paths import GeometricPath
+from smcpy.proposals import MultivarIndependent
 
 from .local_optimizer import LocalOptimizer
 
@@ -43,8 +35,6 @@ class SmcpyOptimizer(LocalOptimizer):
     num_multistarts : int
         (Optional) The number of deterministic optimizations performed when
         developing the SMC proposal
-    uniformly_weighted_proposal : bool
-        Whether to equally weight particles in the proposal. Default True.
 
     Attributes
     ----------
@@ -65,7 +55,7 @@ class SmcpyOptimizer(LocalOptimizer):
         ess_threshold=0.75,
         std=None,
         num_multistarts=1,
-        uniformly_weighted_proposal=True,
+        reuse_starting_point=True,
     ):
 
         self._num_particles = num_particles
@@ -73,9 +63,9 @@ class SmcpyOptimizer(LocalOptimizer):
         self._ess_threshold = ess_threshold
         self._std = std
         self._num_multistarts = num_multistarts
-        self._uniformly_weighted_proposal = uniformly_weighted_proposal
         self._objective_fn = objective_fn
         self._deterministic_optimizer = deterministic_optimizer
+        self._reuse_starting_point = reuse_starting_point
 
         self._norm_phi = self._calculate_norm_phi()
 
@@ -122,7 +112,6 @@ class SmcpyOptimizer(LocalOptimizer):
             "ess_threshold": self._ess_threshold,
             "std": self._std,
             "num_multistarts": self._num_multistarts,
-            "uniformly_weighted_proposal": self._uniformly_weighted_proposal,
         }
 
     @options.setter
@@ -137,12 +126,10 @@ class SmcpyOptimizer(LocalOptimizer):
             self._std = value["std"]
         if "num_multistarts" in value:
             self._num_multistarts = value["num_multistarts"]
-        if "uniformly_weighted_proposal" in value:
-            self._uniformly_weighted_proposal = value["uniformly_weighted_proposal"]
 
     def __call__(self, individual):
         try:
-            proposal = self._generate_proposal_samples(individual, self._num_particles)
+            proposal = self._generate_proposals(individual)
         except (ValueError, np.linalg.LinAlgError, RuntimeError) as e:
             return np.nan, "proposal error", e
 
@@ -152,23 +139,21 @@ class SmcpyOptimizer(LocalOptimizer):
             priors.append(ImproperUniform(0, None))
             param_names.append("std_dev")
 
-        vector_mcmc = VectorMCMC(
+        path = GeometricPath(proposal=proposal, required_phi=self._norm_phi)
+        vmcmc = VectorMCMC(
             lambda x: self.evaluate_model(x, individual),
             np.zeros(len(self.training_data)),
             priors,
             log_like_args=self._std,
         )
-        mcmc_kernel = VectorMCMCKernel(vector_mcmc, param_order=param_names)
-        smc = AdaptiveSampler(mcmc_kernel)
+        kernel = VectorMCMCKernel(vmcmc, param_order=param_names, path=path)
+        smc = AdaptiveSampler(kernel, show_progress_bar=False)
 
         try:
             step_list, marginal_log_likes = smc.sample(
                 self._num_particles,
                 self._mcmc_steps,
                 self._ess_threshold,
-                proposal=proposal,
-                required_phi=self._norm_phi,
-                progress_bar=False,
             )
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
             # print(e)
@@ -178,26 +163,37 @@ class SmcpyOptimizer(LocalOptimizer):
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
 
-        log_nml = marginal_log_likes[-1] - marginal_log_likes[smc.req_phi_index[0]]
+        norm_phi = 1 / np.sqrt(len(self.training_data))
+        norm_phi_index = np.argmin(np.abs(np.array(smc._phi_sequence) - norm_phi))
+        log_nml = marginal_log_likes[-1] - marginal_log_likes[norm_phi_index]
 
-        return log_nml, step_list, vector_mcmc
+        return log_nml, step_list, vmcmc
 
-    def _generate_proposal_samples(self, individual, num_samples):
+    def _generate_proposals(self, individual):
         param_names = self._get_parameter_names(individual)
-        pdf = np.ones((num_samples, 1))
-        samples = np.ones((num_samples, len(param_names)))
-
         num_multistarts = self._num_multistarts
+
         param_dists = []
         cov_estimates = []
         if not param_names:
             cov_estimates.append(self._estimate_covariance(individual))
         else:
-            for _ in range(8 * num_multistarts):
-                mean, cov, var_ols, ssqe = self._estimate_covariance(individual)
+            for i in range(3 * num_multistarts):
                 try:
+                    do_det_opt = not self._reuse_starting_point or i != 0
+                    mean, cov, var_ols, ssqe = self._estimate_covariance(
+                        individual, do_det_opt
+                    )
+                    cov = 0.5 * (cov + cov.T)  # ensuring symmetry
+                    evals, Q = np.linalg.eig(cov)
+                    if (
+                        np.min(evals) < 0
+                    ):  # this approximation attempts to correct for cov matrices that are not positive semidefinite
+                        D = np.diag(evals)
+                        D[D < 0] = 0
+                        cov = Q.dot(D).dot(Q.T)
                     dists = mvn(mean, cov, allow_singular=True)
-                except ValueError as _:
+                except (ValueError, np.linalg.LinAlgError) as e:
                     continue
                 cov_estimates.append((mean, cov, var_ols, ssqe))
                 param_dists.append(dists)
@@ -208,7 +204,7 @@ class SmcpyOptimizer(LocalOptimizer):
                     "Could not generate any valid proposal distributions"
                 )
 
-            pdf, samples = self._get_samples_and_pdf(param_dists, num_samples)
+            param_mix_dist = MixtureDist(*param_dists)
 
         if self._std is None:
             len_data = len(self.training_data)
@@ -219,71 +215,51 @@ class SmcpyOptimizer(LocalOptimizer):
             for _, _, var_ols, ssqe in cov_estimates:
                 shape = (0.01 + len_data) / 2
                 scale = max((0.01 * var_ols + ssqe) / 2, 1e-12 * scale_data)
-                noise_dists.append(invgamma(shape, scale=scale))
-            noise_pdf, noise_samples = self._get_samples_and_pdf(
-                noise_dists, num_samples
-            )
-
+                noise_dists.append(SqrtInvGamma(shape, scale=scale))
             param_names.append("std_dev")
-            samples = np.concatenate((samples, np.sqrt(noise_samples)), axis=1)
-            pdf *= noise_pdf
 
-        if self._uniformly_weighted_proposal:
-            pdf = np.ones_like(pdf)
+            noise_mix_dist = MixtureDist(*noise_dists)
 
-        samples = dict(zip(param_names, samples.T))
-        return samples, pdf
+        return MultivarIndependent(param_mix_dist, noise_mix_dist)
 
     @staticmethod
     def _get_parameter_names(individual):
         num_params = individual.get_number_local_optimization_params()
         return [f"p{i}" for i in range(num_params)]
 
-    def _estimate_covariance(self, individual):
-        self._deterministic_optimizer(individual)
+    def _estimate_covariance(self, individual, do_det_opt=True):
+        if do_det_opt:
+            self._deterministic_optimizer(individual)
+
+        # # RALPH data approx method
         f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(individual)
         ssqe = np.sum((f) ** 2)
         var_ols = ssqe / len(f)
         cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
+
+        # LAPLACE approx
+        # f, g = self._objective_fn.get_fitness_vector_and_jacobian(
+        #     individual
+        # )
+        # h = np.squeeze(individual.evaluate_with_local_opt_hessian_at(self.objective_fn.training_data.x)[1].detach().numpy(),1)
+        # A = 2*np.sum(np.einsum('...i,...j->...ij', g, g)
+        #              + np.expand_dims(f, axis=(1,2))*h, axis=0)
+        # ssqe = np.sum((f) ** 2)
+        # var_ols = ssqe / len(f)
+        # # try:
+        # cov = np.linalg.inv(A)
+        # # except np.linalg.LinAlgError:
+        # #     # print(A)
+        # #     # A = A+np.empty_like(A)*1e-8  # adding nugget for invertability
+        # #     # print(A)
+        # #     # cov = np.linalg.inv(A)
+        # #     # print(cov)
+        # #     cov = np.linalg.pinv(A)
+        # #     # print(cov)
+
         return individual.constants, cov, var_ols, ssqe
 
-    @staticmethod
-    def _get_samples_and_pdf(distributions, num_samples):
-        sub_samples = num_samples // len(distributions)
-        samples = np.vstack(
-            [
-                proposal.rvs(sub_samples).reshape(sub_samples, -1)
-                for proposal in distributions
-            ]
-        )
-        if samples.shape[0] != num_samples:
-            missed_samples = num_samples - samples.shape[0]
-            new_samples = (
-                np.random.choice(distributions)
-                .rvs(missed_samples)
-                .reshape((missed_samples, -1))
-            )
-            samples = np.vstack([samples, new_samples])
-        pdf = np.zeros((samples.shape[0], 1))
-        for dist in distributions:
-            pdf += dist.pdf(samples).reshape(-1, 1)
-        pdf /= len(distributions)
-        return pdf, samples
-
     def evaluate_model(self, params, individual):
-        """Evaluate an individual given a set of parameters
-
-        Parameters
-        ----------
-        params : numpy array
-            parameters for which to evaluate the individual
-        individual : Equation
-            individual for which to evaluate fitness
-
-        Returns
-        -------
-        numpy array : fitness vector outputs for the individual w/ the params
-        """
         individual.set_local_optimization_params(params.T)
         result = self._objective_fn.evaluate_fitness_vector(individual).T
         if len(result.shape) < 2:
@@ -291,3 +267,53 @@ class SmcpyOptimizer(LocalOptimizer):
             # regression and add a flatten to the scipy wrapper?
             result = result.reshape(-1, len(self._objective_fn.training_data))
         return result
+
+
+class MixtureDist:
+
+    def __init__(self, *args):
+        self._dists = args
+
+    def rvs(self, num_samples, random_state=None):
+        candidate_samples = np.zeros(
+            (
+                len(self._dists),
+                num_samples,
+                self._dists[0].dim if hasattr(self._dists[0], "dim") else 1,
+            )
+        )
+
+        for i, d in enumerate(self._dists):
+            candidate_samples[i, :, :] = d.rvs(
+                num_samples, random_state=random_state
+            ).reshape(num_samples, -1)
+
+        if random_state is None:
+            rng = np.random.default_rng(seed=np.random.randint(np.iinfo(np.int16).max))
+        else:
+            rng = np.random.default_rng(random_state)
+        dist_indices = rng.integers(0, len(self._dists), num_samples)
+        sample_indices = np.arange(0, num_samples)
+
+        return candidate_samples[dist_indices, sample_indices, :]
+
+    def logpdf(self, x):
+        num_samples = x.shape[0]
+        pdfs = np.zeros((len(self._dists), num_samples, 1))
+
+        for i, d in enumerate(self._dists):
+            pdfs[i, :, :] = d.pdf(x).reshape(num_samples, 1)
+
+        return np.log(pdfs.sum(axis=0) / len(self._dists))
+
+
+class SqrtInvGamma:
+
+    def __init__(self, shape, scale):
+        self._dist = invgamma(shape, scale=scale)
+
+    def rvs(self, *args, **kwargs):
+        return np.sqrt(self._dist.rvs(*args, **kwargs))
+
+    def pdf(self, x, *args, **kwargs):
+        return self._dist.pdf(np.square(x), *args, **kwargs)

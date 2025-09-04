@@ -861,14 +861,18 @@ appropriate fitness evaluator and a corresponding training data container.</p>
 <dt class="sig sig-object py" id="bingo.symbolic_regression.explicit_regression.ExplicitRegression">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.explicit_regression.</span></span><span class="sig-name descname"><span class="pre">ExplicitRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_linear_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.explicit_regression.ExplicitRegression" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.VectorGradientMixin" title="bingo.evaluation.gradient_mixin.VectorGradientMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorGradientMixin</span></code></a>, <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction" title="bingo.evaluation.fitness_function.VectorBasedFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">VectorBasedFunction</span></code></a></p>
-<p>The traditional fitness evaluation for symbolic regression</p>
+<p>The traditional fitness evaluation for symbolic regression.
+fitness = M(y - f(x)) where x and y are in the training_data (i.e.
+training_data.x and training_data.y) and the function f is defined by
+the input Equation individual.  M is an aggregation metric such as mean
+squared error.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>training_data</strong> (<a class="reference internal" href="#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData" title="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData"><em>ExplicitTrainingData</em></a>) – data that is used in fitness evaluation.</p></li>
 <li><p><strong>metric</strong> (<em>str</em>) – String defining the measure of error to use. Available options are:
-‘mean absolute error’, ‘mean squared error’, and
-‘root mean squared error’</p></li>
+‘mean absolute error’, ‘mean squared error’, ‘root mean squared error’,
+and “negative nmll laplace”</p></li>
 <li><p><strong>relative</strong> (<em>bool</em>) – Whether to use relative, pointwise normalization of errors. Default:
 False.</p></li>
 <li><p><strong>use_linear_correction</strong> (<em>bool</em>) – Whether to adjust outputs of equations by a least squares linear correction. Default: False.</p></li>

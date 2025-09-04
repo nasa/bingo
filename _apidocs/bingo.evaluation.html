@@ -478,7 +478,9 @@ in the population.</p>
 <span id="bingo-evaluation-fitness-function-module"></span><h2>bingo.evaluation.fitness_function module<a class="headerlink" href="#module-bingo.evaluation.fitness_function" title="Link to this heading">#</a></h2>
 <p>The definition of fitness evaluations for individuals.</p>
 <p>This module defines the basis of fitness evaluation in bingo evolutionary
-analyses.</p>
+analyses.  It defines a fitness function class and a version of the fitness
+function which is built around the idea that there is a vector of fitness
+values that can be aggregated in numerous different ways.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evaluation.fitness_function.FitnessFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evaluation.fitness_function.</span></span><span class="sig-name descname"><span class="pre">FitnessFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evaluation.fitness_function.FitnessFunction" title="Link to this definition">#</a></dt>
@@ -520,13 +522,15 @@ analyses.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evaluation.fitness_function.</span></span><span class="sig-name descname"><span class="pre">VectorBasedFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evaluation.fitness_function.VectorBasedFunction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.evaluation.fitness_function.FitnessFunction" title="bingo.evaluation.fitness_function.FitnessFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitnessFunction</span></code></a></p>
 <p>Fitness evaluation based on vectorized fitness</p>
+<p>An aggregation metric is needed to quantify Fitness relative to a vector
+of fitness (error) measures.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>training_data</strong> (<a class="reference internal" href="#bingo.evaluation.training_data.TrainingData" title="bingo.evaluation.training_data.TrainingData"><em>TrainingData</em></a>) – data that is used in fitness evaluation.</p></li>
 <li><p><strong>metric</strong> (<em>str</em>) – String defining the measure of error to use. Available options are:
-‘mean absolute error’/’mae’, ‘mean squared error’/’mse’, and
-‘root mean squared error’/’rmse’</p></li>
+‘mean absolute error’/’mae’, ‘mean squared error’/’mse’,
+‘root mean squared error’/’rmse’, and “negative nmll laplace”</p></li>
 </ul>
 </dd>
 </dl>
@@ -564,7 +568,7 @@ analyses.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bingo.evaluation.fitness_function.negative_nmll_laplace">
 <span class="sig-prename descclassname"><span class="pre">bingo.evaluation.fitness_function.</span></span><span class="sig-name descname"><span class="pre">negative_nmll_laplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evaluation.fitness_function.negative_nmll_laplace" title="Link to this definition">#</a></dt>
-<dd><p>Calculate the nmll squared error of an error vector</p>
+<dd><p>Calculate the nmll of an error vector</p>
 </dd></dl>
 
 <dl class="py function">
@@ -621,8 +625,8 @@ of vector based fitness functions.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>training_data</strong> (<a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData" title="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData"><em>ExplicitTrainingData</em></a>) – data that is used in fitness evaluation (passed to parent).</p></li>
 <li><p><strong>metric</strong> (<em>str</em>) – String defining the measure of error to use. Available options are:
-‘mean absolute error’, ‘mean squared error’, and
-‘root mean squared error’</p></li>
+‘mean absolute error’, ‘mean squared error’,
+‘root mean squared error’, and “negative nmll laplace”</p></li>
 </ul>
 </dd>
 </dl>

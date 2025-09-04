@@ -507,14 +507,82 @@ and return a number</p>
 </dd></dl>
 
 </section>
-<section id="bingo-local-optimizers-normalized-marginal-likelihood-module">
-<h2>bingo.local_optimizers.normalized_marginal_likelihood module<a class="headerlink" href="#bingo-local-optimizers-normalized-marginal-likelihood-module" title="Link to this heading">#</a></h2>
+<section id="module-bingo.local_optimizers.normalized_marginal_likelihood">
+<span id="bingo-local-optimizers-normalized-marginal-likelihood-module"></span><h2>bingo.local_optimizers.normalized_marginal_likelihood module<a class="headerlink" href="#module-bingo.local_optimizers.normalized_marginal_likelihood" title="Link to this heading">#</a></h2>
+<p>Normalized marginal likelihood calculation using SMCPy</p>
+<p>This module contains the implementation of a fitness function wrapper
+that will perform probabilistic local optimization of a <cite>Chromosome</cite> using
+SMCPy.  The normaized marginal likelihood from the SMC optimization is returned.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.local_optimizers.normalized_marginal_likelihood.</span></span><span class="sig-name descname"><span class="pre">NormalizedMarginalLikelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fitness_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic_optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.FitnessFunction" title="bingo.evaluation.fitness_function.FitnessFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitnessFunction</span></code></a></p>
+<p>Normalized marginal likelihood calculation using SMCPy</p>
+<p>A class for fitness evaluation of individuals that have local optimization
+parameters</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fitness_function</strong> (<cite>FitnessFunction</cite>) – A <cite>FitnessFunction</cite> for evaluating the fitness of a <cite>Chromosome</cite>.</p></li>
+<li><p><strong>deterministic_optimizer</strong> (<cite>LocalOptimizer</cite>) – An optimizer that will perform deterministic local optimization on a
+<cite>Chromosome</cite>. Used in proposals of <cite>SmcpyOptimizer</cite></p></li>
+<li><p><strong>**kwargs</strong> – other keyword arguments are passed to the SmcpyOptimizer initialization</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.eval_count">
+<span class="sig-name descname"><span class="pre">eval_count</span></span><a class="headerlink" href="#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.eval_count" title="Link to this definition">#</a></dt>
+<dd><p>the number of evaluations that have been performed by the wrapped
+fitness function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.training_data">
+<span class="sig-name descname"><span class="pre">training_data</span></span><a class="headerlink" href="#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.training_data" title="Link to this definition">#</a></dt>
+<dd><p>data that can be used in the wrapped fitness function</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><cite>TrainingData</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id2">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eval_count</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<dd><p>the number of evaluations that have been performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id3">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">training_data</span></span><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
+<dd><p>data that can be used in fitness evaluations</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.training_data.TrainingData" title="bingo.evaluation.training_data.TrainingData">TrainingData</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-bingo.local_optimizers.scipy_optimizer">
 <span id="bingo-local-optimizers-scipy-optimizer-module"></span><h2>bingo.local_optimizers.scipy_optimizer module<a class="headerlink" href="#module-bingo.local_optimizers.scipy_optimizer" title="Link to this heading">#</a></h2>
 <p>Local optimization using scipy</p>
 <p>Specifies <cite>ScipyOptimizer</cite> which is a class for local optimization of
-<a href="#id2"><span class="problematic" id="id3">`</span></a>Chromosome`s using scipy’s minimize or root methods. Also
+<a href="#id4"><span class="problematic" id="id5">`</span></a>Chromosome`s using scipy’s minimize or root methods. Also
 specifies ROOT_SET, a set of methods that will use scipy’s root method;
 MINIMIZE_SET, a set of methods that will use scipy’s minimize method;
 and JACOBIAN_SET, a set of methods that will use jacobian information.</p>
@@ -579,15 +647,15 @@ defaults to 1e-6</p>
 </dd>
 </dl>
 <dl class="py property">
-<dt class="sig sig-object py" id="id4">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective_fn</span></span><a class="headerlink" href="#id4" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id6">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective_fn</span></span><a class="headerlink" href="#id6" title="Link to this definition">#</a></dt>
 <dd><p>function to minimize, must take a <cite>Chromosome</cite> as input
 and return a number</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id5">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#id5" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id7">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#id7" title="Link to this definition">#</a></dt>
 <dd><p>optimizer options (e.g. param_init_bounds, method,
 tol, options, etc.)</p>
 <dl class="field-list simple">
@@ -600,8 +668,306 @@ tol, options, etc.)</p>
 </dd></dl>
 
 </section>
-<section id="bingo-local-optimizers-smcpy-optimizer-module">
-<h2>bingo.local_optimizers.smcpy_optimizer module<a class="headerlink" href="#bingo-local-optimizers-smcpy-optimizer-module" title="Link to this heading">#</a></h2>
+<section id="module-bingo.local_optimizers.smcpy_optimizer">
+<span id="bingo-local-optimizers-smcpy-optimizer-module"></span><h2>bingo.local_optimizers.smcpy_optimizer module<a class="headerlink" href="#module-bingo.local_optimizers.smcpy_optimizer" title="Link to this heading">#</a></h2>
+<p>A module for probabilistic calibration of parameters.</p>
+<p>Probabilistic calibration of model parameters can be useful in cases where data
+is sparse and/or noisy.  Using a calibration of this type can allow for a better
+estimate of true fitness while being a bit more robust to overfitting.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.MixtureDist">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.local_optimizers.smcpy_optimizer.</span></span><span class="sig-name descname"><span class="pre">MixtureDist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A mixture distribution class that combines multiple probability distributions.</p>
+<p>This class represents a mixture model where samples are drawn uniformly at random
+from one of the component distributions. Each component distribution has equal
+weight (1/n where n is the number of components).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>*args</strong> (<em>tuple</em><em> of </em><em>distribution objects</em>) – Variable number of probability distribution objects. Each distribution
+should have <cite>rvs()</cite> and <cite>pdf()</cite> methods compatible with scipy.stats
+distributions.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.MixtureDist._dists">
+<span class="sig-name descname"><span class="pre">_dists</span></span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist._dists" title="Link to this definition">#</a></dt>
+<dd><p>Tuple of component probability distributions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span><span class="p">,</span> <span class="n">uniform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mixture</span> <span class="o">=</span> <span class="n">MixtureDist</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_probs</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.MixtureDist.logpdf">
+<span class="sig-name descname"><span class="pre">logpdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist.logpdf" title="Link to this definition">#</a></dt>
+<dd><p>Compute the log probability density function of the mixture distribution.</p>
+<p>The PDF of a mixture distribution is the average of the PDFs of the
+component distributions: pdf(x) = (1/n) * sum(pdf_i(x)) where n is the
+number of components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>ndarray</em>) – Input samples of shape (num_samples, dim) where dim matches the
+dimensionality of component distributions.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Log probability densities of shape (num_samples, 1).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mixture</span> <span class="o">=</span> <span class="n">MixtureDist</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">norm</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">4.5</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">log_probs</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">logpdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.MixtureDist.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_samples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist.rvs" title="Link to this definition">#</a></dt>
+<dd><p>Generate random samples from the mixture distribution.</p>
+<p>For each sample, randomly selects one of the component distributions with
+equal probability and draws a sample from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_samples</strong> (<em>int</em>) – Number of samples to generate.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em>) – Random seed for reproducible results. If None, uses a random seed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of shape (num_samples, dim) where dim is the dimensionality
+of the component distributions. For 1D distributions, returns
+shape (num_samples, 1).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mixture</span> <span class="o">=</span> <span class="n">MixtureDist</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">norm</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">mixture</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 1)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.local_optimizers.smcpy_optimizer.</span></span><span class="sig-name descname"><span class="pre">SmcpyOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">objective_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic_optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_particles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mcmc_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ess_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.75</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_multistarts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reuse_starting_point</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bingo.local_optimizers.local_optimizer.LocalOptimizer" title="bingo.local_optimizers.local_optimizer.LocalOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LocalOptimizer</span></code></a></p>
+<p>An optimizer that uses SMCPy for probabilistic parameter calibration</p>
+<p>A class for probabilistic parameter calibration for the parameters of a
+<cite>Chromosome</cite> using SMCPy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>objective_fn</strong> (<a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.fitness_function.VectorBasedFunction" title="bingo.evaluation.fitness_function.VectorBasedFunction"><em>VectorBasedFunction</em></a><em>, </em><a class="reference internal" href="bingo.evaluation.html#bingo.evaluation.gradient_mixin.VectorGradientMixin" title="bingo.evaluation.gradient_mixin.VectorGradientMixin"><em>VectorGradientMixin</em></a>) – A <cite>VectorBasedFunction</cite> with <cite>VectorGradientMixin</cite> (e.g.,
+ExplicitRegression).  It should produce a vector where the target value
+is 0.</p></li>
+<li><p><strong>deterministic_optimizer</strong> (<a class="reference internal" href="#bingo.local_optimizers.local_optimizer.LocalOptimizer" title="bingo.local_optimizers.local_optimizer.LocalOptimizer"><em>LocalOptimizer</em></a>) – A deterministic local optimizer e.g., <cite>ScipyOptimizer</cite></p></li>
+<li><p><strong>num_particles</strong> (<em>int</em>) – The number of particles to use in the SMC approximation</p></li>
+<li><p><strong>mcmc_steps</strong> (<em>int</em>) – The number of MCMC steps to perform with each SMC update</p></li>
+<li><p><strong>ess_threshold</strong> (<em>float</em><em> (</em><em>0-1</em><em>)</em>) – The effective sample size (ratio) below which SMC particles will be
+resampled</p></li>
+<li><p><strong>std</strong> (<em>float</em>) – (Optional) The fixed noise level, if it is known</p></li>
+<li><p><strong>num_multistarts</strong> (<em>int</em>) – (Optional) The number of deterministic optimizations performed when
+developing the SMC proposal</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.objective_fn">
+<span class="sig-name descname"><span class="pre">objective_fn</span></span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.objective_fn" title="Link to this definition">#</a></dt>
+<dd><p>A function to minimize which can be evaluated by passing in a
+<cite>Chromosome</cite></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.options">
+<span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.options" title="Link to this definition">#</a></dt>
+<dd><p>Additional arguments for clo options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.eval_count">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eval_count</span></span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.eval_count" title="Link to this definition">#</a></dt>
+<dd><p>the number of evaluations that have been performed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.evaluate_model">
+<span class="sig-name descname"><span class="pre">evaluate_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.evaluate_model" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate a model with given parameters and return fitness vector.</p>
+<p>This method sets the local optimization parameters for an individual,
+evaluates its fitness using the objective function, and reshapes the
+result to ensure consistent dimensionality for further processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>params</strong> (<em>ndarray</em>) – Model parameters to evaluate. Expected shape is (n_params,) or
+(n_params, n_models). Will be transposed before setting on individual.</p></li>
+<li><p><strong>individual</strong> (<em>object</em>) – Individual model object that implements <cite>set_local_optimization_params</cite>
+method. Represents the model structure or configuration to evaluate.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Fitness evaluation results with shape (n_models, n_training_samples)
+where n_training_samples is the length of the training data. If the
+original result is 1D, it will be reshaped to ensure 2D output.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Assuming self is an instance with _objective_fn and training data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">]])</span>  <span class="c1"># 2 parameters, 2 models</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_model</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(2, 100)  # 2 models evaluated on 100 training samples</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id8">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">objective_fn</span></span><a class="headerlink" href="#id8" title="Link to this definition">#</a></dt>
+<dd><p>A <cite>VectorBasedFunction</cite> with <cite>VectorGradientMixin</cite> (e.g.,
+ExplicitRegression). It should produce a vector where the target value
+is 0.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id9">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">options</span></span><a class="headerlink" href="#id9" title="Link to this definition">#</a></dt>
+<dd><p>optimizer’s options</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.training_data">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">training_data</span></span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.training_data" title="Link to this definition">#</a></dt>
+<dd><p>Training data used in objective function</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.local_optimizers.smcpy_optimizer.</span></span><span class="sig-name descname"><span class="pre">SqrtInvGamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Square root of inverse gamma distribution.</p>
+<p>This class represents a distribution where if X ~ InvGamma(shape, scale),
+then Y = sqrt(X) follows this distribution. This is useful when you need
+the square root transformation of an inverse gamma random variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>float</em>) – Shape parameter of the underlying inverse gamma distribution.
+Must be positive.</p></li>
+<li><p><strong>scale</strong> (<em>float</em>) – Scale parameter of the underlying inverse gamma distribution.
+Must be positive.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sqrt_inv_gamma</span> <span class="o">=</span> <span class="n">SqrtInvGamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">sqrt_inv_gamma</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">probabilities</span> <span class="o">=</span> <span class="n">sqrt_inv_gamma</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma.pdf">
+<span class="sig-name descname"><span class="pre">pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma.pdf" title="Link to this definition">#</a></dt>
+<dd><p>Compute the probability density function of the square root inverse gamma distribution.</p>
+<p>Uses the transformation formula: if Y = sqrt(X) where X ~ InvGamma(shape, scale),
+then pdf_Y(y) = pdf_X(y^2) where pdf_X is the inverse gamma PDF.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em><em> or </em><em>float</em>) – Points at which to evaluate the PDF. Must be non-negative.</p></li>
+<li><p><strong>*args</strong> (<em>tuple</em>) – Additional positional arguments passed to the underlying
+inverse gamma PDF method.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Additional keyword arguments passed to the underlying
+inverse gamma PDF method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density values at the input points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or float</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">SqrtInvGamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf_values</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma.rvs" title="Link to this definition">#</a></dt>
+<dd><p>Generate random samples from the square root inverse gamma distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> (<em>tuple</em>) – Positional arguments passed to the underlying inverse gamma
+distribution’s rvs method (e.g., size, random_state).</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) – Keyword arguments passed to the underlying inverse gamma
+distribution’s rvs method.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Square root of inverse gamma random samples. Shape depends on
+the size parameter passed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or float</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist</span> <span class="o">=</span> <span class="n">SqrtInvGamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-bingo.local_optimizers">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bingo.local_optimizers" title="Link to this heading">#</a></h2>
@@ -674,18 +1040,50 @@ tol, options, etc.)</p>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo-local-optimizers-normalized-marginal-likelihood-module">bingo.local_optimizers.normalized_marginal_likelihood module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.local_optimizers.normalized_marginal_likelihood">bingo.local_optimizers.normalized_marginal_likelihood module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.eval_count"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.eval_count</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.normalized_marginal_likelihood.NormalizedMarginalLikelihood.training_data"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.training_data</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.eval_count</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3"><code class="docutils literal notranslate"><span class="pre">NormalizedMarginalLikelihood.training_data</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.local_optimizers.scipy_optimizer">bingo.local_optimizers.scipy_optimizer module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.scipy_optimizer.ScipyOptimizer"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.scipy_optimizer.ScipyOptimizer.objective_fn"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.objective_fn</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.scipy_optimizer.ScipyOptimizer.options"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.options</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.objective_fn</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.objective_fn</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7"><code class="docutils literal notranslate"><span class="pre">ScipyOptimizer.options</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo-local-optimizers-smcpy-optimizer-module">bingo.local_optimizers.smcpy_optimizer module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.local_optimizers.smcpy_optimizer">bingo.local_optimizers.smcpy_optimizer module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist"><code class="docutils literal notranslate"><span class="pre">MixtureDist</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist._dists"><code class="docutils literal notranslate"><span class="pre">MixtureDist._dists</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist.logpdf"><code class="docutils literal notranslate"><span class="pre">MixtureDist.logpdf()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.MixtureDist.rvs"><code class="docutils literal notranslate"><span class="pre">MixtureDist.rvs()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.objective_fn"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.objective_fn</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.options"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.eval_count"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.eval_count</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.evaluate_model"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.evaluate_model()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.objective_fn</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id9"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.options</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SmcpyOptimizer.training_data"><code class="docutils literal notranslate"><span class="pre">SmcpyOptimizer.training_data</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma"><code class="docutils literal notranslate"><span class="pre">SqrtInvGamma</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma.pdf"><code class="docutils literal notranslate"><span class="pre">SqrtInvGamma.pdf()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.local_optimizers.smcpy_optimizer.SqrtInvGamma.rvs"><code class="docutils literal notranslate"><span class="pre">SqrtInvGamma.rvs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bingo.local_optimizers">Module contents</a></li>
 </ul>
   </nav></div>

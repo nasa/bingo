@@ -1,3 +1,10 @@
+"""A module for probabilistic calibration of parameters.
+
+Probabilistic calibration of model parameters can be useful in cases where data
+is sparse and/or noisy.  Using a calibration of this type can allow for a better
+estimate of true fitness while being a bit more robust to overfitting.
+"""
+
 import numpy as np
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
@@ -175,6 +182,7 @@ class SmcpyOptimizer(LocalOptimizer):
 
         param_dists = []
         cov_estimates = []
+        mix_dists = []
         if not param_names:
             cov_estimates.append(self._estimate_covariance(individual))
         else:
@@ -185,13 +193,13 @@ class SmcpyOptimizer(LocalOptimizer):
                         individual, do_det_opt
                     )
                     cov = 0.5 * (cov + cov.T)  # ensuring symmetry
-                    evals, Q = np.linalg.eig(cov)
-                    if (
-                        np.min(evals) < 0
-                    ):  # this approximation attempts to correct for cov matrices that are not positive semidefinite
-                        D = np.diag(evals)
-                        D[D < 0] = 0
-                        cov = Q.dot(D).dot(Q.T)
+                    evals, evecs = np.linalg.eig(cov)
+                    # the below approximation attempts to correct for cov matrices
+                    # that are not positive semidefinite
+                    if np.min(evals) < 0:
+                        diag = np.diag(evals)
+                        diag[diag < 0] = 0
+                        cov = evecs.dot(diag).dot(evecs.T)
                     dists = mvn(mean, cov, allow_singular=True)
                 except (ValueError, np.linalg.LinAlgError) as e:
                     continue
@@ -204,23 +212,22 @@ class SmcpyOptimizer(LocalOptimizer):
                     "Could not generate any valid proposal distributions"
                 )
 
-            param_mix_dist = MixtureDist(*param_dists)
+            mix_dists.append(MixtureDist(*param_dists))
 
-        if self._std is None:
-            len_data = len(self.training_data)
-            scale_data = np.sqrt(
-                np.mean(np.square(self.training_data.y))
-            )  # TODO can we do this differently without knowing what the training data is?
-            noise_dists = []
-            for _, _, var_ols, ssqe in cov_estimates:
-                shape = (0.01 + len_data) / 2
-                scale = max((0.01 * var_ols + ssqe) / 2, 1e-12 * scale_data)
-                noise_dists.append(SqrtInvGamma(shape, scale=scale))
-            param_names.append("std_dev")
+        len_data = len(self.training_data)
+        scale_data = np.sqrt(
+            np.mean(np.square(self.training_data.y))
+        )  # TODO can we do this differently without knowing what the training data is?
+        noise_dists = []
+        for _, _, var_ols, ssqe in cov_estimates:
+            shape = (0.01 + len_data) / 2
+            scale = max((0.01 * var_ols + ssqe) / 2, 1e-12 * scale_data)
+            noise_dists.append(SqrtInvGamma(shape, scale=scale))
+        param_names.append("std_dev")
 
-            noise_mix_dist = MixtureDist(*noise_dists)
+        mix_dists.append(MixtureDist(*noise_dists))
 
-        return MultivarIndependent(param_mix_dist, noise_mix_dist)
+        return MultivarIndependent(*mix_dists)
 
     @staticmethod
     def _get_parameter_names(individual):
@@ -241,7 +248,12 @@ class SmcpyOptimizer(LocalOptimizer):
         # f, g = self._objective_fn.get_fitness_vector_and_jacobian(
         #     individual
         # )
-        # h = np.squeeze(individual.evaluate_with_local_opt_hessian_at(self.objective_fn.training_data.x)[1].detach().numpy(),1)
+        # h = np.squeeze(
+        #       individual.evaluate_with_local_opt_hessian_at(
+        #           self.objective_fn.training_data.x
+        #       )[1].detach().numpy(),
+        #       1
+        # )
         # A = 2*np.sum(np.einsum('...i,...j->...ij', g, g)
         #              + np.expand_dims(f, axis=(1,2))*h, axis=0)
         # ssqe = np.sum((f) ** 2)
@@ -260,6 +272,37 @@ class SmcpyOptimizer(LocalOptimizer):
         return individual.constants, cov, var_ols, ssqe
 
     def evaluate_model(self, params, individual):
+        """
+        Evaluate a model with given parameters and return fitness vector.
+
+        This method sets the local optimization parameters for an individual,
+        evaluates its fitness using the objective function, and reshapes the
+        result to ensure consistent dimensionality for further processing.
+
+        Parameters
+        ----------
+        params : ndarray
+            Model parameters to evaluate. Expected shape is (n_params,) or
+            (n_params, n_models). Will be transposed before setting on individual.
+        individual : object
+            Individual model object that implements `set_local_optimization_params`
+            method. Represents the model structure or configuration to evaluate.
+
+        Returns
+        -------
+        ndarray
+            Fitness evaluation results with shape (n_models, n_training_samples)
+            where n_training_samples is the length of the training data. If the
+            original result is 1D, it will be reshaped to ensure 2D output.
+
+        Examples
+        --------
+        >>> # Assuming self is an instance with _objective_fn and training data
+        >>> params = np.array([[1.0, 2.0], [3.0, 4.0]])  # 2 parameters, 2 models
+        >>> result = self.evaluate_model(params, individual)
+        >>> result.shape
+        (2, 100)  # 2 models evaluated on 100 training samples
+        """
         individual.set_local_optimization_params(params.T)
         result = self._objective_fn.evaluate_fitness_vector(individual).T
         if len(result.shape) < 2:
@@ -270,11 +313,64 @@ class SmcpyOptimizer(LocalOptimizer):
 
 
 class MixtureDist:
+    """
+    A mixture distribution class that combines multiple probability distributions.
+
+    This class represents a mixture model where samples are drawn uniformly at random
+    from one of the component distributions. Each component distribution has equal
+    weight (1/n where n is the number of components).
+
+    Parameters
+    ----------
+    *args : tuple of distribution objects
+        Variable number of probability distribution objects. Each distribution
+        should have `rvs()` and `pdf()` methods compatible with scipy.stats
+        distributions.
+
+    Attributes
+    ----------
+    _dists : tuple
+        Tuple of component probability distributions.
+
+    Examples
+    --------
+    >>> from scipy.stats import norm, uniform
+    >>> mixture = MixtureDist(norm(0, 1), uniform(-2, 4))
+    >>> samples = mixture.rvs(1000, random_state=42)
+    >>> log_probs = mixture.logpdf(samples)
+    """
 
     def __init__(self, *args):
         self._dists = args
 
     def rvs(self, num_samples, random_state=None):
+        """
+        Generate random samples from the mixture distribution.
+
+        For each sample, randomly selects one of the component distributions with
+        equal probability and draws a sample from it.
+
+        Parameters
+        ----------
+        num_samples : int
+            Number of samples to generate.
+        random_state : int, optional
+            Random seed for reproducible results. If None, uses a random seed.
+
+        Returns
+        -------
+        ndarray
+            Array of shape (num_samples, dim) where dim is the dimensionality
+            of the component distributions. For 1D distributions, returns
+            shape (num_samples, 1).
+
+        Examples
+        --------
+        >>> mixture = MixtureDist(norm(0, 1), norm(5, 2))
+        >>> samples = mixture.rvs(100, random_state=42)
+        >>> samples.shape
+        (100, 1)
+        """
         candidate_samples = np.zeros(
             (
                 len(self._dists),
@@ -298,6 +394,31 @@ class MixtureDist:
         return candidate_samples[dist_indices, sample_indices, :]
 
     def logpdf(self, x):
+        """
+        Compute the log probability density function of the mixture distribution.
+
+        The PDF of a mixture distribution is the average of the PDFs of the
+        component distributions: pdf(x) = (1/n) * sum(pdf_i(x)) where n is the
+        number of components.
+
+        Parameters
+        ----------
+        x : ndarray
+            Input samples of shape (num_samples, dim) where dim matches the
+            dimensionality of component distributions.
+
+        Returns
+        -------
+        ndarray
+            Log probability densities of shape (num_samples, 1).
+
+        Examples
+        --------
+        >>> import numpy as np
+        >>> mixture = MixtureDist(norm(0, 1), norm(5, 2))
+        >>> x = np.array([[0.5], [2.0], [4.5]])
+        >>> log_probs = mixture.logpdf(x)
+        """
         num_samples = x.shape[0]
         pdfs = np.zeros((len(self._dists), num_samples, 1))
 
@@ -308,12 +429,85 @@ class MixtureDist:
 
 
 class SqrtInvGamma:
+    """
+    Square root of inverse gamma distribution.
+
+    This class represents a distribution where if X ~ InvGamma(shape, scale),
+    then Y = sqrt(X) follows this distribution. This is useful when you need
+    the square root transformation of an inverse gamma random variable.
+
+    Parameters
+    ----------
+    shape : float
+        Shape parameter of the underlying inverse gamma distribution.
+        Must be positive.
+    scale : float
+        Scale parameter of the underlying inverse gamma distribution.
+        Must be positive.
+
+    Examples
+    --------
+    >>> sqrt_inv_gamma = SqrtInvGamma(shape=2.0, scale=1.0)
+    >>> samples = sqrt_inv_gamma.rvs(1000, random_state=42)
+    >>> probabilities = sqrt_inv_gamma.pdf(samples)
+    """
 
     def __init__(self, shape, scale):
         self._dist = invgamma(shape, scale=scale)
 
     def rvs(self, *args, **kwargs):
+        """
+        Generate random samples from the square root inverse gamma distribution.
+
+        Parameters
+        ----------
+        *args : tuple
+            Positional arguments passed to the underlying inverse gamma
+            distribution's rvs method (e.g., size, random_state).
+        **kwargs : dict
+            Keyword arguments passed to the underlying inverse gamma
+            distribution's rvs method.
+
+        Returns
+        -------
+        ndarray or float
+            Square root of inverse gamma random samples. Shape depends on
+            the size parameter passed.
+
+        Examples
+        --------
+        >>> dist = SqrtInvGamma(shape=2.0, scale=1.0)
+        >>> samples = dist.rvs(size=100, random_state=42)
+        """
         return np.sqrt(self._dist.rvs(*args, **kwargs))
 
     def pdf(self, x, *args, **kwargs):
+        """
+        Compute the probability density function of the square root inverse gamma distribution.
+
+        Uses the transformation formula: if Y = sqrt(X) where X ~ InvGamma(shape, scale),
+        then pdf_Y(y) = pdf_X(y^2) where pdf_X is the inverse gamma PDF.
+
+        Parameters
+        ----------
+        x : ndarray or float
+            Points at which to evaluate the PDF. Must be non-negative.
+        *args : tuple
+            Additional positional arguments passed to the underlying
+            inverse gamma PDF method.
+        **kwargs : dict
+            Additional keyword arguments passed to the underlying
+            inverse gamma PDF method.
+
+        Returns
+        -------
+        ndarray or float
+            Probability density values at the input points.
+
+        Examples
+        --------
+        >>> dist = SqrtInvGamma(shape=2.0, scale=1.0)
+        >>> x = np.linspace(0.1, 3.0, 100)
+        >>> pdf_values = dist.pdf(x)
+        """
         return self._dist.pdf(np.square(x), *args, **kwargs)

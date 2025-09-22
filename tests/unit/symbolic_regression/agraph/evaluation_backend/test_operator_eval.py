@@ -214,7 +214,7 @@ def test_operator_evaluate(engine, eval_backend, sample_x, sample_constants, ope
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_operator_derivative_x0x1(
-    engine, val_backend, sample_x, sample_constants, operator
+    engine, eval_backend, sample_x, sample_constants, operator
 ):
     if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
         pytest.skip("These operators are not yet implemented in the CPP backend")

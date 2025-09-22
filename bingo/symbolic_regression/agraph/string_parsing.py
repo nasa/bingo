@@ -1,21 +1,59 @@
 """Tools for parsing strings into AGraphs"""
+
 import re
 import numpy as np
 
-from bingo.symbolic_regression.agraph.operator_definitions \
-    import INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION, MULTIPLICATION, \
-           DIVISION, SIN, COS, SINH, COSH, EXPONENTIAL, LOGARITHM, POWER, ABS, \
-           SQRT
+from bingo.symbolic_regression.agraph.operator_definitions import (
+    INTEGER,
+    VARIABLE,
+    CONSTANT,
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    SIN,
+    COS,
+    SINH,
+    COSH,
+    EXPONENTIAL,
+    LOGARITHM,
+    POWER,
+    ABS,
+    SQRT,
+    TAN,
+    TANH,
+    ARCSIN,
+    ARCCOS,
+    ARCTAN,
+)
 
 operators = {"+", "-", "*", "/", "^"}
 functions = {"sin", "cos", "sinh", "cosh", "exp", "log", "abs", "sqrt"}
 precedence = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
-operator_map = {"+": ADDITION, "-": SUBTRACTION, "*": MULTIPLICATION,
-                "/": DIVISION, "^": POWER, "X": VARIABLE, "x": VARIABLE,
-                "C": CONSTANT, "c": CONSTANT,
-                "sin": SIN, "cos": COS, "sinh": SINH, "cosh": COSH,
-                "exp": EXPONENTIAL, "log": LOGARITHM, "abs": ABS,
-                "sqrt": SQRT}
+operator_map = {
+    "+": ADDITION,
+    "-": SUBTRACTION,
+    "*": MULTIPLICATION,
+    "/": DIVISION,
+    "^": POWER,
+    "X": VARIABLE,
+    "x": VARIABLE,
+    "C": CONSTANT,
+    "c": CONSTANT,
+    "sin": SIN,
+    "cos": COS,
+    "tan": TAN,
+    "sinh": SINH,
+    "cosh": COSH,
+    "tanh": TANH,
+    "exp": EXPONENTIAL,
+    "log": LOGARITHM,
+    "abs": ABS,
+    "sqrt": SQRT,
+    "arcsin": ARCSIN,
+    "arccos": ARCCOS,
+    "arctan": ARCTAN,
+}
 # matches X_### and C_### (case-insensitive)
 var_or_const_pattern = re.compile(r"([XC])_(\d+)", re.IGNORECASE)
 int_pattern = re.compile(r"\d+")  # matches ###
@@ -44,9 +82,15 @@ def infix_to_postfix(infix_tokens):
     output = []
     for token in infix_tokens:
         if token in operators:
-            while len(stack) > 0 and stack[-1] in operators and \
-                (precedence[stack[-1]] > precedence[token] or
-                 precedence[stack[-1]] == precedence[token] and token != "^"):
+            while (
+                len(stack) > 0
+                and stack[-1] in operators
+                and (
+                    precedence[stack[-1]] > precedence[token]
+                    or precedence[stack[-1]] == precedence[token]
+                    and token != "^"
+                )
+            ):
                 output.append(stack.pop())
             stack.append(token)
         elif token == "(" or token in functions:
@@ -104,8 +148,7 @@ def postfix_to_command_array_and_constants(postfix_tokens):
             integer = int_pattern.fullmatch(token)
             if var_or_const:
                 groups = var_or_const.groups()
-                command = [operator_map[groups[0]], int(groups[1]),
-                           int(groups[1])]
+                command = [operator_map[groups[0]], int(groups[1]), int(groups[1])]
             elif integer:
                 operand = int(token)
                 command = [INTEGER, operand, operand]
@@ -146,8 +189,7 @@ def eq_string_to_infix_tokens(eq_string):
         A list of string tokens that correspond
         to the expression given by eq_string
     """
-    if any(bad_token in eq_string for bad_token in ["zoo", "I", "oo",
-                                                       "nan"]):
+    if any(bad_token in eq_string for bad_token in ["zoo", "I", "oo", "nan"]):
         raise RuntimeError("Cannot parse inf/complex")
     eq_string = eq_string.replace(")(", ")*(").replace("**", "^")
 

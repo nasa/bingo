@@ -5,38 +5,72 @@
 import pytest
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
-from bingo.symbolic_regression.agraph.simplification_backend.expression import Expression
-from bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification import automatic_simplify
+from bingo.symbolic_regression.agraph.simplification_backend.expression import (
+    Expression,
+)
+from bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification import (
+    automatic_simplify,
+)
 
 
 @pytest.fixture
 def x_var():
-    return Expression(VARIABLE, [0, ])
+    return Expression(
+        VARIABLE,
+        [
+            0,
+        ],
+    )
 
 
 @pytest.fixture
 def y_var():
-    return Expression(VARIABLE, [1, ])
+    return Expression(
+        VARIABLE,
+        [
+            1,
+        ],
+    )
 
 
 @pytest.fixture
 def negative_one():
-    return Expression(INTEGER, [-1, ])
+    return Expression(
+        INTEGER,
+        [
+            -1,
+        ],
+    )
 
 
 @pytest.fixture
 def zero():
-    return Expression(INTEGER, [0, ])
+    return Expression(
+        INTEGER,
+        [
+            0,
+        ],
+    )
 
 
 @pytest.fixture
 def one():
-    return Expression(INTEGER, [1, ])
+    return Expression(
+        INTEGER,
+        [
+            1,
+        ],
+    )
 
 
 @pytest.fixture
 def two():
-    return Expression(INTEGER, [2, ])
+    return Expression(
+        INTEGER,
+        [
+            2,
+        ],
+    )
 
 
 @pytest.fixture
@@ -97,8 +131,7 @@ def test_no_simplification(one, two, x_var, y_var):
     assert automatic_simplify(y_var) == y_var
 
 
-def test_power_simplification(zero, one, two, x_var, x_squared, x_times_y,
-                              y_var):
+def test_power_simplification(zero, one, two, x_var, x_squared, x_times_y, y_var):
     x_to_zero = Expression(POWER, [zero, x_var])
     assert automatic_simplify(x_to_zero) == x_to_zero
     assert automatic_simplify(Expression(POWER, [one, x_var])) == one
@@ -117,8 +150,9 @@ def test_power_simplification(zero, one, two, x_var, x_squared, x_times_y,
     assert automatic_simplify(xy_squared) == x_squared_y_squared
 
 
-def test_product_simplification(zero, one, two, x_var, x_squared, x_times_y,
-                                y_var, x_inv):
+def test_product_simplification(
+    zero, one, two, x_var, x_squared, x_times_y, y_var, x_inv
+):
     one_two_zero = Expression(MULTIPLICATION, [one, two, zero])
     assert automatic_simplify(one_two_zero) == zero
     x_one_zero = Expression(MULTIPLICATION, [x_var, two, zero])
@@ -133,9 +167,9 @@ def test_product_simplification(zero, one, two, x_var, x_squared, x_times_y,
     x_y_x = Expression(MULTIPLICATION, [x_var, y_var, x_var])
     x_squared_y = Expression(MULTIPLICATION, [x_squared, y_var])
     assert automatic_simplify(x_y_x) == x_squared_y
-    x_times_y_2 = Expression(MULTIPLICATION,
-                             [x_var,
-                              Expression(MULTIPLICATION, [y_var, two])])
+    x_times_y_2 = Expression(
+        MULTIPLICATION, [x_var, Expression(MULTIPLICATION, [y_var, two])]
+    )
     x_y_2 = Expression(MULTIPLICATION, [two, x_var, y_var])
     assert automatic_simplify(x_times_y_2) == x_y_2
 
@@ -157,15 +191,12 @@ def test_sum_simplification(zero, one, two, x_var, y_var, negative_one):
     two_x = Expression(MULTIPLICATION, [two, x_var])
     two_x_p_y = Expression(ADDITION, [two_x, y_var])
     assert automatic_simplify(x_p_y_p_x) == two_x_p_y
-    x_p_y_p_2 = Expression(ADDITION,
-                           [x_var,
-                            Expression(ADDITION, [y_var, two])])
+    x_p_y_p_2 = Expression(ADDITION, [x_var, Expression(ADDITION, [y_var, two])])
     two_p_x_p_y = Expression(ADDITION, [two, x_var, y_var])
     assert automatic_simplify(x_p_y_p_2) == two_p_x_p_y
 
 
-def test_quotient_simplification(zero, one, two, x_var, x_squared, x_inv,
-                                 negative_one):
+def test_quotient_simplification(zero, one, two, x_var, x_squared, x_inv, negative_one):
     one_half = Expression(DIVISION, [one, two])
     two_inv = Expression(POWER, [two, negative_one])
     assert automatic_simplify(one_half) == two_inv
@@ -181,8 +212,9 @@ def test_quotient_simplification(zero, one, two, x_var, x_squared, x_inv,
     assert automatic_simplify(x_over_x_squared) == x_inv
 
 
-def test_difference_simplification(zero, one, two, x_var, x_squared, x_inv,
-                                   negative_one):
+def test_difference_simplification(
+    zero, one, two, x_var, x_squared, x_inv, negative_one
+):
     one_minus_2 = Expression(SUBTRACTION, [one, two])
     assert automatic_simplify(one_minus_2) == negative_one
 
@@ -202,42 +234,147 @@ def test_difference_simplification(zero, one, two, x_var, x_squared, x_inv,
     assert automatic_simplify(x_minus_two_x) == negative_x
 
 
-def test_trig_simplification(zero, one):
-    sin_zero = Expression(SIN, [zero, ])
-    assert automatic_simplify(sin_zero) == zero
-
-    cos_zero = Expression(COS, [zero, ])
-    assert automatic_simplify(cos_zero) == one
-
-
 def test_log_simplification(zero, one, two):
-    log_one = Expression(LOGARITHM, [one, ])
+    log_one = Expression(
+        LOGARITHM,
+        [
+            one,
+        ],
+    )
     assert automatic_simplify(log_one) == zero
 
-    exp_2 = Expression(EXPONENTIAL, [two, ])
-    log_exp_2 = Expression(LOGARITHM, [exp_2, ])
+    exp_2 = Expression(
+        EXPONENTIAL,
+        [
+            two,
+        ],
+    )
+    log_exp_2 = Expression(
+        LOGARITHM,
+        [
+            exp_2,
+        ],
+    )
     assert automatic_simplify(log_exp_2) == two
 
 
 def test_exp_simplification(zero, one):
-    exp_zero = Expression(EXPONENTIAL, [zero, ])
+    exp_zero = Expression(
+        EXPONENTIAL,
+        [
+            zero,
+        ],
+    )
     assert automatic_simplify(exp_zero) == one
 
 
 def test_sinh_simplification(zero, one):
-    sinh_zero = Expression(SINH, [zero, ])
+    sinh_zero = Expression(
+        SINH,
+        [
+            zero,
+        ],
+    )
     assert automatic_simplify(sinh_zero) == zero
 
 
 def test_cosh_simplification(zero, one):
-    cosh_zero = Expression(COSH, [zero, ])
+    cosh_zero = Expression(
+        COSH,
+        [
+            zero,
+        ],
+    )
     assert automatic_simplify(cosh_zero) == one
 
 
-@pytest.mark.parametrize("operator",
-                         [ABS, SQRT])
+def test_tanh_simplification(zero, one):
+    tanh_zero = Expression(
+        TANH,
+        [
+            zero,
+        ],
+    )
+    assert automatic_simplify(tanh_zero) == zero
+
+
+def test_sin_simplification(zero, one, two):
+    sin_zero = Expression(
+        SINH,
+        [
+            zero,
+        ],
+    )
+    assert automatic_simplify(sin_zero) == zero
+
+    sin_asin_2 = Expression(
+        SIN,
+        [
+            Expression(
+                ARCSIN,
+                [
+                    two,
+                ],
+            )
+        ],
+    )
+    assert automatic_simplify(sin_asin_2) == two
+
+
+def test_cos_simplification(zero, one, two):
+    cos_zero = Expression(
+        COSH,
+        [
+            zero,
+        ],
+    )
+    assert automatic_simplify(cos_zero) == one
+
+    cos_acos_2 = Expression(
+        COS,
+        [
+            Expression(
+                ARCCOS,
+                [
+                    two,
+                ],
+            )
+        ],
+    )
+    assert automatic_simplify(cos_acos_2) == two
+
+
+def test_tan_simplification(zero, one, two):
+    tan_zero = Expression(
+        TANH,
+        [
+            zero,
+        ],
+    )
+    assert automatic_simplify(tan_zero) == zero
+
+    tan_tanh_2 = Expression(
+        TAN,
+        [
+            Expression(
+                ARCTAN,
+                [
+                    two,
+                ],
+            )
+        ],
+    )
+    assert automatic_simplify(tan_tanh_2) == two
+
+
+@pytest.mark.parametrize("operator", [ABS, SQRT])
 def test_no_simplification_ar1_operators(operator, zero, one, two):
     operands = [zero, one, two]
     for operand in operands:
-        exp = Expression(operator, [operand, ])
+        exp = Expression(
+            operator,
+            [
+                operand,
+            ],
+        )
         assert automatic_simplify(exp) == exp

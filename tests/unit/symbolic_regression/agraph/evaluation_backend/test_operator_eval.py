@@ -197,7 +197,7 @@ def _function_derivatives(function, a, b, da, db):
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_operator_evaluate(engine, eval_backend, sample_x, sample_constants, operator):
-    if engine == "CPP" and operator in CPP_SKIP_OPERATORS:
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
         pytest.skip("These operators are not yet implemented in the CPP backend")
 
     if IS_TERMINAL_MAP[operator]:
@@ -214,7 +214,7 @@ def test_operator_evaluate(engine, eval_backend, sample_x, sample_constants, ope
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_operator_derivative_x0x1(eval_backend, sample_x, sample_constants, operator):
-    if engine == "CPP" and operator in CPP_SKIP_OPERATORS:
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
         pytest.skip("These operators are not yet implemented in the CPP backend")
 
     expected_outcome = np.zeros_like(sample_x)
@@ -241,7 +241,7 @@ def test_operator_derivative_x0x1(eval_backend, sample_x, sample_constants, oper
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_operator_derivative_x0x0(eval_backend, sample_x, sample_constants, operator):
-    if engine == "CPP" and operator in CPP_SKIP_OPERATORS:
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
         pytest.skip("These operators are not yet implemented in the CPP backend")
 
     expected_outcome = np.zeros_like(sample_x)
@@ -265,7 +265,7 @@ def test_operator_derivative_x0x0(eval_backend, sample_x, sample_constants, oper
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
 def test_operator_derivative_c0c1(eval_backend, sample_x, sample_constants, operator):
-    if engine == "CPP" and operator in CPP_SKIP_OPERATORS:
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
         pytest.skip("These operators are not yet implemented in the CPP backend")
 
     expected_outcome = np.zeros_like(sample_x)

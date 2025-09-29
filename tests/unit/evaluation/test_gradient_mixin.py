@@ -153,12 +153,12 @@ def vector_gradient_fitness_function(vector_gradient_mixin, vector_based_functio
         (
             "negative nmll laplace",
             2.695615869087813,
-            [ 0.15849365, -0.95096189],
+            [-0.3169873,  0.6339746],
         ),
         (
             "bic",
-            13.653343535599435, 
-            [-0.75,  4.5 ],
+            12.554731246931324,
+            [-1.5,  3.0],
         ),
     ],
 )

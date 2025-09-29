@@ -168,22 +168,6 @@ class VectorGradientMixin(GradientMixin):
 
     @staticmethod
     def _bic_derivative(fitness_vector, fitness_partials):
-        """Calculate the derivative of BIC with respect to the fitness vector
-        
-        BIC = k * ln(n) - 2 * ln(L̂)
-        
-        The derivative with respect to parameters through the fitness vector is:
-        d(BIC)/d(params) = -2 * d(ln(L̂))/d(params)
-        
-        For Gaussian likelihood:
-        ln(L̂) = -n/2 * ln(2π) - n/2 * ln(MSE) - n/2
-        d(ln(L̂))/d(MSE) = -n/(2*MSE)
-        d(MSE)/d(params) = 2 * mean(fitness_vector * fitness_partials)
-        
-        Therefore:
-        d(BIC)/d(params) = -2 * (-n/(2*MSE)) * d(MSE)/d(params)
-                          = n/MSE * d(MSE)/d(params)
-        """
         n = len(fitness_vector)
         mse = np.mean(np.square(fitness_vector))
         dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)

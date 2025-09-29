@@ -28,7 +28,26 @@ def mean_squared_error(vector, individual=None):  # pylint: disable=unused-argum
 
 
 def negative_nmll_laplace(vector, individual):
-    """Calculate the nmll of an error vector"""
+    """Calculate the negative normalized marginal log likelihood (NMLL) of an error vector
+    
+    The normalized marginal log likelihood is a Bayesian model selection criterion
+    that balances model fit with complexity. It approximates the marginal likelihood
+    by integrating over the posterior distribution of model parameters using a
+    Laplace approximation.
+    
+    The NMLL is calculated as:
+    NMLL = - k * ln(b)/2 - (1 - b) * ln(L̂)
+    
+    where:
+    - b = 1/sqrt(n) is a normalization factor
+    - L̂ = maximized value of the likelihood function
+    - k = number of model parameters estimated by the model
+    - n = number of data points
+    
+    This metric penalizes model complexity more heavily than BIC for small sample
+    sizes and provides a probabilistic framework for model comparison. Lower values
+    indicate better models.
+    """
     n = len(vector)
     k = individual.get_number_local_optimization_params() + 1
     b = 1 / np.sqrt(n)
@@ -50,15 +69,8 @@ def bic(vector, individual):
     """
     n = len(vector)
     k = individual.get_number_local_optimization_params() + 1
-    
-    # Calculate log-likelihood assuming Gaussian errors
-    # L̂ = (1/sqrt(2πσ²))^n * exp(-sum(residuals²)/(2σ²))
-    # ln(L̂) = -n/2 * ln(2π) - n/2 * ln(σ²) - sum(residuals²)/(2σ²)
-    # For MLE of σ², σ² = MSE, so:
-    # ln(L̂) = -n/2 * ln(2π) - n/2 * ln(MSE) - n/2
     mse = np.mean(np.square(vector))
     log_likelihood = - n / 2 * np.log(mse) - n / 2 - n / 2 * np.log(2 * np.pi)
-    
     return k * np.log(n) - 2 * log_likelihood
 
 

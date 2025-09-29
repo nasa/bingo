@@ -57,7 +57,7 @@ def bic(vector, individual):
     # For MLE of σ², σ² = MSE, so:
     # ln(L̂) = -n/2 * ln(2π) - n/2 * ln(MSE) - n/2
     mse = np.mean(np.square(vector))
-    log_likelihood = -n / 2 * np.log(2 * np.pi) - n / 2 * np.log(mse) - n / 2
+    log_likelihood = - n / 2 * np.log(mse) - n / 2 - n / 2 * np.log(2 * np.pi)
     
     return k * np.log(n) - 2 * log_likelihood
 

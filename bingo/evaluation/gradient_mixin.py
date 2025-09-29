@@ -161,7 +161,8 @@ class VectorGradientMixin(GradientMixin):
         n = len(fitness_vector)
         b = 1 / np.sqrt(n)
         dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
-        dll = -0.5 * n / dmse
+        mse = np.mean(np.square(fitness_vector))
+        dll = -0.5 * n / mse * dmse
         dnmll = (1 - b) * dll
         return -dnmll
 

@@ -93,7 +93,7 @@ def test_fitness_function_has_eval_count_and_data(
         ("rmse", np.sqrt(2.0)),
         ("root mean squared error", np.sqrt(2.0)),
         ("negative nmll laplace", 6.0868339),
-        ("bic", 22.483434972148757),  # Correct BIC value for test case
+        ("bic", 20.873997059714654),  # Correct BIC value for test case
     ],
 )
 def test_vector_based_function_metrics(

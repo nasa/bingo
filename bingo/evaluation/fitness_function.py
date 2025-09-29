@@ -38,6 +38,30 @@ def negative_nmll_laplace(vector, individual):
     return -nmll_laplace
 
 
+def bic(vector, individual):
+    """Calculate the Bayesian Information Criterion (BIC) of an error vector
+    
+    BIC = k * ln(n) - 2 * ln(L̂)
+    
+    where:
+    - k = number of parameters estimated by the model
+    - n = number of data points
+    - L̂ = maximized value of the likelihood function
+    """
+    n = len(vector)
+    k = individual.get_number_local_optimization_params() + 1
+    
+    # Calculate log-likelihood assuming Gaussian errors
+    # L̂ = (1/sqrt(2πσ²))^n * exp(-sum(residuals²)/(2σ²))
+    # ln(L̂) = -n/2 * ln(2π) - n/2 * ln(σ²) - sum(residuals²)/(2σ²)
+    # For MLE of σ², σ² = MSE, so:
+    # ln(L̂) = -n/2 * ln(2π) - n/2 * ln(MSE) - n/2
+    mse = np.mean(np.square(vector))
+    log_likelihood = -n / 2 * np.log(2 * np.pi) - n / 2 * np.log(mse) - n / 2
+    
+    return k * np.log(n) - 2 * log_likelihood
+
+
 class FitnessFunction(metaclass=ABCMeta):
     """Fitness evaluation metric for individuals.
 
@@ -96,7 +120,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error'/'mae', 'mean squared error'/'mse',
-        'root mean squared error'/'rmse', and "negative nmll laplace"
+        'root mean squared error'/'rmse', "negative nmll laplace", and "bic"
     """
 
     def __init__(self, training_data=None, metric="mae"):
@@ -110,6 +134,8 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
             self._metric = root_mean_squared_error
         elif metric in ["negative nmll laplace"]:
             self._metric = negative_nmll_laplace
+        elif metric in ["bic"]:
+            self._metric = bic
         else:
             raise ValueError("Invalid metric for Fitness Function")
 

@@ -93,12 +93,13 @@ def test_fitness_function_has_eval_count_and_data(
         ("rmse", np.sqrt(2.0)),
         ("root mean squared error", np.sqrt(2.0)),
         ("negative nmll laplace", 6.0868339),
+        ("bic", 22.483434972148757),  # Correct BIC value for test case
     ],
 )
 def test_vector_based_function_metrics(
     engine, mocker, vector_based_function, metric, expected_fit, dummy_individual
 ):
-    if engine == "Cpp" and metric == "negative nmll laplace":
+    if engine == "Cpp" and metric in ["negative nmll laplace", "bic"]:
         pytest.skip("Functionality not yet implemented in c++")
 
     if engine == "Python":
@@ -140,12 +141,13 @@ def test_vector_based_function_invalid_metric(engine, mocker, vector_based_funct
         "mean squared error",
         "root mean squared error",
         "negative nmll laplace",
+        "bic",
     ],
 )
 def test_vector_based_function_with_nan(
     engine, mocker, vector_based_function, agraph, metric, dummy_individual
 ):
-    if engine == "Cpp" and metric == "negative nmll laplace":
+    if engine == "Cpp" and metric in ["negative nmll laplace", "bic"]:
         pytest.skip("Functionality not yet implemented in c++")
 
     if engine == "Python":

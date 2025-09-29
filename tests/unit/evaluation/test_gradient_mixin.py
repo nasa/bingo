@@ -155,6 +155,11 @@ def vector_gradient_fitness_function(vector_gradient_mixin, vector_based_functio
             2.695615869087813,
             [-0.475481, 0.23774],
         ),
+        (
+            "bic",
+            14.751955824267544,  # Correct BIC value for test case
+            [-1.5, 3.0],  # Correct BIC gradient
+        ),
     ],
 )
 def test_vector_gradient(
@@ -165,7 +170,7 @@ def test_vector_gradient(
     expected_fit_grad,
     engine,
 ):
-    if engine == "Cpp" and metric == "negative nmll laplace":
+    if engine == "Cpp" and metric in ["negative nmll laplace", "bic"]:
         pytest.skip("Functionality not yet implemented in c++")
 
     vector_function = vector_gradient_fitness_function(metric)

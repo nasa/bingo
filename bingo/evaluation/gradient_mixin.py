@@ -13,6 +13,7 @@ from .fitness_function import (
     mean_squared_error,
     root_mean_squared_error,
     negative_nmll_laplace,
+    bic,
 )
 
 
@@ -57,7 +58,7 @@ class VectorGradientMixin(GradientMixin):
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error',
-        'root mean squared error', and "negative nmll laplace"
+        'root mean squared error', "negative nmll laplace", and "bic"
     """
 
     def __init__(self, training_data=None, metric="mae"):
@@ -81,6 +82,9 @@ class VectorGradientMixin(GradientMixin):
             self._metric_derivative = (
                 VectorGradientMixin._negative_nmll_laplace_derivative
             )
+        elif metric in ["bic"]:
+            self._metric = bic
+            self._metric_derivative = VectorGradientMixin._bic_derivative
         else:
             raise ValueError("Invalid metric for vector gradient mixin")
 
@@ -160,3 +164,26 @@ class VectorGradientMixin(GradientMixin):
         dll = -0.5 * n / dmse
         dnmll = (1 - b) * dll
         return -dnmll
+
+    @staticmethod
+    def _bic_derivative(fitness_vector, fitness_partials):
+        """Calculate the derivative of BIC with respect to the fitness vector
+        
+        BIC = k * ln(n) - 2 * ln(L̂)
+        
+        The derivative with respect to parameters through the fitness vector is:
+        d(BIC)/d(params) = -2 * d(ln(L̂))/d(params)
+        
+        For Gaussian likelihood:
+        ln(L̂) = -n/2 * ln(2π) - n/2 * ln(MSE) - n/2
+        d(ln(L̂))/d(MSE) = -n/(2*MSE)
+        d(MSE)/d(params) = 2 * mean(fitness_vector * fitness_partials)
+        
+        Therefore:
+        d(BIC)/d(params) = -2 * (-n/(2*MSE)) * d(MSE)/d(params)
+                          = n/MSE * d(MSE)/d(params)
+        """
+        n = len(fitness_vector)
+        mse = np.mean(np.square(fitness_vector))
+        dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
+        return n / mse * dmse

@@ -13,6 +13,7 @@ from .fitness_function import (
     mean_squared_error,
     root_mean_squared_error,
     negative_nmll_laplace,
+    bic,
 )
 
 
@@ -57,7 +58,7 @@ class VectorGradientMixin(GradientMixin):
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error',
-        'root mean squared error', and "negative nmll laplace"
+        'root mean squared error', "negative nmll laplace", and "bic"
     """
 
     def __init__(self, training_data=None, metric="mae"):
@@ -81,6 +82,9 @@ class VectorGradientMixin(GradientMixin):
             self._metric_derivative = (
                 VectorGradientMixin._negative_nmll_laplace_derivative
             )
+        elif metric in ["bic"]:
+            self._metric = bic
+            self._metric_derivative = VectorGradientMixin._bic_derivative
         else:
             raise ValueError("Invalid metric for vector gradient mixin")
 
@@ -157,6 +161,14 @@ class VectorGradientMixin(GradientMixin):
         n = len(fitness_vector)
         b = 1 / np.sqrt(n)
         dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
-        dll = -0.5 * n / dmse
+        mse = np.mean(np.square(fitness_vector))
+        dll = -0.5 * n / mse * dmse
         dnmll = (1 - b) * dll
         return -dnmll
+
+    @staticmethod
+    def _bic_derivative(fitness_vector, fitness_partials):
+        n = len(fitness_vector)
+        mse = np.mean(np.square(fitness_vector))
+        dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
+        return n / mse * dmse

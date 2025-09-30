@@ -28,7 +28,26 @@ def mean_squared_error(vector, individual=None):  # pylint: disable=unused-argum
 
 
 def negative_nmll_laplace(vector, individual):
-    """Calculate the nmll of an error vector"""
+    """Calculate the negative normalized marginal log likelihood (NMLL) of an error vector
+    
+    The normalized marginal log likelihood is a Bayesian model selection criterion
+    that balances model fit with complexity. It approximates the marginal likelihood
+    by integrating over the posterior distribution of model parameters using a
+    Laplace approximation.
+    
+    The NMLL is calculated as:
+    NMLL = - k * ln(b)/2 - (1 - b) * ln(L̂)
+    
+    where:
+    - b = 1/sqrt(n) is a normalization factor
+    - L̂ = maximized value of the likelihood function
+    - k = number of model parameters estimated by the model
+    - n = number of data points
+    
+    This metric penalizes model complexity more heavily than BIC for small sample
+    sizes and provides a probabilistic framework for model comparison. Lower values
+    indicate better models.
+    """
     n = len(vector)
     k = individual.get_number_local_optimization_params() + 1
     b = 1 / np.sqrt(n)
@@ -36,6 +55,23 @@ def negative_nmll_laplace(vector, individual):
     log_like = -n / 2 * np.log(mse) - n / 2 - n / 2 * np.log(2 * np.pi)
     nmll_laplace = (1 - b) * log_like + np.log(b) / 2 * k
     return -nmll_laplace
+
+
+def bic(vector, individual):
+    """Calculate the Bayesian Information Criterion (BIC) of an error vector
+    
+    BIC = k * ln(n) - 2 * ln(L̂)
+    
+    where:
+    - k = number of parameters estimated by the model
+    - n = number of data points
+    - L̂ = maximized value of the likelihood function
+    """
+    n = len(vector)
+    k = individual.get_number_local_optimization_params() + 1
+    mse = np.mean(np.square(vector))
+    log_likelihood = - n / 2 * np.log(mse) - n / 2 - n / 2 * np.log(2 * np.pi)
+    return k * np.log(n) - 2 * log_likelihood
 
 
 class FitnessFunction(metaclass=ABCMeta):
@@ -96,7 +132,7 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error'/'mae', 'mean squared error'/'mse',
-        'root mean squared error'/'rmse', and "negative nmll laplace"
+        'root mean squared error'/'rmse', "negative nmll laplace", and "bic"
     """
 
     def __init__(self, training_data=None, metric="mae"):
@@ -110,6 +146,8 @@ class VectorBasedFunction(FitnessFunction, metaclass=ABCMeta):
             self._metric = root_mean_squared_error
         elif metric in ["negative nmll laplace"]:
             self._metric = negative_nmll_laplace
+        elif metric in ["bic"]:
+            self._metric = bic
         else:
             raise ValueError("Invalid metric for Fitness Function")
 

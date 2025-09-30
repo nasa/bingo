@@ -6,3 +6,4 @@
 .pytest_cache/
 docs/build/
 docs/source/_autosummary
+*.egg-info/

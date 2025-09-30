@@ -35,7 +35,7 @@ class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error', 'root mean squared error',
-        and "negative nmll laplace"
+        "negative nmll laplace", and "bic"
     relative : bool
         Whether to use relative, pointwise normalization of errors. Default:
         False.

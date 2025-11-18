@@ -7,10 +7,30 @@ book [1].
 ... [1] Joel S. Cohen (2003) Computer Algebra and Symbolic Computation
 """
 
-from ..operator_definitions import CONSTANT, INTEGER, VARIABLE, POWER, \
-                                   MULTIPLICATION, ADDITION, SUBTRACTION, \
-                                   DIVISION, SIN, COS, LOGARITHM, EXPONENTIAL, \
-                                   ABS, SQRT, SAFE_POWER, SINH, COSH
+from ..operator_definitions import (
+    CONSTANT,
+    INTEGER,
+    VARIABLE,
+    POWER,
+    MULTIPLICATION,
+    ADDITION,
+    SUBTRACTION,
+    DIVISION,
+    SIN,
+    COS,
+    TAN,
+    LOGARITHM,
+    EXPONENTIAL,
+    ABS,
+    SQRT,
+    SAFE_POWER,
+    SINH,
+    COSH,
+    TANH,
+    ARCCOS,
+    ARCSIN,
+    ARCTAN,
+)
 from .expression import Expression
 
 
@@ -36,8 +56,7 @@ def automatic_simplify(expression):
 
     expr_w_simp_operands = expression.map(automatic_simplify)
 
-    return SIMPLIFICATION_FUNCTIONS[expr_w_simp_operands.operator](
-            expr_w_simp_operands)
+    return SIMPLIFICATION_FUNCTIONS[expr_w_simp_operands.operator](expr_w_simp_operands)
 
 
 def simplify_power(expression):
@@ -45,8 +64,7 @@ def simplify_power(expression):
     base, exponent = expression.operands
     if base.is_one():
         return ONE.copy()
-    if base.is_zero() and exponent.operator == INTEGER \
-            and exponent.operands[0] > 0:
+    if base.is_zero() and exponent.operator == INTEGER and exponent.operands[0] > 0:
         return ZERO.copy()
     if exponent.operator in [INTEGER, CONSTANT]:
         return _simplify_constant_power(base, exponent)
@@ -59,9 +77,12 @@ def _simplify_constant_power(base, exponent):
     if exponent.is_zero():
         return ONE.copy()
 
-    if base.operator == INTEGER and exponent.operator == INTEGER \
-            and exponent.operands[0] > 0:
-        return Expression(INTEGER, [base.operands[0]**exponent.operands[0]])
+    if (
+        base.operator == INTEGER
+        and exponent.operator == INTEGER
+        and exponent.operands[0] > 0
+    ):
+        return Expression(INTEGER, [base.operands[0] ** exponent.operands[0]])
 
     if base.operator == POWER:  # multiply constant powers
         base_base = base.operands[0]
@@ -73,9 +94,11 @@ def _simplify_constant_power(base, exponent):
         return Expression(POWER, [base_base, new_exponent])
 
     if base.operator == MULTIPLICATION:  # distribute constant powers
+
         def temp_simp_const_power(bas):
             exp = exponent.copy()
             return _simplify_constant_power(bas, exp)
+
         return simplify_product(base.map(temp_simp_const_power))
 
     return Expression(POWER, [base, exponent])
@@ -114,8 +137,7 @@ def _simplify_product_rec(operands):
                 return [op_1]
 
             if op_1.base == op_2.base:
-                new_exponent = Expression(ADDITION,
-                                          [op_1.exponent, op_2.exponent])
+                new_exponent = Expression(ADDITION, [op_1.exponent, op_2.exponent])
                 new_exponent = simplify_sum(new_exponent)
                 combined_op = Expression(POWER, [op_1.base, new_exponent])
                 combined_op = simplify_power(combined_op)
@@ -155,11 +177,9 @@ def _merge_products(operands_1, operands_2):
     if len(simplified_firsts) == 0:
         return _merge_products(operands_1[1:], operands_2[1:])
     if len(simplified_firsts) == 1:
-        return simplified_firsts + _merge_products(operands_1[1:],
-                                                   operands_2[1:])
+        return simplified_firsts + _merge_products(operands_1[1:], operands_2[1:])
     if simplified_firsts[0] == operands_1[0]:
-        return [simplified_firsts[0]] + _merge_products(operands_1[1:],
-                                                        operands_2)
+        return [simplified_firsts[0]] + _merge_products(operands_1[1:], operands_2)
     return [simplified_firsts[0]] + _merge_products(operands_1, operands_2[1:])
 
 
@@ -194,12 +214,11 @@ def _simplify_sum_rec(operands):
                 return [op_1]
 
             if op_1.term == op_2.term:
-                new_coefficient = Expression(ADDITION,
-                                             [op_1.coefficient,
-                                              op_2.coefficient])
+                new_coefficient = Expression(
+                    ADDITION, [op_1.coefficient, op_2.coefficient]
+                )
                 new_coefficient = simplify_sum(new_coefficient)
-                combined_op = Expression(MULTIPLICATION,
-                                         [new_coefficient, op_1.term])
+                combined_op = Expression(MULTIPLICATION, [new_coefficient, op_1.term])
                 combined_op = simplify_product(combined_op)
 
                 if combined_op.is_zero():
@@ -248,8 +267,7 @@ def simplify_quotient(expression):
     numerator, denominator = expression.operands
     denominator_inv = Expression(POWER, [denominator, NEGATIVE_ONE.copy()])
     denominator_inv = simplify_power(denominator_inv)
-    quotient_as_product = Expression(MULTIPLICATION,
-                                     [numerator, denominator_inv])
+    quotient_as_product = Expression(MULTIPLICATION, [numerator, denominator_inv])
     return simplify_product(quotient_as_product)
 
 
@@ -259,12 +277,12 @@ def simplify_difference(expression):
     new_operands = [first]
     if second.operator == ADDITION:
         for operand in second.operands:
-            negative_operand = Expression(MULTIPLICATION,
-                                          [NEGATIVE_ONE.copy(), operand])
+            negative_operand = Expression(
+                MULTIPLICATION, [NEGATIVE_ONE.copy(), operand]
+            )
             new_operands.append(simplify_product(negative_operand))
     else:
-        negative_second = Expression(MULTIPLICATION,
-                                     [NEGATIVE_ONE.copy(), second])
+        negative_second = Expression(MULTIPLICATION, [NEGATIVE_ONE.copy(), second])
         new_operands.append(simplify_product(negative_second))
     difference_as_sum = Expression(ADDITION, new_operands)
     return simplify_sum(difference_as_sum)
@@ -272,15 +290,31 @@ def simplify_difference(expression):
 
 def simplify_sin(expression):
     """simplification of sin operators"""
-    if expression.operands[0].is_zero():
+    operand = expression.operands[0]
+    if operand.is_zero():
         return ZERO.copy()
+    if operand.operator == ARCSIN:
+        return operand.operands[0]
     return expression
 
 
 def simplify_cos(expression):
     """simplification of cos operators"""
-    if expression.operands[0].is_zero():
+    operand = expression.operands[0]
+    if operand.is_zero():
         return ONE.copy()
+    if operand.operator == ARCCOS:
+        return operand.operands[0]
+    return expression
+
+
+def simplify_tan(expression):
+    """simplification of tan operators"""
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO.copy()
+    if operand.operator == ARCTAN:
+        return operand.operands[0]
     return expression
 
 
@@ -315,6 +349,34 @@ def simplify_cosh(expression):
     return expression
 
 
+def simplify_tanh(expression):
+    """simplification of hyperbolic tan operators"""
+    if expression.operands[0].is_zero():
+        return ZERO.copy()
+    return expression
+
+
+def simplify_asin(expression):
+    """simplification of inverse sin operators"""
+    if expression.operands[0].is_zero():
+        return ZERO.copy()
+    return expression
+
+
+def simplify_acos(expression):
+    """simplification of inverse cos operators"""
+    if expression.operands[0].is_one():
+        return ZERO.copy()
+    return expression
+
+
+def simplify_atan(expression):
+    """simplification of inverse tan operators"""
+    if expression.operands[0].is_zero():
+        return ZERO.copy()
+    return expression
+
+
 def no_simplification(expression):
     """no simplification performed"""
     return expression
@@ -328,11 +390,16 @@ SIMPLIFICATION_FUNCTIONS = {
     SUBTRACTION: simplify_difference,
     SIN: simplify_sin,
     COS: simplify_cos,
+    TAN: simplify_tan,
     LOGARITHM: simplify_logarithm,
     EXPONENTIAL: simplify_exponential,
     ABS: no_simplification,
     SQRT: no_simplification,
     SAFE_POWER: simplify_power,
     SINH: simplify_sinh,
-    COSH: simplify_cosh
+    COSH: simplify_cosh,
+    TANH: simplify_tanh,
+    ARCSIN: simplify_asin,
+    ARCCOS: simplify_acos,
+    ARCTAN: simplify_atan,
 }

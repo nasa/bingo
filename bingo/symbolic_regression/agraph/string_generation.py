@@ -10,71 +10,120 @@ SYMPY_PRINT_MAP : dict {int: str}
 CONSOLE_PRINT_MAP : dict {int: str}
                   A map of node number to a format string for console output
 """
-from bingo.symbolic_regression.agraph.operator_definitions \
-    import INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION, MULTIPLICATION, \
-           DIVISION, SIN, COS, SINH, COSH, EXPONENTIAL, LOGARITHM, POWER, ABS, \
-           SQRT, SAFE_POWER
 
-STACK_PRINT_MAP = {ADDITION: "({}) + ({})",
-                   SUBTRACTION: "({}) - ({})",
-                   MULTIPLICATION: "({}) * ({})",
-                   DIVISION: "({}) / ({})",
-                   SIN: "sin ({})",
-                   COS: "cos ({})",
-                   SINH: "sinh ({})",
-                   COSH: "cosh ({})",
-                   EXPONENTIAL: "exp ({})",
-                   LOGARITHM: "log ({})",
-                   POWER: "({}) ^ ({})",
-                   ABS: "abs ({})",
-                   SQRT: "sqrt ({})",
-                   SAFE_POWER: "(|{}|) ^ ({})"}
-LATEX_PRINT_MAP = {ADDITION: "{} + {}",
-                   SUBTRACTION: "{} - ({})",
-                   MULTIPLICATION: "({})({})",
-                   DIVISION: "\\frac{{ {} }}{{ {} }}",
-                   SIN: "sin{{ {} }}",
-                   COS: "cos{{ {} }}",
-                   SINH: "sinh{{ {} }}",
-                   COSH: "cosh{{ {} }}",
-                   EXPONENTIAL: "exp{{ {} }}",
-                   LOGARITHM: "log{{ {} }}",
-                   POWER: "({})^{{ ({}) }}",
-                   ABS: "|{}|",
-                   SQRT: "\\sqrt{{ {} }}",
-                   SAFE_POWER: "(|{}|)^{{ ({}) }}"}
-SYMPY_PRINT_MAP = {ADDITION: "{} + {}",
-                   SUBTRACTION: "{} - ({})",
-                   MULTIPLICATION: "({})*({})",
-                   DIVISION: "({})/({})",
-                   SIN: "sin({})",
-                   COS: "cos({})",
-                   SINH: "sinh({})",
-                   COSH: "cosh({})",
-                   EXPONENTIAL: "exp({})",
-                   LOGARITHM: "log({})",
-                   POWER: "({})**({})",
-                   ABS: "abs({})",
-                   SQRT: "sqrt({})",
-                   SAFE_POWER: "abs({})**({})"}
-CONSOLE_PRINT_MAP = {ADDITION: "{} + {}",
-                     SUBTRACTION: "{} - ({})",
-                     MULTIPLICATION: "({})({})",
-                     DIVISION: "({})/({})",
-                     SIN: "sin({})",
-                     COS: "cos({})",
-                     SINH: "sinh({})",
-                     COSH: "cosh({})",
-                     EXPONENTIAL: "exp({})",
-                     LOGARITHM: "log({})",
-                     POWER: "({})^({})",
-                     ABS: "|{}|",
-                     SQRT: "sqrt({})",
-                     SAFE_POWER: "(|{}|)^({})"}
+from bingo.symbolic_regression.agraph.operator_definitions import (
+    INTEGER,
+    VARIABLE,
+    CONSTANT,
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    SIN,
+    COS,
+    TAN,
+    SINH,
+    COSH,
+    TANH,
+    EXPONENTIAL,
+    LOGARITHM,
+    POWER,
+    ABS,
+    SQRT,
+    SAFE_POWER,
+    ARCSIN,
+    ARCCOS,
+    ARCTAN,
+)
+
+STACK_PRINT_MAP = {
+    ADDITION: "({}) + ({})",
+    SUBTRACTION: "({}) - ({})",
+    MULTIPLICATION: "({}) * ({})",
+    DIVISION: "({}) / ({})",
+    SIN: "sin ({})",
+    COS: "cos ({})",
+    TAN: "tan ({})",
+    SINH: "sinh ({})",
+    COSH: "cosh ({})",
+    TANH: "tanh ({})",
+    EXPONENTIAL: "exp ({})",
+    LOGARITHM: "log ({})",
+    POWER: "({}) ^ ({})",
+    ABS: "abs ({})",
+    SQRT: "sqrt ({})",
+    SAFE_POWER: "(|{}|) ^ ({})",
+    ARCSIN: "asin ({})",
+    ARCCOS: "acos ({})",
+    ARCTAN: "atan ({})",
+}
+LATEX_PRINT_MAP = {
+    ADDITION: "{} + {}",
+    SUBTRACTION: "{} - ({})",
+    MULTIPLICATION: "({})({})",
+    DIVISION: "\\frac{{ {} }}{{ {} }}",
+    SIN: "sin{{ {} }}",
+    COS: "cos{{ {} }}",
+    TAN: "tan {{ {} }}",
+    SINH: "sinh{{ {} }}",
+    COSH: "cosh{{ {} }}",
+    TANH: "tanh {{ {} }}",
+    EXPONENTIAL: "exp{{ {} }}",
+    LOGARITHM: "log{{ {} }}",
+    POWER: "({})^{{ ({}) }}",
+    ABS: "|{}|",
+    SQRT: "\\sqrt{{ {} }}",
+    SAFE_POWER: "(|{}|)^{{ ({}) }}",
+    ARCSIN: "asin {{ {} }}",
+    ARCCOS: "acos {{ {} }}",
+    ARCTAN: "atan {{ {} }}",
+}
+SYMPY_PRINT_MAP = {
+    ADDITION: "{} + {}",
+    SUBTRACTION: "{} - ({})",
+    MULTIPLICATION: "({})*({})",
+    DIVISION: "({})/({})",
+    SIN: "sin({})",
+    COS: "cos({})",
+    TAN: "tan({})",
+    SINH: "sinh({})",
+    COSH: "cosh({})",
+    TANH: "tanh({})",
+    EXPONENTIAL: "exp({})",
+    LOGARITHM: "log({})",
+    POWER: "({})**({})",
+    ABS: "abs({})",
+    SQRT: "sqrt({})",
+    SAFE_POWER: "abs({})**({})",
+    ARCSIN: "asin({})",
+    ARCCOS: "acos({})",
+    ARCTAN: "atan({})",
+}
+CONSOLE_PRINT_MAP = {
+    ADDITION: "{} + {}",
+    SUBTRACTION: "{} - ({})",
+    MULTIPLICATION: "({})({})",
+    DIVISION: "({})/({})",
+    SIN: "sin({})",
+    COS: "cos({})",
+    TAN: "tan({})",
+    SINH: "sinh({})",
+    COSH: "cosh({})",
+    TANH: "tanh({})",
+    EXPONENTIAL: "exp({})",
+    LOGARITHM: "log({})",
+    POWER: "({})^({})",
+    ABS: "|{}|",
+    SQRT: "sqrt({})",
+    SAFE_POWER: "(|{}|)^({})",
+    ARCSIN: "asin({})",
+    ARCCOS: "acos({})",
+    ARCTAN: "atan({})",
+}
 
 
 def get_formatted_string(eq_format, command_array, constants):
-    """ Builds a formatted string from command array and constants
+    """Builds a formatted string from command array and constants
 
     Parameters
     ----------
@@ -101,8 +150,9 @@ def get_formatted_string(eq_format, command_array, constants):
         format_dict = CONSOLE_PRINT_MAP
     str_list = []
     for stack_element in command_array:
-        tmp_str = _get_formatted_element_string(stack_element, str_list,
-                                                format_dict, constants)
+        tmp_str = _get_formatted_element_string(
+            stack_element, str_list, format_dict, constants
+        )
         str_list.append(tmp_str)
     return str_list[-1]
 
@@ -133,8 +183,7 @@ def _get_stack_element_string(command_index, stack_element, constants):
     return tmp_str
 
 
-def _get_formatted_element_string(stack_element, str_list,
-                                  format_dict, constants):
+def _get_formatted_element_string(stack_element, str_list, format_dict, constants):
     node, param1, param2 = stack_element
     if node == VARIABLE:
         tmp_str = f"X_{param1}"

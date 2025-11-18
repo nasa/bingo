@@ -23,6 +23,7 @@ from .operator_definitions import (
     DIVISION,
     SIN,
     COS,
+    TAN,
     EXPONENTIAL,
     LOGARITHM,
     POWER,
@@ -31,6 +32,10 @@ from .operator_definitions import (
     SAFE_POWER,
     SINH,
     COSH,
+    TANH,
+    ARCSIN,
+    ARCCOS,
+    ARCTAN,
     IS_ARITY_2_MAP,
 )
 
@@ -41,6 +46,7 @@ ONNX_FUNCTIONS = {
     DIVISION: "Div",
     SIN: "Sin",
     COS: "Cos",
+    TAN: "Tan",
     EXPONENTIAL: "Exp",
     LOGARITHM: "Log",
     POWER: "Pow",
@@ -49,6 +55,10 @@ ONNX_FUNCTIONS = {
     SAFE_POWER: "Pow",
     SINH: "Sinh",
     COSH: "Cosh",
+    TANH: "Tanh",
+    ARCSIN: "Asin",
+    ARCCOS: "Acos",
+    ARCTAN: "Atan",
 }
 
 ABS_SAFETY = set([LOGARITHM, SQRT, SAFE_POWER])

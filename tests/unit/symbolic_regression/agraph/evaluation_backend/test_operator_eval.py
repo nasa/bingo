@@ -5,22 +5,52 @@ import numpy as np
 import pytest
 
 from bingo.symbolic_regression.agraph.operator_definitions import *
-from bingo.symbolic_regression.agraph.evaluation_backend \
-    import evaluation_backend as py_eval_backend
+from bingo.symbolic_regression.agraph.evaluation_backend import (
+    evaluation_backend as py_eval_backend,
+)
 
 try:
     from bingocpp import evaluation_backend as cpp_eval_backend
 except ImportError:
     cpp_eval_backend = None
 
-CPP_PARAM = pytest.param("Cpp",
-                         marks=pytest.mark.skipif(not cpp_eval_backend,
-                                                  reason='BingoCpp import '
-                                                         'failure'))
+CPP_PARAM = pytest.param(
+    "Cpp",
+    marks=pytest.mark.skipif(not cpp_eval_backend, reason="BingoCpp import " "failure"),
+)
 
-OPERATOR_LIST = [INTEGER, VARIABLE, CONSTANT, ADDITION, SUBTRACTION,
-                 MULTIPLICATION, DIVISION, SIN, COS, EXPONENTIAL, LOGARITHM,
-                 POWER, ABS, SQRT, SAFE_POWER, SINH, COSH]
+OPERATOR_LIST = [
+    INTEGER,
+    VARIABLE,
+    CONSTANT,
+    ADDITION,
+    SUBTRACTION,
+    MULTIPLICATION,
+    DIVISION,
+    SIN,
+    COS,
+    TAN,
+    EXPONENTIAL,
+    LOGARITHM,
+    POWER,
+    ABS,
+    SQRT,
+    SAFE_POWER,
+    SINH,
+    COSH,
+    TANH,
+    ARCSIN,
+    ARCCOS,
+    ARCTAN,
+]
+
+CPP_SKIP_OPERATORS = [
+    TAN,
+    TANH,
+    ARCSIN,
+    ARCCOS,
+    ARCTAN,
+]
 
 
 @pytest.fixture(params=["Python", CPP_PARAM])
@@ -37,12 +67,7 @@ def eval_backend(engine):
 
 @pytest.fixture
 def sample_x():
-    return np.array([[-2, 1.5],
-                     [-1, 0.5],
-                     [-0.5, 0],
-                     [0, 0],
-                     [0, -1],
-                     [0.25, -2]])
+    return np.array([[-2, 1.5], [-1, 0.5], [-0.5, 0], [0, 0], [0, -1], [0.25, -2]])
 
 
 @pytest.fixture
@@ -93,6 +118,8 @@ def _function_evaluations(function, a, b):
         return np.sin(a)
     if function == COS:
         return np.cos(a)
+    if function == TAN:
+        return np.tan(a)
     if function == EXPONENTIAL:
         return np.exp(a)
     if function == LOGARITHM:
@@ -109,6 +136,14 @@ def _function_evaluations(function, a, b):
         return np.sinh(a)
     if function == COSH:
         return np.cosh(a)
+    if function == TANH:
+        return np.tanh(a)
+    if function == ARCSIN:
+        return np.arcsin(a)
+    if function == ARCCOS:
+        return np.arccos(a)
+    if function == ARCTAN:
+        return np.arctan(a)
     raise NotImplementedError("No test for operator: %d" % function)
 
 
@@ -116,6 +151,7 @@ def _function_derivatives(function, a, b, da, db):
     # returns: df(a,b)/da, df(a,b)/db
     # or if the function takes only a single parameter: df(a)/da, 0
     zero = np.zeros_like(b)
+    one = np.ones_like(b)
     if function == ADDITION:
         return da, db
     if function == SUBTRACTION:
@@ -125,125 +161,148 @@ def _function_derivatives(function, a, b, da, db):
     if function == DIVISION:
         return da / b, -a * db / b**2
     if function == SIN:
-        return da*np.cos(a), zero
+        return da * np.cos(a), zero
     if function == COS:
-        return -da*np.sin(a), zero
+        return -da * np.sin(a), zero
+    if function == TAN:
+        return da / (np.cos(a) ** 2), zero
     if function == EXPONENTIAL:
-        return da*np.exp(a), zero
+        return da * np.exp(a), zero
     if function == LOGARITHM:
         return da / a, zero
     if function == POWER:
-        return np.power(a, b) * da * b / a, \
-               np.power(a, b) * db * np.log(a)
+        return np.power(a, b) * da * b / a, np.power(a, b) * db * np.log(a)
     if function == SAFE_POWER:
-        return np.power(np.abs(a), b) * da * b / a, \
-               np.power(np.abs(a), b) * db * np.log(np.abs(a))
+        return np.power(np.abs(a), b) * da * b / a, np.power(
+            np.abs(a), b
+        ) * db * np.log(np.abs(a))
     if function == ABS:
         return da * np.sign(a), zero
     if function == SQRT:
         return da * np.sign(a) * 0.5 / np.sqrt(np.abs(a)), zero
     if function == SINH:
-        return da*np.cosh(a), zero
+        return da * np.cosh(a), zero
     if function == COSH:
-        return da*np.sinh(a), zero
+        return da * np.sinh(a), zero
+    if function == TANH:
+        return da / (np.cosh(a) ** 2), zero
+    if function == ARCSIN:
+        return da / np.sqrt(one - a**2), zero
+    if function == ARCCOS:
+        return -da / np.sqrt(one - a**2), zero
+    if function == ARCTAN:
+        return da / (one + a**2), zero
     raise NotImplementedError("No test for operator: %d" % function)
 
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
-def test_operator_evaluate(eval_backend, sample_x, sample_constants, operator):
+def test_operator_evaluate(engine, eval_backend, sample_x, sample_constants, operator):
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
+        pytest.skip("These operators are not yet implemented in the CPP backend")
+
     if IS_TERMINAL_MAP[operator]:
-        expected_outcome = _terminal_evaluations(operator, sample_x,
-                                                 sample_constants)
+        expected_outcome = _terminal_evaluations(operator, sample_x, sample_constants)
     else:
         x_0 = sample_x[:, 0].reshape((-1, 1))
         x_1 = sample_x[:, 1].reshape((-1, 1))
         expected_outcome = _function_evaluations(operator, x_0, x_1)
 
-    stack = np.array([[VARIABLE, 0, 0],
-                      [VARIABLE, 1, 1],
-                      [operator, 0, 1]])
+    stack = np.array([[VARIABLE, 0, 0], [VARIABLE, 1, 1], [operator, 0, 1]])
     f_of_x = eval_backend.evaluate(stack, sample_x, sample_constants)
     np.testing.assert_allclose(expected_outcome, f_of_x)
 
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
-def test_operator_derivative_x0x1(eval_backend, sample_x, sample_constants,
-                                  operator):
+def test_operator_derivative_x0x1(
+    engine, eval_backend, sample_x, sample_constants, operator
+):
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
+        pytest.skip("These operators are not yet implemented in the CPP backend")
+
     expected_outcome = np.zeros_like(sample_x)
     if IS_TERMINAL_MAP[operator]:
-        deriv = _terminal_derivatives(operator, deriv_wrt=VARIABLE,
-                                      shape=sample_x.shape[0])
+        deriv = _terminal_derivatives(
+            operator, deriv_wrt=VARIABLE, shape=sample_x.shape[0]
+        )
         expected_outcome[:, 0] = deriv
     else:
         x_0 = sample_x[:, 0]
         x_1 = sample_x[:, 1]
         dx_0 = np.ones_like(x_0)
         dx_1 = np.ones_like(x_1)
-        deriv_0, deriv_1 = _function_derivatives(operator, x_0, x_1,
-                                                 dx_0, dx_1)
+        deriv_0, deriv_1 = _function_derivatives(operator, x_0, x_1, dx_0, dx_1)
         expected_outcome[:, 0] = deriv_0
         expected_outcome[:, 1] = deriv_1
 
-    stack = np.array([[VARIABLE, 0, 0],
-                      [VARIABLE, 1, 1],
-                      [operator, 0, 1]])
-    _, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants, True)
+    stack = np.array([[VARIABLE, 0, 0], [VARIABLE, 1, 1], [operator, 0, 1]])
+    _, df_dx = eval_backend.evaluate_with_derivative(
+        stack, sample_x, sample_constants, True
+    )
     np.testing.assert_allclose(expected_outcome, df_dx)
 
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
-def test_operator_derivative_x0x0(eval_backend, sample_x, sample_constants,
-                                  operator):
+def test_operator_derivative_x0x0(
+    engine, eval_backend, sample_x, sample_constants, operator
+):
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
+        pytest.skip("These operators are not yet implemented in the CPP backend")
+
     expected_outcome = np.zeros_like(sample_x)
     if IS_TERMINAL_MAP[operator]:
-        deriv = _terminal_derivatives(operator, deriv_wrt=VARIABLE,
-                                      shape=sample_x.shape[0])
+        deriv = _terminal_derivatives(
+            operator, deriv_wrt=VARIABLE, shape=sample_x.shape[0]
+        )
         expected_outcome[:, 0] = deriv
     else:
         x_0 = sample_x[:, 0]
         dx_0 = np.ones_like(x_0)
-        deriv_0, deriv_1 = _function_derivatives(operator, x_0, x_0,
-                                                 dx_0, dx_0)
+        deriv_0, deriv_1 = _function_derivatives(operator, x_0, x_0, dx_0, dx_0)
         expected_outcome[:, 0] = deriv_0 + deriv_1
 
-    stack = np.array([[VARIABLE, 0, 0],
-                      [VARIABLE, 1, 1],
-                      [operator, 0, 0]])
-    _, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants, True)
+    stack = np.array([[VARIABLE, 0, 0], [VARIABLE, 1, 1], [operator, 0, 0]])
+    _, df_dx = eval_backend.evaluate_with_derivative(
+        stack, sample_x, sample_constants, True
+    )
     np.testing.assert_allclose(expected_outcome, df_dx)
 
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
-def test_operator_derivative_c0c1(eval_backend, sample_x, sample_constants,
-                                  operator):
+def test_operator_derivative_c0c1(
+    engine, eval_backend, sample_x, sample_constants, operator
+):
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
+        pytest.skip("These operators are not yet implemented in the CPP backend")
+
     expected_outcome = np.zeros_like(sample_x)
     if IS_TERMINAL_MAP[operator]:
-        deriv = _terminal_derivatives(operator, deriv_wrt=CONSTANT,
-                                      shape=sample_x.shape[0])
+        deriv = _terminal_derivatives(
+            operator, deriv_wrt=CONSTANT, shape=sample_x.shape[0]
+        )
         expected_outcome[:, 0] = deriv
     else:
         c_0 = np.full(sample_x.shape[0], sample_constants[0], dtype=float)
         c_1 = np.full_like(c_0, sample_constants[1], dtype=float)
         dc_0 = np.ones_like(c_0)
         dc_1 = np.ones_like(c_0)
-        deriv_0, deriv_1 = _function_derivatives(operator, c_0, c_1,
-                                                 dc_0, dc_1)
+        deriv_0, deriv_1 = _function_derivatives(operator, c_0, c_1, dc_0, dc_1)
         expected_outcome[:, 0] = deriv_0
         expected_outcome[:, 1] = deriv_1
 
-    stack = np.array([[CONSTANT, 0, 0],
-                      [CONSTANT, 1, 1],
-                      [operator, 0, 1]])
-    _, df_dc = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants, False)
+    stack = np.array([[CONSTANT, 0, 0], [CONSTANT, 1, 1], [operator, 0, 1]])
+    _, df_dc = eval_backend.evaluate_with_derivative(
+        stack, sample_x, sample_constants, False
+    )
     np.testing.assert_allclose(expected_outcome, df_dc)
 
 
 @pytest.mark.parametrize("operator", OPERATOR_LIST)
-def test_operator_derivative_with_chain_rule(eval_backend, sample_x,
-                                             sample_constants, operator):
+def test_operator_derivative_with_chain_rule(
+    engine, eval_backend, sample_x, sample_constants, operator
+):
+    if engine == "Cpp" and operator in CPP_SKIP_OPERATORS:
+        pytest.skip("These operators are not yet implemented in the CPP backend")
+
     if IS_TERMINAL_MAP[operator]:
         return
 
@@ -252,18 +311,22 @@ def test_operator_derivative_with_chain_rule(eval_backend, sample_x,
     cx_1 = sample_constants[1] * sample_x[:, 1]
     dcx_0 = np.full_like(cx_0, sample_constants[0], dtype=float)
     dcx_1 = np.full_like(cx_1, sample_constants[1], dtype=float)
-    deriv_0, deriv_1 = _function_derivatives(operator, cx_0, cx_1,
-                                             dcx_0, dcx_1)
+    deriv_0, deriv_1 = _function_derivatives(operator, cx_0, cx_1, dcx_0, dcx_1)
     expected_outcome[:, 0] = deriv_0
     expected_outcome[:, 1] = deriv_1
 
-    stack = np.array([[CONSTANT, 0, 0],
-                      [CONSTANT, 1, 1],
-                      [VARIABLE, 0, 0],
-                      [VARIABLE, 1, 1],
-                      [MULTIPLICATION, 0, 2],
-                      [MULTIPLICATION, 3, 1],
-                      [operator, 4, 5]])
-    f, df_dx = eval_backend.evaluate_with_derivative(stack, sample_x,
-                                                     sample_constants, True)
+    stack = np.array(
+        [
+            [CONSTANT, 0, 0],
+            [CONSTANT, 1, 1],
+            [VARIABLE, 0, 0],
+            [VARIABLE, 1, 1],
+            [MULTIPLICATION, 0, 2],
+            [MULTIPLICATION, 3, 1],
+            [operator, 4, 5],
+        ]
+    )
+    f, df_dx = eval_backend.evaluate_with_derivative(
+        stack, sample_x, sample_constants, True
+    )
     np.testing.assert_allclose(expected_outcome, df_dx)

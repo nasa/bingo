@@ -28,7 +28,7 @@ from bingo.symbolic_regression.agraph.operator_definitions import (
 )
 
 operators = {"+", "-", "*", "/", "^"}
-functions = {"sin", "cos", "sinh", "cosh", "exp", "log", "abs", "sqrt"}
+functions = {"sin", "cos", "tan", "sinh", "cosh", "tanh", "exp", "log", "abs", "sqrt", "arcsin", "arccos", "arctan"}
 precedence = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
 operator_map = {
     "+": ADDITION,

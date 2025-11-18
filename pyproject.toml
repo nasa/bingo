@@ -21,7 +21,7 @@ readme = "README.md"
 license = {file = "LICENSE.txt"}
 dynamic = ["version"]
 dependencies = [
-    "mpi4py>=4.0",
+    "mpi4py==4.1.0",
     "numpy",
     "scipy",
     "dill",
@@ -44,7 +44,7 @@ Documentation = "https://nasa.github.io/bingo/"
 Repository = "https://github.com/nasa/bingo"
 
 [project.optional-dependencies]
-ONNX = ["onnx"]
+ONNX = ["onnx==1.19.0"]
 TESTS = [
     "pytest",
     "pytest-mock",

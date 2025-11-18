@@ -1,5 +1,5 @@
 # main
-mpi4py>=4.0
+mpi4py==4.1.0
 numpy>=1.14.3
 scipy>=1.6.2
 dill>=0.2.9
@@ -8,7 +8,7 @@ scikit-learn>=1.1
 smcpy>=0.1.4
 pybind11[global]
 # ONNX
-onnx
+onnx==1.19.0
 # TESTS
 pytest>=3.6
 pytest-mock>=1.10.0

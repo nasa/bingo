@@ -300,7 +300,7 @@ def test_tanh_simplification(zero, one):
 
 def test_sin_simplification(zero, one, two):
     sin_zero = Expression(
-        SINH,
+        SIN,
         [
             zero,
         ],
@@ -323,7 +323,7 @@ def test_sin_simplification(zero, one, two):
 
 def test_cos_simplification(zero, one, two):
     cos_zero = Expression(
-        COSH,
+        COS,
         [
             zero,
         ],
@@ -346,7 +346,7 @@ def test_cos_simplification(zero, one, two):
 
 def test_tan_simplification(zero, one, two):
     tan_zero = Expression(
-        TANH,
+        TAN,
         [
             zero,
         ],

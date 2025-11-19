@@ -530,7 +530,7 @@ of fitness (error) measures.</p>
 <li><p><strong>training_data</strong> (<a class="reference internal" href="#bingo.evaluation.training_data.TrainingData" title="bingo.evaluation.training_data.TrainingData"><em>TrainingData</em></a>) – data that is used in fitness evaluation.</p></li>
 <li><p><strong>metric</strong> (<em>str</em>) – String defining the measure of error to use. Available options are:
 ‘mean absolute error’/’mae’, ‘mean squared error’/’mse’,
-‘root mean squared error’/’rmse’, and “negative nmll laplace”</p></li>
+‘root mean squared error’/’rmse’, “negative nmll laplace”, and “bic”</p></li>
 </ul>
 </dd>
 </dl>
@@ -554,6 +554,17 @@ of fitness (error) measures.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="bingo.evaluation.fitness_function.bic">
+<span class="sig-prename descclassname"><span class="pre">bingo.evaluation.fitness_function.</span></span><span class="sig-name descname"><span class="pre">bic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evaluation.fitness_function.bic" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the Bayesian Information Criterion (BIC) of an error vector</p>
+<p>BIC = k * ln(n) - 2 * ln(L̂)</p>
+<p>where:
+- k = number of parameters estimated by the model
+- n = number of data points
+- L̂ = maximized value of the likelihood function</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bingo.evaluation.fitness_function.mean_absolute_error">
 <span class="sig-prename descclassname"><span class="pre">bingo.evaluation.fitness_function.</span></span><span class="sig-name descname"><span class="pre">mean_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evaluation.fitness_function.mean_absolute_error" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the mean absolute error of an error vector</p>
@@ -568,7 +579,21 @@ of fitness (error) measures.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bingo.evaluation.fitness_function.negative_nmll_laplace">
 <span class="sig-prename descclassname"><span class="pre">bingo.evaluation.fitness_function.</span></span><span class="sig-name descname"><span class="pre">negative_nmll_laplace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evaluation.fitness_function.negative_nmll_laplace" title="Link to this definition">#</a></dt>
-<dd><p>Calculate the nmll of an error vector</p>
+<dd><p>Calculate the negative normalized marginal log likelihood (NMLL) of an error vector</p>
+<p>The normalized marginal log likelihood is a Bayesian model selection criterion
+that balances model fit with complexity. It approximates the marginal likelihood
+by integrating over the posterior distribution of model parameters using a
+Laplace approximation.</p>
+<p>The NMLL is calculated as:
+NMLL = - k * ln(b)/2 - (1 - b) * ln(L̂)</p>
+<p>where:
+- b = 1/sqrt(n) is a normalization factor
+- L̂ = maximized value of the likelihood function
+- k = number of model parameters estimated by the model
+- n = number of data points</p>
+<p>This metric penalizes model complexity more heavily than BIC for small sample
+sizes and provides a probabilistic framework for model comparison. Lower values
+indicate better models.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -626,7 +651,7 @@ of vector based fitness functions.</p>
 <li><p><strong>training_data</strong> (<a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.explicit_regression.ExplicitTrainingData" title="bingo.symbolic_regression.explicit_regression.ExplicitTrainingData"><em>ExplicitTrainingData</em></a>) – data that is used in fitness evaluation (passed to parent).</p></li>
 <li><p><strong>metric</strong> (<em>str</em>) – String defining the measure of error to use. Available options are:
 ‘mean absolute error’, ‘mean squared error’,
-‘root mean squared error’, and “negative nmll laplace”</p></li>
+‘root mean squared error’, “negative nmll laplace”, and “bic”</p></li>
 </ul>
 </dd>
 </dl>
@@ -829,6 +854,7 @@ training data for bingo evolutionary analysis.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evaluation.fitness_function.VectorBasedFunction.evaluate_fitness_vector"><code class="docutils literal notranslate"><span class="pre">VectorBasedFunction.evaluate_fitness_vector()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evaluation.fitness_function.bic"><code class="docutils literal notranslate"><span class="pre">bic()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evaluation.fitness_function.mean_absolute_error"><code class="docutils literal notranslate"><span class="pre">mean_absolute_error()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evaluation.fitness_function.mean_squared_error"><code class="docutils literal notranslate"><span class="pre">mean_squared_error()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.evaluation.fitness_function.negative_nmll_laplace"><code class="docutils literal notranslate"><span class="pre">negative_nmll_laplace()</span></code></a></li>

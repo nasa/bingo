@@ -21,7 +21,7 @@ readme = "README.md"
 license = {file = "LICENSE.txt"}
 dynamic = ["version"]
 dependencies = [
-    "mpi4py==4.1.0",
+    "mpi4py>=4.0",
     "numpy",
     "scipy",
     "dill",

@@ -4,7 +4,7 @@ channels:
   - defaults
 dependencies:
   - dill
-  - mpi4py
+  - mpi4py=4.1.0
   - numpy
   - scikit-learn
   - scipy

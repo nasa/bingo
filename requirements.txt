@@ -1,5 +1,5 @@
 # main
-mpi4py>=4.0
+mpi4py==4.1.0
 numpy>=1.14.3
 scipy>=1.6.2
 dill>=0.2.9

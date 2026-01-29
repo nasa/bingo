@@ -40,7 +40,7 @@ def format_elapsed_time(seconds):
     Parameters
     ----------
     seconds : float
-        Time in seconds
+        Time in seconds (must be non-negative)
         
     Returns
     -------
@@ -48,7 +48,8 @@ def format_elapsed_time(seconds):
         Formatted time string with H:M:S format where:
         - H and M only visible when nonzero
         - S is floating point with 2 decimals
-        - S is 0-padded to 2 digits when M or H is nonzero
+        - When M or H is nonzero, S is formatted with a total width of 5 
+          characters (e.g., "03.65") providing 2-digit zero-padding
         - M is 0-padded to 2 digits when H is nonzero
         
     Examples
@@ -60,6 +61,9 @@ def format_elapsed_time(seconds):
     >>> format_elapsed_time(3661.25)
     '1:01:01.25'
     """
+    if seconds < 0:
+        raise ValueError("Time in seconds must be non-negative")
+    
     hours = int(seconds // 3600)
     remainder = seconds % 3600
     minutes = int(remainder // 60)

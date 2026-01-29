@@ -360,6 +360,7 @@ def test_format_elapsed_time_seconds_only():
     assert format_elapsed_time(5.5) == "5.50"
     assert format_elapsed_time(0.12) == "0.12"
     assert format_elapsed_time(59.99) == "59.99"
+    assert format_elapsed_time(0.0) == "0.00"
 
 
 def test_format_elapsed_time_with_minutes():
@@ -380,3 +381,14 @@ def test_format_elapsed_time_with_hours():
     assert format_elapsed_time(3661.25) == "1:01:01.25"
     assert format_elapsed_time(7384.5) == "2:03:04.50"
     assert format_elapsed_time(36000.0) == "10:00:00.00"
+    # Test large values (> 24 hours)
+    assert format_elapsed_time(86400.0) == "24:00:00.00"
+    assert format_elapsed_time(90061.5) == "25:01:01.50"
+
+
+def test_format_elapsed_time_negative_value():
+    from bingo.evolutionary_optimizers.evolutionary_optimizer import format_elapsed_time
+    
+    # Test that negative values raise an error
+    with pytest.raises(ValueError, match="non-negative"):
+        format_elapsed_time(-1.0)

@@ -34,6 +34,45 @@ OptimizeResult = namedtuple(
 )
 
 
+def format_elapsed_time(seconds):
+    """Format elapsed time in seconds to H:M:S format.
+    
+    Parameters
+    ----------
+    seconds : float
+        Time in seconds
+        
+    Returns
+    -------
+    str
+        Formatted time string with H:M:S format where:
+        - H and M only visible when nonzero
+        - S is floating point with 2 decimals
+        - S is 0-padded to 2 digits when M or H is nonzero
+        - M is 0-padded to 2 digits when H is nonzero
+        
+    Examples
+    --------
+    >>> format_elapsed_time(5.5)
+    '5.50'
+    >>> format_elapsed_time(63.651301)
+    '1:03.65'
+    >>> format_elapsed_time(3661.25)
+    '1:01:01.25'
+    """
+    hours = int(seconds // 3600)
+    remainder = seconds % 3600
+    minutes = int(remainder // 60)
+    secs = remainder % 60
+    
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{secs:05.2f}"
+    elif minutes > 0:
+        return f"{minutes}:{secs:05.2f}"
+    else:
+        return f"{secs:.2f}"
+
+
 class EvolutionaryOptimizer(metaclass=ABCMeta):
     """Fundamental bingo object that coordinates evolutionary optimization
 
@@ -207,7 +246,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             test_fitness = self._test_function(self.get_best_individual())
         log_string = f"Generation: {self.generational_age} \t "
         elapsed_time = datetime.now() - start_time
-        log_string += f"Elapsed time: {elapsed_time.total_seconds():f} \t "
+        log_string += f"Elapsed time: {format_elapsed_time(elapsed_time.total_seconds())} \t "
         log_string += f"Best training fitness: {self._best_fitness:e} \t "
         if test_fitness is not None:
             log_string += f"Test fitness: {test_fitness:e} \t "

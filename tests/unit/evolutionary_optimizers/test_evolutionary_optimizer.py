@@ -351,3 +351,32 @@ def test_strict_time_limit():
 
     assert elapsed_time < max_time
     assert optim_result.status == 5
+
+
+def test_format_elapsed_time_seconds_only():
+    from bingo.evolutionary_optimizers.evolutionary_optimizer import format_elapsed_time
+    
+    # Test seconds only (less than 1 minute)
+    assert format_elapsed_time(5.5) == "5.50"
+    assert format_elapsed_time(0.12) == "0.12"
+    assert format_elapsed_time(59.99) == "59.99"
+
+
+def test_format_elapsed_time_with_minutes():
+    from bingo.evolutionary_optimizers.evolutionary_optimizer import format_elapsed_time
+    
+    # Test with minutes (1 minute to less than 1 hour)
+    assert format_elapsed_time(60.0) == "1:00.00"
+    assert format_elapsed_time(63.651301) == "1:03.65"
+    assert format_elapsed_time(125.5) == "2:05.50"
+    assert format_elapsed_time(3599.99) == "59:59.99"
+
+
+def test_format_elapsed_time_with_hours():
+    from bingo.evolutionary_optimizers.evolutionary_optimizer import format_elapsed_time
+    
+    # Test with hours
+    assert format_elapsed_time(3600.0) == "1:00:00.00"
+    assert format_elapsed_time(3661.25) == "1:01:01.25"
+    assert format_elapsed_time(7384.5) == "2:03:04.50"
+    assert format_elapsed_time(36000.0) == "10:00:00.00"

@@ -7,3 +7,4 @@
 docs/build/
 docs/source/_autosummary
 *.egg-info/
+*.log

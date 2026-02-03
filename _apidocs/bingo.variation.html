@@ -42,8 +42,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -413,14 +413,14 @@
 offspring after the variation is carried out.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.variation.add_random_individuals.AddRandomIndividuals">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.variation.add_random_individuals.</span></span><span class="sig-name descname"><span class="pre">AddRandomIndividuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chromosome_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rand_indvs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.add_random_individuals.AddRandomIndividuals" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.variation.add_random_individuals.</span></span><span class="sig-name descname"><span class="pre">AddRandomIndividuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chromosome_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rand_indvs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.add_random_individuals.AddRandomIndividuals" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.variation.variation.Variation" title="bingo.variation.variation.Variation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variation</span></code></a></p>
 <p>A variation object that takes in an implementation of variation that
 adds a random individual to the population before performing variation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>variation</strong> (<em>variation</em>) – variation object that performs the variation among individuals</p></li>
+<li><p><strong>variation</strong> (<a class="reference internal" href="bingo.evolutionary_algorithms.html#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.variation" title="bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.variation"><em>variation</em></a>) – variation object that performs the variation among individuals</p></li>
 <li><p><strong>chromosome_generator</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.generator.Generator" title="bingo.chromosomes.generator.Generator"><em>Generator</em></a>) – Generator for random individual</p></li>
 <li><p><strong>num_rand_indvs</strong> (<em>int</em>) – The number of random individuals to generate per call</p></li>
 </ul>
@@ -437,7 +437,7 @@ definition of a variation by crossover and mutation probabilities. Offspring
 may be the result of both crossover :and: mutation, hence the name.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.variation.var_and.VarAnd">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.variation.var_and.</span></span><span class="sig-name descname"><span class="pre">VarAnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.var_and.VarAnd" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.variation.var_and.</span></span><span class="sig-name descname"><span class="pre">VarAnd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.var_and.VarAnd" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.variation.variation.Variation" title="bingo.variation.variation.Variation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variation</span></code></a></p>
 <p>variation where crossover and mutation may co-occur</p>
 <dl class="field-list simple">
@@ -497,7 +497,7 @@ mutation probabilities. Offspring may be the result of either crossover,
 replication :or: mutation, hence the name. Only one may occur at a time.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.variation.var_or.VarOr">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.variation.var_or.</span></span><span class="sig-name descname"><span class="pre">VarOr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.var_or.VarOr" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.variation.var_or.</span></span><span class="sig-name descname"><span class="pre">VarOr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.var_or.VarOr" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.variation.variation.Variation" title="bingo.variation.variation.Variation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Variation</span></code></a></p>
 <p>variation where either crossover, mutation, or
 replication may occur</p>
@@ -557,7 +557,7 @@ corresponding member of the last offspring</p>
 Generally this consists of crossover, mutation and replication.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.variation.variation.Variation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.variation.variation.</span></span><span class="sig-name descname"><span class="pre">Variation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.variation.Variation" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.variation.variation.</span></span><span class="sig-name descname"><span class="pre">Variation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.variation.variation.Variation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A variator of individuals.</p>
 <p>An abstract base class for the variation of genetic populations
@@ -630,13 +630,13 @@ corresponding member of the last offspring</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crossover_types</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">crossover_types</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
 <dd><p>Types of crossover allowed in variation</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mutation_types</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mutation_types</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
 <dd><p>Types of mutation allowed in variation</p>
 </dd></dl>
 
@@ -769,7 +769,7 @@ corresponding member of the last offspring</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

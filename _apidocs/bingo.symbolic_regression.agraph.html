@@ -42,13 +42,13 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_apidocs/bingo.symbolic_regression.agraph';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -608,7 +608,7 @@ The current map is outlined below.</p>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.agraph.AGraph">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.agraph.</span></span><span class="sig-name descname"><span class="pre">AGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_simplification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.agraph.</span></span><span class="sig-name descname"><span class="pre">AGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_simplification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">equation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bingo.symbolic_regression.html#bingo.symbolic_regression.equation.Equation" title="bingo.symbolic_regression.equation.Equation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Equation</span></code></a></p>
 <p>Acyclic graph representation of an equation.</p>
 <p><cite>AGraph</cite> is initialized with with empty command array and no constants.</p>
@@ -657,7 +657,7 @@ to be made.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">command_array</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">command_array</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
 <dd><p>acyclic graph stack.</p>
 <p class="rubric">Notes</p>
 <p>Setting the command stack automatically resets fitness</p>
@@ -670,7 +670,7 @@ to be made.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">constants</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">constants</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
 <dd><p>The numerical constants in the equation.</p>
 </dd></dl>
 
@@ -694,7 +694,7 @@ to be made.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.agraph.AGraph.engine">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">engine</span></span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph.engine" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">engine</span></span><a class="headerlink" href="#bingo.symbolic_regression.agraph.agraph.AGraph.engine" title="Link to this definition">#</a></dt>
 <dd><p>Identification of the code location</p>
 </dd></dl>
 
@@ -861,7 +861,7 @@ last command relies. This is inclusive of the last command.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id2">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mutable_command_array</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mutable_command_array</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
 <dd><p>acyclic graph stack.</p>
 <p class="rubric">Notes</p>
 <p>Setting the command stack automatically resets fitness</p>
@@ -945,7 +945,7 @@ command stack. It can generate full commands or sub-components such as
 operators, terminals, and their associated parameters.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.component_generator.ComponentGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.component_generator.</span></span><span class="sig-name descname"><span class="pre">ComponentGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_x_dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_initial_load_statements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.component_generator.</span></span><span class="sig-name descname"><span class="pre">ComponentGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_x_dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_initial_load_statements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates commands or components of a command for an agraph stack</p>
 <dl class="field-list simple">
@@ -1066,7 +1066,7 @@ or an operator string description (e.g. “+”, “addition”)</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_operator_parameter">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">random_operator_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack_location</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_operator_parameter" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">random_operator_parameter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stack_location</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.component_generator.ComponentGenerator.random_operator_parameter" title="Link to this definition">#</a></dt>
 <dd><p>Get random operator parameter</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1142,7 +1142,7 @@ stack_location.</p>
 acyclic graph individuals.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.crossover.AGraphCrossover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.crossover.</span></span><span class="sig-name descname"><span class="pre">AGraphCrossover</span></span><a class="headerlink" href="#bingo.symbolic_regression.agraph.crossover.AGraphCrossover" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.crossover.</span></span><span class="sig-name descname"><span class="pre">AGraphCrossover</span></span><a class="headerlink" href="#bingo.symbolic_regression.agraph.crossover.AGraphCrossover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.crossover.Crossover" title="bingo.chromosomes.crossover.Crossover"><code class="xref py py-class docutils literal notranslate"><span class="pre">Crossover</span></code></a></p>
 <p>Crossover between acyclic graph individuals</p>
 <dl class="py attribute">
@@ -1178,7 +1178,7 @@ and second child, respectively</p>
 graph individuals.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.generator.AGraphGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.generator.</span></span><span class="sig-name descname"><span class="pre">AGraphGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agraph_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_python</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_simplification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.generator.AGraphGenerator" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.generator.</span></span><span class="sig-name descname"><span class="pre">AGraphGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agraph_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">component_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_python</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_simplification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.generator.AGraphGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.generator.Generator" title="bingo.chromosomes.generator.Generator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></a></p>
 <p>Generates acyclic graph individuals</p>
 <dl class="field-list simple">
@@ -1200,7 +1200,7 @@ individuals, which is composed of 4 possible mutation strategies: command
 mutation, node mutation, parameter mutation and pruning.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.mutation.AGraphMutation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.mutation.</span></span><span class="sig-name descname"><span class="pre">AGraphMutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fork_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.mutation.AGraphMutation" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.mutation.</span></span><span class="sig-name descname"><span class="pre">AGraphMutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prune_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fork_probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.mutation.AGraphMutation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.mutation.Mutation" title="bingo.chromosomes.mutation.Mutation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mutation</span></code></a></p>
 <p>Mutation of acyclic graph individual</p>
 <p>Mutation of an agraph individual my modification of its command array.
@@ -1673,7 +1673,7 @@ corresponding to the expression given by the postfix_tokens</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

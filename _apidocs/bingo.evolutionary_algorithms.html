@@ -42,8 +42,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -415,14 +415,14 @@ variation on a population then performs Age-Fitness selection among
 the variation result, the initial population, and a random chromosome.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.age_fitness.</span></span><span class="sig-name descname"><span class="pre">AgeFitnessEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.age_fitness.</span></span><span class="sig-name descname"><span class="pre">AgeFitnessEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda" title="bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda"><code class="xref py py-class docutils literal notranslate"><span class="pre">MuPlusLambda</span></code></a></p>
 <p>The algorithm used to perform generational steps.</p>
 <p>This class extends <code class="docutils literal notranslate"><span class="pre">MuPlusLambda</span></code> and executes <code class="docutils literal notranslate"><span class="pre">generational_step</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>evaluation</strong> (<em>evaluation</em>) – The evaluation algorithm that sets the fitness on the population.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference internal" href="#bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.evaluation" title="bingo.evolutionary_algorithms.age_fitness.AgeFitnessEA.evaluation"><em>evaluation</em></a>) – The evaluation algorithm that sets the fitness on the population.</p></li>
 <li><p><strong>generator</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.generator.Generator" title="bingo.chromosomes.generator.Generator"><em>Generator</em></a>) – The individual generator for the random individual.</p></li>
 <li><p><strong>crossover</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.crossover.Crossover" title="bingo.chromosomes.crossover.Crossover"><em>Crossover</em></a>) – The algorithm that performs crossover during variation.</p></li>
 <li><p><strong>mutation</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.mutation.Mutation" title="bingo.chromosomes.mutation.Mutation"><em>Mutation</em></a>) – The algorithm that performs mutation during variation.</p></li>
@@ -479,7 +479,7 @@ etc.  Currently ony diagnostics associated with the variation phase of a EA are
 tracked.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.ea_diagnostics.</span></span><span class="sig-name descname"><span class="pre">EaDiagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.ea_diagnostics.</span></span><span class="sig-name descname"><span class="pre">EaDiagnostics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crossover_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnostics" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Evolutionary Algorithm Diagnostic Information</p>
 <p>EA diagnostics are tracked to allow for investigating convergence
@@ -545,14 +545,14 @@ and mutation type were applied</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crossover_mutation_type_summary</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">crossover_mutation_type_summary</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
 <dd><p>Summary of diagnostic data when both crossover and
 mutation happened</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crossover_type_summary</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">crossover_type_summary</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
 <dd><p>Summary of diagnostic data when only crossover happened</p>
 </dd></dl>
 
@@ -586,13 +586,13 @@ variation</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id2">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mutation_type_summary</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">mutation_type_summary</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
 <dd><p>Summary of diagnostic data when only mutation happened</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id3">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summary</span></span><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">summary</span></span><a class="headerlink" href="#id3" title="Link to this definition">#</a></dt>
 <dd><p>Summary statistics of the diagnostic data</p>
 </dd></dl>
 
@@ -621,7 +621,7 @@ corresponding offspring underwent (or None)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.ea_diagnostics.</span></span><span class="sig-name descname"><span class="pre">EaDiagnosticsSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beneficial_crossover_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_crossover_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beneficial_mutation_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_mutation_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beneficial_crossover_mutation_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_crossover_mutation_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.ea_diagnostics.</span></span><span class="sig-name descname"><span class="pre">EaDiagnosticsSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beneficial_crossover_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_crossover_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beneficial_mutation_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_mutation_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beneficial_crossover_mutation_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_crossover_mutation_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.ea_diagnostics.EaDiagnosticsSummary.beneficial_crossover_mutation_rate">
@@ -663,7 +663,7 @@ corresponding offspring underwent (or None)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.ea_diagnostics.</span></span><span class="sig-name descname"><span class="pre">GeneticOperatorSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beneficial_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.ea_diagnostics.</span></span><span class="sig-name descname"><span class="pre">GeneticOperatorSummary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">beneficial_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detrimental_rate</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.ea_diagnostics.GeneticOperatorSummary.beneficial_rate">
@@ -689,7 +689,7 @@ evaluation, and selection.  These phases, when repeated, define the evolution
 of a population.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.evolutionary_algorithm.</span></span><span class="sig-name descname"><span class="pre">EvolutionaryAlgorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.evolutionary_algorithm.</span></span><span class="sig-name descname"><span class="pre">EvolutionaryAlgorithm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The algorithm used to perform generational steps.</p>
 <p>The basic implementation used in this base Base implementation is a simple
@@ -793,14 +793,14 @@ algorithm in bingo analyses. The next generation is selected by pairing parents
 with their offspring and advancing the most fit of the two.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.generalized_crowding.</span></span><span class="sig-name descname"><span class="pre">GeneralizedCrowdingEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.generalized_crowding.</span></span><span class="sig-name descname"><span class="pre">GeneralizedCrowdingEA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm" title="bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm</span></code></a></p>
 <p>The algorithm used to perform generational steps.</p>
 <p>A class for the generalized crowding evolutionary algorithm in bingo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>evaluation</strong> (<em>evaluation</em>) – The evaluation algorithm that sets the fitness on the population.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference internal" href="#bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.evaluation" title="bingo.evolutionary_algorithms.generalized_crowding.GeneralizedCrowdingEA.evaluation"><em>evaluation</em></a>) – The evaluation algorithm that sets the fitness on the population.</p></li>
 <li><p><strong>crossover</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.crossover.Crossover" title="bingo.chromosomes.crossover.Crossover"><em>Crossover</em></a>) – The algorithm that performs crossover during variation.</p></li>
 <li><p><strong>mutation</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.mutation.Mutation" title="bingo.chromosomes.mutation.Mutation"><em>Mutation</em></a>) – The algorithm that performs mutation during variation.</p></li>
 <li><p><strong>crossover_probability</strong> (<em>float</em>) – Probability that crossover will occur on an individual.</p></li>
@@ -881,15 +881,15 @@ in bingo analyses. The next generation is selected only from the offspring of
 the parent population.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.mu_comma_lambda.</span></span><span class="sig-name descname"><span class="pre">MuCommaLambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_offspring</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.mu_comma_lambda.</span></span><span class="sig-name descname"><span class="pre">MuCommaLambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_offspring</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm" title="bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm</span></code></a></p>
 <p>The algorithm used to perform generational steps.</p>
 <p>A class for the “mu comma lambda” evolutionary algorithm in bingo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>evaluation</strong> (<em>evaluation</em>) – The evaluation algorithm that sets the fitness on the population.</p></li>
-<li><p><strong>selection</strong> (<em>selection</em>) – selection instance to perform selection on a population</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference internal" href="#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.evaluation" title="bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.evaluation"><em>evaluation</em></a>) – The evaluation algorithm that sets the fitness on the population.</p></li>
+<li><p><strong>selection</strong> (<a class="reference internal" href="#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.selection" title="bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.selection"><em>selection</em></a>) – selection instance to perform selection on a population</p></li>
 <li><p><strong>crossover</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.crossover.Crossover" title="bingo.chromosomes.crossover.Crossover"><em>Crossover</em></a>) – The algorithm that performs crossover during variation.</p></li>
 <li><p><strong>mutation</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.mutation.Mutation" title="bingo.chromosomes.mutation.Mutation"><em>Mutation</em></a>) – The algorithm that performs mutation during variation.</p></li>
 <li><p><strong>crossover_probability</strong> (<em>float</em>) – Probability that crossover will occur on an individual.</p></li>
@@ -915,7 +915,7 @@ the parent population.</p>
 <dd><p>evaluation instance to perform evaluation on a population</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>evaluation</p>
+<dd class="field-odd"><p><a class="reference internal" href="#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.evaluation" title="bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.evaluation">evaluation</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -926,7 +926,7 @@ the parent population.</p>
 <dd><p>selection instance to perform selection on a population</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>selection</p>
+<dd class="field-odd"><p><a class="reference internal" href="#bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.selection" title="bingo.evolutionary_algorithms.mu_comma_lambda.MuCommaLambda.selection">selection</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -970,15 +970,15 @@ bingo analyses. The next generation is evaluated and selected from both the
 parent and offspring populations.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.mu_plus_lambda.</span></span><span class="sig-name descname"><span class="pre">MuPlusLambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_offspring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.evolutionary_algorithms.mu_plus_lambda.</span></span><span class="sig-name descname"><span class="pre">MuPlusLambda</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">evaluation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crossover_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mutation_probability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_offspring</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_population_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm" title="bingo.evolutionary_algorithms.evolutionary_algorithm.EvolutionaryAlgorithm"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolutionaryAlgorithm</span></code></a></p>
 <p>The algorithm used to perform generational steps.</p>
 <p>A class for the “mu plus lambda” evolutionary algorithm in bingo.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>evaluation</strong> (<em>evaluation</em>) – The evaluation algorithm that sets the fitness on the population.</p></li>
-<li><p><strong>selection</strong> (<em>selection</em>) – selection instance to perform selection on a population</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference internal" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.evaluation" title="bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.evaluation"><em>evaluation</em></a>) – The evaluation algorithm that sets the fitness on the population.</p></li>
+<li><p><strong>selection</strong> (<a class="reference internal" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.selection" title="bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.selection"><em>selection</em></a>) – selection instance to perform selection on a population</p></li>
 <li><p><strong>crossover</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.crossover.Crossover" title="bingo.chromosomes.crossover.Crossover"><em>Crossover</em></a>) – The algorithm that performs crossover during variation.</p></li>
 <li><p><strong>mutation</strong> (<a class="reference internal" href="bingo.chromosomes.html#bingo.chromosomes.mutation.Mutation" title="bingo.chromosomes.mutation.Mutation"><em>Mutation</em></a>) – The algorithm that performs mutation during variation.</p></li>
 <li><p><strong>crossover_probability</strong> (<em>float</em>) – Probability that crossover will occur on an individual.</p></li>
@@ -1006,7 +1006,7 @@ same size as the starting population</p></li>
 <dd><p>evaluation instance to perform evaluation on a population</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>evaluation</p>
+<dd class="field-odd"><p><a class="reference internal" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.evaluation" title="bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.evaluation">evaluation</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1017,7 +1017,7 @@ same size as the starting population</p></li>
 <dd><p>selection instance to perform selection on a population</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>selection</p>
+<dd class="field-odd"><p><a class="reference internal" href="#bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.selection" title="bingo.evolutionary_algorithms.mu_plus_lambda.MuPlusLambda.selection">selection</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1238,7 +1238,7 @@ same size as the starting population</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

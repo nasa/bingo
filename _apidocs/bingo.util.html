@@ -42,8 +42,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -414,7 +414,7 @@
 for a function.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.util.argument_validation.FunctionArgChecker">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.util.argument_validation.</span></span><span class="sig-name descname"><span class="pre">FunctionArgChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positional_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.argument_validation.FunctionArgChecker" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.util.argument_validation.</span></span><span class="sig-name descname"><span class="pre">FunctionArgChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positional_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keyword_args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.argument_validation.FunctionArgChecker" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A functor for managing arguments and performing validation checks</p>
 <dl class="field-list simple">
@@ -464,7 +464,7 @@ logging library.  Its sets up default logging options which are typical of most
 bingo runs.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.util.log.DiagnosticsFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.util.log.</span></span><span class="sig-name descname"><span class="pre">DiagnosticsFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.log.DiagnosticsFilter" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.util.log.</span></span><span class="sig-name descname"><span class="pre">DiagnosticsFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.log.DiagnosticsFilter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <p>This is a filter which filters based on the identifier “&lt;diagnostics&gt;” at
 the beginning of a log message</p>
@@ -496,7 +496,7 @@ with identifier “&lt;diagnostics&gt;” set to True.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.util.log.MpiFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.util.log.</span></span><span class="sig-name descname"><span class="pre">MpiFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">add_proc_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.log.MpiFilter" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.util.log.</span></span><span class="sig-name descname"><span class="pre">MpiFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">add_proc_number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.log.MpiFilter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <p>This is a filter which filters out messages from auxiliary processes at the
 INFO level</p>
@@ -528,7 +528,7 @@ is set to True.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.util.log.StatsFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.util.log.</span></span><span class="sig-name descname"><span class="pre">StatsFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.log.StatsFilter" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.util.log.</span></span><span class="sig-name descname"><span class="pre">StatsFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_out</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.log.StatsFilter" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></p>
 <p>This is a filter which filters based on the identifier “&lt;stats&gt;” at the
 beginning of a log message</p>
@@ -584,7 +584,7 @@ integer (0 - 100) that corresponds to typical python log level.</p></li>
 can be drawn</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.util.probability_mass_function.ProbabilityMassFunction">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.util.probability_mass_function.</span></span><span class="sig-name descname"><span class="pre">ProbabilityMassFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.probability_mass_function.ProbabilityMassFunction" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.util.probability_mass_function.</span></span><span class="sig-name descname"><span class="pre">ProbabilityMassFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.util.probability_mass_function.ProbabilityMassFunction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The ProbabilityMassFunction (PMF) class is designed to allow for easy
 creation and use of a probability mass function.  Items and associated
@@ -782,7 +782,7 @@ associated with weighting of items.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

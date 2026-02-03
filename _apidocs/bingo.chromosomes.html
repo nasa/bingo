@@ -42,8 +42,8 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -415,7 +415,7 @@ bingo evolutionary analyses.  Extension of bingo can be performed by developing
 subclasses of chromosomes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.chromosome.Chromosome">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.chromosome.</span></span><span class="sig-name descname"><span class="pre">Chromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genetic_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.chromosome.Chromosome" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.chromosome.</span></span><span class="sig-name descname"><span class="pre">Chromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">genetic_age</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_set</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.chromosome.Chromosome" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A genetic individual</p>
 <p>This class is the base of a genetic individual in bingo evolutionary
@@ -474,7 +474,7 @@ analyses.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bingo.chromosomes.chromosome.Chromosome.distance">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.chromosome.Chromosome.distance" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.chromosome.Chromosome.distance" title="Link to this definition">#</a></dt>
 <dd><p>Distance from self to other</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -491,13 +491,13 @@ analyses.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fit_set</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fit_set</span></span><a class="headerlink" href="#id0" title="Link to this definition">#</a></dt>
 <dd><p>Indication of whether the fitness has been set</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id1">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fitness</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">fitness</span></span><a class="headerlink" href="#id1" title="Link to this definition">#</a></dt>
 <dd><p>The fitness of the individual</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -508,7 +508,7 @@ analyses.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id2">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">genetic_age</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">genetic_age</span></span><a class="headerlink" href="#id2" title="Link to this definition">#</a></dt>
 <dd><p>The age of the oldest components of the individual</p>
 </dd></dl>
 
@@ -560,7 +560,7 @@ analyses.</p>
 <p>This module defines the basis of crossover in bingo evolutionary analyses.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.crossover.Crossover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.crossover.</span></span><span class="sig-name descname"><span class="pre">Crossover</span></span><a class="headerlink" href="#bingo.chromosomes.crossover.Crossover" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.crossover.</span></span><span class="sig-name descname"><span class="pre">Crossover</span></span><a class="headerlink" href="#bingo.chromosomes.crossover.Crossover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Crossover for chromosomes.</p>
 <p>An abstract base class for the crossover between two genetic individuals
@@ -575,7 +575,7 @@ in bingo.</p>
 evolutionary analyses.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.generator.Generator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.generator.</span></span><span class="sig-name descname"><span class="pre">Generator</span></span><a class="headerlink" href="#bingo.chromosomes.generator.Generator" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.generator.</span></span><span class="sig-name descname"><span class="pre">Generator</span></span><a class="headerlink" href="#bingo.chromosomes.generator.Generator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A generator of individuals.</p>
 <p>An abstract base class for the generation of genetic individuals in
@@ -590,7 +590,7 @@ bingo.</p>
 that contains a list of floats for their genetic information.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.multiple_floats.MultipleFloatChromosome">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_floats.</span></span><span class="sig-name descname"><span class="pre">MultipleFloatChromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needs_opt_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_floats.MultipleFloatChromosome" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_floats.</span></span><span class="sig-name descname"><span class="pre">MultipleFloatChromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needs_opt_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_floats.MultipleFloatChromosome" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.chromosomes.multiple_values.MultipleValueChromosome" title="bingo.chromosomes.multiple_values.MultipleValueChromosome"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleValueChromosome</span></code></a></p>
 <p>Multiple float-value individual</p>
 <dl class="field-list simple">
@@ -657,7 +657,7 @@ This list may be empty</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.multiple_floats.MultipleFloatChromosomeGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_floats.</span></span><span class="sig-name descname"><span class="pre">MultipleFloatChromosomeGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_value_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_chromosome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needs_opt_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_floats.MultipleFloatChromosomeGenerator" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_floats.</span></span><span class="sig-name descname"><span class="pre">MultipleFloatChromosomeGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_value_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_chromosome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">needs_opt_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_floats.MultipleFloatChromosomeGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.chromosomes.multiple_values.MultipleValueChromosomeGenerator" title="bingo.chromosomes.multiple_values.MultipleValueChromosomeGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleValueChromosomeGenerator</span></code></a></p>
 <p>Generation of a population of Multi-Value chromosomes</p>
 <dl class="field-list simple">
@@ -680,7 +680,7 @@ that are subject local optimization. This list may be empty</p></li>
 that contains a list of genetic information.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.multiple_values.MultipleValueChromosome">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">MultipleValueChromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_values.MultipleValueChromosome" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">MultipleValueChromosome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_values.MultipleValueChromosome" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.chromosomes.chromosome.Chromosome" title="bingo.chromosomes.chromosome.Chromosome"><code class="xref py py-class docutils literal notranslate"><span class="pre">Chromosome</span></code></a></p>
 <p>Multiple value individual</p>
 <p>The constructor for a chromosome that holds a list
@@ -762,7 +762,7 @@ two individuals.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.multiple_values.MultipleValueChromosomeGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">MultipleValueChromosomeGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_value_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_chromosome</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_values.MultipleValueChromosomeGenerator" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">MultipleValueChromosomeGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">random_value_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values_per_chromosome</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_values.MultipleValueChromosomeGenerator" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.chromosomes.generator.Generator" title="bingo.chromosomes.generator.Generator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generator</span></code></a></p>
 <p>Generation of a population of Multi-Value chromosomes</p>
 <dl class="field-list simple">
@@ -778,7 +778,7 @@ components of the chromosomes.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.multiple_values.SinglePointCrossover">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">SinglePointCrossover</span></span><a class="headerlink" href="#bingo.chromosomes.multiple_values.SinglePointCrossover" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">SinglePointCrossover</span></span><a class="headerlink" href="#bingo.chromosomes.multiple_values.SinglePointCrossover" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.chromosomes.crossover.Crossover" title="bingo.chromosomes.crossover.Crossover"><code class="xref py py-class docutils literal notranslate"><span class="pre">Crossover</span></code></a></p>
 <p>Crossover for multiple valued chromosomes</p>
 <p>Crossover results in two individuals with single-point crossed-over lists
@@ -811,7 +811,7 @@ and second child, respectively</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.multiple_values.SinglePointMutation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">SinglePointMutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutation_function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_values.SinglePointMutation" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.multiple_values.</span></span><span class="sig-name descname"><span class="pre">SinglePointMutation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mutation_function</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.chromosomes.multiple_values.SinglePointMutation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bingo.chromosomes.mutation.Mutation" title="bingo.chromosomes.mutation.Mutation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mutation</span></code></a></p>
 <p>Mutation for multiple valued chromosomes</p>
 <p>Performs single-point mutation on the offspring of a parent chromosome.
@@ -854,7 +854,7 @@ a random value in the chromosome.</p>
 <p>This module defines the basis of mutation in bingo evolutionary analyses.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bingo.chromosomes.mutation.Mutation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.mutation.</span></span><span class="sig-name descname"><span class="pre">Mutation</span></span><a class="headerlink" href="#bingo.chromosomes.mutation.Mutation" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bingo.chromosomes.mutation.</span></span><span class="sig-name descname"><span class="pre">Mutation</span></span><a class="headerlink" href="#bingo.chromosomes.mutation.Mutation" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A mutator of individuals.</p>
 <p>An abstract base class for the mutation of chromosomes in
@@ -1024,7 +1024,7 @@ bingo.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

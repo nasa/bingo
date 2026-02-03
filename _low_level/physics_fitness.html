@@ -43,13 +43,13 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=f2a433a1"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_low_level/physics_fitness';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -650,42 +650,42 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="highlight"><pre>
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:173: RuntimeWarning: overflow encountered in exp
   return np.exp(forward_eval[param1])
-/tmp/ipykernel_9823/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
+/tmp/ipykernel_3932/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
   derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:98: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
+/tmp/ipykernel_3932/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
+  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/opt/hostedtoolcache/Python/3.14.2/x64/lib/python3.14/site-packages/scipy/optimize/_minpack_py.py:498: RuntimeWarning: overflow encountered in matmul
+  cov_x = invR @ invR.T
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:177: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:93: RuntimeWarning: overflow encountered in multiply
+  return forward_eval[param1] * forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in divide
+  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in scalar divide
+  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:97: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:93: RuntimeWarning: overflow encountered in scalar multiply
   return forward_eval[param1] * forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:98: RuntimeWarning: overflow encountered in scalar multiply
   reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:177: RuntimeWarning: overflow encountered in scalar multiply
   reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:97: RuntimeWarning: overflow encountered in scalar multiply
-  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:93: RuntimeWarning: overflow encountered in multiply
-  return forward_eval[param1] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:97: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:98: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:177: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
-/opt/hostedtoolcache/Python/3.14.0/x64/lib/python3.14/site-packages/scipy/optimize/_minpack_py.py:498: RuntimeWarning: overflow encountered in matmul
-  cov_x = invR @ invR.T
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in scalar divide
-  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
-/tmp/ipykernel_9823/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
-  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:107: RuntimeWarning: overflow encountered in divide
-  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in divide
-  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:98: RuntimeWarning: overflow encountered in add
   reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:97: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:103: RuntimeWarning: overflow encountered in divide
   return forward_eval[param1] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:177: RuntimeWarning: overflow encountered in add
-  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:107: RuntimeWarning: overflow encountered in divide
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/evaluation_backend.py:112: RuntimeWarning: overflow encountered in add
+  derivative[:, param1] += _reshape_reverse_eval(reverse_eval[i],
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -694,7 +694,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(2.0788662477029563e+22), time=12.277818, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.010220518802421818), detrimental_crossover_rate=np.float64(0.39015719602288507), beneficial_mutation_rate=np.float64(0.05149781218444968), detrimental_mutation_rate=np.float64(0.5442611915180074), beneficial_crossover_mutation_rate=np.float64(0.013190034196384953), detrimental_crossover_mutation_rate=np.float64(0.4587200781631656)))
+OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(1.3804652067932258e+22), time=13.243599, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.005925023533971981), detrimental_crossover_rate=np.float64(0.4155822581538291), beneficial_mutation_rate=np.float64(0.03895663956639566), detrimental_mutation_rate=np.float64(0.5426829268292683), beneficial_crossover_mutation_rate=np.float64(0.009523809523809525), detrimental_crossover_mutation_rate=np.float64(0.46967418546365913)))
 </pre></div></div>
 </div>
 </section>
@@ -843,7 +843,7 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

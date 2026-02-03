@@ -7,9 +7,11 @@ from collections import namedtuple
 from time import sleep, time
 import numpy as np
 
+from datetime import timedelta
 from bingo.evolutionary_optimizers.evolutionary_optimizer import (
     EvolutionaryOptimizer,
     load_evolutionary_optimizer_from_file,
+    _format_elapsed_time,
 )
 from bingo.stats.hall_of_fame import HallOfFame
 
@@ -351,3 +353,28 @@ def test_strict_time_limit():
 
     assert elapsed_time < max_time
     assert optim_result.status == 5
+
+
+# Tests for _format_elapsed_time function
+@pytest.mark.parametrize(
+    "seconds,expected",
+    [
+        # Seconds only
+        (0.0, "0.00"),
+        (5.5, "5.50"),
+        (59.99, "59.99"),
+        # Minutes and seconds
+        (60.0, "1:00.00"),
+        (63.65, "1:03.65"),
+        (125.5, "2:05.50"),
+        (599.99, "9:59.99"),
+        # Hours, minutes, and seconds
+        (3600.0, "1:00:00.00"),
+        (3661.5, "1:01:01.50"),
+        (7325.25, "2:02:05.25"),
+        (36000.0, "10:00:00.00"),
+    ],
+)
+def test_format_elapsed_time(seconds, expected):
+    elapsed = timedelta(seconds=seconds)
+    assert _format_elapsed_time(elapsed) == expected

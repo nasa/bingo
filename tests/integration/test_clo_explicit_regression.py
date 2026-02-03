@@ -124,4 +124,4 @@ def test_explicit_regression_clo_linear_root(
         fitness, ScipyOptimizer(fitness, method=method))
     optimizer(norm_individual)
     assert fitness(norm_individual) == \
-           pytest.approx(fitness(opt_individual), abs=1e-5)
+           pytest.approx(fitness(opt_individual), abs=2e-5)

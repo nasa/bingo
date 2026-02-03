@@ -86,6 +86,8 @@ jobs:
         fetch-depth: 0
 
     - uses: pypa/cibuildwheel@v2.21
+      env:
+        CIBW_ARCHS_LINUX: "x86_64"
 
     - name: Verify clean directory
       run: git diff --exit-code

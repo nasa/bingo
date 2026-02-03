@@ -20,6 +20,37 @@ LOGGER = logging.getLogger(__name__)
 STATS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"stats": True})
 DIAGNOSTICS_LOGGER = logging.LoggerAdapter(LOGGER, extra={"diagnostics": True})
 
+
+def _format_elapsed_time(elapsed_time):
+    """Format elapsed time as H:M:S with progressive visibility.
+
+    Parameters
+    ----------
+    elapsed_time : timedelta
+        The elapsed time to format
+
+    Returns
+    -------
+    str
+        Formatted time string where:
+        - Hours and minutes only appear when nonzero
+        - Seconds are floating point with 2 decimals
+        - When M or H is nonzero, S is 0-padded to 2 digits
+        - When H is nonzero, M is also 0-padded to 2 digits
+    """
+    total_seconds = elapsed_time.total_seconds()
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    hours = int(hours)
+    minutes = int(minutes)
+
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{seconds:05.2f}"
+    elif minutes > 0:
+        return f"{minutes}:{seconds:05.2f}"
+    else:
+        return f"{seconds:.2f}"
+
 OptimizeResult = namedtuple(
     "OptimizeResult",
     [
@@ -207,7 +238,7 @@ class EvolutionaryOptimizer(metaclass=ABCMeta):
             test_fitness = self._test_function(self.get_best_individual())
         log_string = f"Generation: {self.generational_age} \t "
         elapsed_time = datetime.now() - start_time
-        log_string += f"Elapsed time: {elapsed_time.total_seconds():f} \t "
+        log_string += f"Elapsed time: {_format_elapsed_time(elapsed_time)} \t "
         log_string += f"Best training fitness: {self._best_fitness:e} \t "
         if test_fitness is not None:
             log_string += f"Test fitness: {test_fitness:e} \t "

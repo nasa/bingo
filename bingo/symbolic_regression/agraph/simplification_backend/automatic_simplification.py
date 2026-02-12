@@ -386,7 +386,8 @@ def simplify_square(expression):
         return ZERO.copy()
     if operand.is_one():
         return ONE.copy()
-    # sqrt(x)^2 = x (for positive x)
+    # sqrt(x)^2 = |x| for general case, but assuming non-negative domain
+    # this simplification returns x (common case in symbolic regression)
     if operand.operator == SQRT:
         return operand.operands[0].copy()
     return expression

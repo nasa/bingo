@@ -111,6 +111,6 @@ OPERATOR_NAMES = {
     ARCCOS: ["arccos", "acos"],
     ARCTAN: ["arctan", "atan"],
     TANH: ["tangenth", "tanh"],
-    SQUARE: ["square", "sq", "**2"],
-    CUBE: ["cube", "cb", "**3"],
+    SQUARE: ["square", "sq"],
+    CUBE: ["cube", "cb"],
 }

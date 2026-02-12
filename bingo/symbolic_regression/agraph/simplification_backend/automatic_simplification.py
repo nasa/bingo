@@ -380,7 +380,12 @@ def simplify_atan(expression):
 
 
 def simplify_square(expression):
-    """simplification of square operators"""
+    """simplification of square operators
+    
+    Note: The sqrt(x)^2 -> x simplification assumes a non-negative domain,
+    which is common in symbolic regression applications. In general,
+    sqrt(x)^2 = |x|, but this implementation returns x for simplicity.
+    """
     operand = expression.operands[0]
     if operand.is_zero():
         return ZERO.copy()

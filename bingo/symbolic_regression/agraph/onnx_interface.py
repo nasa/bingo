@@ -64,7 +64,6 @@ ONNX_FUNCTIONS = {
 }
 
 ABS_SAFETY = set([LOGARITHM, SQRT, SAFE_POWER])
-SQUARE_CUBE_OPS = set([SQUARE, CUBE])
 
 
 def make_onnx_model(command_array, constants, name="bingo_equation"):

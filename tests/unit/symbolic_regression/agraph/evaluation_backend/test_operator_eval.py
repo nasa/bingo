@@ -42,6 +42,8 @@ OPERATOR_LIST = [
     ARCSIN,
     ARCCOS,
     ARCTAN,
+    SQUARE,
+    CUBE,
 ]
 
 CPP_SKIP_OPERATORS = [
@@ -50,6 +52,8 @@ CPP_SKIP_OPERATORS = [
     ARCSIN,
     ARCCOS,
     ARCTAN,
+    SQUARE,
+    CUBE,
 ]
 
 
@@ -144,6 +148,10 @@ def _function_evaluations(function, a, b):
         return np.arccos(a)
     if function == ARCTAN:
         return np.arctan(a)
+    if function == SQUARE:
+        return a ** 2
+    if function == CUBE:
+        return a ** 3
     raise NotImplementedError("No test for operator: %d" % function)
 
 
@@ -192,6 +200,10 @@ def _function_derivatives(function, a, b, da, db):
         return -da / np.sqrt(one - a**2), zero
     if function == ARCTAN:
         return da / (one + a**2), zero
+    if function == SQUARE:
+        return da * 2 * a, zero
+    if function == CUBE:
+        return da * 3 * (a ** 2), zero
     raise NotImplementedError("No test for operator: %d" % function)
 
 

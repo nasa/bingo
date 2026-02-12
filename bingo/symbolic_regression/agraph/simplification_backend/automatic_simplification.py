@@ -391,6 +391,10 @@ def simplify_square(expression):
         return ZERO.copy()
     if operand.is_one():
         return ONE.copy()
+    # Simplify integer constants: square(n) -> n^2
+    if operand.operator == INTEGER:
+        value = operand.operands[0]
+        return Expression(INTEGER, [value ** 2])
     # sqrt(x)^2 = |x| for general case, but assuming non-negative domain
     # this simplification returns x (common case in symbolic regression)
     if operand.operator == SQRT:
@@ -405,6 +409,10 @@ def simplify_cube(expression):
         return ZERO.copy()
     if operand.is_one():
         return ONE.copy()
+    # Simplify integer constants: cube(n) -> n^3
+    if operand.operator == INTEGER:
+        value = operand.operands[0]
+        return Expression(INTEGER, [value ** 3])
     return expression
 
 

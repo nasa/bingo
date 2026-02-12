@@ -9,12 +9,15 @@ INSERT_SUBTRACTION: Default True.
 
 REPLACE_INTEGER_POWERS: Default True.
     a^5 is converted to (a*a)*(a*a)*a
+    a^2 is converted to square(a)
+    a^3 is converted to cube(a)
 
 REPLACE_INTEGERS_WITH_CONSTANTS: Default False
     x+x is simplified to 2*x and is converted to c*x
 """
 from ..operator_definitions import INTEGER, CONSTANT, VARIABLE, ADDITION, \
-                                   MULTIPLICATION, SUBTRACTION, POWER
+                                   MULTIPLICATION, SUBTRACTION, POWER, \
+                                   SQUARE, CUBE
 from .expression import Expression
 
 INSERT_SUBTRACTION = True
@@ -111,6 +114,13 @@ def _replace_integer_powers(expression):
         return Expression(operator, operands_w_replaced)
 
     power = operands_w_replaced[1].operands[0]
+    
+    # Convert x^2 to square(x) and x^3 to cube(x)
+    if power == 2:
+        return Expression(SQUARE, [operands_w_replaced[0], operands_w_replaced[0]])
+    elif power == 3:
+        return Expression(CUBE, [operands_w_replaced[0], operands_w_replaced[0]])
+    
     return Expression(MULTIPLICATION, [operands_w_replaced[0]] * power)
 
 

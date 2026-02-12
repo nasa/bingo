@@ -35,6 +35,8 @@ from bingo.symbolic_regression.agraph.operator_definitions import (
     ARCCOS,
     ARCSIN,
     ARCTAN,
+    SQUARE,
+    CUBE,
 )
 
 
@@ -281,6 +283,24 @@ def _atan_reverse_eval(reverse_index, param1, _param2, forward_eval, reverse_eva
     reverse_eval[param1] += reverse_eval[reverse_index] / (np.ones_like(xsqr) + xsqr)
 
 
+# Square
+def _square_forward_eval(param1, _param2, _x, _constants, forward_eval):
+    return forward_eval[param1] ** 2
+
+
+def _square_reverse_eval(reverse_index, param1, _param2, forward_eval, reverse_eval):
+    reverse_eval[param1] += reverse_eval[reverse_index] * 2 * forward_eval[param1]
+
+
+# Cube
+def _cube_forward_eval(param1, _param2, _x, _constants, forward_eval):
+    return forward_eval[param1] ** 3
+
+
+def _cube_reverse_eval(reverse_index, param1, _param2, forward_eval, reverse_eval):
+    reverse_eval[param1] += reverse_eval[reverse_index] * 3 * (forward_eval[param1] ** 2)
+
+
 def forward_eval_function(node, param1, param2, x, constants, forward_eval):
     """Performs calculation of one line of stack"""
     return FORWARD_EVAL_MAP[node](param1, param2, x, constants, forward_eval)
@@ -317,6 +337,8 @@ FORWARD_EVAL_MAP = {
     ARCSIN: _asin_forward_eval,
     ARCCOS: _acos_forward_eval,
     ARCTAN: _atan_forward_eval,
+    SQUARE: _square_forward_eval,
+    CUBE: _cube_forward_eval,
 }
 
 REVERSE_EVAL_MAP = {
@@ -342,4 +364,6 @@ REVERSE_EVAL_MAP = {
     ARCSIN: _asin_reverse_eval,
     ARCCOS: _acos_reverse_eval,
     ARCTAN: _atan_reverse_eval,
+    SQUARE: _square_reverse_eval,
+    CUBE: _cube_reverse_eval,
 }

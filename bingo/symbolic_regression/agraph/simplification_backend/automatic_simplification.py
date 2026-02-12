@@ -30,6 +30,8 @@ from ..operator_definitions import (
     ARCCOS,
     ARCSIN,
     ARCTAN,
+    SQUARE,
+    CUBE,
 )
 from .expression import Expression
 
@@ -377,6 +379,43 @@ def simplify_atan(expression):
     return expression
 
 
+def simplify_square(expression):
+    """simplification of square operators
+    
+    Note: The sqrt(x)^2 -> x simplification assumes a non-negative domain,
+    which is common in symbolic regression applications. In general,
+    sqrt(x)^2 = |x|, but this implementation returns x for simplicity.
+    """
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO.copy()
+    if operand.is_one():
+        return ONE.copy()
+    # Simplify integer constants: square(n) -> n^2
+    if operand.operator == INTEGER:
+        value = operand.operands[0]
+        return Expression(INTEGER, [value ** 2])
+    # sqrt(x)^2 = |x| for general case, but assuming non-negative domain
+    # this simplification returns x (common case in symbolic regression)
+    if operand.operator == SQRT:
+        return operand.operands[0].copy()
+    return expression
+
+
+def simplify_cube(expression):
+    """simplification of cube operators"""
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO.copy()
+    if operand.is_one():
+        return ONE.copy()
+    # Simplify integer constants: cube(n) -> n^3
+    if operand.operator == INTEGER:
+        value = operand.operands[0]
+        return Expression(INTEGER, [value ** 3])
+    return expression
+
+
 def no_simplification(expression):
     """no simplification performed"""
     return expression
@@ -402,4 +441,6 @@ SIMPLIFICATION_FUNCTIONS = {
     ARCSIN: simplify_asin,
     ARCCOS: simplify_acos,
     ARCTAN: simplify_atan,
+    SQUARE: simplify_square,
+    CUBE: simplify_cube,
 }

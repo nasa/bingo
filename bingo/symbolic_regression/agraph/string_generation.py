@@ -34,6 +34,8 @@ from bingo.symbolic_regression.agraph.operator_definitions import (
     ARCSIN,
     ARCCOS,
     ARCTAN,
+    SQUARE,
+    CUBE,
 )
 
 STACK_PRINT_MAP = {
@@ -56,6 +58,8 @@ STACK_PRINT_MAP = {
     ARCSIN: "asin ({})",
     ARCCOS: "acos ({})",
     ARCTAN: "atan ({})",
+    SQUARE: "({}) ^ 2",
+    CUBE: "({}) ^ 3",
 }
 LATEX_PRINT_MAP = {
     ADDITION: "{} + {}",
@@ -77,6 +81,8 @@ LATEX_PRINT_MAP = {
     ARCSIN: "asin {{ {} }}",
     ARCCOS: "acos {{ {} }}",
     ARCTAN: "atan {{ {} }}",
+    SQUARE: "{{{}}}^2",
+    CUBE: "{{{}}}^3",
 }
 SYMPY_PRINT_MAP = {
     ADDITION: "{} + {}",
@@ -98,6 +104,8 @@ SYMPY_PRINT_MAP = {
     ARCSIN: "asin({})",
     ARCCOS: "acos({})",
     ARCTAN: "atan({})",
+    SQUARE: "({})**2",
+    CUBE: "({})**3",
 }
 CONSOLE_PRINT_MAP = {
     ADDITION: "{} + {}",
@@ -119,6 +127,8 @@ CONSOLE_PRINT_MAP = {
     ARCSIN: "asin({})",
     ARCCOS: "acos({})",
     ARCTAN: "atan({})",
+    SQUARE: "({})^2",
+    CUBE: "({})^3",
 }
 
 

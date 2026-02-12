@@ -378,3 +378,56 @@ def test_no_simplification_ar1_operators(operator, zero, one, two):
             ],
         )
         assert automatic_simplify(exp) == exp
+
+
+def test_square_simplification(zero, one, two, x_var):
+    # Test square(0) -> 0
+    square_zero = Expression(SQUARE, [zero, zero])
+    assert automatic_simplify(square_zero) == zero
+    
+    # Test square(1) -> 1
+    square_one = Expression(SQUARE, [one, one])
+    assert automatic_simplify(square_one) == one
+    
+    # Test square(2) -> 4
+    square_two = Expression(SQUARE, [two, two])
+    four = Expression(INTEGER, [4])
+    assert automatic_simplify(square_two) == four
+    
+    # Test square(5) -> 25
+    five = Expression(INTEGER, [5])
+    square_five = Expression(SQUARE, [five, five])
+    twenty_five = Expression(INTEGER, [25])
+    assert automatic_simplify(square_five) == twenty_five
+    
+    # Test square(sqrt(x)) -> x
+    sqrt_x = Expression(SQRT, [x_var, x_var])
+    square_sqrt_x = Expression(SQUARE, [sqrt_x, sqrt_x])
+    assert automatic_simplify(square_sqrt_x) == x_var
+
+
+def test_cube_simplification(zero, one, two, x_var):
+    # Test cube(0) -> 0
+    cube_zero = Expression(CUBE, [zero, zero])
+    assert automatic_simplify(cube_zero) == zero
+    
+    # Test cube(1) -> 1
+    cube_one = Expression(CUBE, [one, one])
+    assert automatic_simplify(cube_one) == one
+    
+    # Test cube(2) -> 8
+    cube_two = Expression(CUBE, [two, two])
+    eight = Expression(INTEGER, [8])
+    assert automatic_simplify(cube_two) == eight
+    
+    # Test cube(3) -> 27
+    three = Expression(INTEGER, [3])
+    cube_three = Expression(CUBE, [three, three])
+    twenty_seven = Expression(INTEGER, [27])
+    assert automatic_simplify(cube_three) == twenty_seven
+    
+    # Test cube(-2) -> -8
+    neg_two = Expression(INTEGER, [-2])
+    cube_neg_two = Expression(CUBE, [neg_two, neg_two])
+    neg_eight = Expression(INTEGER, [-8])
+    assert automatic_simplify(cube_neg_two) == neg_eight

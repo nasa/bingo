@@ -30,6 +30,8 @@ from ..operator_definitions import (
     ARCCOS,
     ARCSIN,
     ARCTAN,
+    SQUARE,
+    CUBE,
 )
 from .expression import Expression
 
@@ -377,6 +379,29 @@ def simplify_atan(expression):
     return expression
 
 
+def simplify_square(expression):
+    """simplification of square operators"""
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO.copy()
+    if operand.is_one():
+        return ONE.copy()
+    # sqrt(x)^2 = x (for positive x)
+    if operand.operator == SQRT:
+        return operand.operands[0].copy()
+    return expression
+
+
+def simplify_cube(expression):
+    """simplification of cube operators"""
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO.copy()
+    if operand.is_one():
+        return ONE.copy()
+    return expression
+
+
 def no_simplification(expression):
     """no simplification performed"""
     return expression
@@ -402,4 +427,6 @@ SIMPLIFICATION_FUNCTIONS = {
     ARCSIN: simplify_asin,
     ARCCOS: simplify_acos,
     ARCTAN: simplify_atan,
+    SQUARE: simplify_square,
+    CUBE: simplify_cube,
 }

@@ -25,10 +25,12 @@ from bingo.symbolic_regression.agraph.operator_definitions import (
     ARCSIN,
     ARCCOS,
     ARCTAN,
+    SQUARE,
+    CUBE,
 )
 
 operators = {"+", "-", "*", "/", "^"}
-functions = {"sin", "cos", "tan", "sinh", "cosh", "tanh", "exp", "log", "abs", "sqrt", "arcsin", "arccos", "arctan"}
+functions = {"sin", "cos", "tan", "sinh", "cosh", "tanh", "exp", "log", "abs", "sqrt", "arcsin", "arccos", "arctan", "sq", "square", "cb", "cube"}
 precedence = {"+": 0, "-": 0, "*": 1, "/": 1, "^": 2}
 operator_map = {
     "+": ADDITION,
@@ -53,6 +55,10 @@ operator_map = {
     "arcsin": ARCSIN,
     "arccos": ARCCOS,
     "arctan": ARCTAN,
+    "sq": SQUARE,
+    "square": SQUARE,
+    "cb": CUBE,
+    "cube": CUBE,
 }
 # matches X_### and C_### (case-insensitive)
 var_or_const_pattern = re.compile(r"([XC])_(\d+)", re.IGNORECASE)

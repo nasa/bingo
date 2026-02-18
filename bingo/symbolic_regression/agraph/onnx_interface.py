@@ -36,6 +36,8 @@ from .operator_definitions import (
     ARCSIN,
     ARCCOS,
     ARCTAN,
+    SQUARE,
+    CUBE,
     IS_ARITY_2_MAP,
 )
 
@@ -121,6 +123,13 @@ def make_onnx_model(command_array, constants, name="bingo_equation"):
                 else [f"{output_name}aux"]
             )
             nodes.append(make_node(ONNX_FUNCTIONS[op], inps, [output_name]))
+        elif op == SQUARE:
+            # Square: Mul(x, x)
+            nodes.append(make_node("Mul", [f"O{p1}", f"O{p1}"], [output_name]))
+        elif op == CUBE:
+            # Cube: Mul(Mul(x, x), x)
+            nodes.append(make_node("Mul", [f"O{p1}", f"O{p1}"], [f"{output_name}aux"]))
+            nodes.append(make_node("Mul", [f"{output_name}aux", f"O{p1}"], [output_name]))
         else:
             inps = [f"O{p1}", f"O{p2}"] if IS_ARITY_2_MAP[op] else [f"O{p1}"]
             nodes.append(make_node(ONNX_FUNCTIONS[op], inps, [output_name]))

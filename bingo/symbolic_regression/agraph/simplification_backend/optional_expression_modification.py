@@ -9,6 +9,8 @@ INSERT_SUBTRACTION: Default True.
 
 REPLACE_INTEGER_POWERS: Default True.
     a^5 is converted to (a*a)*(a*a)*a
+    Note: Conversion of a^2 to square(a) and a^3 to cube(a) is currently
+    disabled until SQUARE and CUBE operators are implemented in bingocpp.
 
 REPLACE_INTEGERS_WITH_CONSTANTS: Default False
     x+x is simplified to 2*x and is converted to c*x
@@ -16,6 +18,10 @@ REPLACE_INTEGERS_WITH_CONSTANTS: Default False
 from ..operator_definitions import INTEGER, CONSTANT, VARIABLE, ADDITION, \
                                    MULTIPLICATION, SUBTRACTION, POWER
 from .expression import Expression
+
+# Note: SQUARE and CUBE imports are commented out until these operators
+# are implemented in bingocpp. Uncomment when bingocpp support is ready.
+# from ..operator_definitions import SQUARE, CUBE
 
 INSERT_SUBTRACTION = True
 REPLACE_INTEGER_POWERS = True
@@ -111,6 +117,19 @@ def _replace_integer_powers(expression):
         return Expression(operator, operands_w_replaced)
 
     power = operands_w_replaced[1].operands[0]
+    
+    # NOTE: Conversion of x^2 to square(x) and x^3 to cube(x) is disabled
+    # until SQUARE and CUBE operators are implemented in bingocpp.
+    # This ensures compatibility with the C++ backend.
+    # 
+    # To enable this feature in the future, uncomment the following lines
+    # and the SQUARE/CUBE imports at the top of this file:
+    #
+    # if power == 2:
+    #     return Expression(SQUARE, [operands_w_replaced[0], operands_w_replaced[0]])
+    # elif power == 3:
+    #     return Expression(CUBE, [operands_w_replaced[0], operands_w_replaced[0]])
+    
     return Expression(MULTIPLICATION, [operands_w_replaced[0]] * power)
 
 

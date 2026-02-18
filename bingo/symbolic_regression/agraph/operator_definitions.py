@@ -33,6 +33,8 @@ ARCSIN = 17
 ARCCOS = 18
 ARCTAN = 19
 TANH = 20
+SQUARE = 21
+CUBE = 22
 
 IS_ARITY_2_MAP = {
     INTEGER: False,
@@ -57,6 +59,8 @@ IS_ARITY_2_MAP = {
     ARCCOS: False,
     ARCTAN: False,
     TANH: False,
+    SQUARE: False,
+    CUBE: False,
 }
 IS_TERMINAL_MAP = {
     INTEGER: True,
@@ -81,6 +85,8 @@ IS_TERMINAL_MAP = {
     ARCCOS: False,
     ARCTAN: False,
     TANH: False,
+    SQUARE: False,
+    CUBE: False,
 }
 OPERATOR_NAMES = {
     INTEGER: ["integer"],
@@ -105,4 +111,6 @@ OPERATOR_NAMES = {
     ARCCOS: ["arccos", "acos"],
     ARCTAN: ["arctan", "atan"],
     TANH: ["tangenth", "tanh"],
+    SQUARE: ["square", "sq"],
+    CUBE: ["cube", "cb"],
 }

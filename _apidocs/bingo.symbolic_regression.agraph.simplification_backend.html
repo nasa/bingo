@@ -470,6 +470,12 @@ book [1].</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_cube">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.</span></span><span class="sig-name descname"><span class="pre">simplify_cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_cube" title="Link to this definition">#</a></dt>
+<dd><p>simplification of cube operators</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_difference">
 <span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.</span></span><span class="sig-name descname"><span class="pre">simplify_difference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_difference" title="Link to this definition">#</a></dt>
 <dd><p>simplification of subtraction operators</p>
@@ -515,6 +521,15 @@ book [1].</p>
 <dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_sinh">
 <span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.</span></span><span class="sig-name descname"><span class="pre">simplify_sinh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_sinh" title="Link to this definition">#</a></dt>
 <dd><p>simplification of hyperbolic sin operators</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_square">
+<span class="sig-prename descclassname"><span class="pre">bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.</span></span><span class="sig-name descname"><span class="pre">simplify_square</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_square" title="Link to this definition">#</a></dt>
+<dd><p>simplification of square operators</p>
+<p>Note: The sqrt(x)^2 -&gt; x simplification assumes a non-negative domain,
+which is common in symbolic regression applications. In general,
+sqrt(x)^2 = <a href="#id1"><span class="problematic" id="id2">|x|</span></a>, but this implementation returns x for simplicity.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -702,7 +717,9 @@ performed to maintain a specific canonical structure.</p>
 <dl class="simple">
 <dt>INSERT_SUBTRACTION: Default True.</dt><dd><p>a + (-1)*b is converted to a - b</p>
 </dd>
-<dt>REPLACE_INTEGER_POWERS: Default True.</dt><dd><p>a^5 is converted to (a*a)*(a*a)*a</p>
+<dt>REPLACE_INTEGER_POWERS: Default True.</dt><dd><p>a^5 is converted to (a*a)*(a*a)*a
+Note: Conversion of a^2 to square(a) and a^3 to cube(a) is currently
+disabled until SQUARE and CUBE operators are implemented in bingocpp.</p>
 </dd>
 <dt>REPLACE_INTEGERS_WITH_CONSTANTS: Default False</dt><dd><p>x+x is simplified to 2*x and is converted to c*x</p>
 </dd>
@@ -877,6 +894,7 @@ using bingo’s built-in computer algebra system</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_atan"><code class="docutils literal notranslate"><span class="pre">simplify_atan()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_cos"><code class="docutils literal notranslate"><span class="pre">simplify_cos()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_cosh"><code class="docutils literal notranslate"><span class="pre">simplify_cosh()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_cube"><code class="docutils literal notranslate"><span class="pre">simplify_cube()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_difference"><code class="docutils literal notranslate"><span class="pre">simplify_difference()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_exponential"><code class="docutils literal notranslate"><span class="pre">simplify_exponential()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_logarithm"><code class="docutils literal notranslate"><span class="pre">simplify_logarithm()</span></code></a></li>
@@ -885,6 +903,7 @@ using bingo’s built-in computer algebra system</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_quotient"><code class="docutils literal notranslate"><span class="pre">simplify_quotient()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_sin"><code class="docutils literal notranslate"><span class="pre">simplify_sin()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_sinh"><code class="docutils literal notranslate"><span class="pre">simplify_sinh()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_square"><code class="docutils literal notranslate"><span class="pre">simplify_square()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_sum"><code class="docutils literal notranslate"><span class="pre">simplify_sum()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_tan"><code class="docutils literal notranslate"><span class="pre">simplify_tan()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bingo.symbolic_regression.agraph.simplification_backend.automatic_simplification.simplify_tanh"><code class="docutils literal notranslate"><span class="pre">simplify_tanh()</span></code></a></li>

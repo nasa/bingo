@@ -508,6 +508,67 @@ class AGraph(Equation):
         with open(file_name, "wb") as onnx_file:
             onnx_file.write(model.SerializeToString())
 
+    @staticmethod
+    def _compact_stack(command_array):
+        """Encode an Nx3 int command array as uint8 + special elements.
+
+        Each element that fits in [0, 255] is stored as a uint8 byte.
+        Elements outside that range are extracted and stored separately
+        as ``(flat_index, value)`` pairs so the bulk of the array uses
+        1 byte per element instead of 8.
+
+        Parameters
+        ----------
+        command_array : Nx3 numpy array of int
+
+        Returns
+        -------
+        tuple
+            (shape, uint8_flat, special_elements) where *uint8_flat* is a
+            1-D uint8 array and *special_elements* is a list of
+            ``(flat_index, value)`` tuples.
+        """
+        flat = command_array.ravel()
+        special_mask = (flat < 0) | (flat > 255)
+        special_elements = [(int(i), int(flat[i])) for i in np.where(special_mask)[0]]
+        compact = flat.astype(np.uint8)
+        compact[special_mask] = 0
+        return (command_array.shape, compact, special_elements)
+
+    @staticmethod
+    def _restore_stack(compact):
+        """Restore an Nx3 int command array from compact uint8 format.
+
+        Parameters
+        ----------
+        compact : tuple
+            ``(shape, uint8_flat, special_elements)`` as produced by
+            ``_compact_stack``.
+
+        Returns
+        -------
+        Nx3 numpy array of int
+        """
+        shape, uint8_flat, special_elements = compact
+        flat = uint8_flat.astype(int)
+        for idx, val in special_elements:
+            flat[idx] = val
+        return flat.reshape(shape)
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["_command_array"] = self._compact_stack(self._command_array)
+        del state["_simplified_command_array"]
+        state.pop("_hash", None)
+        return state
+
+    def __setstate__(self, state):
+        state["_command_array"] = self._restore_stack(state["_command_array"])
+        state["_simplified_command_array"] = np.empty([0, 3], dtype=int)
+        state["_modified"] = True
+        state["_hash"] = None
+        self.__dict__.update(state)
+
     def __hash__(self):
         if self._modified or self._hash is None:
             self._update()

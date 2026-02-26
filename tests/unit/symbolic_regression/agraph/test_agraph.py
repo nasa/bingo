@@ -193,7 +193,48 @@ def test_default_string_is_console_string(addition_agraph):
 
 
 def test_can_pickle(addition_agraph):
-    _ = dill.loads(dill.dumps(addition_agraph))
+    x = np.array([[1.0, 2.0], [3.0, 4.0]])
+    expected = addition_agraph.evaluate_equation_at(x)
+    loaded = dill.loads(dill.dumps(addition_agraph))
+    np.testing.assert_array_equal(loaded.evaluate_equation_at(x), expected)
+    np.testing.assert_array_equal(loaded.command_array, addition_agraph.command_array)
+
+
+def test_pickle_with_constants(addition_agraph_with_constants):
+    addition_agraph_with_constants.set_local_optimization_params((5.0, 7.0))
+    x = np.array([[1.0], [2.0]])
+    expected = addition_agraph_with_constants.evaluate_equation_at(x)
+    loaded = dill.loads(dill.dumps(addition_agraph_with_constants))
+    np.testing.assert_array_equal(loaded.evaluate_equation_at(x), expected)
+    assert loaded.constants == addition_agraph_with_constants.constants
+    np.testing.assert_array_equal(
+        loaded.command_array, addition_agraph_with_constants.command_array
+    )
+
+
+def test_pickle_with_integer_nodes(agraph_implementation):
+    """Verify round-trip for AGraphs containing INTEGER rows (op=-1)."""
+    sample = agraph_implementation()
+    sample.command_array = np.array(
+        [[INTEGER, 3, 3], [VARIABLE, 0, 0], [MULTIPLICATION, 0, 1]], dtype=int
+    )
+    x = np.array([[2.0], [4.0]])
+    expected = sample.evaluate_equation_at(x)
+    loaded = dill.loads(dill.dumps(sample))
+    np.testing.assert_array_equal(loaded.evaluate_equation_at(x), expected)
+    np.testing.assert_array_equal(loaded.command_array, sample.command_array)
+
+
+def test_pickle_is_compact(engine, addition_agraph):
+    """Verify compact pickle stores command array as flat uint8, drops derived data."""
+    if engine == "c++":
+        pytest.skip("Compact pickle is Python AGraph only")
+    state = addition_agraph.__getstate__()
+    shape, uint8_flat, _ = state["_command_array"]
+    assert uint8_flat.dtype == np.uint8
+    assert uint8_flat.shape == (shape[0] * shape[1],)
+    assert "_simplified_command_array" not in state
+    assert "_hash" not in state
 
 
 def test_can_get_and_set_fitness(addition_agraph):

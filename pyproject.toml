@@ -18,7 +18,7 @@ authors = [
 ]
 requires-python = ">=3.9"
 readme = "README.md"
-license = {file = "LICENSE.txt"}
+license = {text = "Apache-2.0"}
 dynamic = ["version"]
 dependencies = [
     "mpi4py>=4.0",
@@ -31,7 +31,6 @@ dependencies = [
     "pybind11[global]",
 ]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",

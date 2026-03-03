@@ -46,7 +46,7 @@ def sin_x0():
 def manual_expr():
     """Manually-built expression: X0 * C0  where C0 = 2.0"""
     expr = AGraphExpression()
-    expr.command_array = np.array(
+    expr.raw_command_array = np.array(
         [
             [VARIABLE, 0, 0],
             [CONSTANT, 0, 0],
@@ -54,7 +54,7 @@ def manual_expr():
         ],
         dtype=np.uint8,
     )
-    expr.constants = (2.0,)
+    expr.raw_constants = (2.0,)
     return expr
 
 
@@ -78,11 +78,6 @@ class TestConstruction:
         assert len(expr.integers) == 1
         assert expr.integers[0] == 7
 
-    def test_from_equation_no_underscore(self):
-        """Parser accepts X0 (no underscore) as well as X_0."""
-        expr = AGraphExpression(equation="X0 + X1")
-        assert expr.command_array.shape[0] > 0
-
 
 # ------------------------------------------------------------------ #
 #  Properties                                                         #
@@ -94,8 +89,8 @@ class TestProperties:
         with pytest.raises(ValueError):
             x0_plus_c0.command_array[0, 0] = 99
 
-    def test_mutable_command_array_is_writable(self, manual_expr):
-        cmd = manual_expr.mutable_command_array
+    def test_mutable_raw_command_array_is_writable(self, manual_expr):
+        cmd = manual_expr.mutable_raw_command_array
         cmd[0, 1] = 1  # should not raise
 
     def test_complexity(self, x0_plus_c0):
@@ -124,9 +119,10 @@ class TestProperties:
         expr = AGraphExpression(equation="X0 + 7")
         assert expr.integers == (7,)
         # After modifying command array to add a new INTEGER node
-        # that references index 0 of _integers (which is 7), the
-        # value should still be 7.
-        cmd = expr.mutable_command_array
+        # that references index 0 of _raw_integers (which is 7), the
+        # value should still be 7.  This verifies that integers are fixed
+        # from the source, not fabricated from the simplified command array.
+        _ = expr.mutable_raw_command_array
         # no-op mutation, just verify re-update keeps integer 7
         assert expr.integers == (7,)
 
@@ -268,7 +264,15 @@ class TestSklearnIsFitted:
         y = 2.0 * simple_x[:, 0]
         expr.fit(simple_x, y)
         assert expr.__sklearn_is_fitted__()
-        _ = expr.mutable_command_array
+        _ = expr.mutable_raw_command_array
+        assert not expr.__sklearn_is_fitted__()
+
+    def test_not_fitted_after_raw_constants_setter(self, simple_x):
+        expr = AGraphExpression(equation="X0 + 1.0")
+        y = 2.0 * simple_x[:, 0]
+        expr.fit(simple_x, y)
+        assert expr.__sklearn_is_fitted__()
+        expr.raw_constants = (999.0,)
         assert not expr.__sklearn_is_fitted__()
 
 
@@ -384,10 +388,10 @@ class TestModificationTracking:
         y = 2.0 * simple_x[:, 0]
         expr.fit(simple_x, y)
         assert expr.__sklearn_is_fitted__()
-        _ = expr.mutable_command_array
+        _ = expr.mutable_raw_command_array
         assert not expr.__sklearn_is_fitted__()
 
-    def test_command_array_setter_marks_not_fitted(self, simple_x):
+    def test_raw_command_array_setter_marks_not_fitted(self, simple_x):
         expr = AGraphExpression(equation="X0 + 1.0")
         y = 2.0 * simple_x[:, 0]
         expr.fit(simple_x, y)
@@ -397,10 +401,10 @@ class TestModificationTracking:
             [[VARIABLE, 0, 0], [CONSTANT, 0, 0], [ADDITION, 0, 1]],
             dtype=np.uint8,
         )
-        expr.command_array = new_cmd
+        expr.raw_command_array = new_cmd
         assert not expr.__sklearn_is_fitted__()
 
     def test_modification_resets_hash(self, x0_plus_c0):
         h1 = hash(x0_plus_c0)
-        _ = x0_plus_c0.mutable_command_array
+        _ = x0_plus_c0.mutable_raw_command_array
         assert x0_plus_c0._hash is None

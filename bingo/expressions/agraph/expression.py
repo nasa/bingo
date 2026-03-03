@@ -13,7 +13,6 @@ import numpy as np
 import scipy.optimize
 from sympy import sympify
 
-from .operators import CONSTANT
 from . import evaluation as evaluation_backend
 from . import simplification as simplification_backend
 from .formatting import get_formatted_string
@@ -106,16 +105,20 @@ class AGraphExpression:
 
         if equation is not None:
             cmd, consts, ints = eq_string_to_command_array_and_constants(str(equation))
-            self._command_array = cmd
-            self._simplified_command_array = np.empty([0, 3], dtype=np.uint8)
-            self._simplified_constants = consts
-            self._integers = ints
-            self._is_fitted = len(consts) == 0
+            self._raw_command_array = cmd
+            self._raw_constants = consts
+            self._raw_integers = ints
+            self._command_array = np.empty([0, 3], dtype=np.uint8)
+            self._constants = ()
+            self._integers = ()
+            self._is_fitted = False
             self._modified = True
         else:
+            self._raw_command_array = np.empty([0, 3], dtype=np.uint8)
+            self._raw_constants = ()
+            self._raw_integers = ()
             self._command_array = np.empty([0, 3], dtype=np.uint8)
-            self._simplified_command_array = np.empty([0, 3], dtype=np.uint8)
-            self._simplified_constants = ()
+            self._constants = ()
             self._integers = ()
             self._is_fitted = True
             self._modified = False
@@ -124,44 +127,83 @@ class AGraphExpression:
     #  Properties                                                         #
     # ------------------------------------------------------------------ #
 
-    @property
-    def command_array(self):
-        """Nx3 uint8 array: the command stack (read-only view)."""
-        self._command_array.flags.writeable = False
-        return self._command_array
+    # -- Raw (GA-facing) layer ------------------------------------------- #
 
-    @command_array.setter
-    def command_array(self, value):
-        self._command_array = np.asarray(value, dtype=np.uint8)
+    @property
+    def raw_command_array(self):
+        """Nx3 uint8 array: GA-facing command stack (read-only view)."""
+        self._raw_command_array.flags.writeable = False
+        return self._raw_command_array
+
+    @raw_command_array.setter
+    def raw_command_array(self, value):
+        self._raw_command_array = np.asarray(value, dtype=np.uint8)
         self._notify_modification()
 
     @property
-    def mutable_command_array(self):
-        """Nx3 uint8 array: writable command stack.
+    def mutable_raw_command_array(self):
+        """Nx3 uint8 array: writable GA-facing command stack.
 
         Accessing this property marks the expression as modified.
         """
-        self._command_array.flags.writeable = True
+        self._raw_command_array.flags.writeable = True
         self._notify_modification()
+        return self._raw_command_array
+
+    @property
+    def raw_constants(self):
+        """Constant values in the GA-facing (raw) equation."""
+        return self._raw_constants
+
+    @raw_constants.setter
+    def raw_constants(self, value):
+        self._raw_constants = tuple(float(v) for v in value)
+        self._notify_modification()
+
+    @property
+    def raw_integers(self):
+        """Integer values in the GA-facing (raw) equation."""
+        return self._raw_integers
+
+    @raw_integers.setter
+    def raw_integers(self, value):
+        self._raw_integers = tuple(int(v) for v in value)
+        self._notify_modification()
+
+    # -- Simplified (evaluation-facing) layer ----------------------------- #
+
+    @property
+    def command_array(self):
+        """Nx3 uint8 array: simplified command stack (read-only, derived)."""
+        if self._modified:
+            self._update()
+        self._command_array.flags.writeable = False
         return self._command_array
 
     @property
     def constants(self):
-        """Numeric constants used in the (simplified) equation."""
+        """Numeric constants used in the simplified equation."""
         if self._modified:
             self._update()
-        return self._simplified_constants
+        return self._constants
 
     @constants.setter
     def constants(self, value):
-        """Set the constants for the simplified equation."""
+        """Set constants in the simplified equation only.
+
+        Used by :meth:`fit` — does **not** touch :attr:`raw_constants`.
+        The provided values are used directly for evaluation without
+        triggering re-simplification.
+        """
         if self._modified:
             self._update()
-        self._simplified_constants = tuple(float(v) for v in value)
+        self._constants = tuple(float(v) for v in value)
 
     @property
     def integers(self):
-        """Integer values used in the equation."""
+        """Integer values used in the simplified equation."""
+        if self._modified:
+            self._update()
         return self._integers
 
     @property
@@ -169,7 +211,7 @@ class AGraphExpression:
         """Number of utilized commands in the simplified stack."""
         if self._modified:
             self._update()
-        return self._simplified_command_array.shape[0]
+        return self._command_array.shape[0]
 
     # ------------------------------------------------------------------ #
     #  Format properties                                                  #
@@ -198,8 +240,8 @@ class AGraphExpression:
         if self._modified:
             self._update()
         return make_onnx_model(
-            self._simplified_command_array,
-            self._simplified_constants,
+            self._command_array,
+            self._constants,
             self._integers,
         )
 
@@ -212,8 +254,8 @@ class AGraphExpression:
             self._update()
         return get_formatted_string(
             fmt,
-            self._simplified_command_array,
-            self._simplified_constants,
+            self._command_array,
+            self._constants,
             self._integers,
         )
 
@@ -238,9 +280,9 @@ class AGraphExpression:
             self._update()
         try:
             return evaluation_backend.evaluate(
-                self._simplified_command_array,
+                self._command_array,
                 x,
-                self._simplified_constants,
+                self._constants,
                 self._integers,
             )
         except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
@@ -259,9 +301,9 @@ class AGraphExpression:
             self._update()
         try:
             return evaluation_backend.evaluate_with_derivative(
-                self._simplified_command_array,
+                self._command_array,
                 x,
-                self._simplified_constants,
+                self._constants,
                 self._integers,
                 True,
             )
@@ -282,15 +324,15 @@ class AGraphExpression:
             self._update()
         try:
             return evaluation_backend.evaluate_with_derivative(
-                self._simplified_command_array,
+                self._command_array,
                 x,
-                self._simplified_constants,
+                self._constants,
                 self._integers,
                 False,
             )
         except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
             warnings.warn(f"{err} in const gradient evaluation")
-            nc = len(self._simplified_constants)
+            nc = len(self._constants)
             nan = np.full((x.shape[0], nc), np.nan)
             return nan, nan.copy()
 
@@ -417,10 +459,32 @@ class AGraphExpression:
         -------
         bytearray
         """
-        return simplification_backend.get_utilized_commands(self._command_array)
+        return simplification_backend.get_utilized_commands(self._raw_command_array)
+
+    def simplify(self):
+        """Replace the raw stack with its simplified form.
+
+        After simplification the raw values equal the simplified values —
+        unused rows are removed, references are remapped, and
+        constants/integers are renumbered to match.
+
+        Returns
+        -------
+        self
+            For method chaining.
+        """
+        if self._modified:
+            self._update()
+
+        # Promote simplified values back to raw storage
+        self._raw_command_array = self._command_array.copy()
+        self._raw_constants = self._constants
+        self._raw_integers = self._integers
+        self._modified = False
+        return self
 
     def distance(self, other):
-        """Element-wise distance between two command arrays.
+        """Element-wise distance between two raw command arrays.
 
         Parameters
         ----------
@@ -430,7 +494,7 @@ class AGraphExpression:
         -------
         int
         """
-        return int(np.sum(self.command_array != other.command_array))
+        return int(np.sum(self.raw_command_array != other.raw_command_array))
 
     def copy(self):
         """Deep copy of the expression."""
@@ -445,28 +509,16 @@ class AGraphExpression:
         self._hash = None
 
     def _update(self):
-        """Reduce the stack and renumber constants/integers."""
-        self._simplified_command_array = simplification_backend.reduce_stack(
-            self._command_array
+        """Run the simplification backend to derive command_array, constants,
+        and integers from the raw inputs."""
+        self._command_array, self._constants, self._integers = (
+            simplification_backend.simplify_full(
+                self._raw_command_array,
+                self._raw_constants,
+                self._raw_integers,
+            )
         )
-
-        # Renumber constants sequentially
-        const_mask = self._simplified_command_array[:, 0] == CONSTANT
-        num_const = int(np.count_nonzero(const_mask))
-        self._simplified_command_array[const_mask, 1] = np.arange(num_const)
-        self._simplified_command_array[const_mask, 2] = np.arange(num_const)
-
-        # Integer indices are not renumbered — they point directly into
-        # self._integers which is fixed from the unsimplified source.
-
-        # Manage constant values
-        old = self._simplified_constants
-        if num_const <= len(old):
-            self._simplified_constants = old[:num_const]
-        else:
-            self._simplified_constants = old + (1.0,) * (num_const - len(old))
-
-        self._is_fitted = num_const == 0
+        self._is_fitted = len(self._constants) == 0
         self._modified = False
 
     # ------------------------------------------------------------------ #
@@ -476,7 +528,7 @@ class AGraphExpression:
     def __hash__(self):
         if self._modified or self._hash is None:
             self._update()
-            self._hash = hash(tuple(map(tuple, self._simplified_command_array)))
+            self._hash = hash(tuple(map(tuple, self._command_array)))
         return self._hash
 
     def __eq__(self, other):
@@ -490,23 +542,28 @@ class AGraphExpression:
 
     def __getstate__(self):
         state = self.__dict__.copy()
-        # command_array is already uint8 — store directly
         state.pop("_hash", None)
-        # Don't store derived simplified arrays
-        del state["_simplified_command_array"]
+        # Derived attributes — exclude from serialization
+        state.pop("_command_array", None)
+        # state.pop("_constants", None) # these may have been fitted, so keep them in state
+        state.pop("_integers", None)
         return state
 
     def __setstate__(self, state):
-        state["_simplified_command_array"] = np.empty([0, 3], dtype=np.uint8)
+        state["_command_array"] = np.empty([0, 3], dtype=np.uint8)
+        # state["_constants"] = () # keep any fitted constants from state
+        state["_integers"] = ()
         state["_modified"] = True
         state["_hash"] = None
         self.__dict__.update(state)
 
     def __deepcopy__(self, memodict=None):
         new = AGraphExpression.__new__(AGraphExpression)
+        new._raw_command_array = np.copy(self._raw_command_array)
+        new._raw_constants = tuple(self._raw_constants)
+        new._raw_integers = tuple(self._raw_integers)
         new._command_array = np.copy(self._command_array)
-        new._simplified_command_array = np.copy(self._simplified_command_array)
-        new._simplified_constants = tuple(self._simplified_constants)
+        new._constants = tuple(self._constants)
         new._integers = tuple(self._integers)
         new._is_fitted = self._is_fitted
         new._modified = self._modified

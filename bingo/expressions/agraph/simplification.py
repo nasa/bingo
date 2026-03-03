@@ -77,3 +77,64 @@ def reduce_stack(stack):
                 new_stack[j, 2] = new_stack[j, 1]
         j += 1
     return new_stack
+
+
+def simplify_full(raw_command_array, raw_constants, raw_integers):
+    """Reduce the raw stack and derive simplified constants and integers.
+
+    Takes the three GA-facing raw inputs and produces the three
+    evaluation-facing simplified outputs in a single pass:
+
+    1. Remove unused rows and remap operator row-reference params via
+       :func:`reduce_stack`.
+    2. Scan the reduced stack once: for each CONSTANT or INTEGER node
+       (in order of appearance) look up the corresponding value from
+       ``raw_constants`` / ``raw_integers``, append to a new list, and
+       rewrite the node's param to the new sequential index.
+
+    Parameters
+    ----------
+    raw_command_array : Nx3 numpy array
+        The GA-facing command stack.
+    raw_constants : tuple of float
+        Constant values indexed by CONSTANT node params.
+    raw_integers : tuple of int
+        Integer values indexed by INTEGER node params.
+
+    Returns
+    -------
+    tuple
+        ``(command_array, constants, integers)`` — all simplified forms.
+        ``command_array`` is the reduced Mx3 stack with renumbered
+        CONSTANT / INTEGER params.  ``constants`` and ``integers`` are
+        tuples containing only the values actually referenced.
+    """
+    if raw_command_array.shape[0] == 0:
+        return (
+            np.empty((0, 3), dtype=raw_command_array.dtype),
+            (),
+            (),
+        )
+
+    stack = reduce_stack(raw_command_array)
+
+    new_constants = []
+    new_integers = []
+    for i in range(stack.shape[0]):
+        node = int(stack[i, 0])
+        if node == CONSTANT:
+            old_idx = int(stack[i, 1])
+            new_idx = len(new_constants)
+            value = raw_constants[old_idx] if old_idx < len(raw_constants) else 1.0
+            new_constants.append(value)
+            stack[i, 1] = new_idx
+            stack[i, 2] = new_idx
+        elif node == INTEGER:
+            old_idx = int(stack[i, 1])
+            new_idx = len(new_integers)
+            value = raw_integers[old_idx] if old_idx < len(raw_integers) else 0
+            new_integers.append(value)
+            stack[i, 1] = new_idx
+            stack[i, 2] = new_idx
+
+    return stack, tuple(new_constants), tuple(new_integers)

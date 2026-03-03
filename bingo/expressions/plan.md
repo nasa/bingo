@@ -104,8 +104,7 @@ tests/unit/expressions/
 - `mae` — mean absolute error
 - `mse` — mean squared error
 - `rmse` — root mean squared error
-- `bic` and `negative nmll laplace` — deferred (require fitness-vector-level
-  integration not yet needed for standalone expressions)
+- `bic` and `nmll laplace`
 
 ### Test results
 
@@ -113,14 +112,56 @@ tests/unit/expressions/
 
 ---
 
-# Step 2: Genetic operators (NOT YET STARTED)
+# Step 2: Genetic operators  ✅ COMPLETED
 
-- `AGraphGenerator` — create random expressions
-- `ComponentGenerator` — random commands (terminals vs operators)
-- `AGraphCrossover` — single-point crossover on command arrays
-- `AGraphMutation` — command, node, parameter, prune, fork mutations
-- Adapter/mixin to make `AGraphExpression` work with the evolutionary
-  framework (`Island`, `Archipelago`, selection, etc.)
+## What was implemented
+
+Genetic operators and an evolutionary adapter for AGraph expressions.
+All components work with variable-size command stacks and integrate with
+bingo's evolutionary framework via `EvolvableExpression`.
+
+### New files
+
+```
+bingo/expressions/
+├── evolvable.py                    # EvolvableExpression (Chromosome adapter)
+└── agraph/
+    ├── component_generator.py      # ComponentGenerator (random commands)
+    ├── generator.py                # AGraphGenerator (random individuals)
+    ├── crossover.py                # AGraphCrossover (variable-size single-point)
+    └── mutation.py                 # AGraphMutation (5 strategies)
+
+tests/unit/expressions/
+├── test_evolvable.py               # 16 tests
+└── agraph/
+    ├── test_component_generator.py # 18 tests
+    ├── test_generator.py           # 10 tests
+    ├── test_crossover.py           # 13 tests
+    └── test_mutation.py            # 16 tests
+```
+
+### Key design decisions
+
+- **EvolvableExpression adapter** — wraps `AGraphExpression` and inherits
+  from `Chromosome` (fitness, genetic_age, fit_set, copy, __str__, distance).
+  Also implements `needs_local_optimization`, `get_number_local_optimization_params`,
+  `set_local_optimization_params` for constant tuning.
+- **No INTEGER in generation** — `ComponentGenerator` only generates
+  VARIABLE and CONSTANT terminals. INTEGERs are preserved through
+  crossover/mutation but never randomly introduced.
+- **Variable-size stacks** — generator picks random size in
+  `[min_size, max_size]`; crossover handles different-length parents;
+  fork mutation can grow the stack up to `max_size`.
+- **`preserve_constants=True`** in crossover — parent constant values
+  are carried to children with proper index remapping.
+- **5 mutation types** — command, node, parameter, prune, fork. Fork
+  appends rows when below `max_size`; repurposes unutilized rows at capacity.
+- **`simplify()` method on AGraphExpression** — replaces raw command
+  array with the simplified version, renumbers constants/integers.
+
+### Test results
+
+250 tests pass. No regressions in existing test suite.
 
 # Step 3: C++ subpackage (NOT YET STARTED)
 
@@ -139,5 +180,3 @@ tests/unit/expressions/
 
 - Hessian computation (second-order derivatives)
 - General derivative function interface
-- Additional scoring metrics (BIC, Laplace NMLL)
-- Full `Regressor` class that runs evolutionary search

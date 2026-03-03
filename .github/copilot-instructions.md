@@ -86,23 +86,39 @@ bingo/
 
 ## Testing Requirements
 
-### Test Framework
-- Use **pytest** for all tests
-- Test files located in `tests/` directory
-- Run tests with: `tests/.run_tests.sh` or `pytest tests`
+### Test Framework & Tools
+- **Runner**: `pytest` (primary), executing via `pytest tests` or `tests/.run_tests.sh`
+- **Mocking**: `pytest-mock` (use `mocker` fixture, avoid `unittest.mock.patch` decorators)
+- **Coverage**: `pytest-cov` (target >90% coverage for Python code)
+- **Timeouts**: `pytest-timeout` (prevent hanging specific tests, esp. with MPI)
 
-### Test Structure
-- Unit tests in `tests/unit/`
-- Integration tests as needed
-- Use `pytest-mock` for mocking
-- Use `pytest-timeout` to prevent hanging tests
-- Target high code coverage (tracked with coverage.py and Coveralls)
+### Directory Structure & Naming
+- **Location**: `tests/` directory at project root
+- **Organization**: Mirror `bingo/` package structure in `tests/unit/`
+  - Example: `bingo/symbolic_regression/agraph/` -> `tests/unit/symbolic_regression/agraph/`
+- **File Naming**: `test_*.py` (e.g., `test_agraph.py`)
+- **Function Naming**: `test_*` (descriptive usage, e.g., `test_crossover_maintains_size`)
+- **Class Naming**: `Test*` (CamelCase, e.g., `class TestAGraph:`)
 
-### Testing Guidelines
-- Write tests for all new functionality
-- Maintain or improve existing code coverage
-- Test both Python and C++ components when applicable
-- Include tests for parallel execution paths where relevant
+### Best Practices
+- **Fixtures**: Use `pytest` fixtures (`@pytest.fixture`) over `setUp`/`tearDown`
+  - Define shared fixtures in `conftest.py` at appropriate levels
+  - Use appropriate scopes (`function`, `module`, `session`) to optimize runtime
+- **Parametrization**: Use `@pytest.mark.parametrize` for data-driven tests
+  - Provide `ids` for readable test output
+- **Arrange-Act-Assert**: Structure tests clearly
+
+### Mocking Guidelines
+- **Target**: Mock where objects are *used*, not where they are defined
+- **MPI**: Mock `mpi4py` interactions for unit tests; use real MPI only in integration tests
+- **C++ Extensions**: 
+  - Test Python bindings behavior, not internal C++ logic
+  - Verify consistency between C++ implementation and Python fallback
+
+### Test Categories
+- **Unit**: Fast, isolated, run in-memory (`tests/unit/`)
+- **Integration**: Component interaction, real MPI execution (`tests/integration/`)
+- **Performance**: Benchmarks and end-to-end runs (`tests/performance_benchmarking/`)
 
 ## Build & Development
 

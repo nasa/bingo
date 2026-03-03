@@ -512,7 +512,7 @@ class AGraphExpression:
         """Run the simplification backend to derive command_array, constants,
         and integers from the raw inputs."""
         self._command_array, self._constants, self._integers = (
-            simplification_backend.simplify_full(
+            simplification_backend.reduce(
                 self._raw_command_array,
                 self._raw_constants,
                 self._raw_integers,

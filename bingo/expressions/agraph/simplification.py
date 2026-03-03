@@ -39,58 +39,13 @@ def get_utilized_commands(stack):
     return util
 
 
-def reduce_stack(stack):
-    """Reduce a stack by removing unused commands.
-
-    Unused commands are removed and parameter references are remapped.
-    This does *not* renumber constant/integer indices — that is handled
-    by the expression class after reduction.
-
-    Parameters
-    ----------
-    stack : Nx3 numpy array of int
-        The command stack.
-
-    Returns
-    -------
-    Mx3 numpy array (same dtype as input)
-        Reduced stack with only used commands.
-    """
-    used_commands = get_utilized_commands(stack)
-    num_commands = sum(used_commands)
-    new_stack = np.empty((num_commands, 3), dtype=stack.dtype)
-    reduced_map = np.cumsum(used_commands) - 1
-    j = 0
-    for i in range(stack.shape[0]):
-        if not used_commands[i]:
-            continue
-        node = stack[i, 0]
-        new_stack[j, 0] = node
-        if IS_TERMINAL_MAP[node]:
-            new_stack[j, 1] = stack[i, 1]
-            new_stack[j, 2] = stack[i, 2]
-        else:
-            new_stack[j, 1] = reduced_map[stack[i, 1]]
-            if IS_ARITY_2_MAP[node]:
-                new_stack[j, 2] = reduced_map[stack[i, 2]]
-            else:
-                new_stack[j, 2] = new_stack[j, 1]
-        j += 1
-    return new_stack
-
-
-def simplify_full(raw_command_array, raw_constants, raw_integers):
+def reduce(raw_command_array, raw_constants, raw_integers):
     """Reduce the raw stack and derive simplified constants and integers.
 
-    Takes the three GA-facing raw inputs and produces the three
-    evaluation-facing simplified outputs in a single pass:
-
-    1. Remove unused rows and remap operator row-reference params via
-       :func:`reduce_stack`.
-    2. Scan the reduced stack once: for each CONSTANT or INTEGER node
-       (in order of appearance) look up the corresponding value from
-       ``raw_constants`` / ``raw_integers``, append to a new list, and
-       rewrite the node's param to the new sequential index.
+    Performs reduction and terminal renumbering in a single pass over the
+    raw command array.  Unused rows are dropped, operator row-references
+    are remapped, and CONSTANT / INTEGER indices are compacted to
+    sequential positions with only the referenced values retained.
 
     Parameters
     ----------
@@ -116,25 +71,43 @@ def simplify_full(raw_command_array, raw_constants, raw_integers):
             (),
         )
 
-    stack = reduce_stack(raw_command_array)
+    used_commands = get_utilized_commands(raw_command_array)
+    num_commands = sum(used_commands)
+    stack = np.empty((num_commands, 3), dtype=raw_command_array.dtype)
+    reduced_map = np.cumsum(used_commands) - 1
 
     new_constants = []
     new_integers = []
-    for i in range(stack.shape[0]):
-        node = int(stack[i, 0])
-        if node == CONSTANT:
-            old_idx = int(stack[i, 1])
-            new_idx = len(new_constants)
-            value = raw_constants[old_idx] if old_idx < len(raw_constants) else 1.0
-            new_constants.append(value)
-            stack[i, 1] = new_idx
-            stack[i, 2] = new_idx
-        elif node == INTEGER:
-            old_idx = int(stack[i, 1])
-            new_idx = len(new_integers)
-            value = raw_integers[old_idx] if old_idx < len(raw_integers) else 0
-            new_integers.append(value)
-            stack[i, 1] = new_idx
-            stack[i, 2] = new_idx
+    j = 0
+    for i in range(raw_command_array.shape[0]):
+        if not used_commands[i]:
+            continue
+        node = int(raw_command_array[i, 0])
+        stack[j, 0] = node
+        if IS_TERMINAL_MAP[node]:
+            if node == CONSTANT:
+                old_idx = int(raw_command_array[i, 1])
+                new_idx = len(new_constants)
+                value = raw_constants[old_idx] if old_idx < len(raw_constants) else 1.0
+                new_constants.append(value)
+                stack[j, 1] = new_idx
+                stack[j, 2] = new_idx
+            elif node == INTEGER:
+                old_idx = int(raw_command_array[i, 1])
+                new_idx = len(new_integers)
+                value = raw_integers[old_idx] if old_idx < len(raw_integers) else 0
+                new_integers.append(value)
+                stack[j, 1] = new_idx
+                stack[j, 2] = new_idx
+            else:
+                stack[j, 1] = raw_command_array[i, 1]
+                stack[j, 2] = raw_command_array[i, 2]
+        else:
+            stack[j, 1] = reduced_map[int(raw_command_array[i, 1])]
+            if IS_ARITY_2_MAP[node]:
+                stack[j, 2] = reduced_map[int(raw_command_array[i, 2])]
+            else:
+                stack[j, 2] = stack[j, 1]
+        j += 1
 
     return stack, tuple(new_constants), tuple(new_integers)

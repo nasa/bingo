@@ -37,8 +37,10 @@ DEFAULT_MAX_FORK_SIZE = 3
 #  Stack compaction helpers (module-level, no instance state needed)       #
 # ====================================================================== #
 
-def _compact_stack_forward(new_stack, fork_size, fork_target,
-                           slots_before, slots_between):
+
+def _compact_stack_forward(
+    new_stack, fork_size, fork_target, slots_before, slots_between
+):
     """Move unutilized rows from before *fork_target* to just after it.
 
     Utilized rows between the freed slots and *fork_target* are shifted
@@ -95,8 +97,7 @@ def _compact_stack_forward(new_stack, fork_size, fork_target,
     return fork_target_new, new_slots_between
 
 
-def _compact_stack_backward(new_stack, fork_size, fork_ref,
-                            slots_between, slots_after):
+def _compact_stack_backward(new_stack, fork_size, fork_ref, slots_between, slots_after):
     """Move unutilized rows from after *fork_ref* to just before it.
 
     Utilized rows between *fork_ref* and the freed slots are shifted
@@ -454,8 +455,7 @@ class AGraphMutation(Mutation):
             for i in range(fork_target + 1, n)
             if utilized[i]
             and not IS_TERMINAL_MAP.get(int(raw[i, 0]), True)
-            and (int(raw[i, 1]) == fork_target
-                 or int(raw[i, 2]) == fork_target)
+            and (int(raw[i, 1]) == fork_target or int(raw[i, 2]) == fork_target)
         ]
         if not valid_refs:
             return
@@ -463,8 +463,7 @@ class AGraphMutation(Mutation):
 
         # --- Step 4: classify unutilized slots relative to fork window ---
         slots_before = [i for i in unutilized if i < fork_target]
-        slots_between = [i for i in unutilized
-                         if fork_target < i < fork_ref]
+        slots_between = [i for i in unutilized if fork_target < i < fork_ref]
         slots_after = [i for i in unutilized if i > fork_ref]
 
         # --- Step 4b: compact if not enough free slots in the window ---
@@ -474,13 +473,19 @@ class AGraphMutation(Mutation):
         else:
             if slots_before:
                 fork_target, slots_between = _compact_stack_forward(
-                    new_stack, fork_size, fork_target,
-                    slots_before, slots_between,
+                    new_stack,
+                    fork_size,
+                    fork_target,
+                    slots_before,
+                    slots_between,
                 )
             if len(slots_between) < fork_size and slots_after:
                 fork_ref, slots_between = _compact_stack_backward(
-                    new_stack, fork_size, fork_ref,
-                    slots_between, slots_after,
+                    new_stack,
+                    fork_size,
+                    fork_ref,
+                    slots_between,
+                    slots_after,
                 )
             fork_slots = slots_between[:fork_size]
 
@@ -504,8 +509,7 @@ class AGraphMutation(Mutation):
         fork_output = fork_slots[-1]
         if IS_ARITY_2_MAP.get(int(new_stack[fork_ref, 0]), False):
             possible_params = [
-                c for c in (1, 2)
-                if int(new_stack[fork_ref, c]) == fork_target
+                c for c in (1, 2) if int(new_stack[fork_ref, c]) == fork_target
             ]
             col = possible_params[int(self._rng.integers(len(possible_params)))]
             new_stack[fork_ref, col] = fork_output
@@ -514,19 +518,18 @@ class AGraphMutation(Mutation):
             new_stack[fork_ref, 2] = fork_output
 
     def _generate_fork_subtree(self, fork_size):
-        connected_to_target = [0]
+        connected_set = {0}
         fork = np.empty((fork_size, 3), dtype=np.uint8)
         for i in range(fork_size - 1):
             cmd = self._cgen.random_command(i + 1)
             if not IS_TERMINAL_MAP[int(cmd[0])] and (
-                cmd[1] in connected_to_target or cmd[2] in connected_to_target
+                int(cmd[1]) in connected_set or int(cmd[2]) in connected_set
             ):
-                connected_to_target.append(i + 1)
+                connected_set.add(i + 1)
             fork[i] = cmd
         fork[-1][0] = self._cgen.random_operator()
-        fork[-1][1] = connected_to_target[
-            int(self._rng.integers(len(connected_to_target)))
-        ]
+        connected_list = sorted(connected_set)
+        fork[-1][1] = connected_list[int(self._rng.integers(len(connected_list)))]
         if IS_ARITY_2_MAP.get(fork[-1][0], False):
             fork[-1][2] = int(self._rng.integers(fork_size))
         else:
@@ -576,51 +579,50 @@ class AGraphMutation(Mutation):
         command[1] = command[2] = new_idx
 
     def _prune_raw_constants(self, individual):
-        """Remove unused entries from ``raw_constants`` and renumber indices.
+        """Remove unused entries from ``raw_constants`` and ``raw_integers``
+        and renumber their indices.
 
-        After a mutation a CONSTANT node's old slot may no longer be
-        referenced by any row in the raw command array.  This method
-        compacts ``raw_constants`` to only the values that are actually
-        used and rewrites all CONSTANT parameter indices accordingly.
+        After a mutation, CONSTANT or INTEGER nodes may reference slots
+        that are no longer used.  This method compacts both pools to only
+        the values actually referenced in the raw command array and
+        rewrites all parameter indices in a single pass.
 
         Parameters
         ----------
         individual : EvolvableExpression
         """
-        raw = individual.expression.raw_command_array
         old_consts = individual.expression.raw_constants
-        if not old_consts:
+        old_ints = individual.expression.raw_integers
+        if not old_consts and not old_ints:
             return
 
-        # First pass: collect used old indices in encounter order
-        old_to_new = {}
-        for i in range(raw.shape[0]):
-            if int(raw[i, 0]) == CONSTANT:
-                old_idx = int(raw[i, 1])
-                if old_idx not in old_to_new:
-                    old_to_new[old_idx] = len(old_to_new)
-
-        if not old_to_new:
-            individual.expression.raw_constants = ()
-            return
-
-        if len(old_to_new) == len(old_consts):
-            # Nothing to prune; check if renumbering is a no-op too
-            if all(v == k for k, v in old_to_new.items()):
-                return
-
-        # Second pass: rewrite indices in-place
         mraw = individual.expression.mutable_raw_command_array
-        for i in range(mraw.shape[0]):
-            if int(mraw[i, 0]) == CONSTANT:
-                old_idx = int(mraw[i, 1])
-                mraw[i, 1] = mraw[i, 2] = old_to_new[old_idx]
+        const_map = {}
+        int_map = {}
+        new_consts = []
+        new_ints = []
 
-        # Rebuild constant tuple in new order
-        new_consts = tuple(
-            old_consts[k] for k in sorted(old_to_new, key=old_to_new.__getitem__)
-        )
-        individual.expression.raw_constants = new_consts
+        for i in range(mraw.shape[0]):
+            op = int(mraw[i, 0])
+            if op == CONSTANT:
+                old_idx = int(mraw[i, 1])
+                if old_idx not in const_map:
+                    const_map[old_idx] = len(new_consts)
+                    new_consts.append(
+                        old_consts[old_idx] if old_idx < len(old_consts) else 0.0
+                    )
+                mraw[i, 1] = mraw[i, 2] = const_map[old_idx]
+            elif op == INTEGER:
+                old_idx = int(mraw[i, 1])
+                if old_idx not in int_map:
+                    int_map[old_idx] = len(new_ints)
+                    new_ints.append(old_ints[old_idx] if old_idx < len(old_ints) else 0)
+                mraw[i, 1] = mraw[i, 2] = int_map[old_idx]
+
+        if tuple(new_consts) != old_consts:
+            individual.expression.raw_constants = tuple(new_consts)
+        if tuple(new_ints) != old_ints:
+            individual.expression.raw_integers = tuple(new_ints)
 
     def _random_utilized_location(self, individual):
         utilized = individual.get_utilized_commands()

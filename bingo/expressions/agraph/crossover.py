@@ -172,7 +172,8 @@ class AGraphCrossover(Crossover):
     def _renumber_and_merge_constants(head_parent, tail_parent, child_stack, head_cp):
         """Carry parent constant/integer values into the child and remap indices.
 
-        Scans every row once.  Rows before ``head_cp`` source from
+        Scans every row once, handling both CONSTANT and INTEGER nodes
+        in a single pass.  Rows before ``head_cp`` source from
         ``head_parent``; rows from ``head_cp`` onward source from
         ``tail_parent``.  Each encountered terminal is appended to a new
         list and its index in the child stack is rewritten to the new
@@ -188,15 +189,17 @@ class AGraphCrossover(Crossover):
         head_ints = list(head_parent.expression.raw_integers)
         tail_ints = list(tail_parent.expression.raw_integers)
 
-        def _merge(op_code, head_vals, tail_vals):
-            new_vals = []
-            for row in range(child_stack.shape[0]):
-                if int(child_stack[row, 0]) == op_code:
-                    src = head_vals if row < head_cp else tail_vals
-                    new_vals.append(src[int(child_stack[row, 1])])
-                    child_stack[row, 1:] = len(new_vals) - 1
-            return new_vals
+        new_consts = []
+        new_ints = []
+        for row in range(child_stack.shape[0]):
+            op = int(child_stack[row, 0])
+            if op == CONSTANT:
+                src = head_consts if row < head_cp else tail_consts
+                new_consts.append(src[int(child_stack[row, 1])])
+                child_stack[row, 1:] = len(new_consts) - 1
+            elif op == INTEGER:
+                src = head_ints if row < head_cp else tail_ints
+                new_ints.append(src[int(child_stack[row, 1])])
+                child_stack[row, 1:] = len(new_ints) - 1
 
-        new_consts = _merge(CONSTANT, head_consts, tail_consts)
-        new_ints = _merge(INTEGER, head_ints, tail_ints)
         return tuple(new_consts), tuple(new_ints)

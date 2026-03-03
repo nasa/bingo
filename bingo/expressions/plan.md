@@ -173,7 +173,7 @@ tests/unit/expressions/
 
 - Port the CAS simplification backend from
   `bingo/symbolic_regression/agraph/simplification_backend/`
-- Add `simplify_stack()` alongside `reduce_stack()` in
+- Add `simplify()` alongside `reduce()` in
   `bingo/expressions/agraph/simplification.py`
 
 # Step 5: Advanced features (NOT YET STARTED)

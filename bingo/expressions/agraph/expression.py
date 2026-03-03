@@ -13,8 +13,8 @@ import numpy as np
 import scipy.optimize
 from sympy import sympify
 
-from . import evaluation as evaluation_backend
-from . import simplification as simplification_backend
+from .evaluation import evaluate, evaluate_with_derivative
+from .simplification import get_utilized_commands, reduce, simplify as cas_simplify
 from .formatting import get_formatted_string
 from .parsing import eq_string_to_command_array_and_constants
 
@@ -98,9 +98,23 @@ class AGraphExpression:
     ----------
     equation : str or sympy.Expr, optional
         An equation to initialise the expression from.
+    simplification : {"reduce", "cas"}, optional
+        Which simplification strategy to use when deriving the
+        evaluation-facing stack from the raw stack.  ``"reduce"``
+        (default) performs cheap dead-code elimination / constant
+        folding on the stack.  ``"cas"`` runs the full computer
+        algebra simplification pipeline.
     """
 
-    def __init__(self, *, equation=None):
+    _VALID_SIMPLIFICATIONS = frozenset({"reduce", "cas"})
+
+    def __init__(self, *, equation=None, simplification="reduce"):
+        if simplification not in self._VALID_SIMPLIFICATIONS:
+            raise ValueError(
+                f"simplification must be one of "
+                f"{self._VALID_SIMPLIFICATIONS!r}, got {simplification!r}"
+            )
+        self._simplification = simplification
         self._hash = None
 
         if equation is not None:
@@ -279,7 +293,7 @@ class AGraphExpression:
         if self._modified:
             self._update()
         try:
-            return evaluation_backend.evaluate(
+            return evaluate(
                 self._command_array,
                 x,
                 self._constants,
@@ -300,7 +314,7 @@ class AGraphExpression:
         if self._modified:
             self._update()
         try:
-            return evaluation_backend.evaluate_with_derivative(
+            return evaluate_with_derivative(
                 self._command_array,
                 x,
                 self._constants,
@@ -323,7 +337,7 @@ class AGraphExpression:
         if self._modified:
             self._update()
         try:
-            return evaluation_backend.evaluate_with_derivative(
+            return evaluate_with_derivative(
                 self._command_array,
                 x,
                 self._constants,
@@ -459,9 +473,9 @@ class AGraphExpression:
         -------
         bytearray
         """
-        return simplification_backend.get_utilized_commands(self._raw_command_array)
+        return get_utilized_commands(self._raw_command_array)
 
-    def simplify(self):
+    def promote_simplification(self):
         """Replace the raw stack with its simplified form.
 
         After simplification the raw values equal the simplified values —
@@ -511,13 +525,22 @@ class AGraphExpression:
     def _update(self):
         """Run the simplification backend to derive command_array, constants,
         and integers from the raw inputs."""
-        self._command_array, self._constants, self._integers = (
-            simplification_backend.reduce(
-                self._raw_command_array,
-                self._raw_constants,
-                self._raw_integers,
+        if self._simplification == "cas":
+            self._command_array, self._constants, self._integers = (
+                cas_simplify(
+                    self._raw_command_array,
+                    self._raw_constants,
+                    self._raw_integers,
+                )
             )
-        )
+        else:
+            self._command_array, self._constants, self._integers = (
+                reduce(
+                    self._raw_command_array,
+                    self._raw_constants,
+                    self._raw_integers,
+                )
+            )
         self._is_fitted = len(self._constants) == 0
         self._modified = False
 
@@ -559,6 +582,7 @@ class AGraphExpression:
 
     def __deepcopy__(self, memodict=None):
         new = AGraphExpression.__new__(AGraphExpression)
+        new._simplification = self._simplification
         new._raw_command_array = np.copy(self._raw_command_array)
         new._raw_constants = tuple(self._raw_constants)
         new._raw_integers = tuple(self._raw_integers)

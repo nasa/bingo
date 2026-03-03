@@ -12,7 +12,7 @@ from bingo.expressions.agraph.operators import (
     MULTIPLICATION,
     SIN,
 )
-from bingo.expressions.agraph import evaluation
+from bingo.expressions.agraph.evaluation import evaluation
 
 
 @pytest.fixture

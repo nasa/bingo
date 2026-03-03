@@ -29,7 +29,7 @@ from bingo.expressions.agraph.operators import (
     COSH,
     TANH,
 )
-from bingo.expressions.agraph.operator_eval import (
+from bingo.expressions.agraph.evaluation.operator_eval import (
     FORWARD_EVAL_MAP,
     REVERSE_EVAL_MAP,
     forward_eval_function,

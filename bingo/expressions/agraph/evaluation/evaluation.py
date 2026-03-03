@@ -7,7 +7,7 @@ automatic differentiation for acyclic graph command stacks.
 import numpy as np
 
 from .operator_eval import forward_eval_function, reverse_eval_function
-from .operators import VARIABLE, CONSTANT
+from ..operators import VARIABLE, CONSTANT
 
 
 def evaluate(stack, x, constants, integers):

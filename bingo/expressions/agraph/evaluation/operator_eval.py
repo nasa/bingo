@@ -22,7 +22,7 @@ REVERSE_EVAL_MAP : dict {int: callable}
 
 import numpy as np
 
-from .operators import (
+from ..operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,

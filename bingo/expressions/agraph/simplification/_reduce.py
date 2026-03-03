@@ -1,12 +1,13 @@
-"""Stack simplification for AGraph expressions.
+"""Stack reduction for AGraph expressions.
 
 Provides stack reduction — removing unused commands and remapping
-parameter references.
+parameter references.  This is the "cheap" simplification used during
+GA evaluation; for full algebraic simplification see :mod:`._simplify`.
 """
 
 import numpy as np
 
-from .operators import IS_ARITY_2_MAP, IS_TERMINAL_MAP, CONSTANT, INTEGER
+from ..operators import IS_ARITY_2_MAP, IS_TERMINAL_MAP, CONSTANT, INTEGER
 
 
 def get_utilized_commands(stack):

@@ -25,17 +25,16 @@ from ..operators import (
     MULTIPLICATION,
     SUBTRACTION,
     POWER,
-    SQUARE,
-    CUBE,
 )
-from .cas_expression import CASExpression
+from .cas_expression import CASExpression, _NEG_ONE
 
 INSERT_SUBTRACTION = True
 REPLACE_INTEGER_POWERS = True
 REPLACE_INTEGERS_WITH_CONSTANTS = False
 
-NEGATIVE_ONE = CASExpression(INTEGER, [-1])
+NEGATIVE_ONE = _NEG_ONE
 SOME_BIG_INT = 1_000_000
+_TERMINAL_OPS = frozenset({INTEGER, CONSTANT, VARIABLE})
 
 
 def optional_modifications(expression):
@@ -65,19 +64,21 @@ def optional_modifications(expression):
 
 def _insert_subtraction(expression):
     operator = expression.operator
-    if operator in [INTEGER, CONSTANT, VARIABLE]:
+    if operator in _TERMINAL_OPS:
         return expression
 
-    operands_w_subtraction = [
-        _insert_subtraction(operand) for operand in expression.operands
-    ]
+    orig_operands = expression.operands
+    operands_w_subtraction = [_insert_subtraction(operand) for operand in orig_operands]
     if operator != ADDITION:
+        if all(n is o for n, o in zip(operands_w_subtraction, orig_operands)):
+            return expression
         return CASExpression(operator, operands_w_subtraction)
 
     additive_operands = []
     subtractive_operands = []
     for operand in operands_w_subtraction:
-        if operand.coefficient == NEGATIVE_ONE:
+        coeff = operand.coefficient
+        if coeff is NEGATIVE_ONE or coeff == NEGATIVE_ONE:
             term = operand.term
             if len(term.operands) == 1:
                 subtractive_operands.append(term.operands[0])
@@ -93,7 +94,7 @@ def _insert_subtraction(expression):
         return CASExpression(
             MULTIPLICATION,
             [
-                NEGATIVE_ONE.copy(),
+                NEGATIVE_ONE,
                 CASExpression(ADDITION, subtractive_operands),
             ],
         )
@@ -118,11 +119,12 @@ def _insert_subtraction(expression):
 
 def _replace_integer_powers(expression):
     operator = expression.operator
-    if operator in [INTEGER, CONSTANT, VARIABLE]:
+    if operator in _TERMINAL_OPS:
         return expression
 
+    orig_operands = expression.operands
     operands_w_replaced = [
-        _replace_integer_powers(operand) for operand in expression.operands
+        _replace_integer_powers(operand) for operand in orig_operands
     ]
 
     if (
@@ -130,15 +132,12 @@ def _replace_integer_powers(expression):
         or operands_w_replaced[1].operator != INTEGER
         or operands_w_replaced[1].operands[0] <= 0
     ):
+        if all(n is o for n, o in zip(operands_w_replaced, orig_operands)):
+            return expression
         return CASExpression(operator, operands_w_replaced)
 
     power = operands_w_replaced[1].operands[0]
     base = operands_w_replaced[0]
-
-    if power == 2:
-        return CASExpression(SQUARE, [base, base])
-    if power == 3:
-        return CASExpression(CUBE, [base, base])
 
     return CASExpression(MULTIPLICATION, [base] * power)
 
@@ -153,12 +152,12 @@ def _replace_integers_with_constants(expression):
     if operator in [CONSTANT, VARIABLE]:
         return expression
     if operator == INTEGER:
-        return CASExpression(
-            CONSTANT, [SOME_BIG_INT + expression.operands[0]]
-        )
+        return CASExpression(CONSTANT, [SOME_BIG_INT + expression.operands[0]])
 
+    orig_operands = expression.operands
     operands_w_replaced = [
-        _replace_integers_with_constants(operand)
-        for operand in expression.operands
+        _replace_integers_with_constants(operand) for operand in orig_operands
     ]
+    if all(n is o for n, o in zip(operands_w_replaced, orig_operands)):
+        return expression
     return CASExpression(operator, operands_w_replaced)

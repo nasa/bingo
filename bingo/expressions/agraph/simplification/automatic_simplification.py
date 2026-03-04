@@ -33,12 +33,22 @@ from ..operators import (
     SQUARE,
     CUBE,
 )
-from .cas_expression import CASExpression
+from .cas_expression import (
+    CASExpression,
+    _init_singletons,
+    _ZERO,
+    _ONE,
+    _TWO,
+    _NEG_ONE,
+)
 
+# Ensure singletons are initialised before use.
+_init_singletons()
 
-NEGATIVE_ONE = CASExpression(INTEGER, [-1])
-ZERO = CASExpression(INTEGER, [0])
-ONE = CASExpression(INTEGER, [1])
+# Module-level aliases for readability.
+NEGATIVE_ONE = _NEG_ONE
+ZERO = _ZERO
+ONE = _ONE
 
 
 def automatic_simplify(expression):
@@ -69,9 +79,9 @@ def simplify_power(expression):
     """Simplification of power operators."""
     base, exponent = expression.operands
     if base.is_one():
-        return ONE.copy()
+        return ONE
     if base.is_zero() and exponent.operator == INTEGER and exponent.operands[0] > 0:
-        return ZERO.copy()
+        return ZERO
     if exponent.operator in [INTEGER, CONSTANT]:
         return _simplify_constant_power(base, exponent)
     return expression
@@ -81,7 +91,7 @@ def _simplify_constant_power(base, exponent):
     if exponent.is_one():
         return base
     if exponent.is_zero():
-        return ONE.copy()
+        return ONE
 
     if (
         base.operator == INTEGER
@@ -102,8 +112,7 @@ def _simplify_constant_power(base, exponent):
     if base.operator == MULTIPLICATION:  # distribute constant powers
 
         def _temp_simp_const_power(bas):
-            exp = exponent.copy()
-            return _simplify_constant_power(bas, exp)
+            return _simplify_constant_power(bas, exponent)
 
         return simplify_product(base.map(_temp_simp_const_power))
 
@@ -119,13 +128,13 @@ def simplify_product(expression):
     """Simplification of multiplication operators."""
     operands = expression.operands
     if ZERO in operands:
-        return ZERO.copy()
+        return ZERO
     if len(operands) == 1:
         return operands[0]
 
     recursively_simplified_operands = _simplify_product_rec(operands)
     if len(recursively_simplified_operands) == 0:
-        return ONE.copy()
+        return ONE
     if len(recursively_simplified_operands) == 1:
         return recursively_simplified_operands[0]
     return CASExpression(MULTIPLICATION, recursively_simplified_operands)
@@ -148,8 +157,13 @@ def _simplify_product_rec(operands):
                 return [op_1]
 
             if op_1.base == op_2.base:
-                new_exponent = CASExpression(ADDITION, [op_1.exponent, op_2.exponent])
-                new_exponent = simplify_sum(new_exponent)
+                e1, e2 = op_1.exponent, op_2.exponent
+                # Fast path: 1+1=2 (very common — two identical terms)
+                if e1 is _ONE and e2 is _ONE:
+                    new_exponent = _TWO
+                else:
+                    new_exponent = CASExpression(ADDITION, [e1, e2])
+                    new_exponent = simplify_sum(new_exponent)
                 combined_op = CASExpression(POWER, [op_1.base, new_exponent])
                 combined_op = simplify_power(combined_op)
 
@@ -179,19 +193,31 @@ def _simplify_product_rec(operands):
 
 
 def _merge_products(operands_1, operands_2):
-    if len(operands_1) == 0:
-        return operands_2
-    if len(operands_2) == 0:
-        return operands_1
-
-    simplified_firsts = _simplify_product_rec([operands_1[0], operands_2[0]])
-    if len(simplified_firsts) == 0:
-        return _merge_products(operands_1[1:], operands_2[1:])
-    if len(simplified_firsts) == 1:
-        return simplified_firsts + _merge_products(operands_1[1:], operands_2[1:])
-    if simplified_firsts[0] == operands_1[0]:
-        return [simplified_firsts[0]] + _merge_products(operands_1[1:], operands_2)
-    return [simplified_firsts[0]] + _merge_products(operands_1, operands_2[1:])
+    result = []
+    i, j = 0, 0
+    n1, n2 = len(operands_1), len(operands_2)
+    while i < n1 and j < n2:
+        simplified = _simplify_product_rec([operands_1[i], operands_2[j]])
+        slen = len(simplified)
+        if slen == 0:
+            i += 1
+            j += 1
+        elif slen == 1:
+            result.append(simplified[0])
+            i += 1
+            j += 1
+        elif simplified[0] is operands_1[i] or simplified[0] == operands_1[i]:
+            result.append(simplified[0])
+            i += 1
+        else:
+            result.append(simplified[0])
+            j += 1
+    # Append remaining
+    if i < n1:
+        result.extend(operands_1[i:])
+    if j < n2:
+        result.extend(operands_2[j:])
+    return result
 
 
 # ------------------------------------------------------------------ #
@@ -207,7 +233,7 @@ def simplify_sum(expression):
 
     recursively_simplified_operands = _simplify_sum_rec(operands)
     if len(recursively_simplified_operands) == 0:
-        return ZERO.copy()
+        return ZERO
     if len(recursively_simplified_operands) == 1:
         return recursively_simplified_operands[0]
     return CASExpression(ADDITION, recursively_simplified_operands)
@@ -229,11 +255,14 @@ def _simplify_sum_rec(operands):
             if op_2.is_zero():
                 return [op_1]
 
-            if op_1.term == op_2.term:
-                new_coefficient = CASExpression(
-                    ADDITION, [op_1.coefficient, op_2.coefficient]
-                )
-                new_coefficient = simplify_sum(new_coefficient)
+            if op_1.same_term(op_2):
+                c1, c2 = op_1.coefficient, op_2.coefficient
+                # Fast path: 1+1=2 (very common — two identical terms)
+                if c1 is _ONE and c2 is _ONE:
+                    new_coefficient = _TWO
+                else:
+                    new_coefficient = CASExpression(ADDITION, [c1, c2])
+                    new_coefficient = simplify_sum(new_coefficient)
                 combined_op = CASExpression(
                     MULTIPLICATION, [new_coefficient, op_1.term]
                 )
@@ -265,19 +294,31 @@ def _simplify_sum_rec(operands):
 
 
 def _merge_sums(operands_1, operands_2):
-    if len(operands_1) == 0:
-        return operands_2
-    if len(operands_2) == 0:
-        return operands_1
-
-    simplified_firsts = _simplify_sum_rec([operands_1[0], operands_2[0]])
-    if len(simplified_firsts) == 0:
-        return _merge_sums(operands_1[1:], operands_2[1:])
-    if len(simplified_firsts) == 1:
-        return simplified_firsts + _merge_sums(operands_1[1:], operands_2[1:])
-    if simplified_firsts[0] == operands_1[0]:
-        return [simplified_firsts[0]] + _merge_sums(operands_1[1:], operands_2)
-    return [simplified_firsts[0]] + _merge_sums(operands_1, operands_2[1:])
+    result = []
+    i, j = 0, 0
+    n1, n2 = len(operands_1), len(operands_2)
+    while i < n1 and j < n2:
+        simplified = _simplify_sum_rec([operands_1[i], operands_2[j]])
+        slen = len(simplified)
+        if slen == 0:
+            i += 1
+            j += 1
+        elif slen == 1:
+            result.append(simplified[0])
+            i += 1
+            j += 1
+        elif simplified[0] is operands_1[i] or simplified[0] == operands_1[i]:
+            result.append(simplified[0])
+            i += 1
+        else:
+            result.append(simplified[0])
+            j += 1
+    # Append remaining
+    if i < n1:
+        result.extend(operands_1[i:])
+    if j < n2:
+        result.extend(operands_2[j:])
+    return result
 
 
 # ------------------------------------------------------------------ #
@@ -288,7 +329,7 @@ def _merge_sums(operands_1, operands_2):
 def simplify_quotient(expression):
     """Simplification of division operators."""
     numerator, denominator = expression.operands
-    denominator_inv = CASExpression(POWER, [denominator, NEGATIVE_ONE.copy()])
+    denominator_inv = CASExpression(POWER, [denominator, NEGATIVE_ONE])
     denominator_inv = simplify_power(denominator_inv)
     quotient_as_product = CASExpression(MULTIPLICATION, [numerator, denominator_inv])
     return simplify_product(quotient_as_product)
@@ -300,12 +341,10 @@ def simplify_difference(expression):
     new_operands = [first]
     if second.operator == ADDITION:
         for operand in second.operands:
-            negative_operand = CASExpression(
-                MULTIPLICATION, [NEGATIVE_ONE.copy(), operand]
-            )
+            negative_operand = CASExpression(MULTIPLICATION, [NEGATIVE_ONE, operand])
             new_operands.append(simplify_product(negative_operand))
     else:
-        negative_second = CASExpression(MULTIPLICATION, [NEGATIVE_ONE.copy(), second])
+        negative_second = CASExpression(MULTIPLICATION, [NEGATIVE_ONE, second])
         new_operands.append(simplify_product(negative_second))
     difference_as_sum = CASExpression(ADDITION, new_operands)
     return simplify_sum(difference_as_sum)
@@ -320,7 +359,7 @@ def simplify_sin(expression):
     """Simplification of sin operators."""
     operand = expression.operands[0]
     if operand.is_zero():
-        return ZERO.copy()
+        return ZERO
     if operand.operator == ARCSIN:
         return operand.operands[0]
     return expression
@@ -330,7 +369,7 @@ def simplify_cos(expression):
     """Simplification of cos operators."""
     operand = expression.operands[0]
     if operand.is_zero():
-        return ONE.copy()
+        return ONE
     if operand.operator == ARCCOS:
         return operand.operands[0]
     return expression
@@ -340,7 +379,7 @@ def simplify_tan(expression):
     """Simplification of tan operators."""
     operand = expression.operands[0]
     if operand.is_zero():
-        return ZERO.copy()
+        return ZERO
     if operand.operator == ARCTAN:
         return operand.operands[0]
     return expression
@@ -350,7 +389,7 @@ def simplify_logarithm(expression):
     """Simplification of log operators."""
     operand = expression.operands[0]
     if operand.is_one():
-        return ZERO.copy()
+        return ZERO
     if operand.operator == EXPONENTIAL:
         return operand.operands[0]
     return expression
@@ -359,7 +398,7 @@ def simplify_logarithm(expression):
 def simplify_exponential(expression):
     """Simplification of exp operators."""
     if expression.operands[0].is_zero():
-        return ONE.copy()
+        return ONE
     return expression
 
 
@@ -371,21 +410,21 @@ def simplify_exponential(expression):
 def simplify_sinh(expression):
     """Simplification of hyperbolic sin operators."""
     if expression.operands[0].is_zero():
-        return ZERO.copy()
+        return ZERO
     return expression
 
 
 def simplify_cosh(expression):
     """Simplification of hyperbolic cos operators."""
     if expression.operands[0].is_zero():
-        return ONE.copy()
+        return ONE
     return expression
 
 
 def simplify_tanh(expression):
     """Simplification of hyperbolic tan operators."""
     if expression.operands[0].is_zero():
-        return ZERO.copy()
+        return ZERO
     return expression
 
 
@@ -397,21 +436,21 @@ def simplify_tanh(expression):
 def simplify_asin(expression):
     """Simplification of inverse sin operators."""
     if expression.operands[0].is_zero():
-        return ZERO.copy()
+        return ZERO
     return expression
 
 
 def simplify_acos(expression):
     """Simplification of inverse cos operators."""
     if expression.operands[0].is_one():
-        return ZERO.copy()
+        return ZERO
     return expression
 
 
 def simplify_atan(expression):
     """Simplification of inverse tan operators."""
     if expression.operands[0].is_zero():
-        return ZERO.copy()
+        return ZERO
     return expression
 
 
@@ -428,14 +467,14 @@ def simplify_square(expression):
     """
     operand = expression.operands[0]
     if operand.is_zero():
-        return ZERO.copy()
+        return ZERO
     if operand.is_one():
-        return ONE.copy()
+        return ONE
     if operand.operator == INTEGER:
         value = operand.operands[0]
         return CASExpression(INTEGER, [value**2])
     if operand.operator == SQRT:
-        return operand.operands[0].copy()
+        return operand.operands[0]
     return expression
 
 
@@ -443,9 +482,9 @@ def simplify_cube(expression):
     """Simplification of cube operators."""
     operand = expression.operands[0]
     if operand.is_zero():
-        return ZERO.copy()
+        return ZERO
     if operand.is_one():
-        return ONE.copy()
+        return ONE
     if operand.operator == INTEGER:
         value = operand.operands[0]
         return CASExpression(INTEGER, [value**3])

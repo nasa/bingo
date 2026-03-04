@@ -37,6 +37,7 @@ from bingo.expressions.agraph.simplification.cas_expression import (
 )
 from bingo.expressions.agraph.simplification.interpreter import (
     build_cas_expression,
+    build_simplified_cas_expression,
     build_agraph_stack,
 )
 from bingo.expressions.agraph.simplification.automatic_simplification import (
@@ -47,6 +48,9 @@ from bingo.expressions.agraph.simplification.constant_folding import (
 )
 from bingo.expressions.agraph.simplification.optional_modifications import (
     optional_modifications,
+)
+from bingo.expressions.agraph.simplification.constant_evaluation import (
+    evaluate_constant_subtrees,
 )
 from bingo.expressions.agraph.simplification import simplify
 
@@ -232,6 +236,145 @@ class TestInterpreter:
 
 
 # ================================================================== #
+#  Fused build + simplify (build_simplified_cas_expression)           #
+# ================================================================== #
+
+
+class TestBuildSimplifiedEquivalence:
+    """Verify build_simplified_cas_expression == build + automatic_simplify."""
+
+    @staticmethod
+    def _two_step(stack, constants, integers):
+        """Original: build tree then simplify."""
+        cas = build_cas_expression(stack, constants, integers)
+        return automatic_simplify(cas)
+
+    @staticmethod
+    def _fused(stack, constants, integers):
+        """New: fused build + simplify in one pass."""
+        return build_simplified_cas_expression(stack, constants, integers)
+
+    @pytest.mark.parametrize(
+        "stack, constants, integers, desc",
+        [
+            pytest.param(
+                np.array([[VARIABLE, 0, 0]], dtype=np.uint8),
+                (),
+                (),
+                "single variable",
+            ),
+            pytest.param(
+                np.array([[INTEGER, 0, 0]], dtype=np.uint8),
+                (),
+                (5,),
+                "single integer",
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        [VARIABLE, 0, 0],
+                        [INTEGER, 0, 0],
+                        [ADDITION, 0, 1],
+                    ],
+                    dtype=np.uint8,
+                ),
+                (),
+                (0,),
+                "x + 0 → x",
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        [VARIABLE, 0, 0],
+                        [INTEGER, 0, 0],
+                        [MULTIPLICATION, 0, 1],
+                    ],
+                    dtype=np.uint8,
+                ),
+                (),
+                (1,),
+                "x * 1 → x",
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        [VARIABLE, 0, 0],
+                        [MULTIPLICATION, 0, 0],
+                    ],
+                    dtype=np.uint8,
+                ),
+                (),
+                (),
+                "x * x → x^2",
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        [VARIABLE, 0, 0],
+                        [ADDITION, 0, 0],
+                    ],
+                    dtype=np.uint8,
+                ),
+                (),
+                (),
+                "x + x → 2*x",
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        [VARIABLE, 0, 0],
+                        [VARIABLE, 1, 1],
+                        [ADDITION, 0, 1],
+                        [SIN, 2, 2],
+                        [MULTIPLICATION, 3, 0],
+                    ],
+                    dtype=np.uint8,
+                ),
+                (),
+                (),
+                "sin(x0 + x1) * x0",
+            ),
+            pytest.param(
+                np.array(
+                    [
+                        [CONSTANT, 0, 0],
+                        [CONSTANT, 1, 1],
+                        [ADDITION, 0, 1],
+                        [VARIABLE, 0, 0],
+                        [MULTIPLICATION, 2, 3],
+                    ],
+                    dtype=np.uint8,
+                ),
+                (1.0, 2.0),
+                (),
+                "(C0 + C1) * X0",
+            ),
+        ],
+        ids=lambda x: x if isinstance(x, str) else "",
+    )
+    def test_fused_matches_two_step(self, stack, constants, integers, desc):
+        two_step = self._two_step(stack, constants, integers)
+        fused = self._fused(stack, constants, integers)
+        assert two_step == fused, f"{desc}: {two_step} != {fused}"
+
+    def test_fused_roundtrip(self):
+        """Fused build → back to stack should give valid agraph."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [VARIABLE, 1, 1],
+                [ADDITION, 0, 1],
+                [SIN, 2, 2],
+            ],
+            dtype=np.uint8,
+        )
+        cas = build_simplified_cas_expression(stack, (), ())
+        new_stack, new_c, new_i = build_agraph_stack(cas, ())
+        assert new_stack.shape[1] == 3
+        assert new_stack[-1, 0] == SIN
+
+
+# ================================================================== #
 #  Automatic Simplification                                           #
 # ================================================================== #
 
@@ -402,9 +545,7 @@ class TestAutomaticSimplify:
         result = automatic_simplify(expr)
         assert result.operator == MULTIPLICATION
         # coefficient should be 2
-        int_operand = [
-            op for op in result.operands if op.operator == INTEGER
-        ]
+        int_operand = [op for op in result.operands if op.operator == INTEGER]
         assert len(int_operand) == 1
         assert int_operand[0].operands[0] == 2
 
@@ -524,21 +665,25 @@ class TestOptionalModifications:
         result = optional_modifications(expr)
         assert result.operator == SUBTRACTION
 
-    def test_power_2_to_square(self):
-        """X_0^2 → square(X_0)."""
+    def test_power_2_to_multiplication(self):
+        """X_0^2 → X_0 * X_0."""
         x = CASExpression(VARIABLE, [0])
         two = CASExpression(INTEGER, [2])
         expr = CASExpression(POWER, [x, two])
         result = optional_modifications(expr)
-        assert result.operator == SQUARE
+        assert result.operator == MULTIPLICATION
+        assert len(result.operands) == 2
+        assert all(op == x for op in result.operands)
 
-    def test_power_3_to_cube(self):
-        """X_0^3 → cube(X_0)."""
+    def test_power_3_to_multiplication(self):
+        """X_0^3 → X_0 * X_0 * X_0."""
         x = CASExpression(VARIABLE, [0])
         three = CASExpression(INTEGER, [3])
         expr = CASExpression(POWER, [x, three])
         result = optional_modifications(expr)
-        assert result.operator == CUBE
+        assert result.operator == MULTIPLICATION
+        assert len(result.operands) == 3
+        assert all(op == x for op in result.operands)
 
     def test_power_4_to_multiplication(self):
         """X_0^4 → X_0 * X_0 * X_0 * X_0."""
@@ -650,8 +795,8 @@ class TestSimplifyPipeline:
         assert new_stack[0, 0] == CONSTANT
         assert pytest.approx(new_c[0]) == 3.14
 
-    def test_x_squared_becomes_square(self):
-        """X_0^2 → square(X_0) via optional modifications."""
+    def test_x_squared_becomes_multiplication(self):
+        """X_0^2 → X_0 * X_0 via optional modifications."""
         stack = np.array(
             [
                 [VARIABLE, 0, 0],
@@ -661,12 +806,12 @@ class TestSimplifyPipeline:
             dtype=np.uint8,
         )
         new_stack, new_c, new_i = simplify(stack, (), (2,))
-        # The output should contain a SQUARE operator
+        # The output should contain a MULTIPLICATION operator
         operators = set(new_stack[:, 0])
-        assert SQUARE in operators
+        assert MULTIPLICATION in operators
 
-    def test_x_cubed_becomes_cube(self):
-        """X_0^3 → cube(X_0) via optional modifications."""
+    def test_x_cubed_becomes_multiplication(self):
+        """X_0^3 → X_0 * X_0 * X_0 via optional modifications."""
         stack = np.array(
             [
                 [VARIABLE, 0, 0],
@@ -677,7 +822,7 @@ class TestSimplifyPipeline:
         )
         new_stack, new_c, new_i = simplify(stack, (), (3,))
         operators = set(new_stack[:, 0])
-        assert CUBE in operators
+        assert MULTIPLICATION in operators
 
 
 # ================================================================== #
@@ -751,6 +896,190 @@ class TestAGraphExpressionCASMode:
         expr.promote_simplification()
         # After promotion, raw should equal simplified
         assert expr.raw_command_array.shape[0] == 1
+
+
+# ================================================================== #
+#  Constant evaluation (numeric collapse)                             #
+# ================================================================== #
+
+
+class TestConstantEvaluation:
+    """Tests for evaluate_constant_subtrees."""
+
+    def test_sin_of_constant(self):
+        """sin(C0) with C0=pi/2 → CONSTANT with value 1.0."""
+        import math
+
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(SIN, [c0])
+        result, new_c = evaluate_constant_subtrees(expr, (math.pi / 2,))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]], abs=1e-12) == 1.0
+
+    def test_cos_of_constant(self):
+        """cos(C0) with C0=0 → CONSTANT with value 1.0."""
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(COS, [c0])
+        result, new_c = evaluate_constant_subtrees(expr, (0.0,))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]]) == 1.0
+
+    def test_addition_of_constants(self):
+        """C0 + C1 with known values → single CONSTANT."""
+        c0 = CASExpression(CONSTANT, [0])
+        c1 = CASExpression(CONSTANT, [1])
+        expr = CASExpression(ADDITION, [c0, c1])
+        result, new_c = evaluate_constant_subtrees(expr, (2.0, 3.0))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]]) == 5.0
+
+    def test_nested_constant_expression(self):
+        """sin(C0 + C1) with known values → single CONSTANT."""
+        import math
+
+        c0 = CASExpression(CONSTANT, [0])
+        c1 = CASExpression(CONSTANT, [1])
+        add = CASExpression(ADDITION, [c0, c1])
+        expr = CASExpression(SIN, [add])
+        result, new_c = evaluate_constant_subtrees(expr, (math.pi / 4, math.pi / 4))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]], abs=1e-12) == 1.0
+
+    def test_division_by_zero_falls_back(self):
+        """1 / C0 with C0=0 → fallback to C0 (inf result)."""
+        c0 = CASExpression(CONSTANT, [0])
+        one = CASExpression(INTEGER, [1])
+        expr = CASExpression(DIVISION, [one, c0])
+        result, new_c = evaluate_constant_subtrees(expr, (0.0,))
+        # Should collapse to the existing CONSTANT C0
+        assert result.operator == CONSTANT
+        assert result.operands[0] == 0
+
+    def test_log_of_zero_falls_back(self):
+        """log(C0) with C0=0 → -inf → fallback to C0."""
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(LOGARITHM, [c0])
+        result, new_c = evaluate_constant_subtrees(expr, (0.0,))
+        assert result.operator == CONSTANT
+        assert result.operands[0] == 0
+
+    def test_protected_sqrt(self):
+        """sqrt(C0) with C0=-4 → sqrt(abs(-4)) = 2.0 (protected)."""
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(SQRT, [c0])
+        result, new_c = evaluate_constant_subtrees(expr, (-4.0,))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]]) == 2.0
+
+    def test_protected_log(self):
+        """log(C0) with C0=-1 → log(abs(-1)) = 0.0 (protected)."""
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(LOGARITHM, [c0])
+        result, new_c = evaluate_constant_subtrees(expr, (-1.0,))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]]) == 0.0
+
+    def test_variable_subtree_unchanged(self):
+        """sin(X0) is NOT constant-valued — left unchanged."""
+        x0 = CASExpression(VARIABLE, [0])
+        expr = CASExpression(SIN, [x0])
+        result, new_c = evaluate_constant_subtrees(expr, ())
+        assert result.operator == SIN
+        assert result.operands[0].operator == VARIABLE
+
+    def test_mixed_expression_partial_collapse(self):
+        """sin(C0) + X0 → C_new + X0 (only constant subtree collapses)."""
+        import math
+
+        c0 = CASExpression(CONSTANT, [0])
+        sin_c0 = CASExpression(SIN, [c0])
+        x0 = CASExpression(VARIABLE, [0])
+        expr = CASExpression(ADDITION, [sin_c0, x0])
+        result, new_c = evaluate_constant_subtrees(expr, (math.pi / 2,))
+        assert result.operator == ADDITION
+        # One operand should be the collapsed constant
+        const_op = result.operands[0]
+        assert const_op.operator == CONSTANT
+        assert pytest.approx(new_c[const_op.operands[0]], abs=1e-12) == 1.0
+        # Other operand is still X0
+        assert result.operands[1].operator == VARIABLE
+
+    def test_bare_constant_unchanged(self):
+        """A single CONSTANT terminal is already collapsed."""
+        c0 = CASExpression(CONSTANT, [0])
+        result, new_c = evaluate_constant_subtrees(c0, (3.14,))
+        assert result is c0
+        assert new_c == (3.14,)
+
+    def test_bare_integer_unchanged(self):
+        """A single INTEGER terminal is already collapsed."""
+        i0 = CASExpression(INTEGER, [5])
+        result, new_c = evaluate_constant_subtrees(i0, ())
+        assert result is i0
+
+    def test_integer_arithmetic_unchanged(self):
+        """INTEGER(2) * INTEGER(3) → left as-is (pure-integer subtree).
+
+        Pure-integer subtrees are not collapsed to CONSTANT nodes
+        to mirror the old implementation's behaviour.
+        """
+        i2 = CASExpression(INTEGER, [2])
+        i3 = CASExpression(INTEGER, [3])
+        expr = CASExpression(MULTIPLICATION, [i2, i3])
+        result, new_c = evaluate_constant_subtrees(expr, ())
+        # Should NOT be collapsed — no CONSTANT leaf in subtree
+        assert result.operator == MULTIPLICATION
+        assert new_c == ()
+
+    def test_sin_of_integer_unchanged(self):
+        """sin(INTEGER(1)) → left as-is (pure-integer subtree).
+
+        Functions of integers only should not be replaced with a
+        constant to match the old implementation.
+        """
+        i1 = CASExpression(INTEGER, [1])
+        expr = CASExpression(SIN, [i1])
+        result, new_c = evaluate_constant_subtrees(expr, ())
+        assert result.operator == SIN
+        assert result.operands[0].operator == INTEGER
+        assert new_c == ()
+
+    def test_mixed_integer_constant_evaluated(self):
+        """INTEGER(2) * C0 with C0=3.0 → CONSTANT with value 6.0.
+
+        When an integer-only subtree is mixed with constants, the
+        combined subtree IS evaluated since it contains a CONSTANT leaf.
+        """
+        i2 = CASExpression(INTEGER, [2])
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(MULTIPLICATION, [i2, c0])
+        result, new_c = evaluate_constant_subtrees(expr, (3.0,))
+        assert result.operator == CONSTANT
+        assert pytest.approx(new_c[result.operands[0]]) == 6.0
+
+    def test_exp_overflow_falls_back(self):
+        """exp(C0) with C0=1000 → inf → fallback to C0."""
+        c0 = CASExpression(CONSTANT, [0])
+        expr = CASExpression(EXPONENTIAL, [c0])
+        result, new_c = evaluate_constant_subtrees(expr, (1000.0,))
+        assert result.operator == CONSTANT
+        assert result.operands[0] == 0  # fallback to original C0
+
+    def test_pipeline_collapses_sin_c0(self):
+        """Full pipeline: sin(C0) with C0=pi/2 → single CONSTANT row."""
+        import math
+
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [SIN, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i = simplify(stack, (math.pi / 2,), ())
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == CONSTANT
+        assert pytest.approx(new_c[new_stack[0, 1]], abs=1e-12) == 1.0
 
 
 # ================================================================== #

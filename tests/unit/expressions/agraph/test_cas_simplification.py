@@ -28,6 +28,7 @@ from bingo.expressions.agraph.operators import (
     SQRT,
     SQUARE,
     CUBE,
+    ABS,
     ARCSIN,
     ARCCOS,
     ARCTAN,
@@ -611,6 +612,76 @@ class TestAutomaticSimplify:
         assert result.operands[1].operator == INTEGER
         assert result.operands[1].operands[0] == 6
 
+    # -- SQRT rules --------------------------------------------------- #
+
+    def test_sqrt_zero(self):
+        """sqrt(0) → 0."""
+        zero = CASExpression(INTEGER, [0])
+        expr = CASExpression(SQRT, [zero])
+        result = automatic_simplify(expr)
+        assert result.is_zero()
+
+    def test_sqrt_one(self):
+        """sqrt(1) → 1."""
+        one = CASExpression(INTEGER, [1])
+        expr = CASExpression(SQRT, [one])
+        result = automatic_simplify(expr)
+        assert result.is_one()
+
+    def test_sqrt_x_squared(self):
+        """sqrt(x^2) → abs(x)."""
+        x = CASExpression(VARIABLE, [0])
+        two = CASExpression(INTEGER, [2])
+        x_sq = CASExpression(POWER, [x, two])
+        expr = CASExpression(SQRT, [x_sq])
+        result = automatic_simplify(expr)
+        assert result.operator == ABS
+        assert result.operands[0] == x
+
+    # -- ABS rules ---------------------------------------------------- #
+
+    def test_abs_zero(self):
+        """abs(0) → 0."""
+        zero = CASExpression(INTEGER, [0])
+        expr = CASExpression(ABS, [zero])
+        result = automatic_simplify(expr)
+        assert result.is_zero()
+
+    def test_abs_one(self):
+        """abs(1) → 1."""
+        one = CASExpression(INTEGER, [1])
+        expr = CASExpression(ABS, [one])
+        result = automatic_simplify(expr)
+        assert result.is_one()
+
+    def test_abs_negative_integer(self):
+        """abs(-3) → 3."""
+        neg3 = CASExpression(INTEGER, [-3])
+        expr = CASExpression(ABS, [neg3])
+        result = automatic_simplify(expr)
+        assert result.operator == INTEGER
+        assert result.operands[0] == 3
+
+    def test_abs_abs(self):
+        """abs(abs(X_0)) → abs(X_0)."""
+        x = CASExpression(VARIABLE, [0])
+        inner = CASExpression(ABS, [x])
+        expr = CASExpression(ABS, [inner])
+        result = automatic_simplify(expr)
+        assert result.operator == ABS
+        assert result.operands[0] == x
+
+    # -- EXP(LOG) rule ------------------------------------------------ #
+
+    def test_exp_log(self):
+        """exp(log(X_0)) → X_0."""
+        x = CASExpression(VARIABLE, [0])
+        log_x = CASExpression(LOGARITHM, [x])
+        expr = CASExpression(EXPONENTIAL, [log_x])
+        result = automatic_simplify(expr)
+        assert result.operator == VARIABLE
+        assert result.operands[0] == 0
+
 
 # ================================================================== #
 #  Constant Folding                                                   #
@@ -687,25 +758,23 @@ class TestOptionalModifications:
         result = optional_modifications(expr)
         assert result.operator == SUBTRACTION
 
-    def test_power_2_to_multiplication(self):
-        """X_0^2 → X_0 * X_0."""
+    def test_power_2_to_square(self):
+        """X_0^2 → SQUARE(X_0)."""
         x = CASExpression(VARIABLE, [0])
         two = CASExpression(INTEGER, [2])
         expr = CASExpression(POWER, [x, two])
         result = optional_modifications(expr)
-        assert result.operator == MULTIPLICATION
-        assert len(result.operands) == 2
-        assert all(op == x for op in result.operands)
+        assert result.operator == SQUARE
+        assert result.operands[0] == x
 
-    def test_power_3_to_multiplication(self):
-        """X_0^3 → X_0 * X_0 * X_0."""
+    def test_power_3_to_cube(self):
+        """X_0^3 → CUBE(X_0)."""
         x = CASExpression(VARIABLE, [0])
         three = CASExpression(INTEGER, [3])
         expr = CASExpression(POWER, [x, three])
         result = optional_modifications(expr)
-        assert result.operator == MULTIPLICATION
-        assert len(result.operands) == 3
-        assert all(op == x for op in result.operands)
+        assert result.operator == CUBE
+        assert result.operands[0] == x
 
     def test_power_4_to_multiplication(self):
         """X_0^4 → X_0 * X_0 * X_0 * X_0."""
@@ -722,6 +791,50 @@ class TestOptionalModifications:
         expr = CASExpression(ADDITION, [x0, x1])
         result = optional_modifications(expr)
         assert result.operator == ADDITION
+
+    def test_division_insertion_in_product(self):
+        """X_0 * X_1^(-1) → X_0 / X_1."""
+        x0 = CASExpression(VARIABLE, [0])
+        x1 = CASExpression(VARIABLE, [1])
+        neg_one = CASExpression(INTEGER, [-1])
+        x1_inv = CASExpression(POWER, [x1, neg_one])
+        expr = CASExpression(MULTIPLICATION, [x0, x1_inv])
+        result = optional_modifications(expr)
+        assert result.operator == DIVISION
+        assert result.operands[0] == x0
+        assert result.operands[1] == x1
+
+    def test_standalone_inverse_becomes_division(self):
+        """X_0^(-1) → 1 / X_0."""
+        x0 = CASExpression(VARIABLE, [0])
+        neg_one = CASExpression(INTEGER, [-1])
+        expr = CASExpression(POWER, [x0, neg_one])
+        result = optional_modifications(expr)
+        assert result.operator == DIVISION
+        assert result.operands[0].operator == INTEGER
+        assert result.operands[0].operands[0] == 1
+        assert result.operands[1] == x0
+
+    def test_multiple_inverses_merge_denominator(self):
+        """X_0 * X_1^(-1) * X_2^(-1) → X_0 / (X_1 * X_2)."""
+        x0 = CASExpression(VARIABLE, [0])
+        x1 = CASExpression(VARIABLE, [1])
+        x2 = CASExpression(VARIABLE, [2])
+        neg_one = CASExpression(INTEGER, [-1])
+        x1_inv = CASExpression(POWER, [x1, neg_one])
+        x2_inv = CASExpression(POWER, [x2, neg_one])
+        expr = CASExpression(MULTIPLICATION, [x0, x1_inv, x2_inv])
+        result = optional_modifications(expr)
+        assert result.operator == DIVISION
+        assert result.operands[1].operator == MULTIPLICATION
+
+    def test_no_division_when_no_inverses(self):
+        """X_0 * X_1 stays as multiplication."""
+        x0 = CASExpression(VARIABLE, [0])
+        x1 = CASExpression(VARIABLE, [1])
+        expr = CASExpression(MULTIPLICATION, [x0, x1])
+        result = optional_modifications(expr)
+        assert result.operator == MULTIPLICATION
 
 
 # ================================================================== #
@@ -817,8 +930,8 @@ class TestSimplifyPipeline:
         assert new_stack[0, 0] == CONSTANT
         assert pytest.approx(new_c[0]) == 3.14
 
-    def test_x_squared_becomes_multiplication(self):
-        """X_0^2 → X_0 * X_0 via optional modifications."""
+    def test_x_squared_becomes_square(self):
+        """X_0^2 → SQUARE(X_0) via optional modifications."""
         stack = np.array(
             [
                 [VARIABLE, 0, 0],
@@ -828,12 +941,11 @@ class TestSimplifyPipeline:
             dtype=np.uint8,
         )
         new_stack, new_c, new_i, _ = simplify(stack, (), (2,))
-        # The output should contain a MULTIPLICATION operator
         operators = set(new_stack[:, 0])
-        assert MULTIPLICATION in operators
+        assert SQUARE in operators
 
-    def test_x_cubed_becomes_multiplication(self):
-        """X_0^3 → X_0 * X_0 * X_0 via optional modifications."""
+    def test_x_cubed_becomes_cube(self):
+        """X_0^3 → CUBE(X_0) via optional modifications."""
         stack = np.array(
             [
                 [VARIABLE, 0, 0],
@@ -844,7 +956,100 @@ class TestSimplifyPipeline:
         )
         new_stack, new_c, new_i, _ = simplify(stack, (), (3,))
         operators = set(new_stack[:, 0])
-        assert MULTIPLICATION in operators
+        assert CUBE in operators
+
+    def test_square_input_normalized_to_power(self):
+        """SQUARE(X_0) in stack → produces SQUARE(X_0) after round-trip."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQUARE, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), ())
+        operators = set(new_stack[:, 0])
+        assert SQUARE in operators
+
+    def test_cube_input_normalized_to_power(self):
+        """CUBE(X_0) in stack → produces CUBE(X_0) after round-trip."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [CUBE, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), ())
+        operators = set(new_stack[:, 0])
+        assert CUBE in operators
+
+    def test_division_roundtrip(self):
+        """X_0 / X_1 with distinct vars survives round-trip as DIVISION."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [VARIABLE, 1, 1],
+                [DIVISION, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), ())
+        operators = set(new_stack[:, 0])
+        assert DIVISION in operators
+
+    def test_sqrt_zero_simplifies(self):
+        """sqrt(0) → 0."""
+        stack = np.array(
+            [
+                [INTEGER, 0, 0],
+                [SQRT, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), (0,))
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == INTEGER
+
+    def test_sqrt_one_simplifies(self):
+        """sqrt(1) → 1."""
+        stack = np.array(
+            [
+                [INTEGER, 0, 0],
+                [SQRT, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), (1,))
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == INTEGER
+
+    def test_abs_zero_simplifies(self):
+        """abs(0) → 0."""
+        stack = np.array(
+            [
+                [INTEGER, 0, 0],
+                [ABS, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), (0,))
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == INTEGER
+
+    def test_exp_log_simplifies(self):
+        """exp(log(X_0)) → X_0."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [LOGARITHM, 0, 0],
+                [EXPONENTIAL, 1, 1],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), ())
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == VARIABLE
 
 
 # ================================================================== #

@@ -8,9 +8,19 @@ Module-level flags control each modification:
 ``INSERT_SUBTRACTION``
     Convert ``a + (-1)*b`` → ``a - b``.  Default ``True``.
 
+``INSERT_DIVISION``
+    Convert ``a * b^(-1)`` → ``a / b`` and standalone ``b^(-1)`` →
+    ``1 / b``.  Default ``True``.
+
+``INSERT_SQUARE_CUBE``
+    Convert ``x^2`` → ``SQUARE(x)`` and ``x^3`` → ``CUBE(x)`` so
+    that integer-exponent powers use the compact unary operators.
+    Default ``True``.
+
 ``REPLACE_INTEGER_POWERS``
-    Convert ``a^n`` (small positive integer *n*) into expanded
-    multiplications / SQUARE / CUBE operators.  Default ``True``.
+    Convert ``a^n`` (positive integer *n* ≥ 4) into expanded
+    multiplications.  Exponents 2 and 3 are handled by
+    ``INSERT_SQUARE_CUBE`` when enabled.  Default ``True``.
 
 ``REPLACE_INTEGERS_WITH_CONSTANTS``
     Convert integer coefficients (2*x, 3*x, …) into constant-valued
@@ -24,15 +34,21 @@ from ..operators import (
     ADDITION,
     MULTIPLICATION,
     SUBTRACTION,
+    DIVISION,
     POWER,
+    SQUARE,
+    CUBE,
 )
-from .cas_expression import CASExpression, _NEG_ONE
+from .cas_expression import CASExpression, _NEG_ONE, _ONE
 
 INSERT_SUBTRACTION = True
-REPLACE_INTEGER_POWERS = True
+INSERT_DIVISION = True
+INSERT_SQUARE_CUBE = True
+REPLACE_INTEGER_POWERS = False
 REPLACE_INTEGERS_WITH_CONSTANTS = False
 
 NEGATIVE_ONE = _NEG_ONE
+ONE_EXPR = _ONE
 SOME_BIG_INT = 1_000_000
 _TERMINAL_OPS = frozenset({INTEGER, CONSTANT, VARIABLE})
 
@@ -50,6 +66,10 @@ def optional_modifications(expression):
     """
     if INSERT_SUBTRACTION:
         expression = _insert_subtraction(expression)
+    if INSERT_DIVISION:
+        expression = _insert_division(expression)
+    if INSERT_SQUARE_CUBE:
+        expression = _insert_square_cube(expression)
     if REPLACE_INTEGER_POWERS:
         expression = _replace_integer_powers(expression)
     if REPLACE_INTEGERS_WITH_CONSTANTS:
@@ -113,7 +133,98 @@ def _insert_subtraction(expression):
 
 
 # ------------------------------------------------------------------ #
-#  a^n → SQUARE / CUBE / expanded multiplication                     #
+#  a * b^(-1) → a / b                                                 #
+# ------------------------------------------------------------------ #
+
+
+def _is_inverse(expr):
+    """Return True if *expr* is ``something^(-1)``."""
+    return (
+        expr.operator == POWER
+        and expr.operands[1].operator == INTEGER
+        and expr.operands[1].operands[0] == -1
+    )
+
+
+def _insert_division(expression):
+    operator = expression.operator
+    if operator in _TERMINAL_OPS:
+        return expression
+
+    orig_operands = expression.operands
+
+    # Standalone inverse: POWER(x, -1) → DIVISION(1, x)
+    if operator == POWER and _is_inverse(expression):
+        base = _insert_division(orig_operands[0])
+        return CASExpression(DIVISION, [ONE_EXPR, base])
+
+    if operator != MULTIPLICATION:
+        new_operands = [_insert_division(op) for op in orig_operands]
+        if all(n is o for n, o in zip(new_operands, orig_operands)):
+            return expression
+        return CASExpression(operator, new_operands)
+
+    # Split product operands into numerator and denominator groups.
+    # Check _is_inverse on ORIGINAL operands BEFORE recursing.
+    numerator_ops = []
+    denominator_ops = []
+    for operand in orig_operands:
+        if _is_inverse(operand):
+            # Recurse on the base only (strip the ^(-1))
+            denominator_ops.append(_insert_division(operand.operands[0]))
+        else:
+            numerator_ops.append(_insert_division(operand))
+
+    if not denominator_ops:
+        if all(n is o for n, o in zip(numerator_ops, orig_operands)):
+            return expression
+        return CASExpression(MULTIPLICATION, numerator_ops)
+
+    # Build numerator
+    if len(numerator_ops) == 0:
+        numerator = ONE_EXPR
+    elif len(numerator_ops) == 1:
+        numerator = numerator_ops[0]
+    else:
+        numerator = CASExpression(MULTIPLICATION, numerator_ops)
+
+    # Build denominator
+    if len(denominator_ops) == 1:
+        denominator = denominator_ops[0]
+    else:
+        denominator = CASExpression(MULTIPLICATION, denominator_ops)
+
+    return CASExpression(DIVISION, [numerator, denominator])
+
+
+# ------------------------------------------------------------------ #
+#  x^2 → SQUARE(x),  x^3 → CUBE(x)                                   #
+# ------------------------------------------------------------------ #
+
+
+def _insert_square_cube(expression):
+    operator = expression.operator
+    if operator in _TERMINAL_OPS:
+        return expression
+
+    orig_operands = expression.operands
+    new_operands = [_insert_square_cube(op) for op in orig_operands]
+
+    if operator == POWER and new_operands[1].operator == INTEGER:
+        exp_val = new_operands[1].operands[0]
+        if exp_val == 2:
+            return CASExpression(SQUARE, [new_operands[0]])
+        if exp_val == 3:
+            return CASExpression(CUBE, [new_operands[0]])
+
+    if all(n is o for n, o in zip(new_operands, orig_operands)):
+        return expression
+    return CASExpression(operator, new_operands)
+
+
+# ------------------------------------------------------------------ #
+#  a^n → expanded multiplication  (n ≥ 4 only when SQUARE/CUBE       #
+#  insertion has already handled 2 and 3)                              #
 # ------------------------------------------------------------------ #
 
 

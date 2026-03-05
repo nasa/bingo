@@ -7,7 +7,16 @@ array).
 
 import numpy as np
 
-from ..operators import IS_TERMINAL_MAP, IS_ARITY_2_MAP, CONSTANT, INTEGER, VARIABLE
+from ..operators import (
+    IS_TERMINAL_MAP,
+    IS_ARITY_2_MAP,
+    CONSTANT,
+    INTEGER,
+    VARIABLE,
+    SQUARE,
+    CUBE,
+    POWER,
+)
 from .cas_expression import CASExpression, get_interned_integer, get_interned_variable
 
 
@@ -63,7 +72,15 @@ def _build_expression_recursive(stack, constants, integers, location, memo):
         operands.append(
             _build_expression_recursive(stack, constants, integers, param_2, memo)
         )
-    result = CASExpression(operator, operands)
+
+    # Normalise SQUARE/CUBE into POWER so the CAS engine reasons about
+    # exponents uniformly.  They are re-inserted by optional_modifications.
+    if operator == SQUARE:
+        result = CASExpression(POWER, [operands[0], get_interned_integer(2)])
+    elif operator == CUBE:
+        result = CASExpression(POWER, [operands[0], get_interned_integer(3)])
+    else:
+        result = CASExpression(operator, operands)
     memo[location] = result
     return result
 
@@ -133,9 +150,18 @@ def _build_simplified_recursive(stack, constants, integers, location, memo, simp
                 stack, constants, integers, param_2, memo, simp_funcs
             )
         )
-    node = CASExpression(operator, operands)
-    # Dispatch to the operator-specific simplifier.
-    result = simp_funcs[operator](node)
+    # Normalise SQUARE/CUBE into POWER so the CAS engine reasons about
+    # exponents uniformly.  They are re-inserted by optional_modifications.
+    if operator == SQUARE:
+        node = CASExpression(POWER, [operands[0], get_interned_integer(2)])
+        result = simp_funcs[POWER](node)
+    elif operator == CUBE:
+        node = CASExpression(POWER, [operands[0], get_interned_integer(3)])
+        result = simp_funcs[POWER](node)
+    else:
+        node = CASExpression(operator, operands)
+        # Dispatch to the operator-specific simplifier.
+        result = simp_funcs[operator](node)
     memo[location] = result
     return result
 

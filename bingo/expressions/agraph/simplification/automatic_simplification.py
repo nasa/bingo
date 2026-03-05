@@ -397,8 +397,11 @@ def simplify_logarithm(expression):
 
 def simplify_exponential(expression):
     """Simplification of exp operators."""
-    if expression.operands[0].is_zero():
+    operand = expression.operands[0]
+    if operand.is_zero():
         return ONE
+    if operand.operator == LOGARITHM:
+        return operand.operands[0]
     return expression
 
 
@@ -455,7 +458,43 @@ def simplify_atan(expression):
 
 
 # ------------------------------------------------------------------ #
-#  Square / Cube                                                      #
+#  SQRT / ABS                                                         #
+# ------------------------------------------------------------------ #
+
+
+def simplify_sqrt(expression):
+    """Simplification of sqrt operators."""
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO
+    if operand.is_one():
+        return ONE
+    # sqrt(x^2) → abs(x)  (common in symbolic regression)
+    if (
+        operand.operator == POWER
+        and operand.operands[1].operator == INTEGER
+        and operand.operands[1].operands[0] == 2
+    ):
+        return CASExpression(ABS, [operand.operands[0]])
+    return expression
+
+
+def simplify_abs(expression):
+    """Simplification of absolute-value operators."""
+    operand = expression.operands[0]
+    if operand.is_zero():
+        return ZERO
+    if operand.is_one():
+        return ONE
+    if operand.operator == INTEGER:
+        return CASExpression(INTEGER, [abs(operand.operands[0])])
+    if operand.operator == ABS:
+        return expression.operands[0]  # abs(abs(x)) → abs(x)
+    return expression
+
+
+# ------------------------------------------------------------------ #
+#  Square / Cube  (kept for stacks that still contain these opcodes)  #
 # ------------------------------------------------------------------ #
 
 
@@ -516,8 +555,8 @@ SIMPLIFICATION_FUNCTIONS = {
     TAN: simplify_tan,
     LOGARITHM: simplify_logarithm,
     EXPONENTIAL: simplify_exponential,
-    ABS: no_simplification,
-    SQRT: no_simplification,
+    ABS: simplify_abs,
+    SQRT: simplify_sqrt,
     SAFE_POWER: simplify_power,
     SINH: simplify_sinh,
     COSH: simplify_cosh,

@@ -28,13 +28,15 @@ def simplify(raw_command_array, raw_constants, raw_integers):
     Returns
     -------
     tuple
-        ``(command_array, constants, integers)`` — a simplified uint8
-        command array with corresponding constant and integer tuples.
+        ``(command_array, constants, integers, constant_mapping)`` — a
+        simplified uint8 command array with corresponding constant and
+        integer tuples.  ``constant_mapping`` is a tuple where
+        ``constant_mapping[simplified_idx] == raw_idx``.
     """
     # Eliminate dead code first — the CAS pipeline then operates on the
     # smaller, compacted stack.
-    reduced_stack, reduced_constants, reduced_integers = stack_reduce(
-        raw_command_array, raw_constants, raw_integers
+    reduced_stack, reduced_constants, reduced_integers, reduced_to_raw = (
+        stack_reduce(raw_command_array, raw_constants, raw_integers)
     )
 
     # Build the CAS tree with automatic simplification fused in
@@ -43,8 +45,21 @@ def simplify(raw_command_array, raw_constants, raw_integers):
         reduced_stack, reduced_constants, reduced_integers
     )
 
-    # Fold constants — merges multiple constant-valued sub-expressions.
+    # Fold constants — merges multiple constant-valued sub-expressions
+    # so the expression uses as few CONSTANT nodes as possible.
     cas_expr = fold_constants(cas_expr)
 
     cas_expr = optional_modifications(cas_expr)
-    return build_agraph_stack(cas_expr, reduced_constants)
+    cmd_array, constants, integers, cas_idx_map = build_agraph_stack(
+        cas_expr, reduced_constants
+    )
+
+    # Compose: final_idx → reduced_idx → raw_idx
+    # cas_idx_map maps reduced_idx → final_idx; invert it.
+    final_to_raw = tuple(
+        reduced_to_raw[reduced_idx]
+        for reduced_idx, _final_idx in sorted(
+            cas_idx_map.items(), key=lambda kv: kv[1]
+        )
+    )
+    return cmd_array, constants, integers, final_to_raw

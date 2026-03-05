@@ -60,14 +60,17 @@ def reduce(raw_command_array, raw_constants, raw_integers):
     Returns
     -------
     tuple
-        ``(command_array, constants, integers)`` — all simplified forms.
+        ``(command_array, constants, integers, constant_mapping)``.
         ``command_array`` is the reduced Mx3 stack with renumbered
         CONSTANT / INTEGER params.  ``constants`` and ``integers`` are
         tuples containing only the values actually referenced.
+        ``constant_mapping`` is a tuple where
+        ``constant_mapping[reduced_idx] == raw_idx``.
     """
     if raw_command_array.shape[0] == 0:
         return (
             np.empty((0, 3), dtype=raw_command_array.dtype),
+            (),
             (),
             (),
         )
@@ -79,6 +82,7 @@ def reduce(raw_command_array, raw_constants, raw_integers):
 
     new_constants = []
     new_integers = []
+    reduced_to_raw = []
     j = 0
     for i in range(raw_command_array.shape[0]):
         if not used_commands[i]:
@@ -91,6 +95,7 @@ def reduce(raw_command_array, raw_constants, raw_integers):
                 new_idx = len(new_constants)
                 value = raw_constants[old_idx] if old_idx < len(raw_constants) else 1.0
                 new_constants.append(value)
+                reduced_to_raw.append(old_idx)
                 stack[j, 1] = new_idx
                 stack[j, 2] = new_idx
             elif node == INTEGER:
@@ -111,4 +116,4 @@ def reduce(raw_command_array, raw_constants, raw_integers):
                 stack[j, 2] = stack[j, 1]
         j += 1
 
-    return stack, tuple(new_constants), tuple(new_integers)
+    return stack, tuple(new_constants), tuple(new_integers), tuple(reduced_to_raw)

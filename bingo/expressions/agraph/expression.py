@@ -104,17 +104,24 @@ class AGraphExpression:
         (default) performs cheap dead-code elimination / constant
         folding on the stack.  ``"cas"`` runs the full computer
         algebra simplification pipeline.
+    propagate_constants : bool, optional
+        Whether setting simplified constants also updates raw constants.
+        Default ``False``.
     """
 
     _VALID_SIMPLIFICATIONS = frozenset({"reduce", "cas"})
 
-    def __init__(self, *, equation=None, simplification="reduce"):
+    def __init__(
+        self, *, equation=None, simplification="reduce", propagate_constants=False
+    ):
         if simplification not in self._VALID_SIMPLIFICATIONS:
             raise ValueError(
                 f"simplification must be one of "
                 f"{self._VALID_SIMPLIFICATIONS!r}, got {simplification!r}"
             )
         self._simplification = simplification
+        self._propagate_constants = propagate_constants
+        self._constant_mapping = ()
         self._hash = None
 
         if equation is not None:
@@ -205,13 +212,20 @@ class AGraphExpression:
     def constants(self, value):
         """Set constants in the simplified equation only.
 
-        Used by :meth:`fit` — does **not** touch :attr:`raw_constants`.
+        Used by :meth:`fit` — does **not** touch :attr:`raw_constants`
+        unless :attr:`propagate_constants` is enabled.
         The provided values are used directly for evaluation without
         triggering re-simplification.
         """
         if self._modified:
             self._update()
         self._constants = tuple(float(v) for v in value)
+        if self._propagate_constants and self._constant_mapping:
+            raw = list(self._raw_constants)
+            for simp_idx, raw_idx in enumerate(self._constant_mapping):
+                if simp_idx < len(self._constants) and raw_idx < len(raw):
+                    raw[raw_idx] = self._constants[simp_idx]
+            self._raw_constants = tuple(raw)
 
     @property
     def integers(self):
@@ -219,6 +233,26 @@ class AGraphExpression:
         if self._modified:
             self._update()
         return self._integers
+
+    @property
+    def constant_mapping(self):
+        """Index mapping from simplified constants to raw constants.
+
+        Returns a tuple where ``constant_mapping[simplified_idx]`` is
+        the corresponding index into :attr:`raw_constants`.
+        """
+        if self._modified:
+            self._update()
+        return self._constant_mapping
+
+    @property
+    def propagate_constants(self):
+        """Whether setting simplified constants also updates raw constants."""
+        return self._propagate_constants
+
+    @propagate_constants.setter
+    def propagate_constants(self, value):
+        self._propagate_constants = bool(value)
 
     @property
     def complexity(self):
@@ -494,6 +528,7 @@ class AGraphExpression:
         self._raw_command_array = self._command_array.copy()
         self._raw_constants = self._constants
         self._raw_integers = self._integers
+        self._constant_mapping = tuple(range(len(self._constants)))
         self._modified = False
         return self
 
@@ -526,20 +561,26 @@ class AGraphExpression:
         """Run the simplification backend to derive command_array, constants,
         and integers from the raw inputs."""
         if self._simplification == "cas":
-            self._command_array, self._constants, self._integers = (
-                cas_simplify(
-                    self._raw_command_array,
-                    self._raw_constants,
-                    self._raw_integers,
-                )
+            (
+                self._command_array,
+                self._constants,
+                self._integers,
+                self._constant_mapping,
+            ) = cas_simplify(
+                self._raw_command_array,
+                self._raw_constants,
+                self._raw_integers,
             )
         else:
-            self._command_array, self._constants, self._integers = (
-                reduce(
-                    self._raw_command_array,
-                    self._raw_constants,
-                    self._raw_integers,
-                )
+            (
+                self._command_array,
+                self._constants,
+                self._integers,
+                self._constant_mapping,
+            ) = reduce(
+                self._raw_command_array,
+                self._raw_constants,
+                self._raw_integers,
             )
         self._is_fitted = len(self._constants) == 0
         self._modified = False
@@ -576,6 +617,8 @@ class AGraphExpression:
         state["_command_array"] = np.empty([0, 3], dtype=np.uint8)
         # state["_constants"] = () # keep any fitted constants from state
         state["_integers"] = ()
+        state.setdefault("_propagate_constants", False)
+        state.setdefault("_constant_mapping", ())
         state["_modified"] = True
         state["_hash"] = None
         self.__dict__.update(state)
@@ -583,12 +626,14 @@ class AGraphExpression:
     def __deepcopy__(self, memodict=None):
         new = AGraphExpression.__new__(AGraphExpression)
         new._simplification = self._simplification
+        new._propagate_constants = self._propagate_constants
         new._raw_command_array = np.copy(self._raw_command_array)
         new._raw_constants = tuple(self._raw_constants)
         new._raw_integers = tuple(self._raw_integers)
         new._command_array = np.copy(self._command_array)
         new._constants = tuple(self._constants)
         new._integers = tuple(self._integers)
+        new._constant_mapping = tuple(self._constant_mapping)
         new._is_fitted = self._is_fitted
         new._modified = self._modified
         new._hash = None

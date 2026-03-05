@@ -148,14 +148,17 @@ def build_agraph_stack(expression, original_constants):
     expression : CASExpression
         The simplified CAS expression.
     original_constants : tuple of float
-        The original constant values (indexed by the opaque constant
-        indices stored in CONSTANT nodes).
+        The original constant values.  Each CAS ``CONSTANT`` node
+        references an index into this tuple; unknown indices default
+        to ``1.0``.
 
     Returns
     -------
     tuple
-        ``(command_array, constants, integers)`` — a uint8 command
-        array and the corresponding constant/integer tuples.
+        ``(command_array, constants, integers, const_idx_map)`` — a
+        uint8 command array, the corresponding constant/integer tuples,
+        and a dict mapping each original CAS constant index to the new
+        sequential index in the output constants tuple.
     """
     stack_dict = {}
     const_list = []
@@ -175,7 +178,7 @@ def build_agraph_stack(expression, original_constants):
     stack = np.empty((len(stack_dict), 3), dtype=np.uint8)
     for command, loc in stack_dict.items():
         stack[loc] = command
-    return stack, tuple(const_list), tuple(int_list)
+    return stack, tuple(const_list), tuple(int_list), const_idx_map
 
 
 def _build_stack_recursive(
@@ -195,11 +198,10 @@ def _build_stack_recursive(
             new_idx = const_idx_map[old_idx]
         else:
             new_idx = len(const_list)
-            value = (
-                original_constants[old_idx]
-                if old_idx < len(original_constants)
-                else 1.0
-            )
+            if old_idx < len(original_constants):
+                value = float(original_constants[old_idx])
+            else:
+                value = 1.0
             const_list.append(value)
             const_idx_map[old_idx] = new_idx
         command = (operator, new_idx, new_idx)

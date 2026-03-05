@@ -1,7 +1,8 @@
 """Constant folding for CAS expressions.
 
 Reduces the number of distinct constants in an expression by grouping
-and merging constant-valued sub-expressions.
+and merging constant-valued sub-expressions.  The folding is purely
+structural — constant *values* are not tracked or computed.
 """
 
 from collections import defaultdict
@@ -19,7 +20,8 @@ def fold_constants(expression):
     """Fold constant-valued sub-expressions together.
 
     Repeatedly scans the tree to combine constants so that the resulting
-    expression uses as few ``CONSTANT`` nodes as possible.
+    expression uses as few ``CONSTANT`` nodes as possible.  The folding
+    is purely structural — no constant values are tracked or computed.
 
     Parameters
     ----------
@@ -36,13 +38,15 @@ def fold_constants(expression):
         check_for_folding = False
         # Single fused DFS: discover constants and insertion points
         # together instead of two separate traversals.
-        constants, insertion_points_map = _fused_discovery(expression)
-        for const_subset in _subsets(list(constants)):
+        cas_constants, insertion_points_map = _fused_discovery(expression)
+        for const_subset in _subsets(list(cas_constants)):
             insertion_points = _filter_insertion_points(
                 expression, const_subset, insertion_points_map
             )
             replacements = _generate_replacement_instructions(
-                const_subset, constants, insertion_points
+                const_subset,
+                cas_constants,
+                insertion_points,
             )
             if len(replacements) > 0:
                 expression = _perform_constant_folding(expression, replacements)
@@ -81,7 +85,9 @@ def _group_constants(expression):
 # ------------------------------------------------------------------ #
 
 
-def _generate_replacement_instructions(const_subset, constants, insertion_points):
+def _generate_replacement_instructions(
+    const_subset, constants, insertion_points
+):
     if len(insertion_points) > len(const_subset):
         return {}
 

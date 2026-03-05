@@ -74,7 +74,7 @@ class TestReduce:
             ],
             dtype=np.uint8,
         )
-        reduced, consts, ints = reduce(stack, (3.14,), ())
+        reduced, consts, ints, _ = reduce(stack, (3.14,), ())
         np.testing.assert_array_equal(
             reduced,
             np.array(
@@ -95,7 +95,7 @@ class TestReduce:
             ],
             dtype=np.uint8,
         )
-        reduced, consts, ints = reduce(stack, (), ())
+        reduced, consts, ints, _ = reduce(stack, (), ())
         expected = np.array(
             [[VARIABLE, 0, 0], [SIN, 0, 0]],
             dtype=np.uint8,
@@ -115,7 +115,7 @@ class TestReduce:
             ],
             dtype=np.uint8,
         )
-        reduced, consts, ints = reduce(stack, (), ())
+        reduced, consts, ints, _ = reduce(stack, (), ())
         expected = np.array(
             [
                 [VARIABLE, 0, 0],
@@ -140,7 +140,7 @@ class TestReduce:
             dtype=np.uint8,
         )
         raw_consts = (1.0, 99.0, 2.0)
-        reduced, consts, ints = reduce(stack, raw_consts, ())
+        reduced, consts, ints, _ = reduce(stack, raw_consts, ())
         # C1 is dropped; C0 -> index 0, C2 -> index 1
         expected = np.array(
             [
@@ -166,7 +166,7 @@ class TestReduce:
             dtype=np.uint8,
         )
         raw_ints = (10, 99, 20)
-        reduced, consts, ints = reduce(stack, (), raw_ints)
+        reduced, consts, ints, _ = reduce(stack, (), raw_ints)
         expected = np.array(
             [
                 [INTEGER, 0, 0],
@@ -181,12 +181,92 @@ class TestReduce:
 
     def test_preserves_dtype(self):
         stack = np.array([[VARIABLE, 0, 0]], dtype=np.uint8)
-        reduced, _, _ = reduce(stack, (), ())
+        reduced, _, _, _ = reduce(stack, (), ())
         assert reduced.dtype == np.uint8
 
     def test_empty_stack(self):
         stack = np.empty((0, 3), dtype=np.uint8)
-        reduced, consts, ints = reduce(stack, (), ())
+        reduced, consts, ints, _ = reduce(stack, (), ())
         assert reduced.shape == (0, 3)
         assert consts == ()
         assert ints == ()
+
+
+class TestReduceConstantMapping:
+    """Tests for the reduced_to_raw constant mapping returned by reduce()."""
+
+    def test_identity_mapping_single_constant(self):
+        """One constant, no dead code → mapping is (0,)."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
+        _, _, _, mapping = reduce(stack, (3.14,), ())
+        assert mapping == (0,)
+
+    def test_mapping_skips_unused_constant(self):
+        """C0 used, C1 unused, C2 used → mapping is (0, 2)."""
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 1],  # unused
+                [CONSTANT, 2, 2],
+                [MULTIPLICATION, 0, 2],
+            ],
+            dtype=np.uint8,
+        )
+        _, _, _, mapping = reduce(stack, (1.0, 99.0, 2.0), ())
+        assert mapping == (0, 2)
+
+    def test_mapping_preserves_order(self):
+        """Multiple used constants, order matches appearance in stack."""
+        stack = np.array(
+            [
+                [CONSTANT, 2, 2],
+                [CONSTANT, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
+        _, _, _, mapping = reduce(stack, (10.0, 20.0, 30.0), ())
+        # reduced[0] came from raw[2], reduced[1] came from raw[0]
+        assert mapping == (2, 0)
+
+    def test_empty_mapping_no_constants(self):
+        """Expression with no constants → empty mapping."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SIN, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        _, _, _, mapping = reduce(stack, (), ())
+        assert mapping == ()
+
+    def test_empty_stack_mapping(self):
+        """Empty stack → empty mapping."""
+        stack = np.empty((0, 3), dtype=np.uint8)
+        _, _, _, mapping = reduce(stack, (), ())
+        assert mapping == ()
+
+    def test_mapping_values_index_into_raw_constants(self):
+        """Verify that mapping[i] correctly indexes raw_constants."""
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 1],  # unused
+                [CONSTANT, 2, 2],
+                [MULTIPLICATION, 0, 2],
+            ],
+            dtype=np.uint8,
+        )
+        raw_consts = (10.0, 99.0, 20.0)
+        _, consts, _, mapping = reduce(stack, raw_consts, ())
+        # Each reduced constant should match raw_constants[mapping[i]]
+        for i, raw_idx in enumerate(mapping):
+            assert consts[i] == raw_consts[raw_idx]

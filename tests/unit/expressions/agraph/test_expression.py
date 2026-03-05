@@ -408,3 +408,209 @@ class TestModificationTracking:
         h1 = hash(x0_plus_c0)
         _ = x0_plus_c0.mutable_raw_command_array
         assert x0_plus_c0._hash is None
+
+
+# ------------------------------------------------------------------ #
+#  Constant mapping & propagation                                     #
+# ------------------------------------------------------------------ #
+
+
+class TestConstantMapping:
+    """Tests for constant_mapping property."""
+
+    def test_mapping_exists_after_access(self):
+        expr = AGraphExpression(equation="X0 + 1.0")
+        mapping = expr.constant_mapping
+        assert isinstance(mapping, tuple)
+        assert len(mapping) == len(expr.constants)
+
+    def test_mapping_identity_for_simple_expression(self):
+        """For X0 + C0, reduce produces a trivial 1:1 mapping."""
+        expr = AGraphExpression(equation="X0 + 1.0")
+        mapping = expr.constant_mapping
+        assert mapping == (0,)
+
+    def test_mapping_for_multiple_constants(self):
+        """X0 * C0 + C1 should have two entries in constant_mapping."""
+        expr = AGraphExpression()
+        expr.raw_command_array = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [MULTIPLICATION, 0, 1],
+                [CONSTANT, 1, 1],
+                [ADDITION, 2, 3],
+            ],
+            dtype=np.uint8,
+        )
+        expr.raw_constants = (2.0, 3.0)
+        mapping = expr.constant_mapping
+        assert len(mapping) == 2
+
+    def test_mapping_skips_dead_constant(self):
+        """If a raw constant is unused, it should not appear in mapping."""
+        expr = AGraphExpression()
+        # C0 used, C1 dead (unused), C2 used
+        expr.raw_command_array = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 1],  # dead
+                [CONSTANT, 2, 2],
+                [ADDITION, 0, 2],
+            ],
+            dtype=np.uint8,
+        )
+        expr.raw_constants = (10.0, 99.0, 20.0)
+        mapping = expr.constant_mapping
+        # reduced[0] → raw[0], reduced[1] → raw[2]; raw[1] is dead
+        assert 1 not in mapping
+        assert len(mapping) == 2
+
+    def test_mapping_values_index_into_raw(self):
+        """constant_mapping[i] should be a valid raw_constants index."""
+        expr = AGraphExpression()
+        expr.raw_command_array = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 1],  # dead
+                [CONSTANT, 2, 2],
+                [ADDITION, 0, 2],
+            ],
+            dtype=np.uint8,
+        )
+        expr.raw_constants = (10.0, 99.0, 20.0)
+        mapping = expr.constant_mapping
+        for i, raw_idx in enumerate(mapping):
+            assert expr.constants[i] == expr.raw_constants[raw_idx]
+
+
+class TestPropagateConstants:
+    """Tests for propagate_constants toggle."""
+
+    def test_default_is_false(self):
+        expr = AGraphExpression(equation="X0 + 1.0")
+        assert expr.propagate_constants is False
+
+    def test_can_enable_via_constructor(self):
+        expr = AGraphExpression(equation="X0 + 1.0", propagate_constants=True)
+        assert expr.propagate_constants is True
+
+    def test_can_toggle_via_setter(self):
+        expr = AGraphExpression(equation="X0 + 1.0")
+        expr.propagate_constants = True
+        assert expr.propagate_constants is True
+
+    def test_disabled_does_not_propagate(self):
+        """With propagate_constants=False, setting constants leaves raw untouched."""
+        expr = AGraphExpression(equation="X0 + 1.0")
+        original_raw = expr.raw_constants
+        expr.constants = (99.0,)
+        assert expr.raw_constants == original_raw
+
+    def test_enabled_propagates_to_raw(self):
+        """With propagate_constants=True, setting constants updates raw."""
+        expr = AGraphExpression(equation="X0 + 1.0", propagate_constants=True)
+        _ = expr.constants  # trigger initial simplification
+        expr.constants = (42.0,)
+        # The mapped raw constant should now be 42.0
+        mapping = expr.constant_mapping
+        assert expr.raw_constants[mapping[0]] == 42.0
+
+    def test_propagation_with_dead_constants(self):
+        """Propagation correctly targets the mapped raw index,
+        leaving dead constants untouched."""
+        expr = AGraphExpression(propagate_constants=True)
+        # C0 used, C1 dead, C2 used
+        expr.raw_command_array = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 1],  # dead
+                [CONSTANT, 2, 2],
+                [ADDITION, 0, 2],
+            ],
+            dtype=np.uint8,
+        )
+        expr.raw_constants = (10.0, 99.0, 20.0)
+        # Force update
+        _ = expr.constants
+        # Set new simplified constants
+        expr.constants = (100.0, 200.0)
+        # raw[0] should be 100.0 (from simplified[0])
+        # raw[1] should still be 99.0 (dead, untouched)
+        # raw[2] should be 200.0 (from simplified[1])
+        assert expr.raw_constants[0] == 100.0
+        assert expr.raw_constants[1] == 99.0
+        assert expr.raw_constants[2] == 200.0
+
+    def test_propagation_does_not_retrigger_simplification(self):
+        """Propagation back to raw should NOT mark the expression modified."""
+        expr = AGraphExpression(equation="X0 + 1.0", propagate_constants=True)
+        _ = expr.constants  # trigger update, clear _modified
+        assert expr._modified is False
+        expr.constants = (42.0,)
+        assert expr._modified is False
+
+    def test_fit_propagates_when_enabled(self):
+        """After fit() with propagation enabled, raw_constants match fitted."""
+        expr = AGraphExpression(equation="X0 * 1.0", propagate_constants=True)
+        X = np.array([[1.0], [2.0], [3.0], [4.0], [5.0]])
+        y = 3.0 * X[:, 0]
+        expr.fit(X, y)
+        # fitted constant should be ~3.0
+        assert expr.constants[0] == pytest.approx(3.0, abs=0.1)
+        # raw should also reflect the fitted value
+        mapping = expr.constant_mapping
+        assert expr.raw_constants[mapping[0]] == pytest.approx(3.0, abs=0.1)
+
+    def test_fit_does_not_propagate_when_disabled(self):
+        """After fit() with propagation disabled, raw_constants are unchanged."""
+        expr = AGraphExpression(equation="X0 * 1.0", propagate_constants=False)
+        original_raw = expr.raw_constants
+        X = np.array([[1.0], [2.0], [3.0], [4.0], [5.0]])
+        y = 3.0 * X[:, 0]
+        expr.fit(X, y)
+        assert expr.raw_constants == original_raw
+
+    def test_deepcopy_preserves_propagation_flag(self):
+        """deepcopy should carry over the propagate_constants flag."""
+        expr = AGraphExpression(equation="X0 + 1.0", propagate_constants=True)
+        copied = copy.deepcopy(expr)
+        assert copied.propagate_constants is True
+
+    def test_pickle_preserves_propagation_flag(self):
+        """pickle roundtrip should preserve propagate_constants flag."""
+        expr = AGraphExpression(equation="X0 + 1.0", propagate_constants=True)
+        data = pickle.dumps(expr)
+        restored = pickle.loads(data)
+        assert restored.propagate_constants is True
+
+    def test_pickle_backward_compat_defaults_false(self):
+        """Unpickling old data (no _propagate_constants) defaults to False."""
+        expr = AGraphExpression(equation="X0 + 1.0")
+        state = expr.__getstate__()
+        del state["_propagate_constants"]
+        del state["_constant_mapping"]
+        new = AGraphExpression.__new__(AGraphExpression)
+        new.__setstate__(state)
+        assert new.propagate_constants is False
+        assert new._constant_mapping == ()
+
+
+class TestPromoteSimplificationMapping:
+    """Tests for constant_mapping after promote_simplification()."""
+
+    def test_promote_resets_mapping_to_identity(self):
+        """After promotion, raw == simplified, so mapping should be identity."""
+        expr = AGraphExpression(equation="X0 + 1.0")
+        _ = expr.constants  # ensure update has run
+        expr.promote_simplification()
+        mapping = expr.constant_mapping
+        assert mapping == tuple(range(len(expr.constants)))
+
+    def test_promote_then_propagate(self):
+        """After promotion with propagation enabled, constants = raw constants."""
+        expr = AGraphExpression(equation="X0 + 1.0", propagate_constants=True)
+        _ = expr.constants
+        expr.promote_simplification()
+        expr.constants = (77.0,)
+        assert expr.raw_constants[0] == 77.0

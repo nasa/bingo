@@ -103,8 +103,8 @@ class AGraphExpression:
     simplification : {"reduce", "cas"}, optional
         Which simplification strategy to use when deriving the
         evaluation-facing stack from the raw stack.  ``"reduce"``
-        (default) performs cheap dead-code elimination / constant
-        folding on the stack.  ``"cas"`` runs the full computer
+        performs cheap dead-code elimination / constant
+        folding on the stack.  ``"cas"`` (default) runs the full computer
         algebra simplification pipeline.
     propagate_constants : bool, optional
         Whether setting simplified constants also updates raw constants.
@@ -114,7 +114,7 @@ class AGraphExpression:
     _VALID_SIMPLIFICATIONS = frozenset({"reduce", "cas"})
 
     def __init__(
-        self, *, equation=None, simplification="reduce", propagate_constants=False
+        self, *, equation=None, simplification="cas", propagate_constants=False
     ):
         if simplification not in self._VALID_SIMPLIFICATIONS:
             raise ValueError(
@@ -447,14 +447,15 @@ class AGraphExpression:
 
         def jacobian(params):
             self.constants = params
-            _, jac = cached.forward_eval_with_const_derivative(
-                self._constants
-            )
+            _, jac = cached.forward_eval_with_const_derivative(self._constants)
             return jac
 
         try:
             result = scipy.optimize.root(
-                residuals, x0, jac=jacobian, method="lm",
+                residuals,
+                x0,
+                jac=jacobian,
+                method="lm",
                 **scipykwargs,
             )
             self.constants = result.x

@@ -6,8 +6,10 @@ Re-exports the public API so callers can do::
 """
 
 from .evaluation import evaluate, evaluate_with_derivative
+from .cached_evaluation import CachedEvaluator
 
 __all__ = [
     "evaluate",
     "evaluate_with_derivative",
+    "CachedEvaluator",
 ]

@@ -133,11 +133,9 @@ def _fused_discovery(expression):
         Mapping ``{const_index: CASExpression}`` for every distinct
         ``CONSTANT`` node found in *expression*.
     ip_map : dict
-        Mapping ``{node: (solely_flags, others_flags, const_operands)}``
-        for every non-terminal node, where *solely_flags* and
-        *others_flags* are tuples of bools parallel to the node's
-        operands, and *const_operands* is a frozenset of operands whose
-        ``depends_on`` is a subset of the target constants plus ``"i"``.
+        Mapping ``{node: (depends_on, operands)}`` for every non-terminal
+        node, where *depends_on* is the node's ``depends_on`` set and
+        *operands* is its operand list.
     """
     constants = {}
     ip_map = {}
@@ -191,7 +189,7 @@ def _filter_ip_recurse(
     if expression not in ip_map:
         return  # terminal
 
-    deps, operands = ip_map[expression]
+    _, operands = ip_map[expression]
 
     for operand in operands:
         _filter_ip_recurse(

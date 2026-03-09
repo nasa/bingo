@@ -9,8 +9,6 @@ selection operators, etc.).
 
 import copy
 
-import numpy as np
-
 from ...chromosomes.chromosome import Chromosome
 
 
@@ -114,6 +112,18 @@ class EvolvableExpression(Chromosome):
         bytearray
         """
         return self.expression.get_utilized_commands()
+
+    # ------------------------------------------------------------------ #
+    #  Hash / equality                                                    #
+    # ------------------------------------------------------------------ #
+
+    def __hash__(self):
+        return hash(self.expression)
+
+    def __eq__(self, other):
+        if not isinstance(other, EvolvableExpression):
+            return NotImplemented
+        return self.expression == other.expression
 
     # ------------------------------------------------------------------ #
     #  Copy / serialization                                               #

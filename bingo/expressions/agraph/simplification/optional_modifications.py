@@ -20,7 +20,7 @@ Module-level flags control each modification:
 ``REPLACE_INTEGER_POWERS``
     Convert ``a^n`` (positive integer *n* ≥ 4) into expanded
     multiplications.  Exponents 2 and 3 are handled by
-    ``INSERT_SQUARE_CUBE`` when enabled.  Default ``True``.
+    ``INSERT_SQUARE_CUBE`` when enabled.  Default ``False``.
 
 ``REPLACE_INTEGERS_WITH_CONSTANTS``
     Convert integer coefficients (2*x, 3*x, …) into constant-valued

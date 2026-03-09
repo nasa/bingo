@@ -14,6 +14,7 @@ import scipy.optimize
 from sympy import sympify
 
 from .evaluation import evaluate, evaluate_with_derivative
+from .evaluation.cached_evaluation import CachedEvaluator
 from .simplification import get_utilized_commands, reduce, simplify as cas_simplify
 from .formatting import get_formatted_string
 from .parsing import eq_string_to_command_array_and_constants
@@ -54,13 +55,14 @@ def _bic(fitness_vector, n_constants):
 
 
 def _laplace_nmll(fitness_vector, n_constants):
-    """Negative normalised marginal log-likelihood (Laplace approximation).
+    """Normalised marginal log-likelihood (Laplace approximation).
 
-    NMLL = - (1 - b) * ln(L̂) - ln(b) / 2 * k
+    NMLL = (1 - b) * ln(L̂) + ln(b) / 2 * k
 
     where *b* = 1 / sqrt(n) is a normalisation factor, *k* =
     ``n_constants + 1``, *n* is the number of data points, and *L̂* is
-    the maximised Gaussian log-likelihood.
+    the maximised Gaussian log-likelihood.  Higher values indicate a
+    better fit.
 
     Parameters
     ----------
@@ -404,24 +406,23 @@ class AGraphExpression:
         X = np.atleast_2d(np.asarray(X, dtype=float))
         return self._evaluate(X).ravel()
 
-    def fit(self, X, y, optimizer="lm", metric="mse", **scipykwargs):
+    def fit(self, X, y, metric="mse", **scipykwargs):
         """Optimize constants to fit the data.
 
-        Uses ``scipy.optimize.least_squares`` (Levenberg-Marquardt by
-        default) to minimize residuals.
+        Uses ``scipy.optimize.root(method='lm')`` (Levenberg-Marquardt)
+        with analytic Jacobians from the :class:`CachedEvaluator`.
 
         Parameters
         ----------
         X : array-like, shape (M, D)
         y : array-like, shape (M,)
-        optimizer : str, optional
-            Method passed to ``scipy.optimize.least_squares``.
-            Default ``"lm"`` (Levenberg-Marquardt).
         metric : str, optional
-            Unused for now (least-squares always minimises SSE).
+            Unused for now (root always minimises residuals).
             Retained for API symmetry.
         **scipykwargs : keyword arguments
-            Additional keyword arguments passed to ``scipy.optimize.least_squares``.
+            Additional keyword arguments forwarded to
+            ``scipy.optimize.root``.  Common options include ``tol``
+            and ``options={'maxiter': N}``.
 
         Returns
         -------
@@ -438,19 +439,23 @@ class AGraphExpression:
             return self
 
         x0 = np.array(self.constants, dtype=float)
+        cached = CachedEvaluator(self._command_array, X, self._integers)
 
         def residuals(params):
             self.constants = params
-            return self._evaluate(X).ravel() - y
+            return cached.forward_eval(self._constants).ravel() - y
 
         def jacobian(params):
             self.constants = params
-            _, jac = self._evaluate_with_const_gradient(X)
+            _, jac = cached.forward_eval_with_const_derivative(
+                self._constants
+            )
             return jac
 
         try:
-            result = scipy.optimize.least_squares(
-                residuals, x0, jac=jacobian, method=optimizer, **scipykwargs
+            result = scipy.optimize.root(
+                residuals, x0, jac=jacobian, method="lm",
+                **scipykwargs,
             )
             self.constants = result.x
         except Exception:  # noqa: broad-except — don't crash on bad fits
@@ -472,7 +477,8 @@ class AGraphExpression:
         Returns
         -------
         float
-            The score (lower is better for all supported metrics).
+            The score (lower is better for all metrics except
+            ``"laplace_nmll"`` where higher is better).
         """
         X = np.atleast_2d(np.asarray(X, dtype=float))
         y = np.asarray(y, dtype=float).ravel()

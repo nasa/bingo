@@ -1,13 +1,12 @@
 """Generator of random AGraph expressions.
 
-Creates random :class:`~bingo.expressions.evolvable.EvolvableExpression`
+Creates random :class:`~bingo.expressions.agraph.evolvable.EvolvableExpression`
 individuals whose command stacks are filled by a
 :class:`ComponentGenerator`.
 """
 
 import numpy as np
 
-from .component_generator import ComponentGenerator
 from .operators import CONSTANT
 from bingo.chromosomes.generator import Generator
 from .evolvable import EvolvableExpression

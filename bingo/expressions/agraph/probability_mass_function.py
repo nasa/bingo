@@ -1,6 +1,6 @@
 """Lightweight probability mass function using numpy's Generator API.
 
-This is a local reimplementation of the bingo classthat accepts an explicit
+This is a local reimplementation of the bingo class that accepts an explicit
 :class:`numpy.random.Generator` rather than relying on global
 ``numpy.random`` state.
 """

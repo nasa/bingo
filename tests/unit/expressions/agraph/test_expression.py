@@ -519,9 +519,7 @@ class TestPropagateConstants:
     def test_propagation_with_dead_constants(self):
         """Propagation correctly targets the mapped raw index,
         leaving dead constants untouched."""
-        expr = AGraphExpression(
-            propagate_constants=True, simplification="reduce"
-        )
+        expr = AGraphExpression(propagate_constants=True, simplification="reduce")
         # C0 used, C1 dead, C2 used
         expr.raw_command_array = np.array(
             [

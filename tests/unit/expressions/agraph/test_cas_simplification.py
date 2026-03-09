@@ -779,6 +779,7 @@ class TestOptionalModifications:
     def test_power_4_to_multiplication(self):
         """X_0^4 → X_0 * X_0 * X_0 * X_0 when REPLACE_INTEGER_POWERS enabled."""
         import bingo.expressions.agraph.simplification.optional_modifications as om
+
         old = om.REPLACE_INTEGER_POWERS
         try:
             om.REPLACE_INTEGER_POWERS = True

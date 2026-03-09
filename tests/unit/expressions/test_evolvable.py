@@ -64,11 +64,14 @@ class TestChromosomeAttributes:
 
 class TestStr:
     def test_str_delegates_to_expression(self):
-        indv = _make_evolvable([
-            [VARIABLE, 0, 0],
-            [CONSTANT, 0, 0],
-            [ADDITION, 0, 1],
-        ], constants=(1.0,))
+        indv = _make_evolvable(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            constants=(1.0,),
+        )
         s = str(indv)
         assert "X0" in s or "x" in s.lower()
 
@@ -88,11 +91,14 @@ class TestDistance:
 
 class TestLocalOptimization:
     def test_needs_opt_when_has_constants(self):
-        indv = _make_evolvable([
-            [VARIABLE, 0, 0],
-            [CONSTANT, 0, 0],
-            [ADDITION, 0, 1],
-        ], constants=(1.0,))
+        indv = _make_evolvable(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            constants=(1.0,),
+        )
         # After _update, expression has constants and is not fitted
         assert indv.needs_local_optimization()
 
@@ -101,19 +107,25 @@ class TestLocalOptimization:
         assert not indv.needs_local_optimization()
 
     def test_num_params(self):
-        indv = _make_evolvable([
-            [CONSTANT, 0, 0],
-            [CONSTANT, 1, 1],
-            [ADDITION, 0, 1],
-        ], constants=(1.0, 2.0))
+        indv = _make_evolvable(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 1],
+                [ADDITION, 0, 1],
+            ],
+            constants=(1.0, 2.0),
+        )
         assert indv.get_number_local_optimization_params() == 2
 
     def test_set_params(self):
-        indv = _make_evolvable([
-            [VARIABLE, 0, 0],
-            [CONSTANT, 0, 0],
-            [ADDITION, 0, 1],
-        ], constants=(1.0,))
+        indv = _make_evolvable(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            constants=(1.0,),
+        )
         indv.set_local_optimization_params([99.0])
         assert indv.expression.constants == (99.0,)
 
@@ -123,9 +135,7 @@ class TestDelegation:
         """command_array on evolvable returns the simplified (evaluation-ready) stack."""
         rows = [[VARIABLE, 0, 0], [SIN, 0, 0]]
         indv = _make_evolvable(rows)
-        np.testing.assert_array_equal(
-            indv.command_array, indv.expression.command_array
-        )
+        np.testing.assert_array_equal(indv.command_array, indv.expression.command_array)
 
     def test_mutable_raw_command_array(self):
         """Genetic ops access the raw writable stack via expression directly."""
@@ -165,11 +175,14 @@ class TestCopy:
         assert c.fitness == 2.0
 
     def test_copy_independence(self):
-        indv = _make_evolvable([
-            [VARIABLE, 0, 0],
-            [CONSTANT, 0, 0],
-            [ADDITION, 0, 1],
-        ], constants=(1.0,))
+        indv = _make_evolvable(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            constants=(1.0,),
+        )
         c = indv.copy()
         c.expression.mutable_raw_command_array[0, 1] = 99
         # Original should be unchanged

@@ -5,7 +5,12 @@ import pytest
 
 from bingo.expressions.agraph.generator import AGraphGenerator
 from bingo.expressions.agraph.component_generator import ComponentGenerator
-from bingo.expressions.agraph.operators import ADDITION, MULTIPLICATION, SIN, IS_TERMINAL_MAP
+from bingo.expressions.agraph.operators import (
+    ADDITION,
+    MULTIPLICATION,
+    SIN,
+    IS_TERMINAL_MAP,
+)
 from bingo.expressions.agraph.evolvable import EvolvableExpression
 
 
@@ -88,6 +93,7 @@ class TestGeneration:
         """Every CONSTANT node in the generated stack should have its
         value recorded in raw_constants at the correct index."""
         from bingo.expressions.agraph.operators import CONSTANT
+
         gen = ComponentGenerator(
             input_x_dimension=1,
             constant_probability=1.0,  # force all terminals to be CONSTANT

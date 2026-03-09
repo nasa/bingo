@@ -37,7 +37,11 @@ class AGraphGenerator(Generator):
     """
 
     def __init__(
-        self, min_size, max_size, component_generator, simplification="cas",
+        self,
+        min_size,
+        max_size,
+        component_generator,
+        simplification="cas",
         random_state=None,
     ):
         if min_size < 1:
@@ -64,9 +68,7 @@ class AGraphGenerator(Generator):
             cmd = self.component_generator.random_command(i)
             if int(cmd[0]) == CONSTANT:
                 idx = len(raw_constants)
-                raw_constants.append(
-                    self.component_generator.random_constant_value()
-                )
+                raw_constants.append(self.component_generator.random_constant_value())
                 cmd[1] = cmd[2] = idx
             command_array[i] = cmd
 

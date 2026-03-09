@@ -16,8 +16,8 @@ from bingo.expressions.agraph.evolvable import EvolvableExpression
 from bingo.chromosomes.chromosome import Chromosome
 
 
-def _make_expr(command_rows, constants=(), integers=()):
-    expr = AGraphExpression()
+def _make_expr(command_rows, constants=(), integers=(), simplification="reduce"):
+    expr = AGraphExpression(simplification=simplification)
     expr.raw_command_array = np.array(command_rows, dtype=np.uint8)
     expr.raw_integers = integers
     expr.raw_constants = constants

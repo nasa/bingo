@@ -24,6 +24,9 @@ class AGraphGenerator(Generator):
         Maximum command-array row count.
     component_generator : ComponentGenerator
         Generates individual commands.
+    simplification : {"reduce", "cas"}, optional
+        Simplification strategy for generated expressions.  Default
+        ``"cas"`` (full computer algebra simplification).
     random_state : int, numpy.random.Generator, or None, optional
         Seed or generator for reproducibility.  Default *None*.
 
@@ -33,7 +36,10 @@ class AGraphGenerator(Generator):
         If ``min_size < 1`` or ``max_size < min_size``.
     """
 
-    def __init__(self, min_size, max_size, component_generator, random_state=None):
+    def __init__(
+        self, min_size, max_size, component_generator, simplification="cas",
+        random_state=None,
+    ):
         if min_size < 1:
             raise ValueError("min_size must be >= 1")
         if max_size < min_size:
@@ -42,6 +48,7 @@ class AGraphGenerator(Generator):
         self.min_size = min_size
         self.max_size = max_size
         self.component_generator = component_generator
+        self._simplification = simplification
 
     def __call__(self):
         """Generate a random :class:`EvolvableExpression`.
@@ -63,7 +70,7 @@ class AGraphGenerator(Generator):
                 cmd[1] = cmd[2] = idx
             command_array[i] = cmd
 
-        expr = AGraphExpression()
+        expr = AGraphExpression(simplification=self._simplification)
         expr.raw_command_array = command_array
         expr.raw_constants = tuple(raw_constants)
         return EvolvableExpression(expr)

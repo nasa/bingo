@@ -777,12 +777,18 @@ class TestOptionalModifications:
         assert result.operands[0] == x
 
     def test_power_4_to_multiplication(self):
-        """X_0^4 → X_0 * X_0 * X_0 * X_0."""
-        x = CASExpression(VARIABLE, [0])
-        four = CASExpression(INTEGER, [4])
-        expr = CASExpression(POWER, [x, four])
-        result = optional_modifications(expr)
-        assert result.operator == MULTIPLICATION
+        """X_0^4 → X_0 * X_0 * X_0 * X_0 when REPLACE_INTEGER_POWERS enabled."""
+        import bingo.expressions.agraph.simplification.optional_modifications as om
+        old = om.REPLACE_INTEGER_POWERS
+        try:
+            om.REPLACE_INTEGER_POWERS = True
+            x = CASExpression(VARIABLE, [0])
+            four = CASExpression(INTEGER, [4])
+            expr = CASExpression(POWER, [x, four])
+            result = optional_modifications(expr)
+            assert result.operator == MULTIPLICATION
+        finally:
+            om.REPLACE_INTEGER_POWERS = old
 
     def test_no_subtraction_when_no_negatives(self):
         """X_0 + X_1 stays as addition."""
@@ -1066,11 +1072,11 @@ class TestAGraphExpressionCASMode:
         expr = AGraphExpression(simplification="cas")
         assert expr._simplification == "cas"
 
-    def test_reduce_mode_is_default(self):
+    def test_cas_mode_is_default(self):
         from bingo.expressions.agraph.expression import AGraphExpression
 
         expr = AGraphExpression()
-        assert expr._simplification == "reduce"
+        assert expr._simplification == "cas"
 
     def test_invalid_simplification_raises(self):
         from bingo.expressions.agraph.expression import AGraphExpression

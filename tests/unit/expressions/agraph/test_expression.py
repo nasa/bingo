@@ -449,7 +449,7 @@ class TestConstantMapping:
 
     def test_mapping_skips_dead_constant(self):
         """If a raw constant is unused, it should not appear in mapping."""
-        expr = AGraphExpression()
+        expr = AGraphExpression(simplification="reduce")
         # C0 used, C1 dead (unused), C2 used
         expr.raw_command_array = np.array(
             [
@@ -468,7 +468,7 @@ class TestConstantMapping:
 
     def test_mapping_values_index_into_raw(self):
         """constant_mapping[i] should be a valid raw_constants index."""
-        expr = AGraphExpression()
+        expr = AGraphExpression(simplification="reduce")
         expr.raw_command_array = np.array(
             [
                 [CONSTANT, 0, 0],
@@ -519,7 +519,9 @@ class TestPropagateConstants:
     def test_propagation_with_dead_constants(self):
         """Propagation correctly targets the mapped raw index,
         leaving dead constants untouched."""
-        expr = AGraphExpression(propagate_constants=True)
+        expr = AGraphExpression(
+            propagate_constants=True, simplification="reduce"
+        )
         # C0 used, C1 dead, C2 used
         expr.raw_command_array = np.array(
             [

@@ -106,3 +106,23 @@ class TestGeneration:
                     idx = int(row[1])
                     assert idx < len(rc), "CONSTANT index out of range in raw_constants"
                     assert isinstance(rc[idx], float)
+
+
+class TestSimplificationParam:
+    def test_default_simplification_is_cas(self, component_gen):
+        gen = AGraphGenerator(5, 5, component_gen)
+        np.random.seed(0)
+        indv = gen()
+        assert indv.expression._simplification == "cas"
+
+    def test_reduce_simplification(self, component_gen):
+        gen = AGraphGenerator(5, 5, component_gen, simplification="reduce")
+        np.random.seed(0)
+        indv = gen()
+        assert indv.expression._simplification == "reduce"
+
+    def test_cas_simplification_explicit(self, component_gen):
+        gen = AGraphGenerator(5, 5, component_gen, simplification="cas")
+        np.random.seed(0)
+        indv = gen()
+        assert indv.expression._simplification == "cas"

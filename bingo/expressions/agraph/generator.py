@@ -7,10 +7,10 @@ individuals whose command stacks are filled by a
 
 import numpy as np
 
-from .operators import CONSTANT
+from .pyagraph.operators import CONSTANT
 from bingo.chromosomes.generator import Generator
 from .evolvable import EvolvableExpression
-from .expression import AGraphExpression
+from .pyagraph.expression import AGraphExpression
 
 
 class AGraphGenerator(Generator):

@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from bingo.expressions.agraph.component_generator import ComponentGenerator
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     ADDITION,
@@ -46,9 +46,7 @@ class TestComponentGeneratorInit:
 
     def test_bad_constant_distribution_raises(self):
         with pytest.raises(ValueError, match="constant_distribution"):
-            ComponentGenerator(
-                input_x_dimension=2, constant_distribution="cauchy"
-            )
+            ComponentGenerator(input_x_dimension=2, constant_distribution="cauchy")
 
     def test_bad_constant_scale_raises(self):
         with pytest.raises(ValueError, match="constant_scale"):
@@ -139,12 +137,16 @@ class TestRandomConstantValue:
     def test_normal_distribution_scale(self):
         """Values drawn with a large scale should have larger spread."""
         gen_small = ComponentGenerator(
-            input_x_dimension=1, constant_distribution="normal",
-            constant_scale=0.01, random_state=42
+            input_x_dimension=1,
+            constant_distribution="normal",
+            constant_scale=0.01,
+            random_state=42,
         )
         gen_large = ComponentGenerator(
-            input_x_dimension=1, constant_distribution="normal",
-            constant_scale=100.0, random_state=42
+            input_x_dimension=1,
+            constant_distribution="normal",
+            constant_scale=100.0,
+            random_state=42,
         )
         vals_small = [abs(gen_small.random_constant_value()) for _ in range(50)]
         vals_large = [abs(gen_large.random_constant_value()) for _ in range(50)]
@@ -154,8 +156,10 @@ class TestRandomConstantValue:
         """Uniform values must lie within (-scale, +scale)."""
         scale = 3.0
         gen = ComponentGenerator(
-            input_x_dimension=1, constant_distribution="uniform",
-            constant_scale=scale, random_state=7
+            input_x_dimension=1,
+            constant_distribution="uniform",
+            constant_scale=scale,
+            random_state=7,
         )
         for _ in range(100):
             val = gen.random_constant_value()
@@ -164,12 +168,16 @@ class TestRandomConstantValue:
     def test_normal_and_uniform_differ(self):
         """The two distributions should produce different sequences."""
         gen_n = ComponentGenerator(
-            input_x_dimension=1, constant_distribution="normal",
-            constant_scale=1.0, random_state=0
+            input_x_dimension=1,
+            constant_distribution="normal",
+            constant_scale=1.0,
+            random_state=0,
         )
         gen_u = ComponentGenerator(
-            input_x_dimension=1, constant_distribution="uniform",
-            constant_scale=1.0, random_state=0
+            input_x_dimension=1,
+            constant_distribution="uniform",
+            constant_scale=1.0,
+            random_state=0,
         )
         vals_n = [gen_n.random_constant_value() for _ in range(20)]
         vals_u = [gen_u.random_constant_value() for _ in range(20)]

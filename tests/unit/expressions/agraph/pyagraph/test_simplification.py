@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -11,7 +11,7 @@ from bingo.expressions.agraph.operators import (
     MULTIPLICATION,
     SIN,
 )
-from bingo.expressions.agraph.simplification import (
+from bingo.expressions.agraph.pyagraph.simplification import (
     get_utilized_commands,
     reduce,
 )

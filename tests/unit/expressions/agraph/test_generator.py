@@ -5,7 +5,7 @@ import pytest
 
 from bingo.expressions.agraph.generator import AGraphGenerator
 from bingo.expressions.agraph.component_generator import ComponentGenerator
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     ADDITION,
     MULTIPLICATION,
     SIN,
@@ -92,7 +92,7 @@ class TestGeneration:
     def test_constant_values_populated_in_raw_constants(self):
         """Every CONSTANT node in the generated stack should have its
         value recorded in raw_constants at the correct index."""
-        from bingo.expressions.agraph.operators import CONSTANT
+        from bingo.expressions.agraph.pyagraph.operators import CONSTANT
 
         gen = ComponentGenerator(
             input_x_dimension=1,

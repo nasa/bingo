@@ -7,7 +7,7 @@ within the configured ``[min_size, max_size]`` bounds."""
 
 import numpy as np
 
-from .operators import CONSTANT, INTEGER, IS_TERMINAL_MAP
+from .pyagraph.operators import CONSTANT, INTEGER, IS_TERMINAL_MAP
 from bingo.chromosomes.crossover import Crossover
 
 

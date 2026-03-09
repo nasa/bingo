@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 
 from bingo.expressions.agraph.crossover import AGraphCrossover
-from bingo.expressions.agraph.expression import AGraphExpression
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,

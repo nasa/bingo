@@ -12,7 +12,7 @@ Tests cover:
 import numpy as np
 import pytest
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -33,24 +33,24 @@ from bingo.expressions.agraph.operators import (
     ARCCOS,
     ARCTAN,
 )
-from bingo.expressions.agraph.simplification.cas_expression import (
+from bingo.expressions.agraph.pyagraph.simplification.cas_expression import (
     CASExpression,
 )
-from bingo.expressions.agraph.simplification.interpreter import (
+from bingo.expressions.agraph.pyagraph.simplification.interpreter import (
     build_cas_expression,
     build_simplified_cas_expression,
     build_agraph_stack,
 )
-from bingo.expressions.agraph.simplification.automatic_simplification import (
+from bingo.expressions.agraph.pyagraph.simplification.automatic_simplification import (
     automatic_simplify,
 )
-from bingo.expressions.agraph.simplification.constant_folding import (
+from bingo.expressions.agraph.pyagraph.simplification.constant_folding import (
     fold_constants,
 )
-from bingo.expressions.agraph.simplification.optional_modifications import (
+from bingo.expressions.agraph.pyagraph.simplification.optional_modifications import (
     optional_modifications,
 )
-from bingo.expressions.agraph.simplification import simplify
+from bingo.expressions.agraph.pyagraph.simplification import simplify
 
 
 # ================================================================== #
@@ -778,7 +778,7 @@ class TestOptionalModifications:
 
     def test_power_4_to_multiplication(self):
         """X_0^4 → X_0 * X_0 * X_0 * X_0 when REPLACE_INTEGER_POWERS enabled."""
-        import bingo.expressions.agraph.simplification.optional_modifications as om
+        import bingo.expressions.agraph.pyagraph.simplification.optional_modifications as om
 
         old = om.REPLACE_INTEGER_POWERS
         try:
@@ -1068,25 +1068,25 @@ class TestAGraphExpressionCASMode:
     """Test AGraphExpression with simplification='cas'."""
 
     def test_cas_mode_constructor(self):
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         expr = AGraphExpression(simplification="cas")
         assert expr._simplification == "cas"
 
     def test_cas_mode_is_default(self):
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         expr = AGraphExpression()
         assert expr._simplification == "cas"
 
     def test_invalid_simplification_raises(self):
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         with pytest.raises(ValueError, match="simplification"):
             AGraphExpression(simplification="invalid")
 
     def test_cas_mode_simplifies_x_plus_zero(self):
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         expr = AGraphExpression(simplification="cas")
         expr._raw_command_array = np.array(
@@ -1105,7 +1105,7 @@ class TestAGraphExpressionCASMode:
         assert expr.command_array[0, 0] == VARIABLE
 
     def test_deepcopy_preserves_simplification_mode(self):
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         expr = AGraphExpression(simplification="cas")
         clone = expr.copy()
@@ -1113,7 +1113,7 @@ class TestAGraphExpressionCASMode:
 
     def test_promote_simplification(self):
         """promote_simplification() replaces raw with simplified."""
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         expr = AGraphExpression(simplification="cas")
         expr._raw_command_array = np.array(

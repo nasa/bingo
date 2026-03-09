@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -14,7 +14,7 @@ from bingo.expressions.agraph.operators import (
     SIN,
     POWER,
 )
-from bingo.expressions.agraph.parsing import (
+from bingo.expressions.agraph.pyagraph.parsing import (
     eq_string_to_command_array_and_constants,
 )
 
@@ -115,7 +115,7 @@ class TestComplexExpressions:
 class TestRoundTrip:
     def test_console_round_trip(self):
         """Parse -> console format -> parse should produce equivalent arrays."""
-        from bingo.expressions.agraph.formatting import get_formatted_string
+        from bingo.expressions.agraph.pyagraph.formatting import get_formatted_string
 
         original = "X0 + X1"
         cmd1, c1, i1 = eq_string_to_command_array_and_constants(original)

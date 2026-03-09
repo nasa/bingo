@@ -14,7 +14,7 @@ Five mutation strategies, selected via a probability mass function:
 
 import numpy as np
 
-from .operators import (
+from .pyagraph.operators import (
     CONSTANT,
     INTEGER,
     VARIABLE,
@@ -641,9 +641,9 @@ if __name__ == "__main__":
     import numpy as np
 
     from .component_generator import ComponentGenerator
-    from .expression import AGraphExpression
+    from .pyagraph.expression import AGraphExpression
     from .evolvable import EvolvableExpression
-    from .operators import (
+    from .pyagraph.operators import (
         VARIABLE,
         CONSTANT,
         ADDITION,

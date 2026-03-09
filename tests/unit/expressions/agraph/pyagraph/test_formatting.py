@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -17,7 +17,7 @@ from bingo.expressions.agraph.operators import (
     POWER,
     SAFE_POWER,
 )
-from bingo.expressions.agraph.formatting import get_formatted_string
+from bingo.expressions.agraph.pyagraph.formatting import get_formatted_string
 
 
 @pytest.fixture

@@ -1,8 +1,9 @@
 """Tests for bingo.expressions.data_container"""
+
 import numpy as np
 import pytest
 
-from bingo.expressions.data_container import DataContainer
+from bingo.expressions.agraph.pyagraph.data_container import DataContainer
 
 
 class TestConstruction:
@@ -29,8 +30,7 @@ class TestConstruction:
 
 class TestSlicing:
     def test_getitem_returns_data_container(self):
-        dc = DataContainer(np.arange(10).reshape(5, 2),
-                           np.arange(5).reshape(5, 1))
+        dc = DataContainer(np.arange(10).reshape(5, 2), np.arange(5).reshape(5, 1))
         sliced = dc[1:3]
         assert isinstance(sliced, DataContainer)
         assert len(sliced) == 2

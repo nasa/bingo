@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -29,7 +29,7 @@ from bingo.expressions.agraph.operators import (
     COSH,
     TANH,
 )
-from bingo.expressions.agraph.evaluation.operator_eval import (
+from bingo.expressions.agraph.pyagraph.evaluation.operator_eval import (
     FORWARD_EVAL_MAP,
     REVERSE_EVAL_MAP,
     forward_eval_function,
@@ -53,13 +53,13 @@ def sample_data():
 
 class TestForwardEvalMaps:
     def test_all_operators_have_forward(self):
-        from bingo.expressions.agraph.operators import IS_TERMINAL_MAP
+        from bingo.expressions.agraph.pyagraph.operators import IS_TERMINAL_MAP
 
         for op in IS_TERMINAL_MAP:
             assert op in FORWARD_EVAL_MAP
 
     def test_all_operators_have_reverse(self):
-        from bingo.expressions.agraph.operators import IS_TERMINAL_MAP
+        from bingo.expressions.agraph.pyagraph.operators import IS_TERMINAL_MAP
 
         for op in IS_TERMINAL_MAP:
             assert op in REVERSE_EVAL_MAP

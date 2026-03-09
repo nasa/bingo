@@ -6,7 +6,7 @@ and their parameters) for building an AGraph command stack.
 
 import numpy as np
 
-from .operators import (
+from .pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     OPERATOR_NAMES,
@@ -65,9 +65,7 @@ class ComponentGenerator:
         if not 0.0 <= terminal_probability <= 1.0:
             raise ValueError("terminal_probability must be in [0, 1]")
         if constant_distribution not in ("normal", "uniform"):
-            raise ValueError(
-                "constant_distribution must be 'normal' or 'uniform'"
-            )
+            raise ValueError("constant_distribution must be 'normal' or 'uniform'")
         if constant_scale <= 0:
             raise ValueError("constant_scale must be > 0")
 
@@ -255,9 +253,7 @@ class ComponentGenerator:
         """
         if self._constant_distribution == "normal":
             return float(self._rng.normal(0.0, self._constant_scale))
-        return float(
-            self._rng.uniform(-self._constant_scale, self._constant_scale)
-        )
+        return float(self._rng.uniform(-self._constant_scale, self._constant_scale))
 
     # ------------------------------------------------------------------ #
     #  Introspection                                                      #

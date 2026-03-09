@@ -8,8 +8,8 @@ import pytest
 from sklearn.utils.validation import check_is_fitted
 from sklearn.exceptions import NotFittedError
 
-from bingo.expressions.agraph.expression import AGraphExpression
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,

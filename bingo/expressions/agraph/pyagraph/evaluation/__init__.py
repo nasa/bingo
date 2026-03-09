@@ -2,7 +2,7 @@
 
 Re-exports the public API so callers can do::
 
-    from bingo.expressions.agraph.evaluation import evaluate
+    from bingo.expressions.agraph.pyagraph.evaluation import evaluate
 """
 
 from .evaluation import evaluate, evaluate_with_derivative

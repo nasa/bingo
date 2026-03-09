@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -16,8 +16,8 @@ from bingo.expressions.agraph.operators import (
     EXPONENTIAL,
     SQRT,
 )
-from bingo.expressions.agraph.evaluation import evaluation
-from bingo.expressions.agraph.evaluation.cached_evaluation import (
+from bingo.expressions.agraph.pyagraph.evaluation import evaluation
+from bingo.expressions.agraph.pyagraph.evaluation.cached_evaluation import (
     CachedEvaluator,
     _build_dependency_mask,
     _build_reverse_variant_mask,
@@ -186,24 +186,30 @@ class TestBuildReverseVariantMask:
     def test_add_chain_preserves_invariance(self):
         """Pure ADD/SUB chain above constants has fully invariant reverse.
         f = (X0 + C0) + (X0 + C0) = 2*X0 + 2*C0."""
-        stack = np.array([
-            [VARIABLE, 0, 0],   # 0: X0
-            [CONSTANT, 0, 0],   # 1: C0
-            [ADDITION, 0, 1],   # 2: X0 + C0
-            [ADDITION, 2, 2],   # 3: (X0+C0)+(X0+C0)
-        ], dtype=np.uint8)
-        fwd = _build_dependency_mask(stack)      # [F, T, T, T]
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],  # 0: X0
+                [CONSTANT, 0, 0],  # 1: C0
+                [ADDITION, 0, 1],  # 2: X0 + C0
+                [ADDITION, 2, 2],  # 3: (X0+C0)+(X0+C0)
+            ],
+            dtype=np.uint8,
+        )
+        fwd = _build_dependency_mask(stack)  # [F, T, T, T]
         rev_var, row_var = _build_reverse_variant_mask(stack, fwd)
         assert rev_var.tolist() == [False, False, False, False]
         assert row_var.tolist() == [False, False, False, False]
 
     def test_sub_preserves_invariance(self):
         """SUB reverse also does not read forward."""
-        stack = np.array([
-            [VARIABLE, 0, 0],
-            [CONSTANT, 0, 0],
-            [SUBTRACTION, 0, 1],
-        ], dtype=np.uint8)
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [SUBTRACTION, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
         fwd = _build_dependency_mask(stack)
         rev_var, row_var = _build_reverse_variant_mask(stack, fwd)
         assert rev_var.tolist() == [False, False, False]
@@ -211,11 +217,14 @@ class TestBuildReverseVariantMask:
 
     def test_sin_of_constant_is_variant(self):
         """Unary SIN reads forward values → variant."""
-        stack = np.array([
-            [CONSTANT, 0, 0],
-            [SIN, 0, 0],
-        ], dtype=np.uint8)
-        fwd = _build_dependency_mask(stack)      # [T, T]
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [SIN, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        fwd = _build_dependency_mask(stack)  # [T, T]
         rev_var, row_var = _build_reverse_variant_mask(stack, fwd)
         # row 1: SIN, fwd_dep=T → variant → reverse_variant[0]=T
         assert rev_var.tolist() == [True, False]
@@ -224,13 +233,16 @@ class TestBuildReverseVariantMask:
     def test_mixed_mul_under_add(self):
         """ADD on top of MUL: ADD stays invariant, MUL is variant.
         f = C0 + C0*X0 = C0*(1+X0), df/dC0 = 1+X0."""
-        stack = np.array([
-            [CONSTANT, 0, 0],       # 0: C0
-            [VARIABLE, 0, 0],       # 1: X0
-            [MULTIPLICATION, 0, 1], # 2: C0*X0
-            [ADDITION, 0, 2],       # 3: C0 + C0*X0
-        ], dtype=np.uint8)
-        fwd = _build_dependency_mask(stack)      # [T, F, T, T]
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],  # 0: C0
+                [VARIABLE, 0, 0],  # 1: X0
+                [MULTIPLICATION, 0, 1],  # 2: C0*X0
+                [ADDITION, 0, 2],  # 3: C0 + C0*X0
+            ],
+            dtype=np.uint8,
+        )
+        fwd = _build_dependency_mask(stack)  # [T, F, T, T]
         rev_var, row_var = _build_reverse_variant_mask(stack, fwd)
         # row 3: ADD, reverse_variant[3]=F → invariant
         # row 2: MUL, fwd_dep[2]=T → variant → rev[0]=T, rev[1]=T
@@ -366,16 +378,13 @@ class TestFusedResidualJacobian:
         assert cached._last_forward is not saved_forward
 
 
-
 # ------------------------------------------------------------------ #
 #  Partial re-evaluation: caching of static rows                       #
 # ------------------------------------------------------------------ #
 
 
 class TestPartialReevaluation:
-    def test_static_cache_populated_after_first_eval(
-        self, simple_x, x0_plus_c0_stack
-    ):
+    def test_static_cache_populated_after_first_eval(self, simple_x, x0_plus_c0_stack):
         cached = CachedEvaluator(x0_plus_c0_stack, simple_x, ())
         assert cached._static_forward is None
 
@@ -472,8 +481,7 @@ class TestPartialReverseReevaluation:
         # First call populates cache
         cached.forward_eval_with_const_derivative((2.0,))
         static_copy = [
-            v.copy() if isinstance(v, np.ndarray) else v
-            for v in cached._static_reverse
+            v.copy() if isinstance(v, np.ndarray) else v for v in cached._static_reverse
         ]
         static_deriv_copy = cached._static_derivative.copy()
 
@@ -482,29 +490,28 @@ class TestPartialReverseReevaluation:
             cached.forward_eval_with_const_derivative((c,))
 
         # Verify cache is unchanged
-        for i, (orig, cur) in enumerate(
-            zip(static_copy, cached._static_reverse)
-        ):
+        for i, (orig, cur) in enumerate(zip(static_copy, cached._static_reverse)):
             if isinstance(orig, np.ndarray):
                 np.testing.assert_array_equal(
                     orig, cur, err_msg=f"static_reverse[{i}] was mutated"
                 )
             else:
                 assert orig == cur, f"static_reverse[{i}] was mutated"
-        np.testing.assert_array_equal(
-            static_deriv_copy, cached._static_derivative
-        )
+        np.testing.assert_array_equal(static_deriv_copy, cached._static_derivative)
 
     def test_complex_expression_correctness(self, simple_x):
         """SIN(C0*X0) + C1: MUL and SIN are variant, ADD is invariant."""
-        stack = np.array([
-            [CONSTANT, 0, 0],       # 0: C0
-            [VARIABLE, 0, 0],       # 1: X0
-            [MULTIPLICATION, 0, 1], # 2: C0*X0
-            [SIN, 2, 2],            # 3: SIN(C0*X0)
-            [CONSTANT, 1, 1],       # 4: C1
-            [ADDITION, 3, 4],       # 5: SIN(C0*X0) + C1
-        ], dtype=np.uint8)
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],  # 0: C0
+                [VARIABLE, 0, 0],  # 1: X0
+                [MULTIPLICATION, 0, 1],  # 2: C0*X0
+                [SIN, 2, 2],  # 3: SIN(C0*X0)
+                [CONSTANT, 1, 1],  # 4: C1
+                [ADDITION, 3, 4],  # 5: SIN(C0*X0) + C1
+            ],
+            dtype=np.uint8,
+        )
 
         cached = CachedEvaluator(stack, simple_x, ())
         for c0, c1 in [(1.0, 2.0), (3.0, -1.0), (0.5, 0.5)]:
@@ -524,7 +531,7 @@ class TestPartialReverseReevaluation:
 class TestFitIntegration:
     def _make_expression(self, stack, constants, integers=()):
         """Build an AGraphExpression from raw stack/constants."""
-        from bingo.expressions.agraph.expression import AGraphExpression
+        from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 
         expr = AGraphExpression(simplification="reduce")
         expr._raw_command_array = stack.copy()

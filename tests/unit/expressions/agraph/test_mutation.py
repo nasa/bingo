@@ -12,8 +12,8 @@ from bingo.expressions.agraph.mutation import (
     FORK_MUTATION,
 )
 from bingo.expressions.agraph.component_generator import ComponentGenerator
-from bingo.expressions.agraph.expression import AGraphExpression
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     ADDITION,
@@ -239,7 +239,7 @@ class TestForkMutation:
 
     def test_fork_inserts_after_fork_target(self, cgen):
         """Fork rows appear right after the fork target in the new stack."""
-        from bingo.expressions.agraph.operators import IS_TERMINAL_MAP as ITM
+        from bingo.expressions.agraph.pyagraph.operators import IS_TERMINAL_MAP as ITM
 
         indv = _make_individual(
             [
@@ -403,6 +403,6 @@ class TestConstantValueInMutation:
             assert self._all_constant_indices_valid(child)
             if child.expression.raw_constants:
                 found_constant = True
-        assert found_constant, (
-            "Expected at least one fork mutation to introduce a CONSTANT node"
-        )
+        assert (
+            found_constant
+        ), "Expected at least one fork mutation to introduce a CONSTANT node"

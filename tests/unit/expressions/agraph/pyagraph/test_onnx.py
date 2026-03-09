@@ -6,7 +6,7 @@ import pytest
 onnx = pytest.importorskip("onnx")
 onnxruntime = pytest.importorskip("onnxruntime")
 
-from bingo.expressions.agraph.operators import (
+from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     INTEGER,
@@ -15,7 +15,7 @@ from bingo.expressions.agraph.operators import (
     SIN,
     SQUARE,
 )
-from bingo.expressions.agraph.onnx_interface import make_onnx_model
+from bingo.expressions.agraph.pyagraph.onnx_interface import make_onnx_model
 
 
 @pytest.fixture

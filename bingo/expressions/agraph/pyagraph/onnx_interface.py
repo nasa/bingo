@@ -30,7 +30,7 @@ from .operators import (
     SINH,
     COSH,
     TANH,
-    IS_ARITY_2_MAP,
+    ARITY_2_IDS,
 )
 
 try:
@@ -148,7 +148,7 @@ def make_onnx_model(command_array, constants, integers,
             )
             inps = (
                 [f"{output_name}aux", f"O{p2}"]
-                if IS_ARITY_2_MAP[op]
+                if op in ARITY_2_IDS
                 else [f"{output_name}aux"]
             )
             nodes.append(make_node(ONNX_FUNCTIONS[op], inps, [output_name]))
@@ -168,7 +168,7 @@ def make_onnx_model(command_array, constants, integers,
         else:
             inps = (
                 [f"O{p1}", f"O{p2}"]
-                if IS_ARITY_2_MAP[op]
+                if op in ARITY_2_IDS
                 else [f"O{p1}"]
             )
             nodes.append(make_node(ONNX_FUNCTIONS[op], inps, [output_name]))

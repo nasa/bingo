@@ -6,13 +6,19 @@ miscellaneous, exponential/logarithmic, trigonometric, hyperbolic.
 
 Attributes
 ----------
-IS_ARITY_2_MAP : dict {int: bool}
-    Whether the operator has arity 2 (binary).
-IS_TERMINAL_MAP : dict {int: bool}
-    Whether the operator is a terminal node.
+TERMINAL_IDS : frozenset of int
+    Operator IDs that are terminal nodes.
+ARITY_2_IDS : frozenset of int
+    Operator IDs that are binary (arity-2) operators.
+IS_TERMINAL_ARRAY : numpy.ndarray of bool
+    Boolean lookup array indexed by operator ID.
+IS_ARITY_2_ARRAY : numpy.ndarray of bool
+    Boolean lookup array indexed by operator ID.
 OPERATOR_NAMES : dict {int: list of str}
     Common names for each operator (used in parsing).
 """
+
+import numpy as np
 
 # --- Terminals (0–2) ---
 VARIABLE = 0
@@ -52,61 +58,39 @@ SINH = 21
 COSH = 22
 TANH = 23
 
-# ---- Maps ----
+# ---- Operator property sets (source of truth) ----
 
-IS_TERMINAL_MAP = {
-    VARIABLE: True,
-    CONSTANT: True,
-    INTEGER: True,
-    ADDITION: False,
-    SUBTRACTION: False,
-    MULTIPLICATION: False,
-    DIVISION: False,
-    POWER: False,
-    SAFE_POWER: False,
-    SQUARE: False,
-    CUBE: False,
-    SQRT: False,
-    ABS: False,
-    EXPONENTIAL: False,
-    LOGARITHM: False,
-    SIN: False,
-    COS: False,
-    TAN: False,
-    ARCSIN: False,
-    ARCCOS: False,
-    ARCTAN: False,
-    SINH: False,
-    COSH: False,
-    TANH: False,
-}
+TERMINAL_IDS = frozenset({VARIABLE, CONSTANT, INTEGER})
 
-IS_ARITY_2_MAP = {
-    VARIABLE: False,
-    CONSTANT: False,
-    INTEGER: False,
-    ADDITION: True,
-    SUBTRACTION: True,
-    MULTIPLICATION: True,
-    DIVISION: True,
-    POWER: True,
-    SAFE_POWER: True,
-    SQUARE: False,
-    CUBE: False,
-    SQRT: False,
-    ABS: False,
-    EXPONENTIAL: False,
-    LOGARITHM: False,
-    SIN: False,
-    COS: False,
-    TAN: False,
-    ARCSIN: False,
-    ARCCOS: False,
-    ARCTAN: False,
-    SINH: False,
-    COSH: False,
-    TANH: False,
-}
+ARITY_2_IDS = frozenset(
+    {
+        ADDITION,
+        SUBTRACTION,
+        MULTIPLICATION,
+        DIVISION,
+        POWER,
+        SAFE_POWER,
+    }
+)
+
+# ---- NumPy boolean lookup arrays (index by operator ID) ----
+
+_ALL_IDS = (
+    TERMINAL_IDS
+    | ARITY_2_IDS
+    | {SQUARE, CUBE, SQRT, ABS, EXPONENTIAL, LOGARITHM}
+    | {SIN, COS, TAN, ARCSIN, ARCCOS, ARCTAN}
+    | {SINH, COSH, TANH}
+)
+_n = max(_ALL_IDS) + 1
+
+IS_TERMINAL_ARRAY = np.zeros(_n, dtype=bool)
+IS_TERMINAL_ARRAY[list(TERMINAL_IDS)] = True
+
+IS_ARITY_2_ARRAY = np.zeros(_n, dtype=bool)
+IS_ARITY_2_ARRAY[list(ARITY_2_IDS)] = True
+
+del _n, _ALL_IDS
 
 OPERATOR_NAMES = {
     VARIABLE: ["load", "x"],

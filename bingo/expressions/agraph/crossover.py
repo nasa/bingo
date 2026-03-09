@@ -7,7 +7,7 @@ within the configured ``[min_size, max_size]`` bounds."""
 
 import numpy as np
 
-from .pyagraph.operators import CONSTANT, INTEGER, IS_TERMINAL_MAP
+from .pyagraph import CONSTANT, INTEGER, TERMINAL_IDS
 from bingo.chromosomes.crossover import Crossover
 
 
@@ -158,7 +158,7 @@ class AGraphCrossover(Crossover):
 
         for i in range(tail.shape[0]):
             node = int(tail[i, 0])
-            if not IS_TERMINAL_MAP.get(node, True):
+            if node not in TERMINAL_IDS:
                 for col in (1, 2):
                     old_ref = int(tail[i, col])
                     new_ref = old_ref + shift

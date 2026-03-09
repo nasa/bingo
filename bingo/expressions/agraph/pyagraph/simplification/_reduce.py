@@ -7,7 +7,7 @@ GA evaluation; for full algebraic simplification see :mod:`._simplify`.
 
 import numpy as np
 
-from ..operators import IS_ARITY_2_MAP, IS_TERMINAL_MAP, CONSTANT, INTEGER
+from ..operators import ARITY_2_IDS, TERMINAL_IDS, CONSTANT, INTEGER
 
 
 def get_utilized_commands(stack):
@@ -33,9 +33,9 @@ def get_utilized_commands(stack):
         if not util[i]:
             continue
         node = int(nodes[i])
-        if not IS_TERMINAL_MAP[node]:
+        if node not in TERMINAL_IDS:
             util[int(p1s[i])] = 1
-            if IS_ARITY_2_MAP[node]:
+            if node in ARITY_2_IDS:
                 util[int(p2s[i])] = 1
     return util
 
@@ -89,7 +89,7 @@ def reduce(raw_command_array, raw_constants, raw_integers):
             continue
         node = int(raw_command_array[i, 0])
         stack[j, 0] = node
-        if IS_TERMINAL_MAP[node]:
+        if node in TERMINAL_IDS:
             if node == CONSTANT:
                 old_idx = int(raw_command_array[i, 1])
                 new_idx = len(new_constants)
@@ -110,7 +110,7 @@ def reduce(raw_command_array, raw_constants, raw_integers):
                 stack[j, 2] = raw_command_array[i, 2]
         else:
             stack[j, 1] = reduced_map[int(raw_command_array[i, 1])]
-            if IS_ARITY_2_MAP[node]:
+            if node in ARITY_2_IDS:
                 stack[j, 2] = reduced_map[int(raw_command_array[i, 2])]
             else:
                 stack[j, 2] = stack[j, 1]

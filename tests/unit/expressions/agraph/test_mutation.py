@@ -20,7 +20,7 @@ from bingo.expressions.agraph.pyagraph.operators import (
     SUBTRACTION,
     MULTIPLICATION,
     SIN,
-    IS_TERMINAL_MAP,
+    TERMINAL_IDS,
 )
 from bingo.expressions.agraph.evolvable import EvolvableExpression
 
@@ -239,7 +239,7 @@ class TestForkMutation:
 
     def test_fork_inserts_after_fork_target(self, cgen):
         """Fork rows appear right after the fork target in the new stack."""
-        from bingo.expressions.agraph.pyagraph.operators import IS_TERMINAL_MAP as ITM
+        from bingo.expressions.agraph.pyagraph.operators import TERMINAL_IDS as TID
 
         indv = _make_individual(
             [
@@ -267,7 +267,7 @@ class TestForkMutation:
             # All operator parameters must reference only earlier rows
             for i in range(raw.shape[0]):
                 op = int(raw[i, 0])
-                if not ITM.get(op, True):
+                if op not in TID:
                     assert int(raw[i, 1]) < i
                     assert int(raw[i, 2]) < i
 

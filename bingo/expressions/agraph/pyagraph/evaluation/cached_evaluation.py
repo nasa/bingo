@@ -32,8 +32,8 @@ from ..operators import (
     CONSTANT,
     ADDITION,
     SUBTRACTION,
-    IS_TERMINAL_MAP,
-    IS_ARITY_2_MAP,
+    TERMINAL_IDS,
+    ARITY_2_IDS,
 )
 
 
@@ -67,11 +67,11 @@ def _build_dependency_mask(stack):
         node = int(stack[i, 0])
         if node == CONSTANT:
             depends[i] = True
-        elif not IS_TERMINAL_MAP[node]:
+        elif node not in TERMINAL_IDS:
             p1 = int(stack[i, 1])
             if depends[p1]:
                 depends[i] = True
-            elif IS_ARITY_2_MAP[node]:
+            elif node in ARITY_2_IDS:
                 p2 = int(stack[i, 2])
                 if depends[p2]:
                     depends[i] = True
@@ -118,7 +118,7 @@ def _build_reverse_variant_mask(stack, forward_depends):
 
     for i in range(n - 1, -1, -1):
         node = int(stack[i, 0])
-        if IS_TERMINAL_MAP[node]:
+        if node in TERMINAL_IDS:
             continue
 
         # ADD/SUB: reverse function only reads reverse[i], not forward.
@@ -132,7 +132,7 @@ def _build_reverse_variant_mask(stack, forward_depends):
         if is_variant:
             p1 = int(stack[i, 1])
             reverse_variant[p1] = True
-            if IS_ARITY_2_MAP[node]:
+            if node in ARITY_2_IDS:
                 p2 = int(stack[i, 2])
                 reverse_variant[p2] = True
 
@@ -303,7 +303,7 @@ class CachedEvaluator:
                 derivative[:, param1] += _reshape_reverse_eval(
                     reverse[i], m
                 )
-            elif not IS_TERMINAL_MAP[node]:
+            elif node not in TERMINAL_IDS:
                 reverse_eval_function(
                     node, i, param1, param2, forward, reverse
                 )
@@ -321,7 +321,7 @@ class CachedEvaluator:
                     static_derivative[:, param1] += _reshape_reverse_eval(
                         static_reverse[i], m
                     )
-            elif not IS_TERMINAL_MAP[node]:
+            elif node not in TERMINAL_IDS:
                 reverse_eval_function(
                     node, i, param1, param2, forward, static_reverse
                 )

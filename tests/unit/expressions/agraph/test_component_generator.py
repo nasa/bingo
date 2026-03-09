@@ -12,8 +12,8 @@ from bingo.expressions.agraph.pyagraph.operators import (
     MULTIPLICATION,
     SIN,
     SQRT,
-    IS_TERMINAL_MAP,
-    IS_ARITY_2_MAP,
+    TERMINAL_IDS,
+    ARITY_2_IDS,
 )
 
 
@@ -103,7 +103,7 @@ class TestRandomCommand:
     def test_early_rows_are_terminals(self, cgen):
         for _ in range(20):
             cmd = cgen.random_command(0)
-            assert IS_TERMINAL_MAP[int(cmd[0])], "Row 0 should always be a terminal"
+            assert int(cmd[0]) in TERMINAL_IDS, "Row 0 should always be a terminal"
 
     def test_command_shape_and_dtype(self, cgen):
         cmd = cgen.random_command(5)
@@ -114,7 +114,7 @@ class TestRandomCommand:
         found_operator = False
         for _ in range(100):
             cmd = cgen.random_command(5)
-            if not IS_TERMINAL_MAP[int(cmd[0])]:
+            if int(cmd[0]) not in TERMINAL_IDS:
                 found_operator = True
                 break
         assert found_operator
@@ -123,7 +123,7 @@ class TestRandomCommand:
         for _ in range(50):
             loc = 5
             cmd = cgen.random_command(loc)
-            if not IS_TERMINAL_MAP[int(cmd[0])]:
+            if int(cmd[0]) not in TERMINAL_IDS:
                 assert int(cmd[1]) < loc
                 assert int(cmd[2]) < loc
 
@@ -207,7 +207,7 @@ class TestRandomOperatorCommand:
     def test_operator_is_not_terminal(self, cgen):
         for _ in range(20):
             cmd = cgen.random_operator_command(5)
-            assert not IS_TERMINAL_MAP[int(cmd[0])]
+            assert int(cmd[0]) not in TERMINAL_IDS
 
 
 class TestIntrospection:
@@ -227,5 +227,5 @@ class TestCustomLoadStatements:
         for _ in range(20):
             cmd0 = gen.random_command(0)
             cmd1 = gen.random_command(1)
-            assert IS_TERMINAL_MAP[int(cmd0[0])]
-            assert IS_TERMINAL_MAP[int(cmd1[0])]
+            assert int(cmd0[0]) in TERMINAL_IDS
+            assert int(cmd1[0]) in TERMINAL_IDS

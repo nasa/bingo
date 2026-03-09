@@ -15,6 +15,11 @@ from sympy import sympify
 
 from .evaluation import evaluate, evaluate_with_derivative
 from .evaluation.cached_evaluation import CachedEvaluator
+from .operators import (
+    VARIABLE,
+    IS_TERMINAL_ARRAY,
+    IS_ARITY_2_ARRAY,
+)
 from .simplification import get_utilized_commands, reduce, simplify as cas_simplify
 from .formatting import get_formatted_string
 from .parsing import eq_string_to_command_array_and_constants
@@ -538,6 +543,103 @@ class AGraphExpression:
         self._constant_mapping = tuple(range(len(self._constants)))
         self._modified = False
         return self
+
+    def get_operator_counts(self, tree=True, terminals="exclude"):
+        """Count the occurrences of each operator in the expression.
+
+        Parameters
+        ----------
+        tree : bool, optional
+            If True, perform depth-first tree traversal (counts repeated
+            sub-graphs multiple times).  If False, count unique nodes in
+            the DAG.  Default is True.
+        terminals : {"include", "exclude", "combine"}
+            How to handle terminal nodes:
+
+            - ``"include"``: Count each terminal type separately.
+            - ``"exclude"``: Don't count terminal nodes.
+            - ``"combine"``: Combine all terminals into a single
+              ``VARIABLE`` (0) category.
+
+            Default is ``"exclude"``.
+
+        Returns
+        -------
+        dict
+            Mapping from operator ID (``int``) to count (``int``).
+        """
+        if self._modified:
+            self._update()
+        command_array = self._command_array
+
+        if not tree:
+            return self._dag_operator_counts(command_array, terminals)
+        return self._tree_operator_counts(command_array, terminals)
+
+    @staticmethod
+    def _dag_operator_counts(command_array, terminals):
+        """Vectorised operator counting over the DAG (no repeated nodes)."""
+        nodes = command_array[:, 0]
+        terminal_mask = IS_TERMINAL_ARRAY[nodes]
+        counts = {}
+
+        # Non-terminal operators — always counted.
+        nt_nodes = nodes[~terminal_mask]
+        if nt_nodes.size:
+            ids, cnts = np.unique(nt_nodes, return_counts=True)
+            for op_id, cnt in zip(ids, cnts):
+                counts[int(op_id)] = int(cnt)
+
+        # Terminal handling.
+        if terminals == "exclude":
+            return counts
+
+        t_nodes = nodes[terminal_mask]
+        if t_nodes.size == 0:
+            return counts
+
+        if terminals == "combine":
+            counts[VARIABLE] = counts.get(VARIABLE, 0) + int(t_nodes.size)
+        else:  # "include"
+            ids, cnts = np.unique(t_nodes, return_counts=True)
+            for op_id, cnt in zip(ids, cnts):
+                counts[int(op_id)] = int(cnt)
+
+        return counts
+
+    @staticmethod
+    def _tree_operator_counts(command_array, terminals):
+        """Depth-first tree traversal operator counting."""
+        if command_array.shape[0] == 0:
+            return {}
+
+        # Local references for speed inside the hot loop.
+        is_terminal = IS_TERMINAL_ARRAY
+        is_arity_2 = IS_ARITY_2_ARRAY
+        exclude = terminals == "exclude"
+        combine = terminals == "combine"
+
+        counts = {}
+        stack = [command_array.shape[0] - 1]
+        while stack:
+            idx = stack.pop()
+            row = command_array[idx]
+            node = row[0]
+
+            if is_terminal[node]:
+                if exclude:
+                    continue
+                key = VARIABLE if combine else int(node)
+                counts[key] = counts.get(key, 0) + 1
+                continue
+
+            int_node = int(node)
+            counts[int_node] = counts.get(int_node, 0) + 1
+            stack.append(int(row[1]))
+            if is_arity_2[node]:
+                stack.append(int(row[2]))
+
+        return counts
 
     def distance(self, other):
         """Element-wise distance between two raw command arrays.

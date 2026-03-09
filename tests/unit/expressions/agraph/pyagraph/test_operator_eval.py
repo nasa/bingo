@@ -53,15 +53,15 @@ def sample_data():
 
 class TestForwardEvalMaps:
     def test_all_operators_have_forward(self):
-        from bingo.expressions.agraph.pyagraph.operators import IS_TERMINAL_MAP
+        from bingo.expressions.agraph.pyagraph.operators import OPERATOR_NAMES
 
-        for op in IS_TERMINAL_MAP:
+        for op in OPERATOR_NAMES:
             assert op in FORWARD_EVAL_MAP
 
     def test_all_operators_have_reverse(self):
-        from bingo.expressions.agraph.pyagraph.operators import IS_TERMINAL_MAP
+        from bingo.expressions.agraph.pyagraph.operators import OPERATOR_NAMES
 
-        for op in IS_TERMINAL_MAP:
+        for op in OPERATOR_NAMES:
             assert op in REVERSE_EVAL_MAP
 
 

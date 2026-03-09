@@ -8,8 +8,8 @@ array).
 import numpy as np
 
 from ..operators import (
-    IS_TERMINAL_MAP,
-    IS_ARITY_2_MAP,
+    TERMINAL_IDS,
+    ARITY_2_IDS,
     CONSTANT,
     INTEGER,
     VARIABLE,
@@ -51,7 +51,7 @@ def _build_expression_recursive(stack, constants, integers, location, memo):
     param_1 = int(stack[location, 1])
     param_2 = int(stack[location, 2])
 
-    if IS_TERMINAL_MAP[operator]:
+    if operator in TERMINAL_IDS:
         if operator == CONSTANT:
             # Store an opaque constant index — constant folding uses
             # this to track which constants can be merged.
@@ -68,7 +68,7 @@ def _build_expression_recursive(stack, constants, integers, location, memo):
         return result
 
     operands = [_build_expression_recursive(stack, constants, integers, param_1, memo)]
-    if IS_ARITY_2_MAP[operator]:
+    if operator in ARITY_2_IDS:
         operands.append(
             _build_expression_recursive(stack, constants, integers, param_2, memo)
         )
@@ -127,7 +127,7 @@ def _build_simplified_recursive(stack, constants, integers, location, memo, simp
     param_1 = int(stack[location, 1])
     param_2 = int(stack[location, 2])
 
-    if IS_TERMINAL_MAP[operator]:
+    if operator in TERMINAL_IDS:
         if operator == CONSTANT:
             result = CASExpression(CONSTANT, [param_1])
         elif operator == INTEGER:
@@ -144,7 +144,7 @@ def _build_simplified_recursive(stack, constants, integers, location, memo, simp
             stack, constants, integers, param_1, memo, simp_funcs
         )
     ]
-    if IS_ARITY_2_MAP[operator]:
+    if operator in ARITY_2_IDS:
         operands.append(
             _build_simplified_recursive(
                 stack, constants, integers, param_2, memo, simp_funcs

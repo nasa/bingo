@@ -9,7 +9,7 @@ from bingo.expressions.agraph.pyagraph.operators import (
     ADDITION,
     MULTIPLICATION,
     SIN,
-    IS_TERMINAL_MAP,
+    TERMINAL_IDS,
 )
 from bingo.expressions.agraph.evolvable import EvolvableExpression
 
@@ -77,7 +77,7 @@ class TestGeneration:
         np.random.seed(0)
         for _ in range(10):
             indv = generator()
-            assert IS_TERMINAL_MAP[int(indv.expression.raw_command_array[0, 0])]
+            assert int(indv.expression.raw_command_array[0, 0]) in TERMINAL_IDS
 
     def test_fresh_individual_has_zero_genetic_age(self, generator):
         np.random.seed(0)

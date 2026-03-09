@@ -14,8 +14,11 @@ from bingo.expressions.agraph.pyagraph.operators import (
     CONSTANT,
     INTEGER,
     ADDITION,
+    SUBTRACTION,
     MULTIPLICATION,
+    DIVISION,
     SIN,
+    SQRT,
 )
 
 
@@ -614,3 +617,161 @@ class TestPromoteSimplificationMapping:
         expr.promote_simplification()
         expr.constants = (77.0,)
         assert expr.raw_constants[0] == 77.0
+
+
+# ------------------------------------------------------------------ #
+#  Operator counts                                                    #
+# ------------------------------------------------------------------ #
+
+
+@pytest.fixture
+def dag_with_shared_subgraph():
+    """Expression where a node is shared: (X0 + C0) * (X0 + C0).
+
+    DAG rows:
+        0: X0
+        1: C0
+        2: X0 + C0
+        3: (row2) * (row2)   <-- reuses row 2
+
+    After simplification the DAG may be reduced, so we use
+    ``simplification="reduce"`` to keep the structure predictable.
+    """
+    expr = AGraphExpression(simplification="reduce")
+    expr.raw_command_array = np.array(
+        [
+            [VARIABLE, 0, 0],
+            [CONSTANT, 0, 0],
+            [ADDITION, 0, 1],
+            [MULTIPLICATION, 2, 2],
+        ],
+        dtype=np.uint8,
+    )
+    expr.raw_constants = (3.0,)
+    return expr
+
+
+class TestGetOperatorCounts:
+    """Tests for AGraphExpression.get_operator_counts."""
+
+    # -- basic counting ------------------------------------------------- #
+
+    def test_tree_include_simple(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts(tree=True, terminals="include")
+        assert counts[ADDITION] == 1
+        assert VARIABLE in counts
+        assert CONSTANT in counts
+
+    def test_tree_exclude_terminals(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts(tree=True, terminals="exclude")
+        assert VARIABLE not in counts
+        assert CONSTANT not in counts
+        assert counts.get(ADDITION, 0) == 1
+
+    def test_tree_combine_terminals(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts(tree=True, terminals="combine")
+        # All terminals folded under VARIABLE key
+        assert CONSTANT not in counts
+        assert INTEGER not in counts
+        # There should be at least 2 terminal nodes (X0, C0)
+        assert counts[VARIABLE] >= 2
+
+    def test_dag_include_simple(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts(tree=False, terminals="include")
+        assert counts[ADDITION] == 1
+        assert VARIABLE in counts
+
+    def test_dag_exclude_terminals(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts(tree=False, terminals="exclude")
+        assert VARIABLE not in counts
+        assert CONSTANT not in counts
+
+    def test_dag_combine_terminals(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts(tree=False, terminals="combine")
+        assert CONSTANT not in counts
+        assert VARIABLE in counts
+
+    # -- tree vs DAG difference with shared sub-graph -------------------- #
+
+    def test_tree_counts_shared_subgraph_twice(self, dag_with_shared_subgraph):
+        """Tree traversal should count the shared sub-tree twice."""
+        counts = dag_with_shared_subgraph.get_operator_counts(
+            tree=True, terminals="include"
+        )
+        # The ADDITION node appears in both branches of MULTIPLICATION
+        assert counts[ADDITION] == 2
+        assert counts[VARIABLE] == 2
+        assert counts[CONSTANT] == 2
+        assert counts[MULTIPLICATION] == 1
+
+    def test_dag_counts_shared_subgraph_once(self, dag_with_shared_subgraph):
+        """DAG traversal counts each row exactly once."""
+        counts = dag_with_shared_subgraph.get_operator_counts(
+            tree=False, terminals="include"
+        )
+        assert counts[ADDITION] == 1
+        assert counts[VARIABLE] == 1
+        assert counts[CONSTANT] == 1
+        assert counts[MULTIPLICATION] == 1
+
+    # -- empty expression ------------------------------------------------ #
+
+    def test_empty_expression(self):
+        expr = AGraphExpression()
+        assert expr.get_operator_counts(tree=True) == {}
+        assert expr.get_operator_counts(tree=False) == {}
+
+    # -- unary operator -------------------------------------------------- #
+
+    def test_unary_operator(self, sin_x0):
+        counts = sin_x0.get_operator_counts(tree=True, terminals="include")
+        assert counts[SIN] == 1
+        assert counts[VARIABLE] == 1
+
+    # -- manual multi-operator expression -------------------------------- #
+
+    def test_manual_multi_op(self):
+        """X0 + sin(X1) - sqrt(C0)  →  SUB(ADD(X0, SIN(X1)), SQRT(C0))"""
+        expr = AGraphExpression(simplification="reduce")
+        expr.raw_command_array = np.array(
+            [
+                [VARIABLE, 0, 0],  # row 0: X0
+                [VARIABLE, 1, 0],  # row 1: X1
+                [SIN, 1, 0],  # row 2: sin(X1)
+                [ADDITION, 0, 2],  # row 3: X0 + sin(X1)
+                [CONSTANT, 0, 0],  # row 4: C0
+                [SQRT, 4, 0],  # row 5: sqrt(C0)
+                [SUBTRACTION, 3, 5],  # row 6: (row3) - (row5)
+            ],
+            dtype=np.uint8,
+        )
+        expr.raw_constants = (4.0,)
+
+        tree_counts = expr.get_operator_counts(tree=True, terminals="include")
+        assert tree_counts[SUBTRACTION] == 1
+        assert tree_counts[ADDITION] == 1
+        assert tree_counts[SIN] == 1
+        assert tree_counts[SQRT] == 1
+        assert tree_counts[VARIABLE] == 2
+        assert tree_counts[CONSTANT] == 1
+
+        dag_counts = expr.get_operator_counts(tree=False, terminals="include")
+        assert dag_counts[SUBTRACTION] == 1
+        assert dag_counts[ADDITION] == 1
+        assert dag_counts[SIN] == 1
+        assert dag_counts[SQRT] == 1
+        assert dag_counts[VARIABLE] == 2
+        assert dag_counts[CONSTANT] == 1
+
+    # -- defaults -------------------------------------------------------- #
+
+    def test_default_is_tree_exclude(self, x0_plus_c0):
+        default = x0_plus_c0.get_operator_counts()
+        explicit = x0_plus_c0.get_operator_counts(tree=True, terminals="exclude")
+        assert default == explicit
+
+    # -- return type ----------------------------------------------------- #
+
+    def test_returns_plain_dict(self, x0_plus_c0):
+        counts = x0_plus_c0.get_operator_counts()
+        assert type(counts) is dict

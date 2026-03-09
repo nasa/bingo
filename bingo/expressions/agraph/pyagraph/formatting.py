@@ -47,7 +47,7 @@ from .operators import (
     SINH,
     COSH,
     TANH,
-    IS_ARITY_2_MAP,
+    ARITY_2_IDS,
 )
 
 # ------------------------------------------------------------------ #
@@ -312,7 +312,7 @@ def _get_formatted_element_string(
     child1_str = str_list[param1]
     child1_op = op_list[param1]
 
-    if IS_ARITY_2_MAP.get(node, False):
+    if node in ARITY_2_IDS:
         child2_str = str_list[param2]
         child2_op = op_list[param2]
         child1_str = _wrap(child1_str, child1_op, node, "left", eq_format)

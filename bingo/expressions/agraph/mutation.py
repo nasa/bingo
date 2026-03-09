@@ -14,12 +14,12 @@ Five mutation strategies, selected via a probability mass function:
 
 import numpy as np
 
-from .pyagraph.operators import (
+from .pyagraph import (
     CONSTANT,
     INTEGER,
     VARIABLE,
-    IS_ARITY_2_MAP,
-    IS_TERMINAL_MAP,
+    ARITY_2_IDS,
+    TERMINAL_IDS,
 )
 from ...chromosomes.mutation import Mutation
 from .probability_mass_function import ProbabilityMassFunction
@@ -87,7 +87,7 @@ def _compact_stack_forward(
 
     if new_spot_map:
         for i in range(first_slot + 1, len(new_stack)):
-            if not IS_TERMINAL_MAP[new_stack[i, 0]]:
+            if new_stack[i, 0] not in TERMINAL_IDS:
                 p1, p2 = int(new_stack[i, 1]), int(new_stack[i, 2])
                 new_stack[i, 1] = new_spot_map.get(p1, p1)
                 new_stack[i, 2] = new_spot_map.get(p2, p2)
@@ -142,7 +142,7 @@ def _compact_stack_backward(new_stack, fork_size, fork_ref, slots_between, slots
 
     if new_spot_map:
         for i in range(dest, len(new_stack)):
-            if not IS_TERMINAL_MAP[new_stack[i, 0]]:
+            if new_stack[i, 0] not in TERMINAL_IDS:
                 p1, p2 = int(new_stack[i, 1]), int(new_stack[i, 2])
                 new_stack[i, 1] = new_spot_map.get(p1, p1)
                 new_stack[i, 2] = new_spot_map.get(p2, p2)
@@ -280,8 +280,8 @@ class AGraphMutation(Mutation):
         indices = []
         for i, (u, node) in enumerate(zip(utilized, raw[:, 0])):
             if u:
-                if (IS_TERMINAL_MAP.get(node, False) and terminals_ok) or (
-                    not IS_TERMINAL_MAP.get(node, True) and operators_ok
+                if (node in TERMINAL_IDS and terminals_ok) or (
+                    node not in TERMINAL_IDS and operators_ok
                 ):
                     indices.append(i)
         if not indices:
@@ -290,14 +290,14 @@ class AGraphMutation(Mutation):
         return indices[int(self._rng.integers(len(indices)))]
 
     def _randomize_node(self, command):
-        if IS_TERMINAL_MAP.get(command[0], False):
+        if command[0] in TERMINAL_IDS:
             command[0] = self._cgen.random_terminal()
             command[1] = self._cgen.random_terminal_parameter(command[0])
             command[2] = command[1]
         else:
             command[0] = self._cgen.random_operator()
             # Fixup params if arity changed
-            if not IS_ARITY_2_MAP.get(command[0], False):
+            if command[0] not in ARITY_2_IDS:
                 command[2] = command[1]
 
     # ------------------------------------------------------------------ #
@@ -346,7 +346,7 @@ class AGraphMutation(Mutation):
             if u and int(raw[i, 0]) not in no_param_mut
         ]
         # Operator at row 1 can't change params if it only has row 0
-        if 1 in indices and not IS_TERMINAL_MAP.get(int(raw[1, 0]), False):
+        if 1 in indices and int(raw[1, 0]) not in TERMINAL_IDS:
             indices.remove(1)
 
         if not indices:
@@ -354,12 +354,12 @@ class AGraphMutation(Mutation):
         return indices[int(self._rng.integers(len(indices)))]
 
     def _randomize_parameters(self, command, stack_location):
-        if IS_TERMINAL_MAP.get(command[0], False):
+        if command[0] in TERMINAL_IDS:
             command[1] = self._cgen.random_terminal_parameter(command[0])
             command[2] = command[1]
         else:
             command[1] = self._cgen.random_operator_parameter(stack_location)
-            if IS_ARITY_2_MAP.get(command[0], False):
+            if command[0] in ARITY_2_IDS:
                 command[2] = self._cgen.random_operator_parameter(stack_location)
 
     # ------------------------------------------------------------------ #
@@ -374,7 +374,7 @@ class AGraphMutation(Mutation):
 
         stack = individual.expression.mutable_raw_command_array
         node = int(stack[loc, 0])
-        if IS_ARITY_2_MAP.get(node, False):
+        if node in ARITY_2_IDS:
             keep_col = 1 + int(self._rng.integers(2))
         else:
             keep_col = 1
@@ -384,7 +384,7 @@ class AGraphMutation(Mutation):
         n = stack.shape[0]
         for i in range(loc, n):
             op = int(stack[i, 0])
-            if not IS_TERMINAL_MAP.get(op, True):
+            if op not in TERMINAL_IDS:
                 if int(stack[i, 1]) == loc:
                     stack[i, 1] = replacement
                 if int(stack[i, 2]) == loc:
@@ -396,7 +396,7 @@ class AGraphMutation(Mutation):
         indices = [
             i
             for i, u in enumerate(utilized[:-1])
-            if u and not IS_TERMINAL_MAP.get(int(raw[i, 0]), False)
+            if u and int(raw[i, 0]) not in TERMINAL_IDS
         ]
         if not indices:
             return None
@@ -454,7 +454,7 @@ class AGraphMutation(Mutation):
             i
             for i in range(fork_target + 1, n)
             if utilized[i]
-            and not IS_TERMINAL_MAP.get(int(raw[i, 0]), True)
+            and int(raw[i, 0]) not in TERMINAL_IDS
             and (int(raw[i, 1]) == fork_target or int(raw[i, 2]) == fork_target)
         ]
         if not valid_refs:
@@ -499,7 +499,7 @@ class AGraphMutation(Mutation):
         fork_internal_refs = [fork_target] + fork_slots
         for i in range(fork_size):
             cmd = fork[i]
-            if not IS_TERMINAL_MAP[cmd[0]]:
+            if cmd[0] not in TERMINAL_IDS:
                 cmd[1] = fork_internal_refs[cmd[1]]
                 cmd[2] = fork_internal_refs[cmd[2]]
             self._append_constant(individual, cmd)
@@ -507,7 +507,7 @@ class AGraphMutation(Mutation):
 
         # Redirect one operand of fork_ref: fork_target -> fork_output
         fork_output = fork_slots[-1]
-        if IS_ARITY_2_MAP.get(int(new_stack[fork_ref, 0]), False):
+        if int(new_stack[fork_ref, 0]) in ARITY_2_IDS:
             possible_params = [
                 c for c in (1, 2) if int(new_stack[fork_ref, c]) == fork_target
             ]
@@ -522,7 +522,7 @@ class AGraphMutation(Mutation):
         fork = np.empty((fork_size, 3), dtype=np.uint8)
         for i in range(fork_size - 1):
             cmd = self._cgen.random_command(i + 1)
-            if not IS_TERMINAL_MAP[int(cmd[0])] and (
+            if int(cmd[0]) not in TERMINAL_IDS and (
                 int(cmd[1]) in connected_set or int(cmd[2]) in connected_set
             ):
                 connected_set.add(i + 1)
@@ -530,7 +530,7 @@ class AGraphMutation(Mutation):
         fork[-1][0] = self._cgen.random_operator()
         connected_list = sorted(connected_set)
         fork[-1][1] = connected_list[int(self._rng.integers(len(connected_list)))]
-        if IS_ARITY_2_MAP.get(fork[-1][0], False):
+        if fork[-1][0] in ARITY_2_IDS:
             fork[-1][2] = int(self._rng.integers(fork_size))
         else:
             fork[-1][2] = fork[-1][1]
@@ -545,7 +545,7 @@ class AGraphMutation(Mutation):
         """
         for _ in range(100):
             op = self._cgen.random_operator()
-            is_arity_2 = IS_ARITY_2_MAP.get(op, False)
+            is_arity_2 = op in ARITY_2_IDS
             if (arity == 2 and is_arity_2) or (arity == 1 and not is_arity_2):
                 return op
         return None

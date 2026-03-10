@@ -119,16 +119,16 @@ class TestSimplificationParam:
         gen = AGraphGenerator(5, 5, component_gen)
         np.random.seed(0)
         indv = gen()
-        assert indv.expression._simplification == "cas"
+        assert indv.expression.simplification == "cas"
 
     def test_reduce_simplification(self, component_gen):
         gen = AGraphGenerator(5, 5, component_gen, simplification="reduce")
         np.random.seed(0)
         indv = gen()
-        assert indv.expression._simplification == "reduce"
+        assert indv.expression.simplification == "reduce"
 
     def test_cas_simplification_explicit(self, component_gen):
         gen = AGraphGenerator(5, 5, component_gen, simplification="cas")
         np.random.seed(0)
         indv = gen()
-        assert indv.expression._simplification == "cas"
+        assert indv.expression.simplification == "cas"

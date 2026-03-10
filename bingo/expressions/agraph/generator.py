@@ -7,13 +7,10 @@ individuals whose command stacks are filled by a
 
 import numpy as np
 
-from .cppagraph import CONSTANT
+from .pyagraph import CONSTANT
 from bingo.chromosomes.generator import Generator
 from .evolvable import EvolvableExpression
-
-from .cppagraph import AGraphExpression
-
-# from .. import AGraphExpression
+from . import get_expression_class
 
 
 class AGraphGenerator(Generator):
@@ -75,7 +72,7 @@ class AGraphGenerator(Generator):
                 cmd[1] = cmd[2] = idx
             command_array[i] = cmd
 
-        expr = AGraphExpression(simplification=self._simplification)
+        expr = get_expression_class()(simplification=self._simplification)
         expr.raw_command_array = command_array
         expr.raw_constants = tuple(raw_constants)
         return EvolvableExpression(expr)

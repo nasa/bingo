@@ -7,6 +7,7 @@ and their parameters) for building an AGraph command stack.
 import numpy as np
 
 from .pyagraph.operators import (
+    ARITY_2_IDS,
     VARIABLE,
     CONSTANT,
     OPERATOR_NAMES,
@@ -161,11 +162,16 @@ class ComponentGenerator:
         -------
         numpy array of uint8, shape (3,)
         """
+
+        op = self.random_operator()
+        p1 = self.random_operator_parameter(stack_location)
+        p2 = self.random_operator_parameter(stack_location) if op in ARITY_2_IDS else p1
+
         return np.array(
             [
-                self.random_operator(),
-                self.random_operator_parameter(stack_location),
-                self.random_operator_parameter(stack_location),
+                op,
+                p1,
+                p2,
             ],
             dtype=np.uint8,
         )

@@ -406,3 +406,68 @@ class TestConstantValueInMutation:
         assert (
             found_constant
         ), "Expected at least one fork mutation to introduce a CONSTANT node"
+
+
+class TestCompactionDAGInvariant:
+    """Regression test: fork compaction must never produce forward/self refs.
+
+    When fork mutation compacts the stack (shifting rows to make room
+    for the fork sub-tree), arity-1 operators may carry a stale param_2
+    that, after the shift, exceeds the row's new index.  The compaction
+    helpers must normalise arity-1 operators (p2 = p1) after remapping
+    to maintain the DAG property.
+    """
+
+    @staticmethod
+    def _has_forward_reference(stack):
+        """Return True if any operator has a forward/self reference."""
+        for i in range(stack.shape[0]):
+            op = int(stack[i, 0])
+            if op in TERMINAL_IDS:
+                continue
+            if int(stack[i, 1]) >= i:
+                return True
+            if int(stack[i, 2]) >= i:
+                return True
+        return False
+
+    def test_fork_compaction_no_forward_ref(self):
+        """Fork mutation with compaction must not corrupt references."""
+        cgen = ComponentGenerator(input_x_dimension=3, random_state=0)
+        cgen.add_operator(ADDITION)
+        cgen.add_operator(SUBTRACTION)
+        cgen.add_operator(MULTIPLICATION)
+        cgen.add_operator(SIN)
+
+        # Build a parent with unutilized rows that forces compaction
+        # when fork mutation fires.  The arity-1 SIN at row 4 has
+        # param_2=3 (stale, < 4).  Forward compaction can shift row 4
+        # down — if p2 isn't normalised, it becomes a forward ref.
+        parent = _make_individual(
+            [
+                [VARIABLE, 0, 0],  # row 0
+                [VARIABLE, 1, 1],  # row 1 (unutilized)
+                [SIN, 0, 0],  # row 2
+                [VARIABLE, 2, 2],  # row 3 (unutilized)
+                [SIN, 2, 2],  # row 4: arity-1
+                [ADDITION, 4, 2],  # row 5
+                [VARIABLE, 0, 0],  # row 6 (unutilized)
+                [MULTIPLICATION, 5, 0],  # row 7 (output)
+            ]
+        )
+
+        for seed in range(200):
+            mut = AGraphMutation(
+                cgen,
+                command_probability=0.2,
+                node_probability=0.2,
+                parameter_probability=0.2,
+                prune_probability=0.2,
+                fork_probability=0.2,
+                random_state=seed,
+            )
+            child = mut(parent)
+            raw = child.expression.raw_command_array
+            assert not self._has_forward_reference(
+                raw
+            ), f"Forward reference in child (seed={seed}):\n{raw}"

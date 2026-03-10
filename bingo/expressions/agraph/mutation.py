@@ -76,6 +76,8 @@ def _compact_stack_forward(
     moved_slots_set = set(moved_slots)
     first_slot = moved_slots[0]
 
+    tmp = new_stack.copy()
+
     new_spot_map = {}
     dest = first_slot
     for src in range(first_slot + 1, fork_target + 1):
@@ -86,7 +88,7 @@ def _compact_stack_forward(
             dest += 1
 
     if new_spot_map:
-        for i in range(first_slot + 1, len(new_stack)):
+        for i in range(first_slot, len(new_stack)):
             if new_stack[i, 0] not in TERMINAL_IDS:
                 p1, p2 = int(new_stack[i, 1]), int(new_stack[i, 2])
                 new_stack[i, 1] = new_spot_map.get(p1, p1)
@@ -265,7 +267,7 @@ class AGraphMutation(Mutation):
         new_cmd = old_cmd.copy()
         attempts = 0
         while old_cmd[0] == new_cmd[0]:
-            self._randomize_node(new_cmd)
+            self._randomize_node(new_cmd, loc)
             attempts += 1
             if attempts > 100:
                 break
@@ -289,14 +291,13 @@ class AGraphMutation(Mutation):
             indices = [i for i, u in enumerate(utilized) if u]
         return indices[int(self._rng.integers(len(indices)))]
 
-    def _randomize_node(self, command):
+    def _randomize_node(self, command, stack_location=None):
         if command[0] in TERMINAL_IDS:
             command[0] = self._cgen.random_terminal()
             command[1] = self._cgen.random_terminal_parameter(command[0])
             command[2] = command[1]
         else:
             command[0] = self._cgen.random_operator()
-            # Fixup params if arity changed
             if command[0] not in ARITY_2_IDS:
                 command[2] = command[1]
 
@@ -361,6 +362,8 @@ class AGraphMutation(Mutation):
             command[1] = self._cgen.random_operator_parameter(stack_location)
             if command[0] in ARITY_2_IDS:
                 command[2] = self._cgen.random_operator_parameter(stack_location)
+            else:
+                command[2] = command[1]
 
     # ------------------------------------------------------------------ #
     #  Prune mutation                                                     #

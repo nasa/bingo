@@ -195,11 +195,13 @@ class AGraphCrossover(Crossover):
             op = int(child_stack[row, 0])
             if op == CONSTANT:
                 src = head_consts if row < head_cp else tail_consts
-                new_consts.append(src[int(child_stack[row, 1])])
+                idx = int(child_stack[row, 1])
+                new_consts.append(src[idx] if idx < len(src) else 0.0)
                 child_stack[row, 1:] = len(new_consts) - 1
             elif op == INTEGER:
                 src = head_ints if row < head_cp else tail_ints
-                new_ints.append(src[int(child_stack[row, 1])])
+                idx = int(child_stack[row, 1])
+                new_ints.append(src[idx] if idx < len(src) else 0)
                 child_stack[row, 1:] = len(new_ints) - 1
 
         return tuple(new_consts), tuple(new_ints)

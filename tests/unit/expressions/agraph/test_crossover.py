@@ -313,3 +313,46 @@ class TestEdgeCases:
     def test_repeated_crossover_no_crash(self, crossover, parent_a, parent_b):
         for _ in range(50):
             crossover(parent_a, parent_b)
+
+    def test_out_of_range_constant_index(self, crossover):
+        """Crossover should not crash when a CONSTANT index exceeds pool size."""
+        p1 = _make_evolvable(
+            [
+                [CONSTANT, 5, 5],  # index 5, but only 1 constant
+                [VARIABLE, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            constants=(1.0,),
+        )
+        p2 = _make_evolvable(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [MULTIPLICATION, 0, 1],
+            ],
+            constants=(2.0,),
+        )
+        c1, c2 = crossover(p1, p2)
+        assert c1.expression.raw_command_array.shape[0] >= 1
+
+    def test_out_of_range_integer_index(self, crossover):
+        """Crossover should not crash when an INTEGER index exceeds pool size."""
+        p1 = _make_evolvable(
+            [
+                [INTEGER, 3, 3],  # index 3, but empty raw_integers
+                [VARIABLE, 0, 0],
+                [ADDITION, 0, 1],
+            ],
+            integers=(),
+        )
+        p2 = _make_evolvable(
+            [
+                [VARIABLE, 0, 0],
+                [CONSTANT, 0, 0],
+                [MULTIPLICATION, 0, 1],
+            ],
+            constants=(2.0,),
+        )
+        c1, c2 = crossover(p1, p2)
+        # The out-of-range INTEGER should get default value 0
+        assert 0 in c1.expression.raw_integers or 0 in c2.expression.raw_integers

@@ -1,0 +1,10 @@
+# CMake build directory (contains FetchContent downloads of Eigen, pybind11, GoogleTest)
+_build/
+
+# Compiled extensions
+*.so
+*.o
+*.a
+
+# Python cache
+__pycache__/

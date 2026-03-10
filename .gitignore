@@ -1,4 +1,5 @@
 *.pyc
+__pycache__/
 .idea/
 *.cache/*
 *.cache/
@@ -7,3 +8,10 @@
 docs/build/
 docs/source/_autosummary
 *.egg-info/
+
+# Build artifacts
+_build/
+*.so
+*.o
+*.a
+build/

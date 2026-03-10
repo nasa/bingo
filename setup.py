@@ -48,7 +48,13 @@ class CMakeBuild(build_ext):
             f"-DPYTHON_EXECUTABLE={sys.executable}",
             f"-DCMAKE_BUILD_TYPE={cfg}",  # not used on MSVC, but no harm
         ]
-        build_args = ["--target=bingocpp"]
+        # Determine the build target from the extension name.
+        if "cppagraph" in ext.name:
+            build_args = ["--target=_cppagraph"]
+            # Skip C++ unit tests during pip install
+            cmake_args += ["-DCPPAGRAPH_BUILD_TESTS=OFF"]
+        else:
+            build_args = ["--target=bingocpp"]
         # Adding CMake arguments set as environment variable
         # (needed e.g. to build for ARM OSx on conda-forge)
         if "CMAKE_ARGS" in os.environ:
@@ -134,6 +140,12 @@ setup(
         "bingo.evaluation",
         "bingo.evolutionary_algorithms",
         "bingo.evolutionary_optimizers",
+        "bingo.expressions",
+        "bingo.expressions.agraph",
+        "bingo.expressions.agraph.pyagraph",
+        "bingo.expressions.agraph.pyagraph.evaluation",
+        "bingo.expressions.agraph.pyagraph.simplification",
+        "bingo.expressions.agraph.cppagraph",
         "bingo.local_optimizers",
         "bingo.selection",
         "bingo.stats",
@@ -145,8 +157,14 @@ setup(
         "bingo.util",
         "bingo.variation",
     ],
-    # add extension module
-    ext_modules=[CMakeExtension("bingocpp", "bingocpp")],
+    # add extension modules
+    ext_modules=[
+        CMakeExtension("bingocpp", "bingocpp"),
+        CMakeExtension(
+            "bingo.expressions.agraph.cppagraph._cppagraph",
+            "bingo/expressions/agraph/cppagraph",
+        ),
+    ],
     # add custom build_ext command
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,

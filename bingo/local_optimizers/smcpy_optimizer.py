@@ -2,12 +2,7 @@ import numpy as np
 from scipy.stats import multivariate_normal as mvn
 from scipy.stats import invgamma
 
-from smcpy import (
-    VectorMCMC,
-    VectorMCMCKernel,
-    AdaptiveSampler,
-    ImproperUniform
-)
+from smcpy import VectorMCMC, VectorMCMCKernel, AdaptiveSampler, ImproperUniform
 from smcpy.paths import GeometricPath
 from smcpy.proposals import MultivarIndependent
 
@@ -17,14 +12,14 @@ from .local_optimizer import LocalOptimizer
 class SmcpyOptimizer(LocalOptimizer):
     """An optimizer that uses SMCPy for probabilistic parameter calibration
 
-    A class for probabilistic parameter calibration for the parameters of a 
+    A class for probabilistic parameter calibration for the parameters of a
     `Chromosome` using SMCPy
 
     Parameters
     ----------
     objective_fn : VectorBasedFunction, VectorGradientMixin
-        A `VectorBasedFunction` with `VectorGradientMixin` (e.g., 
-        ExplicitRegression).  It should produce a vector where the target value 
+        A `VectorBasedFunction` with `VectorGradientMixin` (e.g.,
+        ExplicitRegression).  It should produce a vector where the target value
         is 0.
     deterministic_optimizer : LocalOptimizer
         A deterministic local optimizer e.g., `ScipyOptimizer`
@@ -33,12 +28,12 @@ class SmcpyOptimizer(LocalOptimizer):
     mcmc_steps : int
         The number of MCMC steps to perform with each SMC update
     ess_threshold : float (0-1)
-        The effective sample size (ratio) below which SMC particles will be 
+        The effective sample size (ratio) below which SMC particles will be
         resampled
     std : float
         (Optional) The fixed noise level, if it is known
     num_multistarts : int
-        (Optional) The number of deterministic optimizations performed when 
+        (Optional) The number of deterministic optimizations performed when
         developing the SMC proposal
 
     Attributes
@@ -80,8 +75,8 @@ class SmcpyOptimizer(LocalOptimizer):
 
     @property
     def objective_fn(self):
-        """A `VectorBasedFunction` with `VectorGradientMixin` (e.g., 
-        ExplicitRegression). It should produce a vector where the target value 
+        """A `VectorBasedFunction` with `VectorGradientMixin` (e.g.,
+        ExplicitRegression). It should produce a vector where the target value
         is 0."""
         return self._objective_fn
 
@@ -152,14 +147,13 @@ class SmcpyOptimizer(LocalOptimizer):
             log_like_args=self._std,
         )
         kernel = VectorMCMCKernel(vmcmc, param_order=param_names, path=path)
-        smc = AdaptiveSampler(kernel)
+        smc = AdaptiveSampler(kernel, show_progress_bar=False)
 
         try:
             step_list, marginal_log_likes = smc.sample(
                 self._num_particles,
                 self._mcmc_steps,
                 self._ess_threshold,
-                progress_bar=False,
             )
         except (ValueError, np.linalg.LinAlgError, ZeroDivisionError) as e:
             # print(e)
@@ -169,11 +163,9 @@ class SmcpyOptimizer(LocalOptimizer):
         maps = step_list[-1].params[max_idx]
         individual.set_local_optimization_params(maps[:-1])
 
-        norm_phi = 1/np.sqrt(len(self.training_data))
+        norm_phi = 1 / np.sqrt(len(self.training_data))
         norm_phi_index = np.argmin(np.abs(np.array(smc._phi_sequence) - norm_phi))
-        log_nml = (
-            marginal_log_likes[-1] - marginal_log_likes[norm_phi_index]
-        )
+        log_nml = marginal_log_likes[-1] - marginal_log_likes[norm_phi_index]
 
         return log_nml, step_list, vmcmc
 
@@ -192,11 +184,13 @@ class SmcpyOptimizer(LocalOptimizer):
                     mean, cov, var_ols, ssqe = self._estimate_covariance(
                         individual, do_det_opt
                     )
-                    cov = 0.5*(cov + cov.T) # ensuring symmetry 
+                    cov = 0.5 * (cov + cov.T)  # ensuring symmetry
                     evals, Q = np.linalg.eig(cov)
-                    if np.min(evals) < 0:  # this approximation attempts to correct for cov matrices that are not positive semidefinite
+                    if (
+                        np.min(evals) < 0
+                    ):  # this approximation attempts to correct for cov matrices that are not positive semidefinite
                         D = np.diag(evals)
-                        D[D<0] = 0
+                        D[D < 0] = 0
                         cov = Q.dot(D).dot(Q.T)
                     dists = mvn(mean, cov, allow_singular=True)
                 except (ValueError, np.linalg.LinAlgError) as e:
@@ -236,7 +230,7 @@ class SmcpyOptimizer(LocalOptimizer):
     def _estimate_covariance(self, individual, do_det_opt=True):
         if do_det_opt:
             self._deterministic_optimizer(individual)
-        
+
         # # RALPH data approx method
         # f, f_deriv = self._objective_fn.get_fitness_vector_and_jacobian(
         #     individual
@@ -246,12 +240,19 @@ class SmcpyOptimizer(LocalOptimizer):
         # cov = var_ols * np.linalg.inv(f_deriv.T.dot(f_deriv))
 
         # LAPLACE approx
-        f, g = self._objective_fn.get_fitness_vector_and_jacobian(
-            individual
+        f, g = self._objective_fn.get_fitness_vector_and_jacobian(individual)
+        h = np.squeeze(
+            individual.evaluate_with_local_opt_hessian_at(
+                self.objective_fn.training_data.x
+            )[1]
+            .detach()
+            .numpy(),
+            1,
         )
-        h = np.squeeze(individual.evaluate_with_local_opt_hessian_at(self.objective_fn.training_data.x)[1].detach().numpy(),1)
-        A = 2*np.sum(np.einsum('...i,...j->...ij', g, g) 
-                     + np.expand_dims(f, axis=(1,2))*h, axis=0)
+        A = 2 * np.sum(
+            np.einsum("...i,...j->...ij", g, g) + np.expand_dims(f, axis=(1, 2)) * h,
+            axis=0,
+        )
         ssqe = np.sum((f) ** 2)
         var_ols = ssqe / len(f)
         # try:
@@ -282,16 +283,21 @@ class MixtureDist:
     def __init__(self, *args):
         self._dists = args
 
-    def rvs(self, num_samples):
-        candidate_samples = np.zeros((
-            len(self._dists),
-            num_samples,
-            self._dists[0].dim if hasattr(self._dists[0], 'dim') else 1
-        ))
+    def rvs(
+        self,
+        num_samples,
+        random_state=None,
+    ):
+        candidate_samples = np.zeros(
+            (
+                len(self._dists),
+                num_samples,
+                self._dists[0].dim if hasattr(self._dists[0], "dim") else 1,
+            )
+        )
 
         for i, d in enumerate(self._dists):
-            candidate_samples[i, :, :] = \
-                d.rvs(num_samples).reshape(num_samples, -1)
+            candidate_samples[i, :, :] = d.rvs(num_samples).reshape(num_samples, -1)
 
         rng = np.random.default_rng(seed=np.random.randint(np.iinfo(np.int16).max))
         dist_indices = rng.integers(0, len(self._dists), num_samples)

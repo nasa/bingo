@@ -699,8 +699,9 @@ class AGraphExpression:
     # ------------------------------------------------------------------ #
 
     def __hash__(self):
-        if self._modified or self._hash is None:
+        if self._modified:
             self._update()
+        if self._hash is None:
             self._hash = hash(tuple(map(tuple, self._command_array)))
         return self._hash
 
@@ -714,23 +715,45 @@ class AGraphExpression:
     # ------------------------------------------------------------------ #
 
     def __getstate__(self):
-        state = self.__dict__.copy()
-        state.pop("_hash", None)
-        # Derived attributes — exclude from serialization
-        state.pop("_command_array", None)
-        # state.pop("_constants", None) # these may have been fitted, so keep them in state
-        state.pop("_integers", None)
+        state = {}
+        # Essential: raw layer (source of truth)
+        # Store command array as (n_rows, bytes) for compact pickling;
+        # bytes objects have ~15 B overhead vs ~129 B for ndarray.
+        arr = self._raw_command_array
+        state["_raw_command_array"] = (arr.shape[0], arr.tobytes())
+        state["_raw_constants"] = self._raw_constants
+        state["_raw_integers"] = self._raw_integers
+        # Fitted constants differ from raw when fit() has been called;
+        # only include them when they actually differ.
+        if self._is_fitted and self._constants != self._raw_constants:
+            state["_constants"] = self._constants
+        # Only include non-default settings to keep pickle compact.
+        if self._simplification != "cas":
+            state["_simplification"] = self._simplification
+        if self._propagate_constants:
+            state["_propagate_constants"] = True
         return state
 
     def __setstate__(self, state):
-        state["_command_array"] = np.empty([0, 3], dtype=np.uint8)
-        # state["_constants"] = () # keep any fitted constants from state
-        state["_integers"] = ()
-        state.setdefault("_propagate_constants", False)
-        state.setdefault("_constant_mapping", ())
-        state["_modified"] = True
-        state["_hash"] = None
-        self.__dict__.update(state)
+        raw = state["_raw_command_array"]
+        if isinstance(raw, tuple):
+            n_rows, data = raw
+            self._raw_command_array = np.frombuffer(data, dtype=np.uint8).reshape(n_rows, 3).copy()
+        else:
+            # Backward compat: old pickles stored an ndarray directly.
+            self._raw_command_array = np.asarray(raw, dtype=np.uint8)
+        self._raw_constants = state["_raw_constants"]
+        self._raw_integers = state.get("_raw_integers", ())
+        self._simplification = state.get("_simplification", "cas")
+        self._propagate_constants = state.get("_propagate_constants", False)
+        self._constants = state.get("_constants", self._raw_constants)
+        self._is_fitted = "_constants" in state
+        # Derived — will be recomputed on first access.
+        self._command_array = np.empty([0, 3], dtype=np.uint8)
+        self._integers = ()
+        self._constant_mapping = ()
+        self._modified = True
+        self._hash = None
 
     def __deepcopy__(self, memodict=None):
         new = AGraphExpression.__new__(AGraphExpression)

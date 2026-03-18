@@ -590,9 +590,10 @@ class TestPropagateConstants:
     def test_pickle_backward_compat_defaults_false(self):
         """Unpickling old data (no _propagate_constants) defaults to False."""
         expr = AGraphExpression(equation="X0 + 1.0")
+        # Simulate an old-format state dict (only essential keys).
         state = expr.__getstate__()
-        del state["_propagate_constants"]
-        del state["_constant_mapping"]
+        state.pop("_propagate_constants", None)
+        state.pop("_constant_mapping", None)
         new = AGraphExpression.__new__(AGraphExpression)
         new.__setstate__(state)
         assert new.propagate_constants is False

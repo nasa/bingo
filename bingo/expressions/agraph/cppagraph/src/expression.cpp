@@ -412,8 +412,10 @@ AGraphExpression AGraphExpression::copy() const {
 // ================================================================
 
 std::size_t AGraphExpression::hash() {
-    if (modified_ || !hash_.has_value()) {
+    if (modified_) {
         update();
+    }
+    if (!hash_.has_value()) {
         // Hash the simplified command array (matches Python's
         // hash(tuple(map(tuple, command_array)))).
         std::size_t h = 0;

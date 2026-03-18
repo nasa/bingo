@@ -570,8 +570,9 @@ class AGraph(Equation):
         self.__dict__.update(state)
 
     def __hash__(self):
-        if self._modified or self._hash is None:
+        if self._modified:
             self._update()
+        if self._hash is None:
             self._hash = hash(tuple(map(tuple, self._simplified_command_array)))
         return self._hash
 

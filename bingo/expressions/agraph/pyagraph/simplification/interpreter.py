@@ -15,6 +15,7 @@ from ..operators import (
     VARIABLE,
     SQUARE,
     CUBE,
+    SQRT,
     POWER,
 )
 from .cas_expression import CASExpression, get_interned_integer, get_interned_variable
@@ -73,12 +74,18 @@ def _build_expression_recursive(stack, constants, integers, location, memo):
             _build_expression_recursive(stack, constants, integers, param_2, memo)
         )
 
-    # Normalise SQUARE/CUBE into POWER so the CAS engine reasons about
+    # Normalise SQUARE/CUBE/SQRT into POWER so the CAS engine reasons about
     # exponents uniformly.  They are re-inserted by optional_modifications.
     if operator == SQUARE:
         result = CASExpression(POWER, [operands[0], get_interned_integer(2)])
     elif operator == CUBE:
         result = CASExpression(POWER, [operands[0], get_interned_integer(3)])
+    elif operator == SQRT:
+        # sqrt(x) → x^(2^(-1)) so power rules apply (e.g., sqrt(x)^2 → x)
+        half_exp = CASExpression(
+            POWER, [get_interned_integer(2), get_interned_integer(-1)]
+        )
+        result = CASExpression(POWER, [operands[0], half_exp])
     else:
         result = CASExpression(operator, operands)
     memo[location] = result
@@ -150,13 +157,21 @@ def _build_simplified_recursive(stack, constants, integers, location, memo, simp
                 stack, constants, integers, param_2, memo, simp_funcs
             )
         )
-    # Normalise SQUARE/CUBE into POWER so the CAS engine reasons about
+    # Normalise SQUARE/CUBE/SQRT into POWER so the CAS engine reasons about
     # exponents uniformly.  They are re-inserted by optional_modifications.
     if operator == SQUARE:
         node = CASExpression(POWER, [operands[0], get_interned_integer(2)])
         result = simp_funcs[POWER](node)
     elif operator == CUBE:
         node = CASExpression(POWER, [operands[0], get_interned_integer(3)])
+        result = simp_funcs[POWER](node)
+    elif operator == SQRT:
+        # sqrt(x) → x^(2^(-1)) so power rules apply (e.g., sqrt(x)^2 → x)
+        half_exp = CASExpression(
+            POWER, [get_interned_integer(2), get_interned_integer(-1)]
+        )
+        half_exp = simp_funcs[POWER](half_exp)
+        node = CASExpression(POWER, [operands[0], half_exp])
         result = simp_funcs[POWER](node)
     else:
         node = CASExpression(operator, operands)

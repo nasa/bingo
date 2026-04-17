@@ -232,6 +232,41 @@ class TestInterpreter:
         assert len(new_c) == 2
         assert set(new_c) == {1.0, 2.0}
 
+    def test_sqrt_converted_to_power(self):
+        """sqrt(X_0) → X_0^(2^(-1)) in CAS tree."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        cas = build_cas_expression(stack, (), ())
+        # SQRT should be converted to POWER with exponent 2^(-1)
+        assert cas.operator == POWER
+        assert cas.operands[0].operator == VARIABLE
+        assert cas.operands[1].operator == POWER
+        assert cas.operands[1].operands[0].operator == INTEGER
+        assert cas.operands[1].operands[0].operands[0] == 2
+        assert cas.operands[1].operands[1].operator == INTEGER
+        assert cas.operands[1].operands[1].operands[0] == -1
+
+    def test_sqrt_roundtrip(self):
+        """sqrt(X_0) → CAS → stack should produce SQRT."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        cas = build_cas_expression(stack, (), ())
+        # Apply optional_modifications to convert back
+        cas = optional_modifications(cas)
+        new_stack, _, _, _ = build_agraph_stack(cas, ())
+        # Should get SQRT back
+        assert new_stack[-1, 0] == SQRT
+
 
 # ================================================================== #
 #  Fused build + simplify (build_simplified_cas_expression)           #
@@ -843,6 +878,43 @@ class TestOptionalModifications:
         result = optional_modifications(expr)
         assert result.operator == MULTIPLICATION
 
+    def test_power_half_to_sqrt(self):
+        """X_0^(2^(-1)) → SQRT(X_0)."""
+        x = CASExpression(VARIABLE, [0])
+        two = CASExpression(INTEGER, [2])
+        neg_one = CASExpression(INTEGER, [-1])
+        half_exp = CASExpression(POWER, [two, neg_one])
+        expr = CASExpression(POWER, [x, half_exp])
+        result = optional_modifications(expr)
+        assert result.operator == SQRT
+        assert result.operands[0] == x
+
+    def test_power_quarter_to_nested_sqrt(self):
+        """X_0^(2^(-2)) → SQRT(SQRT(X_0))."""
+        x = CASExpression(VARIABLE, [0])
+        two = CASExpression(INTEGER, [2])
+        neg_two = CASExpression(INTEGER, [-2])
+        quarter_exp = CASExpression(POWER, [two, neg_two])
+        expr = CASExpression(POWER, [x, quarter_exp])
+        result = optional_modifications(expr)
+        assert result.operator == SQRT
+        assert result.operands[0].operator == SQRT
+        assert result.operands[0].operands[0] == x
+
+    def test_power_three_halves_to_cube_sqrt(self):
+        """X_0^(3 * 2^(-1)) → CUBE(SQRT(X_0))."""
+        x = CASExpression(VARIABLE, [0])
+        three = CASExpression(INTEGER, [3])
+        two = CASExpression(INTEGER, [2])
+        neg_one = CASExpression(INTEGER, [-1])
+        half_exp = CASExpression(POWER, [two, neg_one])
+        three_halves = CASExpression(MULTIPLICATION, [three, half_exp])
+        expr = CASExpression(POWER, [x, three_halves])
+        result = optional_modifications(expr)
+        assert result.operator == CUBE
+        assert result.operands[0].operator == SQRT
+        assert result.operands[0].operands[0] == x
+
 
 # ================================================================== #
 #  Full pipeline (simplify)                                           #
@@ -991,6 +1063,67 @@ class TestSimplifyPipeline:
         operators = set(new_stack[:, 0])
         assert CUBE in operators
 
+    def test_sqrt_squared_simplifies_to_variable(self):
+        """sqrt(X_0)^2 → X_0 via power rule simplification."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+                [INTEGER, 0, 0],
+                [POWER, 1, 2],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), (2,))
+        # Should simplify to just X_0
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == VARIABLE
+
+    def test_sqrt_squared_via_square_simplifies(self):
+        """SQUARE(SQRT(X_0)) → X_0 via power rule simplification."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+                [SQUARE, 1, 1],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), ())
+        # Should simplify to just X_0
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == VARIABLE
+
+    def test_sqrt_cubed_simplifies_to_cube_sqrt(self):
+        """sqrt(X_0)^3 → CUBE(SQRT(X_0))."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+                [INTEGER, 0, 0],
+                [POWER, 1, 2],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), (3,))
+        operators = set(new_stack[:, 0])
+        # Result should have CUBE and SQRT
+        assert CUBE in operators
+        assert SQRT in operators
+
+    def test_sqrt_roundtrip(self):
+        """sqrt(X_0) → CAS pipeline → SQRT(X_0)."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), ())
+        # Should produce SQRT
+        assert new_stack[-1, 0] == SQRT
+
     def test_division_roundtrip(self):
         """X_0 / X_1 with distinct vars survives round-trip as DIVISION."""
         stack = np.array(
@@ -1004,19 +1137,6 @@ class TestSimplifyPipeline:
         new_stack, new_c, new_i, _ = simplify(stack, (), ())
         operators = set(new_stack[:, 0])
         assert DIVISION in operators
-
-    def test_sqrt_zero_simplifies(self):
-        """sqrt(0) → 0."""
-        stack = np.array(
-            [
-                [INTEGER, 0, 0],
-                [SQRT, 0, 0],
-            ],
-            dtype=np.uint8,
-        )
-        new_stack, new_c, new_i, _ = simplify(stack, (), (0,))
-        assert new_stack.shape[0] == 1
-        assert new_stack[0, 0] == INTEGER
 
     def test_sqrt_one_simplifies(self):
         """sqrt(1) → 1."""

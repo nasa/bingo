@@ -157,8 +157,68 @@ static CASExprPtr _insert_division(const CASExprPtr& expression) {
 }
 
 // ------------------------------------------------------------------ //
-//  x^2 → SQUARE(x),  x^3 → CUBE(x)                                   //
+//  x^2 → SQUARE(x),  x^3 → CUBE(x),  x^(2^-n) → nested SQRT          //
 // ------------------------------------------------------------------ //
+
+/**
+ * @brief Helper to check if an integer is a power of 2.
+ */
+static bool is_power_of_two(int n) {
+    return n > 0 && (n & (n - 1)) == 0;
+}
+
+/**
+ * @brief Compute log base 2 of a power of 2.
+ */
+static int log2_int(int n) {
+    int result = 0;
+    while (n > 1) { n >>= 1; ++result; }
+    return result;
+}
+
+/**
+ * @brief Check if expr represents 2^(-n) and return the depth n.
+ *
+ * Recognizes two patterns after _insert_division runs:
+ * 1. POWER(2, negative_integer) → depth = |negative_integer|
+ * 2. DIVISION(1, power_of_two_int) → depth = log2(power_of_two_int)
+ *
+ * @return The positive depth n if expr == 2^(-n), else 0.
+ */
+static int _is_power_of_two_inverse(const CASExprPtr& expr) {
+    // Pattern 1: POWER(2, -n)
+    if (expr->op() == u8(Op::POWER)
+        && expr->operands()[0]->op() == u8(Op::INTEGER)
+        && expr->operands()[0]->terminal_param() == 2
+        && expr->operands()[1]->op() == u8(Op::INTEGER)
+        && expr->operands()[1]->terminal_param() < 0) {
+        return -expr->operands()[1]->terminal_param();
+    }
+    // Pattern 2: DIVISION(1, 2^n) - produced by _insert_division
+    if (expr->op() == u8(Op::DIVISION)
+        && expr->operands()[0]->op() == u8(Op::INTEGER)
+        && expr->operands()[0]->terminal_param() == 1
+        && expr->operands()[1]->op() == u8(Op::INTEGER)) {
+        int denom = expr->operands()[1]->terminal_param();
+        if (is_power_of_two(denom)) {
+            return log2_int(denom);
+        }
+    }
+    return 0;
+}
+
+/**
+ * @brief Build nested SQRT calls.
+ * depth=1 → SQRT(base), depth=2 → SQRT(SQRT(base)), etc.
+ */
+static CASExprPtr _build_nested_sqrt(const CASExprPtr& base, int depth) {
+    CASExprPtr result = base;
+    for (int i = 0; i < depth; ++i) {
+        result = std::make_shared<CASExpression>(
+            u8(Op::SQRT), std::vector<CASExprPtr>{result});
+    }
+    return result;
+}
 
 static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
     uint8_t op = expression->op();
@@ -174,13 +234,102 @@ static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
         if (sc.get() != child.get()) changed = true;
     }
 
-    if (op == u8(Op::POWER)
-        && new_ops[1]->op() == u8(Op::INTEGER)) {
-        int exp_val = new_ops[1]->terminal_param();
-        if (exp_val == 2)
-            return std::make_shared<CASExpression>(u8(Op::SQUARE), std::vector<CASExprPtr>{new_ops[0]});
-        if (exp_val == 3)
-            return std::make_shared<CASExpression>(u8(Op::CUBE), std::vector<CASExprPtr>{new_ops[0]});
+    if (op == u8(Op::POWER)) {
+        auto& exponent = new_ops[1];
+
+        // x^2 → SQUARE(x), x^3 → CUBE(x)
+        if (exponent->op() == u8(Op::INTEGER)) {
+            int exp_val = exponent->terminal_param();
+            if (exp_val == 2)
+                return std::make_shared<CASExpression>(u8(Op::SQUARE), std::vector<CASExprPtr>{new_ops[0]});
+            if (exp_val == 3)
+                return std::make_shared<CASExpression>(u8(Op::CUBE), std::vector<CASExprPtr>{new_ops[0]});
+        }
+
+        // x^(2^(-n)) → nested SQRT(x)
+        int sqrt_depth = _is_power_of_two_inverse(exponent);
+        if (sqrt_depth > 0) {
+            return _build_nested_sqrt(new_ops[0], sqrt_depth);
+        }
+
+        // x^(m/n) → simplify based on the fraction
+        // This handles DIVISION(m, n) produced by _insert_division
+        if (exponent->op() == u8(Op::DIVISION)
+            && exponent->operands()[0]->op() == u8(Op::INTEGER)
+            && exponent->operands()[1]->op() == u8(Op::INTEGER)) {
+            int numer = exponent->operands()[0]->terminal_param();
+            int denom = exponent->operands()[1]->terminal_param();
+
+            if (numer > 0 && denom > 0) {
+                // Check if the exponent reduces to an integer
+                if (numer % denom == 0) {
+                    int int_exp = numer / denom;
+                    if (int_exp == 1) {
+                        return new_ops[0];  // x^1 = x
+                    } else if (int_exp == 2) {
+                        return std::make_shared<CASExpression>(
+                            u8(Op::SQUARE), std::vector<CASExprPtr>{new_ops[0]});
+                    } else if (int_exp == 3) {
+                        return std::make_shared<CASExpression>(
+                            u8(Op::CUBE), std::vector<CASExprPtr>{new_ops[0]});
+                    } else {
+                        auto int_expr = interned_integer(int_exp);
+                        return std::make_shared<CASExpression>(
+                            u8(Op::POWER), std::vector<CASExprPtr>{new_ops[0], int_expr});
+                    }
+                }
+
+                // Check if denominator is a power of 2 (fractional sqrt power)
+                if (denom > 1 && is_power_of_two(denom)) {
+                    int depth = log2_int(denom);
+                    auto nested_sqrt = _build_nested_sqrt(new_ops[0], depth);
+                    if (numer == 1) {
+                        return nested_sqrt;
+                    } else if (numer == 2) {
+                        return std::make_shared<CASExpression>(
+                            u8(Op::SQUARE), std::vector<CASExprPtr>{nested_sqrt});
+                    } else if (numer == 3) {
+                        return std::make_shared<CASExpression>(
+                            u8(Op::CUBE), std::vector<CASExprPtr>{nested_sqrt});
+                    } else {
+                        auto int_expr = interned_integer(numer);
+                        return std::make_shared<CASExpression>(
+                            u8(Op::POWER), std::vector<CASExprPtr>{nested_sqrt, int_expr});
+                    }
+                }
+            }
+        }
+
+        // x^(m * 2^(-n)) → integer_power(nested_sqrt(x))
+        if (exponent->op() == u8(Op::MULTIPLICATION)
+            && exponent->operands().size() == 2) {
+            int int_part = 0;
+            int sqrt_part_depth = 0;
+            for (auto& sub_op : exponent->operands()) {
+                if (sub_op->op() == u8(Op::INTEGER)) {
+                    int_part = sub_op->terminal_param();
+                } else {
+                    sqrt_part_depth = _is_power_of_two_inverse(sub_op);
+                }
+            }
+            if (int_part > 0 && sqrt_part_depth > 0) {
+                auto nested_sqrt = _build_nested_sqrt(new_ops[0], sqrt_part_depth);
+                if (int_part == 1) {
+                    return nested_sqrt;
+                } else if (int_part == 2) {
+                    return std::make_shared<CASExpression>(
+                        u8(Op::SQUARE), std::vector<CASExprPtr>{nested_sqrt});
+                } else if (int_part == 3) {
+                    return std::make_shared<CASExpression>(
+                        u8(Op::CUBE), std::vector<CASExprPtr>{nested_sqrt});
+                } else {
+                    // For larger integer powers, leave as POWER
+                    auto int_expr = interned_integer(int_part);
+                    return std::make_shared<CASExpression>(
+                        u8(Op::POWER), std::vector<CASExprPtr>{nested_sqrt, int_expr});
+                }
+            }
+        }
     }
 
     if (!changed) return expression;

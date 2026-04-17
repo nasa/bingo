@@ -609,6 +609,59 @@ TEST_F(TestOptionalModifications, InsertSquareCube) {
     EXPECT_EQ(r3->op(), u8(Op::CUBE));
 }
 
+TEST_F(TestOptionalModifications, PowerHalfToSqrt) {
+    // x^(2^(-1)) → SQRT(x)
+    auto x = interned_variable(0);
+    auto two = interned_integer(2);
+    auto neg_one = interned_integer(-1);
+    auto half_exp = std::make_shared<CASExpression>(
+        u8(Op::POWER), std::vector<CASExprPtr>{two, neg_one});
+    auto pow_half = std::make_shared<CASExpression>(
+        u8(Op::POWER), std::vector<CASExprPtr>{x, half_exp});
+
+    OptionalModFlags flags;
+    auto result = optional_modifications(pow_half, flags);
+    EXPECT_EQ(result->op(), u8(Op::SQRT));
+    EXPECT_EQ(*result->operands()[0], *x);
+}
+
+TEST_F(TestOptionalModifications, PowerQuarterToNestedSqrt) {
+    // x^(2^(-2)) → SQRT(SQRT(x))
+    auto x = interned_variable(0);
+    auto two = interned_integer(2);
+    auto neg_two = interned_integer(-2);
+    auto quarter_exp = std::make_shared<CASExpression>(
+        u8(Op::POWER), std::vector<CASExprPtr>{two, neg_two});
+    auto pow_quarter = std::make_shared<CASExpression>(
+        u8(Op::POWER), std::vector<CASExprPtr>{x, quarter_exp});
+
+    OptionalModFlags flags;
+    auto result = optional_modifications(pow_quarter, flags);
+    EXPECT_EQ(result->op(), u8(Op::SQRT));
+    EXPECT_EQ(result->operands()[0]->op(), u8(Op::SQRT));
+    EXPECT_EQ(*result->operands()[0]->operands()[0], *x);
+}
+
+TEST_F(TestOptionalModifications, PowerThreeHalvesToCubeSqrt) {
+    // x^(3 * 2^(-1)) → CUBE(SQRT(x))
+    auto x = interned_variable(0);
+    auto three = interned_integer(3);
+    auto two = interned_integer(2);
+    auto neg_one = interned_integer(-1);
+    auto half_exp = std::make_shared<CASExpression>(
+        u8(Op::POWER), std::vector<CASExprPtr>{two, neg_one});
+    auto three_halves = std::make_shared<CASExpression>(
+        u8(Op::MULTIPLICATION), std::vector<CASExprPtr>{three, half_exp});
+    auto pow_three_halves = std::make_shared<CASExpression>(
+        u8(Op::POWER), std::vector<CASExprPtr>{x, three_halves});
+
+    OptionalModFlags flags;
+    auto result = optional_modifications(pow_three_halves, flags);
+    EXPECT_EQ(result->op(), u8(Op::CUBE));
+    EXPECT_EQ(result->operands()[0]->op(), u8(Op::SQRT));
+    EXPECT_EQ(*result->operands()[0]->operands()[0], *x);
+}
+
 TEST_F(TestOptionalModifications, StandaloneDivision) {
     // y^(-1) → 1/y
     auto y = interned_variable(1);
@@ -732,6 +785,59 @@ TEST_F(TestCASSimplifyPipeline, DeadCodeElimination) {
     // With INSERT_SQUARE_CUBE off by default, this should be a product.
     // The dead sin row should be gone.
     EXPECT_LE(result.stack.rows(), 3);
+}
+
+TEST_F(TestCASSimplifyPipeline, SqrtSquaredSimplifiesToVariable) {
+    // sqrt(X_0)^2 → X_0 via power rule simplification
+    auto stack = make_stack({
+        {u8(Op::VARIABLE), 0, 0},
+        {u8(Op::SQRT), 0, 0},
+        {u8(Op::INTEGER), 0, 0},
+        {u8(Op::POWER), 1, 2}
+    });
+    auto result = cas_simplify(stack, {}, {2});
+    // Should simplify to just X_0
+    EXPECT_EQ(result.stack.rows(), 1);
+    EXPECT_EQ(result.stack(0, 0), u8(Op::VARIABLE));
+}
+
+TEST_F(TestCASSimplifyPipeline, SquareOfSqrtSimplifiesToVariable) {
+    // SQUARE(SQRT(X_0)) → X_0 via power rule simplification
+    auto stack = make_stack({
+        {u8(Op::VARIABLE), 0, 0},
+        {u8(Op::SQRT), 0, 0},
+        {u8(Op::SQUARE), 1, 1}
+    });
+    auto result = cas_simplify(stack, {}, {});
+    // Should simplify to just X_0
+    EXPECT_EQ(result.stack.rows(), 1);
+    EXPECT_EQ(result.stack(0, 0), u8(Op::VARIABLE));
+}
+
+TEST_F(TestCASSimplifyPipeline, NestedSqrtFourthPowerSimplifies) {
+    // sqrt(sqrt(X_0))^4 → X_0 via power rule simplification
+    auto stack = make_stack({
+        {u8(Op::VARIABLE), 0, 0},
+        {u8(Op::SQRT), 0, 0},
+        {u8(Op::SQRT), 1, 1},
+        {u8(Op::INTEGER), 0, 0},
+        {u8(Op::POWER), 2, 3}
+    });
+    auto result = cas_simplify(stack, {}, {4});
+    // Should simplify to just X_0
+    EXPECT_EQ(result.stack.rows(), 1);
+    EXPECT_EQ(result.stack(0, 0), u8(Op::VARIABLE));
+}
+
+TEST_F(TestCASSimplifyPipeline, SqrtRoundtrip) {
+    // sqrt(X_0) → CAS pipeline → SQRT(X_0)
+    auto stack = make_stack({
+        {u8(Op::VARIABLE), 0, 0},
+        {u8(Op::SQRT), 0, 0}
+    });
+    auto result = cas_simplify(stack, {}, {});
+    // Should produce SQRT
+    EXPECT_EQ(result.stack(result.stack.rows() - 1, 0), u8(Op::SQRT));
 }
 
 // ================================================================== //

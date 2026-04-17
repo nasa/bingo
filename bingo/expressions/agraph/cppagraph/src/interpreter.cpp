@@ -67,7 +67,7 @@ static CASExprPtr _build_expression_recursive(
             _build_expression_recursive(stack, constants, integers, param2, memo, visiting));
     }
 
-    // Normalise SQUARE/CUBE into POWER.
+    // Normalise SQUARE/CUBE/SQRT into POWER.
     if (op == u8(Op::SQUARE)) {
         result = std::make_shared<CASExpression>(
             u8(Op::POWER),
@@ -76,6 +76,14 @@ static CASExprPtr _build_expression_recursive(
         result = std::make_shared<CASExpression>(
             u8(Op::POWER),
             std::vector<CASExprPtr>{operands[0], interned_integer(3)});
+    } else if (op == u8(Op::SQRT)) {
+        // sqrt(x) → x^(2^(-1)) so power rules apply (e.g., sqrt(x)^2 → x)
+        auto half_exp = std::make_shared<CASExpression>(
+            u8(Op::POWER),
+            std::vector<CASExprPtr>{interned_integer(2), interned_integer(-1)});
+        result = std::make_shared<CASExpression>(
+            u8(Op::POWER),
+            std::vector<CASExprPtr>{operands[0], half_exp});
     } else {
         result = std::make_shared<CASExpression>(op, std::move(operands));
     }
@@ -151,7 +159,7 @@ static CASExprPtr _build_simplified_recursive(
                 stack, constants, integers, param2, memo, simp_funcs, visiting));
     }
 
-    // Normalise SQUARE/CUBE into POWER, then simplify.
+    // Normalise SQUARE/CUBE/SQRT into POWER, then simplify.
     uint8_t effective_op = op;
     if (op == u8(Op::SQUARE)) {
         auto node = std::make_shared<CASExpression>(
@@ -167,6 +175,21 @@ static CASExprPtr _build_simplified_recursive(
         effective_op = u8(Op::POWER);
         auto sit = simp_funcs.find(effective_op);
         result = (sit != simp_funcs.end()) ? sit->second(node) : node;
+    } else if (op == u8(Op::SQRT)) {
+        // sqrt(x) → x^(2^(-1)) so power rules apply (e.g., sqrt(x)^2 → x)
+        auto half_exp = std::make_shared<CASExpression>(
+            u8(Op::POWER),
+            std::vector<CASExprPtr>{interned_integer(2), interned_integer(-1)});
+        // Simplify the half exponent first
+        auto sit_power = simp_funcs.find(u8(Op::POWER));
+        if (sit_power != simp_funcs.end()) {
+            half_exp = sit_power->second(half_exp);
+        }
+        auto node = std::make_shared<CASExpression>(
+            u8(Op::POWER),
+            std::vector<CASExprPtr>{operands[0], half_exp});
+        effective_op = u8(Op::POWER);
+        result = (sit_power != simp_funcs.end()) ? sit_power->second(node) : node;
     } else {
         auto node = std::make_shared<CASExpression>(op, std::move(operands));
         auto sit = simp_funcs.find(op);

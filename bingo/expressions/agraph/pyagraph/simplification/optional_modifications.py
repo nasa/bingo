@@ -38,7 +38,9 @@ from ..operators import (
     POWER,
     SQUARE,
     CUBE,
+    SQRT,
 )
+import math
 from .cas_expression import CASExpression, _NEG_ONE, _ONE
 
 INSERT_SUBTRACTION = True
@@ -198,8 +200,50 @@ def _insert_division(expression):
 
 
 # ------------------------------------------------------------------ #
-#  x^2 → SQUARE(x),  x^3 → CUBE(x)                                   #
+#  x^2 → SQUARE(x),  x^3 → CUBE(x),  x^(2^-n) → nested SQRT          #
 # ------------------------------------------------------------------ #
+
+
+def _is_power_of_two_inverse(expr):
+    """Check if expr represents 2^(-n) and return the depth n.
+
+    Recognizes two patterns after _insert_division runs:
+    1. POWER(2, negative_integer) → depth = |negative_integer|
+    2. DIVISION(1, power_of_two_int) → depth = log2(power_of_two_int)
+
+    Returns the positive depth n if expr == 2^(-n), else None.
+    For example: 2^(-1) or 1/2 → 1, 2^(-2) or 1/4 → 2, etc.
+    """
+    # Pattern 1: POWER(2, -n)
+    if (
+        expr.operator == POWER
+        and expr.operands[0].operator == INTEGER
+        and expr.operands[0].operands[0] == 2
+        and expr.operands[1].operator == INTEGER
+        and expr.operands[1].operands[0] < 0
+    ):
+        return -expr.operands[1].operands[0]
+
+    # Pattern 2: DIVISION(1, 2^n) - produced by _insert_division
+    if (
+        expr.operator == DIVISION
+        and expr.operands[0].operator == INTEGER
+        and expr.operands[0].operands[0] == 1
+        and expr.operands[1].operator == INTEGER
+    ):
+        denom = expr.operands[1].operands[0]
+        if denom > 0 and (denom & (denom - 1)) == 0:  # Check if power of 2
+            return int(math.log2(denom))
+
+    return None
+
+
+def _build_nested_sqrt(base, depth):
+    """Build nested SQRT calls: depth=1 → SQRT(base), depth=2 → SQRT(SQRT(base))."""
+    result = base
+    for _ in range(depth):
+        result = CASExpression(SQRT, [result])
+    return result
 
 
 def _insert_square_cube(expression):
@@ -210,12 +254,84 @@ def _insert_square_cube(expression):
     orig_operands = expression.operands
     new_operands = [_insert_square_cube(op) for op in orig_operands]
 
-    if operator == POWER and new_operands[1].operator == INTEGER:
-        exp_val = new_operands[1].operands[0]
-        if exp_val == 2:
-            return CASExpression(SQUARE, [new_operands[0]])
-        if exp_val == 3:
-            return CASExpression(CUBE, [new_operands[0]])
+    if operator == POWER:
+        exponent = new_operands[1]
+
+        # x^2 → SQUARE(x), x^3 → CUBE(x)
+        if exponent.operator == INTEGER:
+            exp_val = exponent.operands[0]
+            if exp_val == 2:
+                return CASExpression(SQUARE, [new_operands[0]])
+            if exp_val == 3:
+                return CASExpression(CUBE, [new_operands[0]])
+
+        # x^(2^(-n)) → nested SQRT(x)
+        sqrt_depth = _is_power_of_two_inverse(exponent)
+        if sqrt_depth is not None:
+            return _build_nested_sqrt(new_operands[0], sqrt_depth)
+
+        # x^(m/n) → simplify based on the fraction
+        # This handles DIVISION(m, n) produced by _insert_division
+        if (
+            exponent.operator == DIVISION
+            and exponent.operands[0].operator == INTEGER
+            and exponent.operands[1].operator == INTEGER
+        ):
+            numer = exponent.operands[0].operands[0]
+            denom = exponent.operands[1].operands[0]
+
+            if numer > 0 and denom > 0:
+                # Check if the exponent reduces to an integer
+                if numer % denom == 0:
+                    int_exp = numer // denom
+                    if int_exp == 1:
+                        return new_operands[0]  # x^1 = x
+                    elif int_exp == 2:
+                        return CASExpression(SQUARE, [new_operands[0]])
+                    elif int_exp == 3:
+                        return CASExpression(CUBE, [new_operands[0]])
+                    else:
+                        int_expr = CASExpression(INTEGER, [int_exp])
+                        return CASExpression(POWER, [new_operands[0], int_expr])
+
+                # Check if denominator is a power of 2 (fractional sqrt power)
+                if denom > 1 and (denom & (denom - 1)) == 0:
+                    sqrt_depth = int(math.log2(denom))
+                    nested_sqrt = _build_nested_sqrt(new_operands[0], sqrt_depth)
+                    if numer == 1:
+                        return nested_sqrt
+                    elif numer == 2:
+                        return CASExpression(SQUARE, [nested_sqrt])
+                    elif numer == 3:
+                        return CASExpression(CUBE, [nested_sqrt])
+                    else:
+                        int_expr = CASExpression(INTEGER, [numer])
+                        return CASExpression(POWER, [nested_sqrt, int_expr])
+
+        # x^(m * 2^(-n)) → integer_power(nested_sqrt(x))
+        # where m is a positive integer and 2^(-n) is the sqrt depth
+        if exponent.operator == MULTIPLICATION and len(exponent.operands) == 2:
+            int_part = None
+            sqrt_part_depth = None
+            for i, op in enumerate(exponent.operands):
+                if op.operator == INTEGER:
+                    int_part = op.operands[0]
+                else:
+                    sqrt_part_depth = _is_power_of_two_inverse(op)
+
+            if int_part is not None and sqrt_part_depth is not None and int_part > 0:
+                # Build nested sqrt first, then apply integer power
+                nested_sqrt = _build_nested_sqrt(new_operands[0], sqrt_part_depth)
+                if int_part == 1:
+                    return nested_sqrt
+                elif int_part == 2:
+                    return CASExpression(SQUARE, [nested_sqrt])
+                elif int_part == 3:
+                    return CASExpression(CUBE, [nested_sqrt])
+                else:
+                    # For larger integer powers, leave as POWER
+                    int_expr = CASExpression(INTEGER, [int_part])
+                    return CASExpression(POWER, [nested_sqrt, int_expr])
 
     if all(n is o for n, o in zip(new_operands, orig_operands)):
         return expression

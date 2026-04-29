@@ -104,6 +104,11 @@ class EvolvableExpression(Chromosome):
         """
         return self.expression.command_array
 
+    @property
+    def complexity(self):
+        """Number of utilized commands in the simplified stack."""
+        return self.expression.complexity
+
     def get_utilized_commands(self):
         """Which raw commands are utilized by the output.
 

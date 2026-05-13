@@ -162,6 +162,25 @@ TEST(ExpressionProperties, Complexity) {
     EXPECT_EQ(expr.complexity(), 3);
 }
 
+TEST(ExpressionProperties, TreeComplexityEqualsComplexityNoReuse) {
+    auto expr = make_x0_plus_c0();
+    // No shared sub-expressions → tree_complexity == complexity
+    EXPECT_EQ(expr.tree_complexity(), expr.complexity());
+}
+
+TEST(ExpressionProperties, TreeComplexityGreaterWithDAGReuse) {
+    auto expr = make_shared_subgraph();
+    // (X0 + C0) * (X0 + C0) reuses row 2
+    // DAG complexity = 4, tree complexity = 7
+    EXPECT_GT(expr.tree_complexity(), expr.complexity());
+    EXPECT_EQ(expr.tree_complexity(), 7);
+}
+
+TEST(ExpressionProperties, TreeComplexityEmpty) {
+    AGraphExpression expr;
+    EXPECT_EQ(expr.tree_complexity(), 0);
+}
+
 TEST(ExpressionProperties, Constants) {
     auto expr = make_x0_plus_c0(10.0);
     auto c = expr.constants();

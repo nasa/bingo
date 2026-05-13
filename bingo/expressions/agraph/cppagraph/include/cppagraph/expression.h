@@ -97,6 +97,9 @@ public:
     /** Number of commands in the simplified stack. */
     Eigen::Index complexity();
 
+    /** Tree-based node count (counts shared sub-expressions multiple times). */
+    Eigen::Index tree_complexity();
+
     // ---- Simplification control ------------------------------------ //
 
     const std::string& simplification() const;

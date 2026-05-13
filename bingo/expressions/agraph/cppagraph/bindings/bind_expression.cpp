@@ -234,6 +234,12 @@ void bind_expression(py::module_& m) {
                 return self.complexity();
             })
 
+        .def_property_readonly(
+            "tree_complexity",
+            [](AGraphExpression& self) {
+                return self.tree_complexity();
+            })
+
         // ---- Simplification control ----
 
         .def_property_readonly(

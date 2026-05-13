@@ -100,6 +100,17 @@ class TestProperties:
         # X0 + 10.0 => 3 commands (X0, C0, ADD)
         assert x0_plus_c0.complexity == 3
 
+    def test_tree_complexity_equals_complexity_no_dag_reuse(self, x0_plus_c0):
+        # No shared sub-expressions → tree_complexity == complexity
+        assert x0_plus_c0.tree_complexity == x0_plus_c0.complexity
+
+    def test_tree_complexity_greater_than_complexity_with_dag_reuse(
+        self, dag_with_shared_subgraph
+    ):
+        # (X0 + C0) * (X0 + C0) reuses row 2
+        # DAG complexity = 4, tree complexity = 7
+        assert dag_with_shared_subgraph.tree_complexity > dag_with_shared_subgraph.complexity
+
     def test_constants_property(self, x0_plus_c0):
         consts = x0_plus_c0.constants
         assert len(consts) == 1

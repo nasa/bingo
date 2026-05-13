@@ -164,6 +164,28 @@ Eigen::Index AGraphExpression::complexity() {
     return command_array_.rows();
 }
 
+Eigen::Index AGraphExpression::tree_complexity() {
+    if (modified_) update();
+    const auto& cmd = command_array_;
+    if (cmd.rows() == 0) return 0;
+    Eigen::Index count = 0;
+    std::vector<int> stk;
+    stk.push_back(static_cast<int>(cmd.rows() - 1));
+    while (!stk.empty()) {
+        int idx = stk.back();
+        stk.pop_back();
+        ++count;
+        uint8_t node = cmd(idx, 0);
+        if (!IS_TERMINAL[node]) {
+            stk.push_back(static_cast<int>(cmd(idx, 1)));
+            if (IS_ARITY_2[node]) {
+                stk.push_back(static_cast<int>(cmd(idx, 2)));
+            }
+        }
+    }
+    return count;
+}
+
 // ================================================================
 //  Simplification control
 // ================================================================

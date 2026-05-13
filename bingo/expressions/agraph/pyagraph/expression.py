@@ -268,6 +268,27 @@ class AGraphExpression:
             self._update()
         return self._command_array.shape[0]
 
+    @property
+    def tree_complexity(self):
+        """Tree-based node count (counts shared sub-expressions multiple times)."""
+        if self._modified:
+            self._update()
+        command_array = self._command_array
+        if command_array.shape[0] == 0:
+            return 0
+        is_arity_2 = IS_ARITY_2_ARRAY
+        is_terminal = IS_TERMINAL_ARRAY
+        count = 0
+        stack = [command_array.shape[0] - 1]
+        while stack:
+            row = command_array[stack.pop()]
+            count += 1
+            if not is_terminal[row[0]]:
+                stack.append(int(row[1]))
+                if is_arity_2[row[0]]:
+                    stack.append(int(row[2]))
+        return count
+
     # ------------------------------------------------------------------ #
     #  Format properties                                                  #
     # ------------------------------------------------------------------ #

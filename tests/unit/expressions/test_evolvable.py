@@ -151,6 +151,11 @@ class TestDelegation:
         assert isinstance(util, bytearray)
         assert len(util) == 2
 
+    def test_tree_complexity_delegates(self):
+        rows = [[VARIABLE, 0, 0], [CONSTANT, 0, 0], [ADDITION, 0, 1]]
+        indv = _make_evolvable(rows, constants=(1.0,))
+        assert indv.tree_complexity == indv.expression.tree_complexity
+
 
 class TestCopy:
     def test_copy_returns_new_object(self):

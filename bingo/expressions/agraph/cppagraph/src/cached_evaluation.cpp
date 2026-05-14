@@ -64,7 +64,9 @@ build_reverse_variant_mask(const StackMatrix& stack,
                            node == static_cast<uint8_t>(Op::SUBTRACTION));
         bool is_var;
         if (is_add_sub) {
-            // ADD/SUB reverse only reads reverse[i], not forward values.
+            // ADD/SUB reverse reads forward values only for shape (not value)
+            // determination, and shapes are constant-independent, so variant
+            // status depends only on whether the adjoint at this node varies.
             is_var = reverse_variant[i];
         } else {
             is_var = reverse_variant[i] || forward_depends[i];

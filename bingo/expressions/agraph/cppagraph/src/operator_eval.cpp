@@ -117,9 +117,9 @@ static RowMatrixXd add_fwd(uint8_t p1, uint8_t p2,
 }
 
 static void add_rev(int ri, uint8_t p1, uint8_t p2,
-                     const ForwardBuf& /*fwd*/, ReverseBuf& rev) {
-    auto rows = rev[ri].rows();
-    auto cols = rev[ri].cols();
+                     const ForwardBuf& fwd, ReverseBuf& rev) {
+    auto [rows, cols] = bcast_shape2(rev, ri, fwd, p1, p2);
+    ensure_shape(rev, ri, rows, cols);
     ensure_shape(rev, p1, rows, cols);
     ensure_shape(rev, p2, rows, cols);
     rev[p1].array() += rev[ri].array();
@@ -140,9 +140,9 @@ static RowMatrixXd sub_fwd(uint8_t p1, uint8_t p2,
 }
 
 static void sub_rev(int ri, uint8_t p1, uint8_t p2,
-                     const ForwardBuf& /*fwd*/, ReverseBuf& rev) {
-    auto rows = rev[ri].rows();
-    auto cols = rev[ri].cols();
+                     const ForwardBuf& fwd, ReverseBuf& rev) {
+    auto [rows, cols] = bcast_shape2(rev, ri, fwd, p1, p2);
+    ensure_shape(rev, ri, rows, cols);
     ensure_shape(rev, p1, rows, cols);
     ensure_shape(rev, p2, rows, cols);
     rev[p1].array() += rev[ri].array();

@@ -18,6 +18,55 @@ PLAT_TO_CMAKE = {
 }
 
 
+def _is_windows_gnu_toolchain(env=None, platform=None):
+    env = os.environ if env is None else env
+    platform = sys.platform if platform is None else platform
+
+    if not platform.startswith("win"):
+        return False
+
+    compiler_vars = " ".join(
+        value for value in (env.get("CC", ""), env.get("CXX", "")) if value
+    ).lower()
+    msystem = env.get("MSYSTEM", "")
+
+    return (
+        msystem.startswith("MINGW")
+        or bool(env.get("MINGW_PREFIX"))
+        or bool(env.get("MINGW_CHOST"))
+        or any(token in compiler_vars for token in ("mingw", "gcc", "g++", "clang"))
+    )
+
+
+def _get_ninja_cmake_args():
+    try:
+        import ninja
+    except ImportError:
+        return None
+
+    ninja_executable_path = Path(ninja.BIN_DIR) / "ninja"
+    return [
+        "-G",
+        "Ninja",
+        "-DCMAKE_JOB_POOLS:STRING=compile=1;link=1",
+        f"-DCMAKE_MAKE_PROGRAM:FILEPATH={ninja_executable_path}",
+    ]
+
+
+def _get_single_config_generator_args(cmake_generator, prefer_windows_gnu=False):
+    if cmake_generator and cmake_generator != "Ninja":
+        return []
+
+    ninja_args = _get_ninja_cmake_args()
+    if ninja_args is not None:
+        return ninja_args
+
+    if prefer_windows_gnu and not cmake_generator:
+        return ["-G", "MinGW Makefiles"]
+
+    return []
+
+
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):
         Extension.__init__(self, name, sources=[])
@@ -63,24 +112,17 @@ class CMakeBuild(build_ext):
         # In this example, we pass in the version to C++. You might not need to.
         cmake_args += [f"-DEXAMPLE_VERSION_INFO={self.distribution.get_version()}"]
 
-        if self.compiler.compiler_type != "msvc":
+        windows_gnu_toolchain = _is_windows_gnu_toolchain()
+
+        if self.compiler.compiler_type != "msvc" or windows_gnu_toolchain:
             # Using Ninja-build since it a) is available as a wheel and b)
             # multithreads automatically. MSVC would require all variables be
             # exported for Ninja to pick it up, which is a little tricky to do.
             # Users can override the generator with CMAKE_GENERATOR in CMake
             # 3.15+.
-            if not cmake_generator or cmake_generator == "Ninja":
-                try:
-                    import ninja
-
-                    ninja_executable_path = Path(ninja.BIN_DIR) / "ninja"
-                    cmake_args += [
-                        "-GNinja",
-                        "-DCMAKE_JOB_POOLS:STRING=compile=1;link=1"
-                        f"-DCMAKE_MAKE_PROGRAM:FILEPATH={ninja_executable_path}",
-                    ]
-                except ImportError:
-                    pass
+            cmake_args += _get_single_config_generator_args(
+                cmake_generator, prefer_windows_gnu=windows_gnu_toolchain
+            )
 
         else:
             # Single config generators are handled "normally"

@@ -92,6 +92,7 @@ def get_expression_class():
 
 from .component_generator import ComponentGenerator
 from .generator import AGraphGenerator
+from .utils import pad_agraph_expression
 from .crossover import AGraphCrossover
 from .mutation import AGraphMutation
 
@@ -99,6 +100,7 @@ __all__ = [
     "AGraphExpression",
     "ComponentGenerator",
     "AGraphGenerator",
+    "pad_agraph_expression",
     "AGraphCrossover",
     "AGraphMutation",
     "set_backend",

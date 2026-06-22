@@ -245,7 +245,7 @@ class TestNoOperatorsError:
             gen.random_operator_command(5)
 
     def test_generator_call_raises_without_operators(self):
-        """Replicates the exact usage from the bug report."""
+        """Replicates the bug-report usage (with min_size bumped to ensure an operator is requested)."""
         from bingo.expressions.agraph.generator import AGraphGenerator
 
         rng = np.random.default_rng(seed=42)

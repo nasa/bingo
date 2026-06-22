@@ -229,3 +229,34 @@ class TestCustomLoadStatements:
             cmd1 = gen.random_command(1)
             assert int(cmd0[0]) in TERMINAL_IDS
             assert int(cmd1[0]) in TERMINAL_IDS
+
+
+class TestNoOperatorsError:
+    """Descriptive error when no operators have been added (issue #90)."""
+
+    def test_random_operator_raises_without_operators(self):
+        gen = ComponentGenerator(input_x_dimension=2, random_state=0)
+        with pytest.raises(ValueError, match="No operators have been added"):
+            gen.random_operator()
+
+    def test_random_operator_command_raises_without_operators(self):
+        gen = ComponentGenerator(input_x_dimension=2, random_state=0)
+        with pytest.raises(ValueError, match="No operators have been added"):
+            gen.random_operator_command(5)
+
+    def test_generator_call_raises_without_operators(self):
+        """Replicates the exact usage from the bug report."""
+        from bingo.expressions.agraph.generator import AGraphGenerator
+
+        rng = np.random.default_rng(seed=42)
+        component_generator = ComponentGenerator(
+            input_x_dimension=2, random_state=rng
+        )
+        generator = AGraphGenerator(
+            min_size=3,
+            max_size=11,
+            component_generator=component_generator,
+            random_state=rng,
+        )
+        with pytest.raises(ValueError, match="No operators have been added"):
+            generator()

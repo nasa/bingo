@@ -10,6 +10,23 @@ Use :func:`set_backend` to override the automatic selection::
     set_backend("python")   # force pure-Python backend
     set_backend("cpp")      # force C++ backend (raises ImportError if unavailable)
     set_backend("auto")     # restore automatic selection
+
+Backend switches are visible through module attribute access or
+:func:`get_expression_class`::
+
+    import bingo.expressions.agraph as agraph
+
+    set_backend("python")
+    expr = agraph.AGraphExpression("x0 + x1")
+
+A directly imported class name is bound eagerly by Python and will not
+track later :func:`set_backend` calls::
+
+    from bingo.expressions.agraph import AGraphExpression, set_backend
+
+    set_backend("python")
+    expr = AGraphExpression("x0 + x1")
+    # Uses whichever class AGraphExpression referred to at import time.
 """
 
 from .pyagraph import AGraphExpression as _PyAGraphExpression
@@ -24,6 +41,18 @@ except ImportError:
 
 _backend = "auto"
 AGraphExpression = _CppAGraphExpression if _cpp_available else _PyAGraphExpression
+
+
+def _sync_parent_reexports():
+    """Keep the top-level expressions re-export aligned with backend switches."""
+    import sys
+
+    expressions_pkg = sys.modules.get("bingo.expressions")
+    if expressions_pkg is not None:
+        expressions_pkg.AGraphExpression = AGraphExpression
+
+
+_sync_parent_reexports()
 
 
 def set_backend(backend):
@@ -42,6 +71,13 @@ def set_backend(backend):
         If ``"cpp"`` is requested but cppagraph is not installed.
     ValueError
         If *backend* is not one of the recognised values.
+
+    Notes
+    -----
+    Access the class through ``bingo.expressions.agraph.AGraphExpression`` or
+    :func:`get_expression_class` after switching backends. A local name created
+    with ``from bingo.expressions.agraph import AGraphExpression`` will keep the
+    class object that was imported originally.
     """
     global AGraphExpression, _backend  # noqa: PLW0603
     if backend == "auto":
@@ -63,6 +99,7 @@ def set_backend(backend):
             f"Unknown backend {backend!r}. " f"Choose from 'auto', 'python', or 'cpp'."
         )
     _backend = backend
+    _sync_parent_reexports()
 
 
 def get_backend():

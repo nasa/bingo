@@ -119,7 +119,7 @@ class AGraphExpression:
     _VALID_SIMPLIFICATIONS = frozenset({"reduce", "cas"})
 
     def __init__(
-        self, *, equation=None, simplification="cas", propagate_constants=False
+        self, equation=None, *, simplification="cas", propagate_constants=False
     ):
         if simplification not in self._VALID_SIMPLIFICATIONS:
             raise ValueError(

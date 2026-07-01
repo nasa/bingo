@@ -2,6 +2,7 @@
 
 import pytest
 
+import bingo.expressions as expressions_pkg
 import bingo.expressions.agraph as agraph_pkg
 from bingo.expressions.agraph import (
     set_backend,
@@ -99,10 +100,19 @@ class TestModuleLevelBinding:
         set_backend("python")
         assert agraph_pkg.AGraphExpression is PyAGraphExpression
 
+    def test_python_updates_top_level_reexport(self):
+        set_backend("python")
+        assert expressions_pkg.AGraphExpression is PyAGraphExpression
+
     @pytest.mark.skipif(not CPP_AVAILABLE, reason="cppagraph not built")
     def test_cpp_sets_module_attribute(self):
         set_backend("cpp")
         assert agraph_pkg.AGraphExpression is CppAGraphExpression
+
+    @pytest.mark.skipif(not CPP_AVAILABLE, reason="cppagraph not built")
+    def test_cpp_updates_top_level_reexport(self):
+        set_backend("cpp")
+        assert expressions_pkg.AGraphExpression is CppAGraphExpression
 
     def test_switch_back_to_auto(self):
         set_backend("python")
@@ -112,6 +122,23 @@ class TestModuleLevelBinding:
             assert cls is CppAGraphExpression
         else:
             assert cls is PyAGraphExpression
+
+
+class TestExpressionConstruction:
+    def test_python_accepts_positional_equation(self):
+        set_backend("python")
+        expr = agraph_pkg.AGraphExpression("X0 + X1")
+        assert type(expr) is PyAGraphExpression
+
+    @pytest.mark.skipif(not CPP_AVAILABLE, reason="cppagraph not built")
+    def test_switch_accepts_positional_equation(self):
+        set_backend("python")
+        py_expr = agraph_pkg.AGraphExpression("X0 + X1")
+        assert type(py_expr) is PyAGraphExpression
+
+        set_backend("cpp")
+        cpp_expr = agraph_pkg.AGraphExpression("X0 + X1")
+        assert type(cpp_expr) is CppAGraphExpression
 
 
 # ------------------------------------------------------------------ #

@@ -6,7 +6,6 @@
 #include "cppagraph/constant_folding.h"
 
 #include <algorithm>
-#include <map>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -16,17 +15,6 @@
 namespace cppagraph {
 
 static inline uint8_t u8(Op o) { return static_cast<uint8_t>(o); }
-
-struct CASExprPtrLess {
-    bool operator()(const CASExprPtr& lhs, const CASExprPtr& rhs) const {
-        if (lhs == rhs) return false;
-        if (!lhs || !rhs) return static_cast<bool>(rhs);
-        if (*lhs == *rhs) return false;
-        return *lhs < *rhs;
-    }
-};
-
-using OrderedCASExprSet = std::set<CASExprPtr, CASExprPtrLess>;
 
 static bool _same_expression(
     const CASExprPtr& lhs,
@@ -48,28 +36,31 @@ static bool _same_expression_sequence(
     return true;
 }
 
-static void _append_unique_expression(
-    std::vector<CASExprPtr>& expressions,
-    const CASExprPtr& candidate)
-{
-    for (auto& expression : expressions) {
-        if (_same_expression(expression, candidate)) return;
+struct CASExprPtrStructHash {
+    std::size_t operator()(const CASExprPtr& expression) const {
+        return expression ? expression->hash() : 0;
     }
-    expressions.push_back(candidate);
-}
+};
+
+struct CASExprPtrStructEq {
+    bool operator()(const CASExprPtr& lhs, const CASExprPtr& rhs) const {
+        return _same_expression(lhs, rhs);
+    }
+};
+
+using StructuralExprSet = std::unordered_set<
+    CASExprPtr,
+    CASExprPtrStructHash,
+    CASExprPtrStructEq>;
 
 static bool _same_expression_set(
-    const OrderedCASExprSet& lhs,
-    const OrderedCASExprSet& rhs)
+    const StructuralExprSet& lhs,
+    const StructuralExprSet& rhs)
 {
     if (lhs.size() != rhs.size()) return false;
 
-    auto lhs_it = lhs.begin();
-    auto rhs_it = rhs.begin();
-    for (; lhs_it != lhs.end(); ++lhs_it, ++rhs_it) {
-        if (*lhs_it == *rhs_it) continue;
-        if (!*lhs_it || !*rhs_it) return false;
-        if (!(**lhs_it == **rhs_it)) return false;
+    for (auto& expression : lhs) {
+        if (rhs.find(expression) == rhs.end()) return false;
     }
     return true;
 }
@@ -100,8 +91,10 @@ struct IPData {
     std::vector<CASExprPtr> operands;
 };
 
-using IPMap = std::map<CASExprPtr, IPData, CASExprPtrLess>;
-using ConstMap = std::map<int, CASExprPtr>;
+using ExprIdentity = const CASExpression*;
+using IPMap = std::unordered_map<ExprIdentity, IPData>;
+using ConstMap = std::unordered_map<int, CASExprPtr>;
+using ConstIndexSet = std::unordered_set<int>;
 
 static void _fused_dfs(
     const CASExprPtr& expression,
@@ -126,22 +119,26 @@ static void _fused_dfs(
     for (auto& child : operands)
         _fused_dfs(child, constants, constant_order, ip_map);
 
-    ip_map[expression] = {expression->depends_on(), operands};
+    ip_map[expression.get()] = {expression->depends_on(), operands};
 }
 
 // ------------------------------------------------------------------ //
 // Subset generation                                                   //
 // ------------------------------------------------------------------ //
 
+template <typename Fn>
 static void _generate_subsets(
     const std::vector<int>& items,
     size_t subset_size,
     size_t start,
     std::vector<int>& current,
-    std::vector<std::vector<int>>& result)
+    Fn&& fn,
+    bool& stop)
 {
+    if (stop) return;
+
     if (current.size() == subset_size) {
-        result.push_back(current);
+        stop = fn(current);
         return;
     }
 
@@ -150,18 +147,22 @@ static void _generate_subsets(
 
     for (size_t i = start; i < items.size(); ++i) {
         current.push_back(items[i]);
-        _generate_subsets(items, subset_size, i + 1, current, result);
+        _generate_subsets(items, subset_size, i + 1, current, fn, stop);
         current.pop_back();
+        if (stop) return;
     }
 }
 
-static std::vector<std::vector<int>> subsets(const std::vector<int>& items) {
-    std::vector<std::vector<int>> result;
+template <typename Fn>
+static bool for_each_subset(const std::vector<int>& items, Fn&& fn) {
     for (size_t subset_size = 1; subset_size <= items.size(); ++subset_size) {
         std::vector<int> current;
-        _generate_subsets(items, subset_size, 0, current, result);
+        current.reserve(subset_size);
+        bool stop = false;
+        _generate_subsets(items, subset_size, 0, current, fn, stop);
+        if (stop) return true;
     }
-    return result;
+    return false;
 }
 
 // ------------------------------------------------------------------ //
@@ -180,25 +181,26 @@ struct InsertionBucket {
 
 using InsertionMap = std::vector<InsertionBucket>;
 
-static std::vector<InsertionEntry>* _find_insertion_entries(
-    InsertionMap& insertion_points,
-    const CASExprPtr& node)
-{
-    for (auto& bucket : insertion_points) {
-        if (_same_expression(bucket.node, node)) return &bucket.entries;
-    }
-    return nullptr;
-}
+using InsertionIndexMap = std::unordered_map<
+    CASExprPtr,
+    std::size_t,
+    CASExprPtrStructHash,
+    CASExprPtrStructEq>;
 
 static void _add_insertion_entry(
     InsertionMap& insertion_points,
+    InsertionIndexMap& insertion_index,
     const CASExprPtr& node,
     InsertionEntry entry)
 {
-    auto* entries = _find_insertion_entries(insertion_points, node);
-    if (entries == nullptr) {
+    auto index_it = insertion_index.find(node);
+    std::vector<InsertionEntry>* entries = nullptr;
+    if (index_it == insertion_index.end()) {
         insertion_points.push_back({node, {}});
         entries = &insertion_points.back().entries;
+        insertion_index.emplace(node, insertion_points.size() - 1);
+    } else {
+        entries = &insertion_points[index_it->second].entries;
     }
 
     for (auto& existing : *entries) {
@@ -212,18 +214,21 @@ static void _add_insertion_entry(
 
 static void _filter_ip_recurse(
     const CASExprPtr& expression,
-    const std::set<int>& const_set,
+    const ConstIndexSet& const_set,
     const DepSet& const_and_i,
     InsertionMap& insertion_points,
+    InsertionIndexMap& insertion_index,
     const IPMap& ip_map,
     const CASExprPtr& parent)
 {
-    auto it = ip_map.find(expression);
+    auto it = ip_map.find(expression.get());
     if (it == ip_map.end()) return;  // terminal
 
     auto& operands = it->second.operands;
     for (auto& operand : operands)
-        _filter_ip_recurse(operand, const_set, const_and_i, insertion_points, ip_map, expression);
+        _filter_ip_recurse(
+            operand, const_set, const_and_i, insertion_points,
+            insertion_index, ip_map, expression);
 
     // Check if this node is an insertion point.
     bool any_solely = false;
@@ -251,9 +256,11 @@ static void _filter_ip_recurse(
     if (!(any_solely && any_others)) return;
 
     if (expression->is_constant_valued()) {
-        _add_insertion_entry(insertion_points, expression, {parent, {expression}});
+        _add_insertion_entry(
+            insertion_points, insertion_index, expression, {parent, {expression}});
     } else {
         std::vector<CASExprPtr> constant_operands;
+        StructuralExprSet seen_operands;
         for (auto& operand : operands) {
             auto& od = operand->depends_on();
             bool subset = true;
@@ -262,16 +269,18 @@ static void _filter_ip_recurse(
                     subset = false; break;
                 }
             }
-            if (subset) _append_unique_expression(constant_operands, operand);
+            if (subset && seen_operands.insert(operand).second)
+                constant_operands.push_back(operand);
         }
         _add_insertion_entry(
-            insertion_points, expression, {expression, std::move(constant_operands)});
+            insertion_points, insertion_index,
+            expression, {expression, std::move(constant_operands)});
     }
 }
 
 static InsertionMap _filter_insertion_points(
     const CASExprPtr& expression,
-    const std::set<int>& const_set,
+    const ConstIndexSet& const_set,
     const IPMap& ip_map)
 {
     auto& deps = expression->depends_on();
@@ -300,7 +309,10 @@ static InsertionMap _filter_insertion_points(
     }
 
     InsertionMap insertion_points;
-    _filter_ip_recurse(expression, const_set, const_and_i, insertion_points, ip_map, nullptr);
+    InsertionIndexMap insertion_index;
+    _filter_ip_recurse(
+        expression, const_set, const_and_i, insertion_points,
+        insertion_index, ip_map, nullptr);
     return insertion_points;
 }
 
@@ -308,8 +320,16 @@ static InsertionMap _filter_insertion_points(
 // Generate replacement instructions                                   //
 // ------------------------------------------------------------------ //
 
-using ReplacementInnerMap = std::map<CASExprPtr, CASExprPtr, CASExprPtrLess>;
-using ReplacementMap = std::map<CASExprPtr, ReplacementInnerMap, CASExprPtrLess>;
+using ReplacementInnerMap = std::unordered_map<
+    CASExprPtr,
+    CASExprPtr,
+    CASExprPtrStructHash,
+    CASExprPtrStructEq>;
+using ReplacementMap = std::unordered_map<
+    CASExprPtr,
+    ReplacementInnerMap,
+    CASExprPtrStructHash,
+    CASExprPtrStructEq>;
 // nullptr value in inner map = "remove this child"
 
 static ReplacementMap _generate_replacement_instructions(
@@ -320,8 +340,8 @@ static ReplacementMap _generate_replacement_instructions(
     if (insertion_points.size() > const_subset.size()) return {};
 
     ReplacementMap replacements;
-    OrderedCASExprSet constants_to_insert;
-    OrderedCASExprSet expressions_to_replace;
+    StructuralExprSet constants_to_insert;
+    StructuralExprSet expressions_to_replace;
 
     auto cs_it = const_subset.begin();
     for (auto& bucket : insertion_points) {
@@ -461,18 +481,18 @@ CASExprPtr fold_constants(const CASExprPtr& expression) {
         IPMap ip_map;
         _fused_dfs(expr, cas_constants, constant_order, ip_map);
 
-        for (auto& const_subset : subsets(constant_order)) {
-            std::set<int> const_set(const_subset.begin(), const_subset.end());
+        check_for_folding = for_each_subset(constant_order, [&](const std::vector<int>& const_subset) {
+            ConstIndexSet const_set(const_subset.begin(), const_subset.end());
             auto insertion_points = _filter_insertion_points(
                 expr, const_set, ip_map);
             auto replacements = _generate_replacement_instructions(
                 const_subset, cas_constants, insertion_points);
             if (!replacements.empty()) {
                 expr = _perform_constant_folding(expr, replacements);
-                check_for_folding = true;
-                break;
+                return true;
             }
-        }
+            return false;
+        });
     }
 
     return expr;

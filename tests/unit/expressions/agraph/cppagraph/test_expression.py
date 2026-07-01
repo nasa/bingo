@@ -18,6 +18,7 @@ from bingo.expressions.agraph.cppagraph import (
     SIN,
     SQRT,
 )
+from bingo.expressions.agraph.pyagraph import AGraphExpression as PyAGraphExpression
 
 
 # ------------------------------------------------------------------ #
@@ -257,6 +258,47 @@ class TestFormatting:
     def test_latex_string(self, x0_plus_c0):
         s = x0_plus_c0.latex
         assert len(s) > 0
+
+    def test_constant_folding_string_is_deterministic(self):
+        raw_command_array = np.array(
+            [
+                [1, 0, 0],
+                [0, 1, 1],
+                [1, 1, 1],
+                [0, 4, 4],
+                [5, 2, 3],
+                [1, 2, 2],
+                [0, 0, 0],
+                [5, 5, 6],
+                [4, 4, 7],
+                [5, 1, 8],
+                [1, 3, 3],
+                [0, 2, 2],
+                [5, 10, 11],
+                [1, 4, 4],
+                [0, 3, 3],
+                [5, 13, 14],
+                [4, 12, 15],
+                [5, 9, 16],
+                [3, 0, 17],
+            ],
+            dtype=np.uint8,
+        )
+        raw_constants = (-3.4, 0.9, -0.9, -9.0, 9.0)
+
+        py_expr = PyAGraphExpression()
+        py_expr.raw_command_array = raw_command_array
+        py_expr.raw_constants = raw_constants
+        expected = str(py_expr)
+
+        outputs = set()
+        for _ in range(10):
+            cpp_expr = AGraphExpression()
+            cpp_expr.raw_command_array = raw_command_array
+            cpp_expr.raw_constants = raw_constants
+            outputs.add(str(cpp_expr))
+
+        assert outputs == {expected}
 
     def test_sympy_string(self, x0_plus_c0):
         s = str(x0_plus_c0.sympy)

@@ -197,7 +197,17 @@ class ComponentGenerator:
         Returns
         -------
         int
+
+        Raises
+        ------
+        ValueError
+            If no operators have been added via :meth:`add_operator`.
         """
+        if not self._operator_pmf.items:
+            raise ValueError(
+                "No operators have been added to this ComponentGenerator. "
+                "Call add_operator() before generating graphs."
+            )
         return self._operator_pmf.draw_sample()
 
     def random_operator_parameter(self, stack_location):

@@ -14,14 +14,18 @@ from .cas_expression import CASExpression
 
 _TERMINAL_OPS = frozenset({CONSTANT, INTEGER, VARIABLE})
 _ASSOC_OPS = frozenset({MULTIPLICATION, ADDITION})
+_EXHAUSTIVE_FOLDING_MAX_CONSTANTS = 7
 
 
 def fold_constants(expression):
     """Fold constant-valued sub-expressions together.
 
-    Repeatedly scans the tree to combine constants so that the resulting
-    expression uses as few ``CONSTANT`` nodes as possible.  The folding
-    is purely structural — no constant values are tracked or computed.
+    Repeatedly scans the tree to combine constants. For expressions with at
+    most seven distinct constants, every non-empty subset is considered.
+    Larger expressions use a deterministic local policy that prioritizes
+    reducing distinct constant identities, with constant leaves as a
+    tie-breaker. The folding is purely structural — no constant values are
+    tracked or computed.
 
     Parameters
     ----------
@@ -33,27 +37,116 @@ def fold_constants(expression):
     """
     expression = _group_constants(expression)
 
-    check_for_folding = True
-    while check_for_folding:
-        check_for_folding = False
+    while True:
         # Single fused DFS: discover constants and insertion points
         # together instead of two separate traversals.
         cas_constants, insertion_points_map = _fused_discovery(expression)
-        for const_subset in _subsets(list(cas_constants)):
-            insertion_points = _filter_insertion_points(
-                expression, const_subset, insertion_points_map
+        if len(cas_constants) <= _EXHAUSTIVE_FOLDING_MAX_CONSTANTS:
+            folded_expression = _find_first_exhaustive_fold(
+                expression, cas_constants, insertion_points_map
             )
-            replacements = _generate_replacement_instructions(
-                const_subset,
-                cas_constants,
-                insertion_points,
+        else:
+            folded_expression = _find_best_local_fold(
+                expression, cas_constants, insertion_points_map
             )
-            if len(replacements) > 0:
-                expression = _perform_constant_folding(expression, replacements)
-                check_for_folding = True
-                break
 
-    return expression
+        if folded_expression is None:
+            return expression
+        expression = folded_expression
+
+
+def _find_first_exhaustive_fold(expression, constants, insertion_points_map):
+    for const_subset in _subsets(list(constants)):
+        insertion_points = _filter_insertion_points(
+            expression, const_subset, insertion_points_map
+        )
+        replacements = _generate_replacement_instructions(
+            const_subset,
+            constants,
+            insertion_points,
+        )
+        if replacements:
+            return _perform_constant_folding(expression, replacements)
+    return None
+
+
+def _find_best_local_fold(expression, constants, insertion_points_map):
+    best_fold = None
+    best_score = (0, 0)
+    constant_order = list(constants)
+
+    for node in _postorder(expression):
+        if node.operator in _TERMINAL_OPS:
+            continue
+
+        const_subset = {
+            constant for constant in constant_order if constant in node.depends_on
+        }
+        if not const_subset:
+            continue
+
+        insertion_points = _filter_insertion_points(
+            node, const_subset, insertion_points_map
+        )
+        replacements = _generate_replacement_instructions(
+            const_subset,
+            constants,
+            insertion_points,
+        )
+        if not replacements:
+            continue
+
+        folded_node = _perform_constant_folding(node, replacements)
+        score = _fold_score(node, folded_node)
+        if score > best_score:
+            best_fold = (node, folded_node)
+            best_score = score
+
+    if best_fold is None:
+        return None
+    return _replace_identity(expression, *best_fold)
+
+
+def _postorder(expression):
+    if expression.operator not in _TERMINAL_OPS:
+        for operand in expression.operands:
+            yield from _postorder(operand)
+    yield expression
+
+
+def _fold_score(before, after):
+    before_leaves, before_distinct = _constant_counts(before)
+    after_leaves, after_distinct = _constant_counts(after)
+    return before_distinct - after_distinct, before_leaves - after_leaves
+
+
+def _constant_counts(expression):
+    distinct_constants = set()
+
+    def _count(node):
+        if node.operator == CONSTANT:
+            distinct_constants.add(node.operands[0])
+            return 1
+        if node.operator in _TERMINAL_OPS:
+            return 0
+        return sum(_count(operand) for operand in node.operands)
+
+    return _count(expression), len(distinct_constants)
+
+
+def _replace_identity(expression, target, replacement):
+    if expression is target:
+        return replacement
+    if expression.operator in _TERMINAL_OPS:
+        return expression
+
+    new_operands = [
+        _replace_identity(operand, target, replacement)
+        for operand in expression.operands
+    ]
+    if all(new is old for new, old in zip(new_operands, expression.operands)):
+        return expression
+    return CASExpression(expression.operator, new_operands)
 
 
 # ------------------------------------------------------------------ #

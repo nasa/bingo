@@ -47,6 +47,7 @@ from bingo.expressions.agraph.pyagraph.simplification.automatic_simplification i
 from bingo.expressions.agraph.pyagraph.simplification.constant_folding import (
     fold_constants,
 )
+import bingo.expressions.agraph.pyagraph.simplification.constant_folding as constant_folding
 from bingo.expressions.agraph.pyagraph.simplification.optional_modifications import (
     optional_modifications,
 )
@@ -775,6 +776,47 @@ class TestConstantFolding:
         expr = CASExpression(MULTIPLICATION, [c0, x0])
         result = fold_constants(expr)
         assert isinstance(result, CASExpression)
+
+    def test_eight_constants_skip_exhaustive_subset_enumeration(self, monkeypatch):
+        """Expressions with eight constants use bounded local folding."""
+        def _fail_if_called(_constants):
+            raise AssertionError("exhaustive subset enumeration was used")
+
+        monkeypatch.setattr(constant_folding, "_subsets", _fail_if_called)
+        terms = [
+            CASExpression(
+                MULTIPLICATION,
+                [CASExpression(CONSTANT, [index]), CASExpression(VARIABLE, [index])],
+            )
+            for index in range(8)
+        ]
+
+        result = fold_constants(CASExpression(ADDITION, terms))
+
+        assert isinstance(result, CASExpression)
+
+    def test_seven_constants_keep_exhaustive_subset_enumeration(self, monkeypatch):
+        """Expressions with seven constants retain exhaustive folding."""
+        original_subsets = constant_folding._subsets
+        subset_calls = 0
+
+        def _count_calls(constants):
+            nonlocal subset_calls
+            subset_calls += 1
+            yield from original_subsets(constants)
+
+        monkeypatch.setattr(constant_folding, "_subsets", _count_calls)
+        terms = [
+            CASExpression(
+                MULTIPLICATION,
+                [CASExpression(CONSTANT, [index]), CASExpression(VARIABLE, [index])],
+            )
+            for index in range(7)
+        ]
+
+        fold_constants(CASExpression(ADDITION, terms))
+
+        assert subset_calls > 0
 
 
 # ================================================================== #

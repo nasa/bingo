@@ -11,6 +11,7 @@ import warnings
 
 import numpy as np
 import scipy.optimize
+from sklearn.base import BaseEstimator
 from sympy import sympify
 
 from .evaluation import evaluate, evaluate_with_derivative
@@ -98,7 +99,7 @@ _METRIC_MAP = {
 }
 
 
-class AGraphExpression:
+class AGraphExpression(BaseEstimator):
     """Acyclic graph expression.
 
     Parameters

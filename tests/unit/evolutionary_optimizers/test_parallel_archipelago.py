@@ -13,6 +13,12 @@ except ImportError:
     PAR_ARCH_LOADED = False
 
 
+pytestmark = pytest.mark.skipif(
+    not PAR_ARCH_LOADED,
+    reason="ParallelArchipelago import failure (MPI runtime unavailable)",
+)
+
+
 DummyChromosome = namedtuple("DummyChromosome", ["fitness"])
 
 

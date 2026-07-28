@@ -220,6 +220,12 @@ static CASExprPtr _build_nested_sqrt(const CASExprPtr& base, int depth) {
     return result;
 }
 
+static CASExprPtr _make_square(const CASExprPtr& base) {
+    if (base->op() == u8(Op::SQRT)) return base->operands()[0];
+    return std::make_shared<CASExpression>(
+        u8(Op::SQUARE), std::vector<CASExprPtr>{base});
+}
+
 static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
     uint8_t op = expression->op();
     if (TERMINAL_OPS.count(op)) return expression;
@@ -241,7 +247,7 @@ static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
         if (exponent->op() == u8(Op::INTEGER)) {
             int exp_val = exponent->terminal_param();
             if (exp_val == 2)
-                return std::make_shared<CASExpression>(u8(Op::SQUARE), std::vector<CASExprPtr>{new_ops[0]});
+                return _make_square(new_ops[0]);
             if (exp_val == 3)
                 return std::make_shared<CASExpression>(u8(Op::CUBE), std::vector<CASExprPtr>{new_ops[0]});
         }
@@ -267,8 +273,7 @@ static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
                     if (int_exp == 1) {
                         return new_ops[0];  // x^1 = x
                     } else if (int_exp == 2) {
-                        return std::make_shared<CASExpression>(
-                            u8(Op::SQUARE), std::vector<CASExprPtr>{new_ops[0]});
+                        return _make_square(new_ops[0]);
                     } else if (int_exp == 3) {
                         return std::make_shared<CASExpression>(
                             u8(Op::CUBE), std::vector<CASExprPtr>{new_ops[0]});
@@ -286,8 +291,7 @@ static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
                     if (numer == 1) {
                         return nested_sqrt;
                     } else if (numer == 2) {
-                        return std::make_shared<CASExpression>(
-                            u8(Op::SQUARE), std::vector<CASExprPtr>{nested_sqrt});
+                        return _make_square(nested_sqrt);
                     } else if (numer == 3) {
                         return std::make_shared<CASExpression>(
                             u8(Op::CUBE), std::vector<CASExprPtr>{nested_sqrt});
@@ -317,8 +321,7 @@ static CASExprPtr _insert_square_cube(const CASExprPtr& expression) {
                 if (int_part == 1) {
                     return nested_sqrt;
                 } else if (int_part == 2) {
-                    return std::make_shared<CASExpression>(
-                        u8(Op::SQUARE), std::vector<CASExprPtr>{nested_sqrt});
+                    return _make_square(nested_sqrt);
                 } else if (int_part == 3) {
                     return std::make_shared<CASExpression>(
                         u8(Op::CUBE), std::vector<CASExprPtr>{nested_sqrt});

@@ -837,7 +837,7 @@ TEST_F(TestCASSimplifyPipeline, SquareOfSqrtSimplifiesToVariable) {
 }
 
 TEST_F(TestCASSimplifyPipeline, NestedSqrtFourthPowerSimplifies) {
-    // sqrt(sqrt(X_0))^4 → X_0 via power rule simplification
+    // sqrt(sqrt(X_0))^4 → X_0 via power rule simplification.
     auto stack = make_stack({
         {u8(Op::VARIABLE), 0, 0},
         {u8(Op::SQRT), 0, 0},
@@ -846,7 +846,7 @@ TEST_F(TestCASSimplifyPipeline, NestedSqrtFourthPowerSimplifies) {
         {u8(Op::POWER), 2, 3}
     });
     auto result = cas_simplify(stack, {}, {4});
-    // Should simplify to just X_0
+    // The square of the remaining square root simplifies to X_0.
     EXPECT_EQ(result.stack.rows(), 1);
     EXPECT_EQ(result.stack(0, 0), u8(Op::VARIABLE));
 }

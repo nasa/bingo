@@ -1136,6 +1136,22 @@ class TestSimplifyPipeline:
         assert new_stack.shape[0] == 1
         assert new_stack[0, 0] == VARIABLE
 
+    def test_nested_sqrt_fourth_power_simplifies(self):
+        """sqrt(sqrt(X_0))^4 → X_0 via power rule simplification."""
+        stack = np.array(
+            [
+                [VARIABLE, 0, 0],
+                [SQRT, 0, 0],
+                [SQRT, 1, 1],
+                [INTEGER, 0, 0],
+                [POWER, 2, 3],
+            ],
+            dtype=np.uint8,
+        )
+        new_stack, new_c, new_i, _ = simplify(stack, (), (4,))
+        assert new_stack.shape[0] == 1
+        assert new_stack[0, 0] == VARIABLE
+
     def test_sqrt_cubed_simplifies_to_cube_sqrt(self):
         """sqrt(X_0)^3 → CUBE(SQRT(X_0))."""
         stack = np.array(

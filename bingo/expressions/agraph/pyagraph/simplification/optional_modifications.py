@@ -246,6 +246,12 @@ def _build_nested_sqrt(base, depth):
     return result
 
 
+def _make_square(base):
+    if base.operator == SQRT:
+        return base.operands[0]
+    return CASExpression(SQUARE, [base])
+
+
 def _insert_square_cube(expression):
     operator = expression.operator
     if operator in _TERMINAL_OPS:
@@ -261,7 +267,7 @@ def _insert_square_cube(expression):
         if exponent.operator == INTEGER:
             exp_val = exponent.operands[0]
             if exp_val == 2:
-                return CASExpression(SQUARE, [new_operands[0]])
+                return _make_square(new_operands[0])
             if exp_val == 3:
                 return CASExpression(CUBE, [new_operands[0]])
 
@@ -287,7 +293,7 @@ def _insert_square_cube(expression):
                     if int_exp == 1:
                         return new_operands[0]  # x^1 = x
                     elif int_exp == 2:
-                        return CASExpression(SQUARE, [new_operands[0]])
+                        return _make_square(new_operands[0])
                     elif int_exp == 3:
                         return CASExpression(CUBE, [new_operands[0]])
                     else:
@@ -301,7 +307,7 @@ def _insert_square_cube(expression):
                     if numer == 1:
                         return nested_sqrt
                     elif numer == 2:
-                        return CASExpression(SQUARE, [nested_sqrt])
+                        return _make_square(nested_sqrt)
                     elif numer == 3:
                         return CASExpression(CUBE, [nested_sqrt])
                     else:
@@ -325,7 +331,7 @@ def _insert_square_cube(expression):
                 if int_part == 1:
                     return nested_sqrt
                 elif int_part == 2:
-                    return CASExpression(SQUARE, [nested_sqrt])
+                    return _make_square(nested_sqrt)
                 elif int_part == 3:
                     return CASExpression(CUBE, [nested_sqrt])
                 else:

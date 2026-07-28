@@ -14,6 +14,11 @@ from bingo.symbolic_regression.explicit_regression \
     ExplicitRegression as pyExplicitRegression
 from bingo.symbolic_regression.agraph.agraph import AGraph as pyagraph
 from bingo.symbolic_regression.agraph.operator_definitions import *
+
+pytestmark = pytest.mark.skip(
+    reason="Uses deprecated symbolic_regression.agraph and BingoCpp implementations",
+)
+
 try:
     from bingocpp import ExplicitTrainingData as cppExplicitTrainingData, \
         ExplicitRegression as cppExplicitRegression, \

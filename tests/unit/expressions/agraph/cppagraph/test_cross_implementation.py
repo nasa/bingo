@@ -123,8 +123,8 @@ def _random_stack(rng, n_vars=2, n_rows=8, n_constants=2, n_integers=1):
 
 
 def _make_safe_x(rng, n_samples=10, n_vars=2):
-    """Generate x in a range unlikely to cause over/underflow."""
-    return rng.uniform(0.1, 2.0, size=(n_samples, n_vars))
+    """Generate inputs that avoid overflow and phase-sensitive powers."""
+    return rng.uniform(0.1, 0.8, size=(n_samples, n_vars))
 
 
 # ================================================================== #

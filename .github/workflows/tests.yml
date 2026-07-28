@@ -25,19 +25,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Set pythonpath
-      run: |
-        echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
+        python -m pip install ".[ONNX,TESTS]"
 
     - name: Set safe forking var
       run: |
         echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
-
-    - name: Build bingocpp
-      run: |
-        ./.build_bingocpp.sh
 
     - name: Test with pytest
       run: |

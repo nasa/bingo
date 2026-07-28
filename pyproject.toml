@@ -51,7 +51,8 @@ TESTS = [
     "pytest-timeout",
     "pytest-cov",
     "coverage",
-    "coveralls"
+    "coveralls",
+    "setuptools"
 ]
 
 [tool.cibuildwheel]

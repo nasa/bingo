@@ -24,16 +24,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install jupyter
-        pip install nbconvert
-        pip install matplotlib
-        pip install -r requirements.txt
-    - name: Set pythonpath
-      run: |
-        echo "PYTHONPATH=`pwd`" >> $GITHUB_ENV
-    - name: Build bingocpp
-      run: |
-        ./.build_bingocpp.sh
+        python -m pip install ".[ONNX]"
+        python -m pip install jupyter nbconvert matplotlib
     - name: Run examples
       run: |
         examples/.test_examples.sh

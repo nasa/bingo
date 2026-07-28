@@ -555,6 +555,28 @@ TEST_F(TestConstantFolding, SimpleFolding) {
     EXPECT_EQ(result->op(), u8(Op::ADDITION));
 }
 
+TEST_F(TestConstantFolding, EightConstantsFoldSharedFactors) {
+    auto c0 = std::make_shared<CASExpression>(u8(Op::CONSTANT), 0);
+    std::vector<CASExprPtr> terms;
+    for (int index = 1; index < 8; ++index) {
+        auto factor = std::make_shared<CASExpression>(
+            u8(Op::MULTIPLICATION),
+            std::vector<CASExprPtr>{
+                c0,
+                std::make_shared<CASExpression>(u8(Op::CONSTANT), index),
+            });
+        terms.push_back(std::make_shared<CASExpression>(
+            u8(Op::MULTIPLICATION),
+            std::vector<CASExprPtr>{factor, interned_variable(index % 4)}));
+    }
+
+    auto result = fold_constants(std::make_shared<CASExpression>(
+        u8(Op::ADDITION), std::move(terms)));
+    auto stack_result = build_agraph_stack(result, {});
+
+    EXPECT_EQ(stack_result.constants.size(), 7u);
+}
+
 // ================================================================== //
 //  Optional modifications tests                                       //
 // ================================================================== //

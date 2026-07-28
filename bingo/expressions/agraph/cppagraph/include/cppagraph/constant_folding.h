@@ -16,6 +16,10 @@ namespace cppagraph {
 /**
  * Fold constant-valued sub-expressions together.
  *
+ * Searches every non-empty subset for at most seven distinct constants.
+ * Larger expressions use deterministic local candidates that prioritize
+ * reducing distinct constant identities, with constant leaves as a tie-breaker.
+ *
  * @param expression  The CAS expression to fold.
  * @return            The folded expression.
  */

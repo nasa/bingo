@@ -9,6 +9,7 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -71,6 +72,7 @@ static const std::unordered_set<uint8_t> TERMINAL_OPS = {
 static const std::unordered_set<uint8_t> ASSOC_OPS = {
     u8(Op::MULTIPLICATION), u8(Op::ADDITION)
 };
+static constexpr std::size_t EXHAUSTIVE_FOLDING_MAX_CONSTANTS = 7;
 
 // Forward declarations.
 static CASExprPtr _group_constants(const CASExprPtr& expression);
@@ -466,36 +468,162 @@ static CASExprPtr _group_constants(const CASExprPtr& expression) {
 }
 
 // ------------------------------------------------------------------ //
+// Candidate selection                                                  //
+// ------------------------------------------------------------------ //
+
+static CASExprPtr _find_first_exhaustive_fold(
+    const CASExprPtr& expression,
+    const ConstMap& constants,
+    const std::vector<int>& constant_order,
+    const IPMap& ip_map)
+{
+    CASExprPtr folded_expression;
+    for_each_subset(constant_order, [&](const std::vector<int>& const_subset) {
+        ConstIndexSet const_set(const_subset.begin(), const_subset.end());
+        auto insertion_points = _filter_insertion_points(
+            expression, const_set, ip_map);
+        auto replacements = _generate_replacement_instructions(
+            const_subset, constants, insertion_points);
+        if (replacements.empty()) return false;
+        folded_expression = _perform_constant_folding(expression, replacements);
+        return true;
+    });
+    return folded_expression;
+}
+
+static void _postorder(
+    const CASExprPtr& expression,
+    std::vector<CASExprPtr>& nodes)
+{
+    if (!TERMINAL_OPS.count(expression->op())) {
+        for (auto& operand : expression->operands()) {
+            _postorder(operand, nodes);
+        }
+    }
+    nodes.push_back(expression);
+}
+
+static void _count_constants(
+    const CASExprPtr& expression,
+    std::size_t& leaves,
+    std::unordered_set<int>& distinct_constants)
+{
+    if (expression->op() == u8(Op::CONSTANT)) {
+        ++leaves;
+        distinct_constants.insert(expression->terminal_param());
+        return;
+    }
+    if (TERMINAL_OPS.count(expression->op())) return;
+    for (auto& operand : expression->operands()) {
+        _count_constants(operand, leaves, distinct_constants);
+    }
+}
+
+static std::pair<int, int> _fold_score(
+    const CASExprPtr& before,
+    const CASExprPtr& after)
+{
+    std::size_t before_leaves = 0;
+    std::size_t after_leaves = 0;
+    std::unordered_set<int> before_distinct;
+    std::unordered_set<int> after_distinct;
+    _count_constants(before, before_leaves, before_distinct);
+    _count_constants(after, after_leaves, after_distinct);
+    return {
+        static_cast<int>(before_distinct.size()) - static_cast<int>(after_distinct.size()),
+        static_cast<int>(before_leaves) - static_cast<int>(after_leaves),
+    };
+}
+
+static CASExprPtr _replace_identity(
+    const CASExprPtr& expression,
+    const CASExprPtr& target,
+    const CASExprPtr& replacement)
+{
+    if (expression.get() == target.get()) return replacement;
+    if (TERMINAL_OPS.count(expression->op())) return expression;
+
+    bool changed = false;
+    std::vector<CASExprPtr> operands;
+    operands.reserve(expression->operands().size());
+    for (auto& operand : expression->operands()) {
+        auto new_operand = _replace_identity(operand, target, replacement);
+        changed = changed || new_operand.get() != operand.get();
+        operands.push_back(std::move(new_operand));
+    }
+    if (!changed) return expression;
+    return std::make_shared<CASExpression>(expression->op(), std::move(operands));
+}
+
+static CASExprPtr _find_best_local_fold(
+    const CASExprPtr& expression,
+    const ConstMap& constants,
+    const std::vector<int>& constant_order,
+    const IPMap& ip_map)
+{
+    std::vector<CASExprPtr> nodes;
+    _postorder(expression, nodes);
+
+    CASExprPtr best_node;
+    CASExprPtr best_fold;
+    std::pair<int, int> best_score = {0, 0};
+    for (auto& node : nodes) {
+        if (TERMINAL_OPS.count(node->op())) continue;
+
+        std::vector<int> const_subset;
+        for (int constant : constant_order) {
+            if (node->depends_on().count(constant)) {
+                const_subset.push_back(constant);
+            }
+        }
+        if (const_subset.empty()) continue;
+        // Python constructs local subsets as sets; constant indices are
+        // non-negative and consecutive, so its iteration is ascending.
+        std::sort(const_subset.begin(), const_subset.end());
+
+        ConstIndexSet const_set(const_subset.begin(), const_subset.end());
+        auto insertion_points = _filter_insertion_points(node, const_set, ip_map);
+        auto replacements = _generate_replacement_instructions(
+            const_subset, constants, insertion_points);
+        if (replacements.empty()) continue;
+
+        auto folded_node = _perform_constant_folding(node, replacements);
+        auto score = _fold_score(node, folded_node);
+        if (score > best_score) {
+            best_node = node;
+            best_fold = folded_node;
+            best_score = score;
+        }
+    }
+
+    if (!best_fold) return nullptr;
+    return _replace_identity(expression, best_node, best_fold);
+}
+
+// ------------------------------------------------------------------ //
 // fold_constants (public)                                             //
 // ------------------------------------------------------------------ //
 
 CASExprPtr fold_constants(const CASExprPtr& expression) {
     auto expr = _group_constants(expression);
 
-    bool check_for_folding = true;
-    while (check_for_folding) {
-        check_for_folding = false;
-
+    while (true) {
         ConstMap cas_constants;
         std::vector<int> constant_order;
         IPMap ip_map;
         _fused_dfs(expr, cas_constants, constant_order, ip_map);
 
-        check_for_folding = for_each_subset(constant_order, [&](const std::vector<int>& const_subset) {
-            ConstIndexSet const_set(const_subset.begin(), const_subset.end());
-            auto insertion_points = _filter_insertion_points(
-                expr, const_set, ip_map);
-            auto replacements = _generate_replacement_instructions(
-                const_subset, cas_constants, insertion_points);
-            if (!replacements.empty()) {
-                expr = _perform_constant_folding(expr, replacements);
-                return true;
-            }
-            return false;
-        });
+        CASExprPtr folded_expression;
+        if (cas_constants.size() <= EXHAUSTIVE_FOLDING_MAX_CONSTANTS) {
+            folded_expression = _find_first_exhaustive_fold(
+                expr, cas_constants, constant_order, ip_map);
+        } else {
+            folded_expression = _find_best_local_fold(
+                expr, cas_constants, constant_order, ip_map);
+        }
+        if (!folded_expression) return expr;
+        expr = folded_expression;
     }
-
-    return expr;
 }
 
 }  // namespace cppagraph

@@ -418,18 +418,22 @@ class TestAGraphExpressionCrossCheck:
             assert pc == pytest.approx(cc, abs=0.5)
 
     def test_score_matches(self):
+        # The Python backend now exposes lower-is-better error through
+        # ``loss(kind=...)`` (see issue 01); the C++ backend still uses the
+        # legacy ``score(metric=...)`` name for the same quantity until it is
+        # brought to parity in issue 02.  Both remain numerically equal here.
         x = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
-        y = x[:, 0] + 10.0
+        y = x[:, 0] + 10.0 + 1.0  # off by 1 so the error is nonzero
 
         py_expr = PyAGraphExpression(equation="X_0 + 10.0")
         cpp_expr = CppAGraphExpression(equation="X_0 + 10.0")
 
-        for metric in ["mse", "mae", "rmse"]:
-            py_score = py_expr.score(x, y, metric=metric)
-            cpp_score = cpp_expr.score(x, y, metric=metric)
-            assert py_score == pytest.approx(
-                cpp_score, abs=1e-10
-            ), f"score({metric}) mismatch"
+        for kind in ["mse", "mae", "rmse"]:
+            py_loss = py_expr.loss(x, y, kind=kind)
+            cpp_loss = cpp_expr.score(x, y, metric=kind)
+            assert py_loss == pytest.approx(
+                cpp_loss, abs=1e-10
+            ), f"loss({kind}) mismatch"
 
     def test_hash_consistent_within_impl(self):
         """Hash is consistent within each implementation (not necessarily across)."""

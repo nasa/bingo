@@ -7,6 +7,7 @@ High-Level User Guide
     :caption: Basic Concepts
 
     _high_level/gpsr.rst
+    _high_level/expressions.rst
     _high_level/data_formatting.rst
 
 

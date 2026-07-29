@@ -167,8 +167,8 @@ def pad_agraph_expression(base_expression, generator):
     # Preserve the current evaluation-facing constant values even when the base
     # expression has fitted constants that were not propagated back to raw.
     padded_expression.constants = base_expression.constants
-    if hasattr(padded_expression, "_is_fitted"):
-        padded_expression._is_fitted = base_expression.__sklearn_is_fitted__()
+    if hasattr(padded_expression, "_fit_attempted"):
+        padded_expression._fit_attempted = base_expression.is_fitted
 
     return padded_expression
 

@@ -1,4 +1,4 @@
-# pylint: disable=c-extension-no-member
+# pylint: disable=c-extension-no-member,no-name-in-module
 """The parallel implementation of the Archipelago
 
 This module defines the Archipelago data structure that runs in parallel on

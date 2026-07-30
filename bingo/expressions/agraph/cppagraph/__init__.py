@@ -9,6 +9,7 @@ build was skipped), importing this package will raise :exc:`ImportError`.
 The parent package's ``__init__.py`` handles the fallback to pyagraph.
 """
 
+# pylint: disable=import-error,no-name-in-module
 from ._cppagraph import (  # type: ignore[import-not-found]
     # DataContainer class
     DataContainer,

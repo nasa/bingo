@@ -120,3 +120,19 @@ class TestPadAGraphExpression:
         padded = pad_agraph_expression(base_expr, gen)
 
         assert type(padded) is CppAGraphExpression
+
+    @pytest.mark.skipif(not CPP_AVAILABLE, reason="cppagraph not built")
+    def test_preserves_fitted_state_for_cpp(self, component_gen):
+        base_expr = CppAGraphExpression(
+            equation="X0 * 1.0", simplification="reduce"
+        )
+        x = np.array([[1.0], [2.0], [3.0]])
+        base_expr.fit(x, 4.0 * x[:, 0])
+        gen = AGraphGenerator(
+            5, 5, component_gen, simplification="reduce", random_state=3
+        )
+
+        padded = pad_agraph_expression(base_expr, gen)
+
+        assert padded.is_fitted
+        assert padded.constants == pytest.approx(base_expr.constants)

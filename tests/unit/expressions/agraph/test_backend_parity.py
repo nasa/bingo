@@ -75,6 +75,26 @@ def test_score_vocabulary_and_values(backend, simple_x):
         expr.score(simple_x, y, kind="mse")
 
 
+def test_explicit_methods_reject_mismatched_samples(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 1.0")
+    y = np.ones(simple_x.shape[0] - 1)
+
+    for method in (expr.fit, expr.loss, expr.score):
+        with pytest.raises(ValueError, match="same number of samples"):
+            method(simple_x, y)
+
+
+def test_implicit_methods_reject_mismatched_shapes(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + X_1")
+    dx_dt = np.ones((simple_x.shape[0] - 1, simple_x.shape[1]))
+
+    for method in (expr.fit_implicit, expr.implicit_loss, expr.implicit_score):
+        with pytest.raises(ValueError, match="same shape"):
+            method(simple_x, dx_dt)
+
+
 def test_fit_tolerance_is_keyword_only(backend, simple_x):
     Expr = agraph.get_expression_class()
     expr = Expr(equation="X_0 * 1.0")

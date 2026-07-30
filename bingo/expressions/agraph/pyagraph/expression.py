@@ -534,6 +534,8 @@ class AGraphExpression:
 
         X = np.atleast_2d(np.asarray(X, dtype=float))
         y = np.asarray(y, dtype=float).ravel()
+        if X.shape[0] != y.size:
+            raise ValueError("X and y must have the same number of samples")
         self._fit_attempted = True
 
         if len(self.constants) == 0:
@@ -592,6 +594,8 @@ class AGraphExpression:
 
         X = np.atleast_2d(np.asarray(X, dtype=float))
         dx_dt = np.atleast_2d(np.asarray(dx_dt, dtype=float))
+        if X.shape != dx_dt.shape:
+            raise ValueError("X and dx_dt must have the same shape")
         self._fit_attempted = True
 
         if len(self.constants) == 0:
@@ -624,6 +628,8 @@ class AGraphExpression:
         """
         X = np.atleast_2d(np.asarray(X, dtype=float))
         y = np.asarray(y, dtype=float).ravel()
+        if X.shape[0] != y.size:
+            raise ValueError("X and y must have the same number of samples")
         predictions = self.predict(X)
         if not np.all(np.isfinite(predictions)):
             return None, y
@@ -723,6 +729,8 @@ class AGraphExpression:
         """
         X = np.atleast_2d(np.asarray(X, dtype=float))
         dx_dt = np.atleast_2d(np.asarray(dx_dt, dtype=float))
+        if X.shape != dx_dt.shape:
+            raise ValueError("X and dx_dt must have the same shape")
         residual = self._implicit_residual_vector(
             X, dx_dt, required_params=required_params
         )
@@ -795,6 +803,10 @@ class AGraphExpression:
         :attr:`is_fitted`.
         """
         return self.is_fitted
+
+    def _set_fit_attempted(self, value):
+        """Restore the fitted lifecycle after constructing from raw state."""
+        self._fit_attempted = bool(value)
 
     # ------------------------------------------------------------------ #
     #  Simplification / utility                                           #

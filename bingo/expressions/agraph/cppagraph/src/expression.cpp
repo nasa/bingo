@@ -24,6 +24,24 @@
 
 namespace cppagraph {
 
+namespace {
+
+void validate_explicit_data(const RowMatrixXd& X, const Eigen::VectorXd& y) {
+    if (X.rows() != y.size()) {
+        throw std::invalid_argument(
+            "X and y must have the same number of samples");
+    }
+}
+
+void validate_implicit_data(const RowMatrixXd& X, const RowMatrixXd& dx_dt) {
+    if (X.rows() != dx_dt.rows() || X.cols() != dx_dt.cols()) {
+        throw std::invalid_argument(
+            "X and dx_dt must have the same shape");
+    }
+}
+
+}  // namespace
+
 // ================================================================
 //  Scoring metrics
 // ================================================================
@@ -302,6 +320,7 @@ AGraphExpression::gradient(const RowMatrixXd& X) {
 void AGraphExpression::fit(const RowMatrixXd& X,
                            const Eigen::VectorXd& y,
                            double tolerance, int max_iter) {
+    validate_explicit_data(X, y);
     if (modified_) update();
     // A fitting attempt establishes the fitted state for the current raw
     // structure, even when the solver does not numerically converge.
@@ -388,6 +407,7 @@ void AGraphExpression::fit(const RowMatrixXd& X,
 void AGraphExpression::fit_implicit(const RowMatrixXd& X,
                                     const RowMatrixXd& dx_dt,
                                     double tolerance, int max_iter) {
+    validate_implicit_data(X, dx_dt);
     if (modified_) update();
     // A fitting attempt establishes the fitted state regardless of convergence.
     fit_attempted_ = true;
@@ -490,6 +510,7 @@ double AGraphExpression::loss(const RowMatrixXd& X,
             "kind must be one of mse, mae, rmse, relative_mse, correlation, "
             "laplace_nmll; got \"" + kind + "\"");
     }
+    validate_explicit_data(X, y);
 
     const double pos_inf = std::numeric_limits<double>::infinity();
     Eigen::VectorXd predictions = predict(X);
@@ -522,6 +543,7 @@ double AGraphExpression::score(const RowMatrixXd& X,
         throw std::invalid_argument(
             "kind must be one of r2, laplace_nmll; got \"" + kind + "\"");
     }
+    validate_explicit_data(X, y);
 
     const double neg_inf = -std::numeric_limits<double>::infinity();
     Eigen::VectorXd predictions = predict(X);
@@ -540,6 +562,7 @@ double AGraphExpression::score(const RowMatrixXd& X,
 Eigen::VectorXd AGraphExpression::implicit_residual_vector(
         const RowMatrixXd& X, const RowMatrixXd& dx_dt,
         std::optional<int> required_params) {
+    validate_implicit_data(X, dx_dt);
     const double pos_inf = std::numeric_limits<double>::infinity();
     auto [f, df_dx] = evaluate_with_x_gradient(X);
     (void)f;

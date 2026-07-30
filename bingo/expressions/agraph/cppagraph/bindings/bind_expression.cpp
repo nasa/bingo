@@ -387,6 +387,9 @@ void bind_expression(py::module_& m) {
         .def("__sklearn_is_fitted__",
              &AGraphExpression::is_fitted)
 
+        .def("_set_fit_attempted", &AGraphExpression::set_fit_attempted,
+             py::arg("value"))
+
         // ---- Utility ----
 
         .def("get_utilized_commands",

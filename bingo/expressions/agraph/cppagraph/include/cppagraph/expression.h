@@ -204,7 +204,7 @@ public:
      */
     bool is_fitted();
 
-    /** Raw access to the structure-only fitted flag (for serialization). */
+    /** Lifecycle state access for serialization and raw-state reconstruction. */
     bool fit_attempted() const;
     void set_fit_attempted(bool v);
 

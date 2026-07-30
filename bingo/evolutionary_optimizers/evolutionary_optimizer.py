@@ -46,10 +46,9 @@ def _format_elapsed_time(elapsed_time):
 
     if hours > 0:
         return f"{hours}:{minutes:02d}:{seconds:05.2f}"
-    elif minutes > 0:
+    if minutes > 0:
         return f"{minutes}:{seconds:05.2f}"
-    else:
-        return f"{seconds:.2f}"
+    return f"{seconds:.2f}"
 
 OptimizeResult = namedtuple(
     "OptimizeResult",

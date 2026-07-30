@@ -72,6 +72,12 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.fit_tolerance = fit_tolerance
         self.random_state = random_state
 
+        self.n_features_in_ = None
+        self.archipelago_ = None
+        self.best_ind_ = None
+        self.best_population_ = None
+        
+
     def _make_island(self, X, y, n_processes):
         component_generator = ComponentGenerator(
             X.shape[1], random_state=self.random_state

@@ -7,8 +7,9 @@ within the configured ``[min_size, max_size]`` bounds."""
 
 import numpy as np
 
-from .pyagraph import CONSTANT, INTEGER, TERMINAL_IDS
 from bingo.chromosomes.crossover import Crossover
+
+from .pyagraph import CONSTANT, INTEGER, TERMINAL_IDS
 
 
 class AGraphCrossover(Crossover):

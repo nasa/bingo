@@ -19,7 +19,7 @@ from ..util.log import INFO, DETAILED_INFO
 
 LOGGER = logging.getLogger(__name__)
 
-MPI.pickle.__init__(dill.dumps, dill.loads)
+MPI.pickle.__init__(dill.dumps, dill.loads)  # pylint: disable=unnecessary-dunder-call
 
 AGE_UPDATE = 2
 EXIT_NOTIFICATION = 3

@@ -29,24 +29,24 @@ track later :func:`set_backend` calls::
     # Uses whichever class AGraphExpression referred to at import time.
 """
 
+import sys
+
 from .pyagraph import AGraphExpression as _PyAGraphExpression
 
 try:
     from .cppagraph import AGraphExpression as _CppAGraphExpression
 
-    _cpp_available = True
+    _CPP_AVAILABLE = True
 except ImportError:
     _CppAGraphExpression = None
-    _cpp_available = False
+    _CPP_AVAILABLE = False
 
-_backend = "auto"
-AGraphExpression = _CppAGraphExpression if _cpp_available else _PyAGraphExpression
+_BACKEND = "auto"
+AGraphExpression = _CppAGraphExpression if _CPP_AVAILABLE else _PyAGraphExpression
 
 
 def _sync_parent_reexports():
     """Keep the top-level expressions re-export aligned with backend switches."""
-    import sys
-
     expressions_pkg = sys.modules.get("bingo.expressions")
     if expressions_pkg is not None:
         expressions_pkg.AGraphExpression = AGraphExpression
@@ -79,15 +79,15 @@ def set_backend(backend):
     with ``from bingo.expressions.agraph import AGraphExpression`` will keep the
     class object that was imported originally.
     """
-    global AGraphExpression, _backend  # noqa: PLW0603
+    global AGraphExpression, _BACKEND  # noqa: PLW0603
     if backend == "auto":
         AGraphExpression = (
-            _CppAGraphExpression if _cpp_available else _PyAGraphExpression
+            _CppAGraphExpression if _CPP_AVAILABLE else _PyAGraphExpression
         )
     elif backend == "python":
         AGraphExpression = _PyAGraphExpression
     elif backend == "cpp":
-        if not _cpp_available:
+        if not _CPP_AVAILABLE:
             raise ImportError(
                 "cppagraph C++ backend is not available. "
                 "Build it with .build_cppagraph.sh or use "
@@ -98,7 +98,7 @@ def set_backend(backend):
         raise ValueError(
             f"Unknown backend {backend!r}. " f"Choose from 'auto', 'python', or 'cpp'."
         )
-    _backend = backend
+    _BACKEND = backend
     _sync_parent_reexports()
 
 
@@ -110,7 +110,7 @@ def get_backend():
     str
         ``"auto"``, ``"python"``, or ``"cpp"``.
     """
-    return _backend
+    return _BACKEND
 
 
 def get_expression_class():
@@ -127,11 +127,14 @@ def get_expression_class():
     return AGraphExpression
 
 
+# These imports must remain after backend initialization to avoid import cycles.
+# pylint: disable=wrong-import-position
 from .component_generator import ComponentGenerator
 from .generator import AGraphGenerator
 from .utils import pad_agraph_expression
 from .crossover import AGraphCrossover
 from .mutation import AGraphMutation
+# pylint: enable=wrong-import-position
 
 __all__ = [
     "AGraphExpression",

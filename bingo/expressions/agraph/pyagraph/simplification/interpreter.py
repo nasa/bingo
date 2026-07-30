@@ -19,6 +19,7 @@ from ..operators import (
     POWER,
 )
 from .cas_expression import CASExpression, get_interned_integer, get_interned_variable
+from .automatic_simplification import SIMPLIFICATION_FUNCTIONS
 
 
 def build_cas_expression(stack, constants, integers):
@@ -113,8 +114,6 @@ def build_simplified_cas_expression(stack, constants, integers):
     -------
     CASExpression
     """
-    from .automatic_simplification import SIMPLIFICATION_FUNCTIONS
-
     memo = {}
     return _build_simplified_recursive(
         stack,

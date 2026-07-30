@@ -27,6 +27,8 @@ Module-level flags control each modification:
     expressions so that they become optimisable.  Default ``False``.
 """
 
+import math
+
 from ..operators import (
     INTEGER,
     CONSTANT,
@@ -40,7 +42,6 @@ from ..operators import (
     CUBE,
     SQRT,
 )
-import math
 from .cas_expression import CASExpression, _NEG_ONE, _ONE
 
 INSERT_SUBTRACTION = True
@@ -319,7 +320,7 @@ def _insert_square_cube(expression):
         if exponent.operator == MULTIPLICATION and len(exponent.operands) == 2:
             int_part = None
             sqrt_part_depth = None
-            for i, op in enumerate(exponent.operands):
+            for _, op in enumerate(exponent.operands):
                 if op.operator == INTEGER:
                     int_part = op.operands[0]
                 else:

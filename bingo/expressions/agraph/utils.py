@@ -116,7 +116,9 @@ def pad_agraph_expression(base_expression, generator):
 
     total_size = padding_commands.shape[0]
     base_size = base_commands.shape[0]
-    base_positions = _build_interspersed_base_positions(total_size, base_size, generator._rng)
+    base_positions = _build_interspersed_base_positions(
+        total_size, base_size, generator._rng
+    )
     padding_positions = np.setdiff1d(
         np.arange(total_size, dtype=int), base_positions, assume_unique=True
     )
@@ -233,7 +235,8 @@ def _demo():
     print(f"  simplified expressions match: {str(base_expression) == str(padded_expression)}")
     print(
         "  raw stack grew: "
-        f"{base_expression.raw_command_array.shape[0]} -> {padded_expression.raw_command_array.shape[0]}"
+        f"{base_expression.raw_command_array.shape[0]} -> "
+        f"{padded_expression.raw_command_array.shape[0]}"
     )
 
 

@@ -9,19 +9,20 @@ symbolic regression by modeling evolution.
 Equations
 ---------
 
-GPSR uses the process of evolution to find equations that model data well.
-To accomodate the genetic-like process of GPSR, we encode equations as
-directed acyclic graphs: ``AGraphs``. ``AGraphs`` have nodes and connections
-between nodes. These nodes are either terminals, which load data, or operators,
-which perform operations (e.g., addition, multiplication, etc.).
+GPSR uses the process of evolution to find expressions that model data well.
+To accommodate the genetic-like process of GPSR, Bingo encodes expressions as
+directed acyclic graphs. ``AGraphExpression`` is the public expression
+implementation. These graphs have nodes and connections between nodes. Nodes are
+either terminals, which load data, or operators, which perform operations (for
+example, addition or multiplication).
 
 .. image:: ../_static/agraph.svg
     :width: 300
     :align: center
 
-Consider the ``AGraph`` above which represents the equation
-:math:`C_0 X_0 + X_0 + X_1`. Notice, how there are terminal nodes at the bottom
-of the ``AGraph`` :math:`C_0`, :math:`X_0`, and :math:`X_1`. Node :math:`C_0`
+Consider the acyclic-graph expression above, which represents
+:math:`C_0 X_0 + X_0 + X_1`. Notice the terminal nodes at the bottom of the
+graph: :math:`C_0`, :math:`X_0`, and :math:`X_1`. Node :math:`C_0`
 loads constant 0, which is a free-form numeric value that can change based on
 data (i.e. :math:`C_0` could be -1.2, 5.0, etc. depending on its setting).
 Nodes :math:`X_0` and :math:`X_1` load the first and second variables of the
@@ -32,7 +33,7 @@ equation :math:`C_0 X_0 + X_0 + X_1`.
 
 Evolution
 ---------
-GPSR works by evolving a population of equations. It evolves equations in
+GPSR works by evolving a population of expressions. It evolves expressions in
 stages: variation, evaluation, and selection. It continues to do this until
 a good enough equation is found or another criteria is met (see the picture
 below).
@@ -45,7 +46,7 @@ Variation
 ^^^^^^^^^
 In order to get better individuals, we have to change those that are already in
 the population. This is usually done through two possible operators: mutation
-and crossover. Mutation takes an equation and slightly changes it.
+and crossover. Mutation takes an expression and slightly changes it.
 
 .. figure:: ../_static/mutation.svg
     :width: 630
@@ -53,7 +54,7 @@ and crossover. Mutation takes an equation and slightly changes it.
 
     Mutation of an equation.
 
-Crossover takes two equations and mixes their parts
+Crossover takes two expressions and mixes their parts
 together. Some of the individuals from our population undergo one, both, or
 neither of these operators to form a child population.
 

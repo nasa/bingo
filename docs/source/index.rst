@@ -70,19 +70,3 @@ symbolic regression via genetic programming.
     .. link-button:: low_level.html
         :text: To the Low-Level User Guide
         :classes: btn-block btn-primary
-    ---
-    :img-top: _static/open_book.svg
-    :img-top-cls: w-25 align-center my-4
-
-
-    API Docs
-    ^^^
-
-    Descriptions of how to use Bingo's classes and methods including
-    their inputs, outputs, etc.
-
-    +++
-
-    .. link-button:: _apidocs/modules.html
-        :text: To the API Docs
-        :classes: btn-block btn-primary

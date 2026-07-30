@@ -58,7 +58,7 @@ in the [data formatting guide](https://nasa.github.io/bingo/_high_level/data_for
 import numpy as np
 X_0 = np.linspace(-10, 10, num=30).reshape((-1, 1))
 X = np.array(X_0)
-y = 5.0 * X_0 ** 2 + 3.5 * X_0
+y = (5.0 * X_0 ** 2 + 3.5 * X_0).ravel()
 ```
 
 
@@ -86,12 +86,6 @@ Fitting is as simple as calling the `.fit()` method.
 regressor.fit(X, y)
 ```
 
-    using 1 processes
-     Generating a diverse population took 274 iterations.
-    archipelago: <class 'bingo.evolutionary_optimizers.island.Island'>
-    done with opt, best_ind: X_0 + (5.0)((0.49999999999999967)(X_0) + (X_0)(X_0)), fitness: 5.4391466376923e-28
-    reran CLO, best_ind: X_0 + (5.0)((0.4999999999999999)(X_0) + (X_0)(X_0)), fitness: 5.352980018399097e-28
-
 
 ### Getting the Best Individual
 
@@ -106,14 +100,13 @@ print("best individual is:", best_individual)
 
 ### Predicting Data with the Best Individual
 
-You can use the regressor's `.predict(X)` or
-the best_individual's `.evaluate_equation_at(X)` to get
-its predictions for `X`.
+You can use the regressor's `.predict(X)` or the best individual's underlying
+expression's `.predict(X)` to get predictions for `X`.
 
 
 ```python
 pred_y = regressor.predict(X)
-pred_y = best_individual.evaluate_equation_at(X)
+pred_y = best_individual.expression.predict(X)
 
 plt.scatter(X, y)
 plt.plot(X, pred_y, 'r')

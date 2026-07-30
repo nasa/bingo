@@ -570,7 +570,7 @@ class AGraphExpression:
     def fit_implicit(self, X, dx_dt, *, tolerance=1e-5):
         """Fit constants to implicit-regression data.
 
-        Runs Levenberg-Marquardt to minimize the ordinary implicit residual
+        Runs SciPy least squares to minimize the ordinary implicit residual
         vector (the per-sample normalized alignment between the Expression's
         input gradient and the observed trajectory derivatives ``dx_dt``).
 

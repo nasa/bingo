@@ -42,10 +42,11 @@ Fitting
 -------
 
 An expression can carry *optimizable constants*. Fitting adjusts those constants
-to match data. Bingo uses Levenberg-Marquardt fitting, which always minimizes
+to match data. Explicit fitting uses Levenberg-Marquardt and always minimizes
 the expression's ordinary residual vector, independent of the loss used to rank
-expressions during evolution. The convergence tolerance is a keyword-only
-argument:
+expressions during evolution. Implicit fitting minimizes its normalized
+gradient-alignment residual with a backend-specific numerical least-squares
+solver. The convergence tolerance is a keyword-only argument:
 
 .. code-block:: python
 

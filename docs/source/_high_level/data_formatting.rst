@@ -1,7 +1,7 @@
 Formatting Data
 ===============
 
-All Bingo equations expect data to be formatted based on the number
+All Bingo expressions expect data to be formatted based on the number
 of variables and datapoints in the dataset.
 
 Input
@@ -36,8 +36,8 @@ So, if we had 2 variables and 10 samples, we would have an array with
 
 Output
 """"""
-Bingo expects output data to be formatted as a
-of the same number of samples as the input.
+Bingo expects output data as a one-dimensional array with the same number of
+samples as the input.
 
 Layout of output:
 
@@ -48,8 +48,8 @@ Layout of output:
 =========== =========== =========== ============== ===========
 
 Using the previous setup, let's
-create output data by using the equation :math:`5.0 * X_0 + X_1`:
+create output data from the expression :math:`5.0 * X_0 + X_1`:
 
 .. code-block:: python
 
-    y = 5.0 * X_0 + X_1
+    y = (5.0 * X_0 + X_1).ravel()

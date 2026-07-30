@@ -201,7 +201,7 @@ class SmcpyOptimizer(LocalOptimizer):
                         diag[diag < 0] = 0
                         cov = evecs.dot(diag).dot(evecs.T)
                     dists = mvn(mean, cov, allow_singular=True)
-                except (ValueError, np.linalg.LinAlgError) as e:
+                except (ValueError, np.linalg.LinAlgError) as _:
                     continue
                 cov_estimates.append((mean, cov, var_ols, ssqe))
                 param_dists.append(dists)

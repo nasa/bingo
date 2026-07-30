@@ -280,22 +280,66 @@ TEST(ExpressionSklearn, Predict) {
     EXPECT_NEAR(pred(2), 15.0, 1e-10);
 }
 
-TEST(ExpressionSklearn, ScoreMSE) {
+TEST(ExpressionSklearn, LossMSE) {
     auto expr = make_x0_plus_c0(10.0);
     auto x = make_simple_x();
     Eigen::VectorXd y(3);
     y << 11.0, 13.0, 15.0;  // exact match
-    double s = expr.score(x, y, "mse");
+    double s = expr.loss(x, y, "mse");
     EXPECT_NEAR(s, 0.0, 1e-10);
 }
 
-TEST(ExpressionSklearn, ScoreMAE) {
+TEST(ExpressionSklearn, LossMAE) {
     auto expr = make_x0_plus_c0(10.0);
     auto x = make_simple_x();
     Eigen::VectorXd y(3);
     y << 12.0, 14.0, 16.0;  // off by 1
-    double s = expr.score(x, y, "mae");
+    double s = expr.loss(x, y, "mae");
     EXPECT_NEAR(s, 1.0, 1e-10);
+}
+
+TEST(ExpressionSklearn, ScoreR2PerfectFit) {
+    auto expr = make_x0_plus_c0(10.0);
+    auto x = make_simple_x();
+    Eigen::VectorXd y(3);
+    y << 11.0, 13.0, 15.0;  // exact match
+    double s = expr.score(x, y, "r2");  // higher-is-better, 1.0 for perfect fit
+    EXPECT_NEAR(s, 1.0, 1e-10);
+}
+
+TEST(ExpressionSklearn, LossRejectsUnknownKind) {
+    auto expr = make_x0_plus_c0(10.0);
+    auto x = make_simple_x();
+    Eigen::VectorXd y(3);
+    y << 11.0, 13.0, 15.0;
+    EXPECT_THROW(expr.loss(x, y, "bogus"), std::invalid_argument);
+}
+
+TEST(ExpressionSklearn, ScoreRejectsLossOnlyKind) {
+    auto expr = make_x0_plus_c0(10.0);
+    auto x = make_simple_x();
+    Eigen::VectorXd y(3);
+    y << 11.0, 13.0, 15.0;
+    EXPECT_THROW(expr.score(x, y, "mse"), std::invalid_argument);
+}
+
+TEST(ExpressionSklearn, NonFiniteLossIsInfScoreIsNegInf) {
+    // 1 / X0 evaluated at X0 = 0 is non-finite.
+    AGraphExpression expr;
+    StackMatrix cmd(3, 3);
+    cmd << 1, 0, 0,   // CONSTANT C0
+          0, 0, 0,   // VARIABLE X0
+          6, 0, 1;   // DIVISION: C0 / X0
+    expr.set_raw_command_array(cmd);
+    expr.set_raw_constants({1.0});
+    RowMatrixXd x(1, 1);
+    x << 0.0;
+    Eigen::VectorXd y(1);
+    y << 1.0;
+    EXPECT_EQ(expr.loss(x, y, "mse"),
+              std::numeric_limits<double>::infinity());
+    EXPECT_EQ(expr.score(x, y, "r2"),
+              -std::numeric_limits<double>::infinity());
 }
 
 TEST(ExpressionSklearn, FitOptimisesConstants) {
@@ -319,17 +363,6 @@ TEST(ExpressionSklearn, FitNoConstantsIsNoop) {
     EXPECT_TRUE(expr.is_fitted());
 }
 
-TEST(ExpressionSklearn, ScoreBIC) {
-    auto expr = make_x0_times_c0(1.0);
-    RowMatrixXd X(5, 1);
-    X << 1.0, 2.0, 3.0, 4.0, 5.0;
-    Eigen::VectorXd y(5);
-    y << 3.0, 6.0, 9.0, 12.0, 15.0;
-    expr.fit(X, y);
-    double b = expr.score(X, y, "bic");
-    EXPECT_TRUE(std::isfinite(b));
-}
-
 TEST(ExpressionSklearn, ScoreLaplaceNMLL) {
     auto expr = make_x0_times_c0(1.0);
     RowMatrixXd X(5, 1);
@@ -341,14 +374,95 @@ TEST(ExpressionSklearn, ScoreLaplaceNMLL) {
     EXPECT_TRUE(std::isfinite(nmll));
 }
 
-TEST(ExpressionSklearn, ScoreBICNoConstants) {
-    auto expr = make_x0();
-    RowMatrixXd X(3, 1);
-    X << 1.0, 2.0, 3.0;
-    Eigen::VectorXd y(3);
-    y << 1.0, 2.0, 3.0;
-    double b = expr.score(X, y, "bic");
-    EXPECT_LT(b, 0);  // perfect fit => BIC << 0
+TEST(ExpressionSklearn, LaplaceLossIsNegatedScore) {
+    auto expr = make_x0_times_c0(1.0);
+    RowMatrixXd X(5, 1);
+    X << 1.0, 2.0, 3.0, 4.0, 5.0;
+    Eigen::VectorXd y(5);
+    y << 3.5, 6.0, 8.5, 12.0, 15.5;  // nonzero residuals
+    expr.fit(X, y);
+    double loss = expr.loss(X, y, "laplace_nmll");
+    double score = expr.score(X, y, "laplace_nmll");
+    EXPECT_NEAR(loss, -score, 1e-9);
+}
+
+TEST(ScoringMetrics, BicScoreDirect) {
+    // bic_score remains available as a standalone metric even though it is no
+    // longer part of the score() vocabulary.
+    Eigen::VectorXd r(5);
+    r << 0.0, 0.0, 0.0, 0.0, 0.0;  // perfect fit
+    double b = bic_score(r, 1);
+    EXPECT_LT(b, 0);
+}
+
+// ================================================================
+//  Test: gradient (predictions + df/dx)
+// ================================================================
+
+TEST(ExpressionGradient, ReturnsPredictionsAndInputGradient) {
+    auto expr = make_x0_plus_c0(10.0);
+    auto x = make_simple_x();
+    auto [f, df_dx] = expr.gradient(x);
+    EXPECT_NEAR(f(0), 11.0, 1e-10);
+    EXPECT_NEAR(f(1), 13.0, 1e-10);
+    EXPECT_NEAR(f(2), 15.0, 1e-10);
+    // d(X0 + C0)/dX0 = 1, d/dX1 = 0
+    for (Eigen::Index i = 0; i < x.rows(); ++i) {
+        EXPECT_NEAR(df_dx(i, 0), 1.0, 1e-10);
+        EXPECT_NEAR(df_dx(i, 1), 0.0, 1e-10);
+    }
+}
+
+// ================================================================
+//  Test: implicit regression
+// ================================================================
+
+TEST(ExpressionImplicit, FitEstablishesFitted) {
+    // X0 * C0 + X1 * C1
+    AGraphExpression expr("cas");
+    StackMatrix cmd(7, 3);
+    cmd << 0, 0, 0,    // VARIABLE X0
+          1, 0, 0,     // CONSTANT C0
+          5, 0, 1,     // MULTIPLICATION X0 * C0
+          0, 1, 0,     // VARIABLE X1
+          1, 1, 0,     // CONSTANT C1
+          5, 3, 4,     // MULTIPLICATION X1 * C1
+          3, 2, 5;     // ADDITION
+    expr.set_raw_command_array(cmd);
+    expr.set_raw_constants({1.0, 1.0});
+
+    auto x = make_simple_x();
+    RowMatrixXd dx_dt = RowMatrixXd::Ones(3, 2);
+    EXPECT_FALSE(expr.is_fitted());
+    expr.fit_implicit(x, dx_dt);
+    EXPECT_TRUE(expr.is_fitted());
+}
+
+TEST(ExpressionImplicit, LossIsFiniteAndScoreIsNegatedLoss) {
+    auto expr = make_x0_plus_x1();
+    auto x = make_simple_x();
+    RowMatrixXd dx_dt = RowMatrixXd::Ones(3, 2);
+    double loss = expr.implicit_loss(x, dx_dt);
+    double score = expr.implicit_score(x, dx_dt);
+    EXPECT_TRUE(std::isfinite(loss));
+    EXPECT_NEAR(score, -loss, 1e-12);
+}
+
+TEST(ExpressionImplicit, RequiredParamsGuardYieldsInfLoss) {
+    // A constant expression has a zero input gradient, so no sample can use the
+    // required number of derivative components → +inf loss / -inf score.
+    AGraphExpression expr("cas");
+    StackMatrix cmd(1, 3);
+    cmd << 1, 0, 0;  // CONSTANT
+    expr.set_raw_command_array(cmd);
+    expr.set_raw_constants({5.0});
+
+    auto x = make_simple_x();
+    RowMatrixXd dx_dt = RowMatrixXd::Ones(3, 2);
+    EXPECT_EQ(expr.implicit_loss(x, dx_dt, 1),
+              std::numeric_limits<double>::infinity());
+    EXPECT_EQ(expr.implicit_score(x, dx_dt, 1),
+              -std::numeric_limits<double>::infinity());
 }
 
 // ================================================================

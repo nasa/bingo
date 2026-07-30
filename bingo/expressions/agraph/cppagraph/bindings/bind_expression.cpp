@@ -315,22 +315,74 @@ void bind_expression(py::module_& m) {
 
         .def("predict", &AGraphExpression::predict, py::arg("X"))
 
+        .def("gradient", &AGraphExpression::gradient, py::arg("X"))
+
         .def("fit",
             [](AGraphExpression& self,
                const RowMatrixXd& X,
                const Eigen::VectorXd& y,
-               const std::string& /*metric*/,
-               py::kwargs /*kw*/) -> AGraphExpression& {
-                self.fit(X, y);
+               double tolerance) -> AGraphExpression& {
+                self.fit(X, y, tolerance);
                 return self;
             },
             py::arg("X"), py::arg("y"),
-            py::arg("metric") = "mse",
+            py::kw_only(),
+            py::arg("tolerance") = 1e-5,
             py::return_value_policy::reference_internal)
+
+        .def("fit_implicit",
+            [](AGraphExpression& self,
+               const RowMatrixXd& X,
+               const RowMatrixXd& dx_dt,
+               double tolerance) -> AGraphExpression& {
+                self.fit_implicit(X, dx_dt, tolerance);
+                return self;
+            },
+            py::arg("X"), py::arg("dx_dt"),
+            py::kw_only(),
+            py::arg("tolerance") = 1e-5,
+            py::return_value_policy::reference_internal)
+
+        .def("loss", &AGraphExpression::loss,
+             py::arg("X"), py::arg("y"),
+             py::kw_only(),
+             py::arg("kind") = "mse")
 
         .def("score", &AGraphExpression::score,
              py::arg("X"), py::arg("y"),
-             py::arg("metric") = "mse")
+             py::kw_only(),
+             py::arg("kind") = "r2")
+
+        .def("implicit_loss",
+            [](AGraphExpression& self,
+               const RowMatrixXd& X,
+               const RowMatrixXd& dx_dt,
+               py::object required_params) {
+                std::optional<int> req;
+                if (!required_params.is_none())
+                    req = required_params.cast<int>();
+                return self.implicit_loss(X, dx_dt, req);
+            },
+            py::arg("X"), py::arg("dx_dt"),
+            py::kw_only(),
+            py::arg("required_params") = py::none())
+
+        .def("implicit_score",
+            [](AGraphExpression& self,
+               const RowMatrixXd& X,
+               const RowMatrixXd& dx_dt,
+               py::object required_params) {
+                std::optional<int> req;
+                if (!required_params.is_none())
+                    req = required_params.cast<int>();
+                return self.implicit_score(X, dx_dt, req);
+            },
+            py::arg("X"), py::arg("dx_dt"),
+            py::kw_only(),
+            py::arg("required_params") = py::none())
+
+        .def_property_readonly("is_fitted",
+             &AGraphExpression::is_fitted)
 
         .def("__sklearn_is_fitted__",
              &AGraphExpression::is_fitted)
@@ -425,13 +477,15 @@ void bind_expression(py::module_& m) {
                     vec_to_float_tuple(self.raw_constants());
                 state["_raw_integers"] =
                     vec_to_int_tuple(self.raw_integers());
-                state["_constants"] =
-                    vec_to_float_tuple(self.constants());
-                state["_constant_mapping"] =
-                    vec_to_int_tuple(
-                        self.constant_mapping());
-                state["_is_fitted"] =
-                    self.is_fitted();
+                // Preserve the structure-only fitted lifecycle exactly.
+                state["_fit_attempted"] = self.fit_attempted();
+                // Fitted constants only need serialization when fitting moved
+                // them away from the raw values.
+                if (self.fit_attempted() &&
+                    self.constants() != self.raw_constants()) {
+                    state["_constants"] =
+                        vec_to_float_tuple(self.constants());
+                }
                 return state;
             })
 
@@ -447,6 +501,8 @@ void bind_expression(py::module_& m) {
                 new (&self)
                     AGraphExpression(simp, propagate);
 
+                // Setting the raw layer clears the fitted flag; restore it
+                // afterwards to preserve the structure-only lifecycle.
                 self.set_raw_command_array(
                     numpy_to_stack(
                         state["_raw_command_array"]
@@ -460,12 +516,22 @@ void bind_expression(py::module_& m) {
                     iterable_to_int_vec(
                         state["_raw_integers"]));
 
-                // Restore any fitted constants
+                // Backward compat: older pickles encoded fittedness by the
+                // mere presence of "_constants".
+                bool fit_attempted =
+                    state.contains("_fit_attempted")
+                        ? state["_fit_attempted"].cast<bool>()
+                        : state.contains("_constants");
+
+                // Restore any fitted constants (forces the simplified layer to
+                // derive first, then overrides with the stored values).
                 if (state.contains("_constants")) {
                     self.set_constants(
                         iterable_to_double_vec(
                             state["_constants"]));
                 }
+
+                self.set_fit_attempted(fit_attempted);
             })
 
         // ---- Deep copy ----

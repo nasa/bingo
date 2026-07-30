@@ -34,6 +34,10 @@ namespace cppagraph {
 double mean_absolute_error(const Eigen::VectorXd& residuals);
 double mean_squared_error(const Eigen::VectorXd& residuals);
 double root_mean_squared_error(const Eigen::VectorXd& residuals);
+double relative_mse(const Eigen::VectorXd& residuals, const Eigen::VectorXd& y);
+double correlation_loss(const Eigen::VectorXd& predictions,
+                        const Eigen::VectorXd& y);
+double r2_score(const Eigen::VectorXd& predictions, const Eigen::VectorXd& y);
 double bic_score(const Eigen::VectorXd& residuals, int n_constants);
 double laplace_nmll_score(const Eigen::VectorXd& residuals, int n_constants);
 
@@ -124,23 +128,85 @@ public:
     /** Predict target values for X.  Returns (M,) column. */
     Eigen::VectorXd predict(const RowMatrixXd& X);
 
-    /**
-     * Optimise constants via Levenberg-Marquardt.
+    /** Predictions and gradient w.r.t. inputs: (f(x), df/dx).
      *
-     * @param X         Input data  (M × D).
-     * @param y         Target values (M,).
-     * @param max_iter  Maximum LM iterations.
-     * @param tol       Convergence tolerance.
+     *  This is the derivative surface used by implicit regression.  A
+     *  non-finite evaluation propagates as NaN entries rather than raising.
+     */
+    std::pair<Eigen::VectorXd, RowMatrixXd> gradient(const RowMatrixXd& X);
+
+    /**
+     * Fit constants to explicit-regression data via Levenberg-Marquardt.
+     *
+     * Always minimises the ordinary residual vector ``f(x) - y`` regardless
+     * of the loss later used to rank the expression.  Attempting the fit
+     * establishes the fitted state for the current raw structure even when the
+     * solver does not numerically converge.
+     *
+     * @param X          Input data  (M × D).
+     * @param y          Target values (M,).
+     * @param tolerance  Convergence tolerance.  Default 1e-5.
+     * @param max_iter   Maximum LM iterations.
      */
     void fit(const RowMatrixXd& X, const Eigen::VectorXd& y,
-             int max_iter = 100, double tol = 1e-10);
+             double tolerance = 1e-5, int max_iter = 100);
 
-    /** Score the expression.  metric: "mae"|"mse"|"rmse"|"bic"|"laplace_nmll" */
+    /**
+     * Fit constants to implicit-regression data via Levenberg-Marquardt.
+     *
+     * Minimises the implicit residual vector (the per-sample normalised
+     * alignment between the expression's input gradient and the observed
+     * trajectory derivatives ``dx_dt``).  Attempting the fit establishes the
+     * fitted state even when the solver does not converge.
+     *
+     * @param X          Input data  (M × D).
+     * @param dx_dt      Observed trajectory derivatives aligned with X (M × D).
+     * @param tolerance  Convergence tolerance.  Default 1e-5.
+     * @param max_iter   Maximum LM iterations.
+     */
+    void fit_implicit(const RowMatrixXd& X, const RowMatrixXd& dx_dt,
+                      double tolerance = 1e-5, int max_iter = 100);
+
+    /** Lower-is-better explicit-regression loss.
+     *
+     *  kind: "mse"|"mae"|"rmse"|"relative_mse"|"correlation"|"laplace_nmll".
+     *  Non-finite expression evaluation returns +inf.
+     */
+    double loss(const RowMatrixXd& X, const Eigen::VectorXd& y,
+                const std::string& kind = "mse");
+
+    /** Higher-is-better explicit-regression score.
+     *
+     *  kind: "r2"|"laplace_nmll".  Non-finite evaluation returns -inf.
+     */
     double score(const RowMatrixXd& X, const Eigen::VectorXd& y,
-                 const std::string& metric = "mse");
+                 const std::string& kind = "r2");
 
-    /** Whether the expression has been fitted (or has no constants). */
+    /** Lower-is-better implicit-regression loss.
+     *
+     *  Aggregates the per-sample alignment between the expression's input
+     *  gradient and ``dx_dt``.  When ``required_params`` is provided, at least
+     *  one sample must have at least that many derivative components with
+     *  magnitude greater than 1e-16; otherwise the loss is +inf.  Non-finite
+     *  evaluation also returns +inf.
+     */
+    double implicit_loss(const RowMatrixXd& X, const RowMatrixXd& dx_dt,
+                         std::optional<int> required_params = std::nullopt);
+
+    /** Higher-is-better implicit-regression score (negation of implicit_loss). */
+    double implicit_score(const RowMatrixXd& X, const RowMatrixXd& dx_dt,
+                          std::optional<int> required_params = std::nullopt);
+
+    /** Whether the expression has been fitted (structure-only lifecycle).
+     *
+     *  True when the expression has no optimisable constants, or when a fitting
+     *  method has been attempted for its current raw structure.
+     */
     bool is_fitted();
+
+    /** Raw access to the structure-only fitted flag (for serialization). */
+    bool fit_attempted() const;
+    void set_fit_attempted(bool v);
 
     // ---- Utility --------------------------------------------------- //
 
@@ -180,6 +246,18 @@ private:
     void notify_modification();
     void update();
 
+    /** Per-sample implicit residual (normalised gradient alignment).
+     *
+     *  Returns an (M,) vector whose entries are the signed, normalised
+     *  alignment of the expression's input gradient with ``dx_dt`` at each
+     *  sample.  Non-finite normalisations become +inf.  When
+     *  ``required_params`` is set and the anti-triviality guard fails, every
+     *  entry is +inf.
+     */
+    Eigen::VectorXd implicit_residual_vector(
+        const RowMatrixXd& X, const RowMatrixXd& dx_dt,
+        std::optional<int> required_params = std::nullopt);
+
     static std::map<int, int> dag_operator_counts(
         const StackMatrix& cmd, const std::string& terminals);
     static std::map<int, int> tree_operator_counts(
@@ -200,8 +278,14 @@ private:
     std::vector<int> integers_;
     std::vector<int> constant_mapping_;
 
-    // State tracking
-    bool is_fitted_;
+    // State tracking.
+    //
+    // ``fit_attempted_`` records whether an applicable fitting method has been
+    // run for the *current raw structure*.  Combined with the optimisable
+    // constant count it defines the structure-only ``is_fitted`` lifecycle
+    // (see :meth:`is_fitted`): a raw structural change clears it, a fitting
+    // attempt establishes it, and direct constant assignment leaves it alone.
+    bool fit_attempted_;
     bool modified_;
     std::optional<std::size_t> hash_;
 };

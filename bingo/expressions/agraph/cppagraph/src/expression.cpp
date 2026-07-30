@@ -40,6 +40,44 @@ double root_mean_squared_error(const Eigen::VectorXd& r) {
     return std::sqrt(mean_squared_error(r));
 }
 
+double relative_mse(const Eigen::VectorXd& r, const Eigen::VectorXd& y) {
+    // Squared residuals normalised pointwise by the target value; zero-valued
+    // targets make the normalisation undefined and are rejected.
+    for (Eigen::Index i = 0; i < y.size(); ++i) {
+        if (y(i) == 0.0) {
+            throw std::invalid_argument(
+                "relative_mse rejects zero-valued targets");
+        }
+    }
+    return (r.array() / y.array()).square().mean();
+}
+
+double correlation_loss(const Eigen::VectorXd& predictions,
+                        const Eigen::VectorXd& y) {
+    // 1 - r**2 where r is the Pearson correlation.  Perfectly associated data
+    // (|r| = 1) yields 0; a degenerate (zero-variance) input yields 1.
+    const Eigen::Index n = predictions.size();
+    if (n == 0) return 1.0;
+    const double mean_p = predictions.mean();
+    const double mean_y = y.mean();
+    const Eigen::VectorXd dp = predictions.array() - mean_p;
+    const Eigen::VectorXd dy = y.array() - mean_y;
+    const double var_p = dp.squaredNorm();
+    const double var_y = dy.squaredNorm();
+    if (var_p == 0.0 || var_y == 0.0) return 1.0;
+    const double r = dp.dot(dy) / std::sqrt(var_p * var_y);
+    return 1.0 - r * r;
+}
+
+double r2_score(const Eigen::VectorXd& predictions, const Eigen::VectorXd& y) {
+    // Coefficient of determination R^2 (higher is better).
+    const double mean_y = y.mean();
+    const double ss_res = (y - predictions).squaredNorm();
+    const double ss_tot = (y.array() - mean_y).matrix().squaredNorm();
+    if (ss_tot == 0.0) return (ss_res == 0.0) ? 1.0 : 0.0;
+    return 1.0 - ss_res / ss_tot;
+}
+
 double bic_score(const Eigen::VectorXd& r, int n_constants) {
     const double n = static_cast<double>(r.size());
     const double k = static_cast<double>(n_constants + 1);
@@ -73,7 +111,7 @@ AGraphExpression::AGraphExpression(const std::string& simplification,
       propagate_constants_(propagate_constants),
       raw_command_array_(0, 3),
       command_array_(0, 3),
-      is_fitted_(true),
+      fit_attempted_(false),
       modified_(false)
 {
     if (simplification != "reduce" && simplification != "cas") {
@@ -255,11 +293,19 @@ Eigen::VectorXd AGraphExpression::predict(const RowMatrixXd& X) {
     return evaluate(X).col(0);
 }
 
+std::pair<Eigen::VectorXd, RowMatrixXd>
+AGraphExpression::gradient(const RowMatrixXd& X) {
+    auto [f, df_dx] = evaluate_with_x_gradient(X);
+    return {f.col(0), df_dx};
+}
+
 void AGraphExpression::fit(const RowMatrixXd& X,
                            const Eigen::VectorXd& y,
-                           int max_iter, double tol) {
+                           double tolerance, int max_iter) {
     if (modified_) update();
-    is_fitted_ = true;
+    // A fitting attempt establishes the fitted state for the current raw
+    // structure, even when the solver does not numerically converge.
+    fit_attempted_ = true;
 
     if (constants_.empty()) return;
 
@@ -273,6 +319,7 @@ void AGraphExpression::fit(const RowMatrixXd& X,
     for (Eigen::Index i = 0; i < n; ++i)
         params(i) = constants_[i];
 
+    const double tol = tolerance;
     double lambda = 1e-3;
     constexpr double lambda_up = 10.0;
     constexpr double lambda_down = 0.1;
@@ -334,43 +381,232 @@ void AGraphExpression::fit(const RowMatrixXd& X,
         // Don't crash on bad fits — keep current params.
     }
 
-    constants_ = std::vector<double>(
-        params.data(), params.data() + params.size());
+    set_constants(std::vector<double>(
+        params.data(), params.data() + params.size()));
+}
 
-    // Propagate if enabled
-    if (propagate_constants_ && !constant_mapping_.empty()) {
-        for (std::size_t i = 0; i < constant_mapping_.size(); ++i) {
-            int raw_idx = constant_mapping_[i];
-            if (i < constants_.size() &&
-                raw_idx >= 0 &&
-                static_cast<std::size_t>(raw_idx) <
-                    raw_constants_.size()) {
-                raw_constants_[raw_idx] = constants_[i];
+void AGraphExpression::fit_implicit(const RowMatrixXd& X,
+                                    const RowMatrixXd& dx_dt,
+                                    double tolerance, int max_iter) {
+    if (modified_) update();
+    // A fitting attempt establishes the fitted state regardless of convergence.
+    fit_attempted_ = true;
+
+    if (constants_.empty()) return;
+
+    const Eigen::Index n =
+        static_cast<Eigen::Index>(constants_.size());
+
+    Eigen::VectorXd params(n);
+    for (Eigen::Index i = 0; i < n; ++i)
+        params(i) = constants_[i];
+
+    // Levenberg-Marquardt on the implicit residual vector with a
+    // finite-difference Jacobian (the implicit residual has no cached analytic
+    // derivative available).
+    const double tol = tolerance;
+    double lambda = 1e-3;
+    constexpr double lambda_up = 10.0;
+    constexpr double lambda_down = 0.1;
+    const double fd_eps = 1e-8;
+
+    auto residual_at = [&](const Eigen::VectorXd& p) -> Eigen::VectorXd {
+        set_constants(std::vector<double>(p.data(), p.data() + p.size()));
+        return implicit_residual_vector(X, dx_dt);
+    };
+
+    try {
+        Eigen::VectorXd r = residual_at(params);
+        for (int iter = 0; iter < max_iter; ++iter) {
+            if (!r.allFinite()) break;
+            const Eigen::Index m = r.size();
+
+            // Finite-difference Jacobian (m × n).
+            Eigen::MatrixXd jac(m, n);
+            bool jac_ok = true;
+            for (Eigen::Index j = 0; j < n; ++j) {
+                Eigen::VectorXd p_step = params;
+                const double h =
+                    fd_eps * (std::abs(params(j)) + fd_eps);
+                p_step(j) += h;
+                Eigen::VectorXd r_step = residual_at(p_step);
+                if (!r_step.allFinite()) {
+                    jac_ok = false;
+                    break;
+                }
+                jac.col(j) = (r_step - r) / h;
+            }
+            // Restore residual at current params.
+            r = residual_at(params);
+            if (!jac_ok || !jac.allFinite()) break;
+
+            Eigen::MatrixXd JtJ = jac.transpose() * jac;
+            Eigen::VectorXd Jtr = jac.transpose() * r;
+
+            Eigen::VectorXd diag_JtJ = JtJ.diagonal();
+            for (Eigen::Index i = 0; i < n; ++i)
+                if (diag_JtJ(i) < 1e-12)
+                    diag_JtJ(i) = 1e-12;
+
+            Eigen::MatrixXd H = JtJ;
+            H.diagonal() += lambda * diag_JtJ;
+
+            Eigen::VectorXd dp = H.ldlt().solve(-Jtr);
+            if (!dp.allFinite()) break;
+
+            Eigen::VectorXd new_params = params + dp;
+            Eigen::VectorXd r_new = residual_at(new_params);
+
+            double cost_old = r.squaredNorm();
+            double cost_new = r_new.allFinite()
+                ? r_new.squaredNorm()
+                : std::numeric_limits<double>::infinity();
+
+            if (cost_new < cost_old) {
+                params = new_params;
+                r = r_new;
+                lambda *= lambda_down;
+                if (dp.norm() < tol * (params.norm() + tol)) break;
+                if (std::abs(cost_old - cost_new) < tol * cost_old) break;
+            } else {
+                lambda *= lambda_up;
             }
         }
+    } catch (...) {
+        // Don't crash on bad fits — keep current params.
     }
+
+    set_constants(std::vector<double>(
+        params.data(), params.data() + params.size()));
+}
+
+double AGraphExpression::loss(const RowMatrixXd& X,
+                              const Eigen::VectorXd& y,
+                              const std::string& kind) {
+    static const std::vector<std::string> valid = {
+        "mse", "mae", "rmse", "relative_mse", "correlation", "laplace_nmll"};
+    if (std::find(valid.begin(), valid.end(), kind) == valid.end()) {
+        throw std::invalid_argument(
+            "kind must be one of mse, mae, rmse, relative_mse, correlation, "
+            "laplace_nmll; got \"" + kind + "\"");
+    }
+
+    const double pos_inf = std::numeric_limits<double>::infinity();
+    Eigen::VectorXd predictions = predict(X);
+    if (!predictions.allFinite()) return pos_inf;
+
+    Eigen::VectorXd residuals = predictions - y;
+    int nc = static_cast<int>(constants().size());
+
+    double value;
+    if (kind == "mse")
+        value = mean_squared_error(residuals);
+    else if (kind == "mae")
+        value = mean_absolute_error(residuals);
+    else if (kind == "rmse")
+        value = root_mean_squared_error(residuals);
+    else if (kind == "laplace_nmll")
+        value = -laplace_nmll_score(residuals, nc);
+    else if (kind == "relative_mse")
+        value = relative_mse(residuals, y);
+    else  // "correlation"
+        value = correlation_loss(predictions, y);
+
+    return std::isfinite(value) ? value : pos_inf;
 }
 
 double AGraphExpression::score(const RowMatrixXd& X,
                                const Eigen::VectorXd& y,
-                               const std::string& metric) {
-    Eigen::VectorXd residuals = predict(X) - y;
-    int nc = static_cast<int>(constants().size());
+                               const std::string& kind) {
+    if (kind != "r2" && kind != "laplace_nmll") {
+        throw std::invalid_argument(
+            "kind must be one of r2, laplace_nmll; got \"" + kind + "\"");
+    }
 
-    if (metric == "bic")
-        return bic_score(residuals, nc);
-    if (metric == "laplace_nmll")
-        return laplace_nmll_score(residuals, nc);
-    if (metric == "mae")
-        return mean_absolute_error(residuals);
-    if (metric == "rmse")
-        return root_mean_squared_error(residuals);
-    return mean_squared_error(residuals);
+    const double neg_inf = -std::numeric_limits<double>::infinity();
+    Eigen::VectorXd predictions = predict(X);
+    if (!predictions.allFinite()) return neg_inf;
+
+    int nc = static_cast<int>(constants().size());
+    double value;
+    if (kind == "laplace_nmll")
+        value = laplace_nmll_score(predictions - y, nc);
+    else  // "r2"
+        value = r2_score(predictions, y);
+
+    return std::isfinite(value) ? value : neg_inf;
+}
+
+Eigen::VectorXd AGraphExpression::implicit_residual_vector(
+        const RowMatrixXd& X, const RowMatrixXd& dx_dt,
+        std::optional<int> required_params) {
+    const double pos_inf = std::numeric_limits<double>::infinity();
+    auto [f, df_dx] = evaluate_with_x_gradient(X);
+    (void)f;
+
+    // Element-wise product of the input gradient with the trajectory
+    // derivatives.
+    RowMatrixXd dot_product = df_dx.array() * dx_dt.array();
+    const Eigen::Index m = X.rows();
+
+    if (required_params.has_value()) {
+        bool any_ok = false;
+        for (Eigen::Index i = 0; i < m; ++i) {
+            int n_used = 0;
+            for (Eigen::Index j = 0; j < dot_product.cols(); ++j)
+                if (std::abs(dot_product(i, j)) > 1e-16) ++n_used;
+            if (n_used >= required_params.value()) {
+                any_ok = true;
+                break;
+            }
+        }
+        if (!any_ok) return Eigen::VectorXd::Constant(m, pos_inf);
+    }
+
+    Eigen::VectorXd residual(m);
+    for (Eigen::Index i = 0; i < m; ++i) {
+        double numerator = dot_product.row(i).sum();
+        double denominator = dot_product.row(i).cwiseAbs().sum();
+        double value = numerator / denominator;
+        residual(i) = std::isfinite(denominator) && std::isfinite(value)
+                          ? value
+                          : pos_inf;
+    }
+    return residual;
+}
+
+double AGraphExpression::implicit_loss(const RowMatrixXd& X,
+                                       const RowMatrixXd& dx_dt,
+                                       std::optional<int> required_params) {
+    const double pos_inf = std::numeric_limits<double>::infinity();
+    Eigen::VectorXd residual =
+        implicit_residual_vector(X, dx_dt, required_params);
+    if (!residual.allFinite()) return pos_inf;
+    double value = mean_absolute_error(residual);
+    return std::isfinite(value) ? value : pos_inf;
+}
+
+double AGraphExpression::implicit_score(const RowMatrixXd& X,
+                                        const RowMatrixXd& dx_dt,
+                                        std::optional<int> required_params) {
+    const double pos_inf = std::numeric_limits<double>::infinity();
+    double loss_value = implicit_loss(X, dx_dt, required_params);
+    return loss_value == pos_inf
+               ? -std::numeric_limits<double>::infinity()
+               : -loss_value;
 }
 
 bool AGraphExpression::is_fitted() {
     if (modified_) update();
-    return is_fitted_;
+    return fit_attempted_ || constants_.empty();
+}
+
+bool AGraphExpression::fit_attempted() const {
+    return fit_attempted_;
+}
+
+void AGraphExpression::set_fit_attempted(bool v) {
+    fit_attempted_ = v;
 }
 
 // ================================================================
@@ -423,7 +659,7 @@ AGraphExpression AGraphExpression::copy() const {
     out.constants_ = constants_;
     out.integers_ = integers_;
     out.constant_mapping_ = constant_mapping_;
-    out.is_fitted_ = is_fitted_;
+    out.fit_attempted_ = fit_attempted_;
     out.modified_ = modified_;
     out.hash_ = std::nullopt;  // don't carry hash across copies
     return out;
@@ -471,9 +707,11 @@ bool AGraphExpression::modified() const {
 // ================================================================
 
 void AGraphExpression::notify_modification() {
+    // A raw structural change unsets the fitted state (structure-only
+    // lifecycle); is_fitted() re-derives ``true`` for constant-free stacks.
     modified_ = true;
     hash_ = std::nullopt;
-    is_fitted_ = false;
+    fit_attempted_ = false;
 }
 
 void AGraphExpression::update() {
@@ -492,7 +730,8 @@ void AGraphExpression::update() {
         integers_ = std::move(result.integers);
         constant_mapping_ = std::move(result.constant_mapping);
     }
-    is_fitted_ = constants_.empty();
+    // The fitted state is structure-only: ``is_fitted()`` derives ``true`` from
+    // an empty constant set, so update() must not touch ``fit_attempted_``.
     modified_ = false;
 }
 

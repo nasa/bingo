@@ -165,15 +165,44 @@ class TestSklearnInterface:
         assert pred.ndim == 1
         np.testing.assert_array_almost_equal(pred, simple_x[:, 0] + 10.0)
 
-    def test_score(self, x0_plus_c0, simple_x):
+    def test_loss(self, x0_plus_c0, simple_x):
         y = simple_x[:, 0] + 10.0
-        score = x0_plus_c0.score(simple_x, y, metric="mse")
-        assert score == pytest.approx(0.0, abs=1e-10)
+        loss = x0_plus_c0.loss(simple_x, y, kind="mse")
+        assert loss == pytest.approx(0.0, abs=1e-10)
 
-    def test_score_mae(self, x0_plus_c0, simple_x):
+    def test_loss_mae(self, x0_plus_c0, simple_x):
         y = simple_x[:, 0] + 10.0 + 1.0
-        score = x0_plus_c0.score(simple_x, y, metric="mae")
+        loss = x0_plus_c0.loss(simple_x, y, kind="mae")
+        assert loss == pytest.approx(1.0)
+
+    def test_score_r2_perfect_fit(self, x0_plus_c0, simple_x):
+        y = simple_x[:, 0] + 10.0
+        score = x0_plus_c0.score(simple_x, y)  # default kind="r2"
         assert score == pytest.approx(1.0)
+
+    def test_score_rejects_loss_only_kind(self, x0_plus_c0, simple_x):
+        y = simple_x[:, 0] + 10.0
+        with pytest.raises(ValueError):
+            x0_plus_c0.score(simple_x, y, kind="mse")
+
+    def test_loss_rejects_unknown_kind(self, x0_plus_c0, simple_x):
+        y = simple_x[:, 0] + 10.0
+        with pytest.raises(ValueError):
+            x0_plus_c0.loss(simple_x, y, kind="bogus")
+
+    def test_fit_tolerance_is_keyword_only(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0")
+        y = 3.0 * simple_x[:, 0]
+        with pytest.raises(TypeError):
+            expr.fit(simple_x, y, 1e-6)
+        expr.fit(simple_x, y, tolerance=1e-6)  # keyword form works
+
+    def test_nonfinite_loss_and_score_normalization(self):
+        expr = AGraphExpression(equation="1.0 / X0")
+        x = np.array([[0.0]])
+        y = np.array([1.0])
+        assert expr.loss(x, y, kind="mse") == float("inf")
+        assert expr.score(x, y) == float("-inf")
 
     def test_fit_optimizes_constants(self, simple_x):
         expr = AGraphExpression(equation="X0 * 1.0")
@@ -347,3 +376,110 @@ class TestSklearnIsFitted:
         y = np.array([2.0, 4.0, 6.0])
         expr.fit(x, y)
         assert expr.__sklearn_is_fitted__()
+
+    def test_is_fitted_property_matches_hook(self):
+        expr = AGraphExpression(equation="X0 + 1.0")
+        assert expr.is_fitted == expr.__sklearn_is_fitted__()
+        assert not expr.is_fitted
+        no_const = AGraphExpression(equation="X0")
+        assert no_const.is_fitted
+
+    def test_fit_establishes_and_mutation_unsets(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0")
+        assert not expr.is_fitted
+        expr.fit(simple_x, 2.0 * simple_x[:, 0])
+        assert expr.is_fitted
+        _ = expr.mutable_raw_command_array
+        assert not expr.is_fitted
+
+    def test_non_convergence_still_establishes_fitted(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0")
+        y = np.full(simple_x.shape[0], np.nan)
+        expr.fit(simple_x, y)
+        assert expr.is_fitted
+
+    def test_direct_constant_assignment_preserves_but_cannot_establish(
+        self, simple_x
+    ):
+        expr = AGraphExpression(equation="X0 + 1.0")
+        expr.constants = (5.0,)
+        assert not expr.is_fitted  # cannot establish
+        expr.fit(simple_x, simple_x[:, 0] + 3.0)
+        assert expr.is_fitted
+        expr.constants = (7.0,)
+        assert expr.is_fitted  # preserved
+
+    def test_pickle_preserves_fitted_lifecycle(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0")
+        expr.fit(simple_x, 3.0 * simple_x[:, 0])
+        assert expr.is_fitted
+        restored = pickle.loads(pickle.dumps(expr))
+        assert restored.is_fitted
+        assert restored.constants == pytest.approx(expr.constants)
+
+        unfitted = AGraphExpression(equation="X0 + 1.0")
+        restored_unfitted = pickle.loads(pickle.dumps(unfitted))
+        assert not restored_unfitted.is_fitted
+
+    def test_copy_preserves_fitted_lifecycle(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0")
+        expr.fit(simple_x, 3.0 * simple_x[:, 0])
+        assert expr.copy().is_fitted
+
+        unfitted = AGraphExpression(equation="X0 + 1.0")
+        assert not unfitted.copy().is_fitted
+
+
+# ------------------------------------------------------------------ #
+#  Gradient                                                           #
+# ------------------------------------------------------------------ #
+
+
+class TestGradient:
+    def test_gradient_returns_predictions_and_input_gradient(
+        self, x0_plus_c0, simple_x
+    ):
+        f, df_dx = x0_plus_c0.gradient(simple_x)
+        np.testing.assert_allclose(f, simple_x[:, 0] + 10.0)
+        expected = np.zeros_like(simple_x)
+        expected[:, 0] = 1.0
+        np.testing.assert_allclose(df_dx, expected)
+
+
+# ------------------------------------------------------------------ #
+#  Implicit regression                                               #
+# ------------------------------------------------------------------ #
+
+
+class TestImplicitRegression:
+    def test_fit_implicit_establishes_fitted(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0 + X1 * 1.0")
+        dx_dt = np.ones_like(simple_x)
+        assert not expr.is_fitted
+        expr.fit_implicit(simple_x, dx_dt)
+        assert expr.is_fitted
+
+    def test_fit_implicit_tolerance_is_keyword_only(self, simple_x):
+        expr = AGraphExpression(equation="X0 * 1.0 + X1 * 1.0")
+        dx_dt = np.ones_like(simple_x)
+        with pytest.raises(TypeError):
+            expr.fit_implicit(simple_x, dx_dt, 1e-6)
+        expr.fit_implicit(simple_x, dx_dt, tolerance=1e-6)
+
+    def test_implicit_score_is_negated_loss(self, simple_x):
+        expr = AGraphExpression(equation="X0 + X1")
+        dx_dt = np.ones_like(simple_x)
+        loss = expr.implicit_loss(simple_x, dx_dt)
+        score = expr.implicit_score(simple_x, dx_dt)
+        assert np.isfinite(loss)
+        assert score == pytest.approx(-loss)
+
+    def test_required_params_guard_yields_inf(self, simple_x):
+        expr = AGraphExpression(equation="5.0")  # constant, zero gradient
+        dx_dt = np.ones_like(simple_x)
+        assert expr.implicit_loss(
+            simple_x, dx_dt, required_params=1
+        ) == float("inf")
+        assert expr.implicit_score(
+            simple_x, dx_dt, required_params=1
+        ) == float("-inf")

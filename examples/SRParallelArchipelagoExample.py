@@ -39,7 +39,7 @@ def main():
     )
     best_individual = archipelago.get_best_individual()
     if result.success and rank == 0:
-        print("Best:", best_individual.expression)
+        print("Best:", best_individual)
 
 
 if __name__ == "__main__":

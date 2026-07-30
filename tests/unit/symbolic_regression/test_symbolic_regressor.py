@@ -86,6 +86,6 @@ def test_evolves_expression_and_uses_sklearn_score_contract(backend):
     assert predictions.shape == y.shape
     assert np.all(np.isfinite(predictions))
     assert estimator.get_best_individual().fitness == pytest.approx(
-        estimator.get_best_individual().expression.loss(X, y, kind="mae")
+        estimator.get_best_individual().loss(X, y, kind="mae")
     )
     assert estimator.score(X, y) == pytest.approx(r2_score(y, predictions))

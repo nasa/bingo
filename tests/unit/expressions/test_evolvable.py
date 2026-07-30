@@ -5,6 +5,7 @@ import copy
 import numpy as np
 import pytest
 
+import bingo.expressions.agraph as agraph
 from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
@@ -26,6 +27,23 @@ def _make_expr(command_rows, constants=(), integers=(), simplification="reduce")
 
 def _make_evolvable(command_rows, constants=(), integers=()):
     return EvolvableExpression(_make_expr(command_rows, constants, integers))
+
+
+def _set_backend_or_skip(name):
+    try:
+        agraph.set_backend(name)
+    except ImportError:
+        pytest.skip("C++ backend unavailable locally")
+
+
+@pytest.fixture(params=["python", "cpp"])
+def backend(request):
+    if request.param == "cpp":
+        _set_backend_or_skip("cpp")
+    else:
+        agraph.set_backend("python")
+    yield request.param
+    agraph.set_backend("auto")
 
 
 class TestIsChromosome:
@@ -97,6 +115,40 @@ class TestNoLocalOptimizationAdapter:
 
 
 class TestDelegation:
+    def test_user_facing_facade(self, backend):
+        expression = agraph.get_expression_class()(
+            equation="X_0 * 1.0", simplification="reduce"
+        )
+        indv = EvolvableExpression(expression)
+        X = np.array([[1.0], [2.0], [3.0]])
+        y = 2.0 * X[:, 0]
+
+        indv.fitness = 100.0
+        assert indv.fit(X, y, tolerance=1e-6) is indv
+        assert not indv.fit_set
+        assert indv.is_fitted
+        np.testing.assert_allclose(indv.predict(X), y, atol=0.1)
+        assert indv.score(X, y) == pytest.approx(1.0)
+        assert indv.loss(X, y) == pytest.approx(0.0, abs=0.1)
+        assert indv.constants == indv.expression.constants
+        assert indv.integers == indv.expression.integers
+        assert indv.constant_mapping == indv.expression.constant_mapping
+        assert indv.console == indv.expression.console
+        assert indv.sympy == indv.expression.sympy
+        assert indv.latex == indv.expression.latex
+        assert indv.get_operator_counts() == indv.expression.get_operator_counts()
+
+    def test_implicit_fit_returns_facade_and_invalidates_fitness(self, backend):
+        expression = agraph.get_expression_class()(
+            equation="X_0 * 1.0", simplification="reduce"
+        )
+        indv = EvolvableExpression(expression)
+        X = np.array([[1.0], [2.0], [3.0]])
+
+        indv.fitness = 100.0
+        assert indv.fit_implicit(X, np.ones_like(X)) is indv
+        assert not indv.fit_set
+
     def test_command_array(self):
         """command_array on evolvable returns the simplified (evaluation-ready) stack."""
         rows = [[VARIABLE, 0, 0], [SIN, 0, 0]]

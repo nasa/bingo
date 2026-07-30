@@ -179,4 +179,4 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
                 f"X has {X.shape[1]} features, but SymbolicRegressor is expecting "
                 f"{self.n_features_in_} features as input."
             )
-        return self.best_ind_.expression.predict(X)
+        return self.best_ind_.predict(X)

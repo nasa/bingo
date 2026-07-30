@@ -56,8 +56,48 @@ class EvolvableExpression(Chromosome):
         return self.expression.distance(other.expression)
 
     # ------------------------------------------------------------------ #
-    #  Public expression view                                             #
+    #  Public expression facade                                           #
     # ------------------------------------------------------------------ #
+
+    def predict(self, X):
+        """Predict target values for *X*."""
+        return self.expression.predict(X)
+
+    def gradient(self, X):
+        """Return predictions and their gradients with respect to *X*."""
+        return self.expression.gradient(X)
+
+    def fit(self, X, y, *, tolerance=1e-5):
+        """Fit expression constants and return this evolutionary candidate."""
+        self.expression.fit(X, y, tolerance=tolerance)
+        self.fit_set = False
+        return self
+
+    def fit_implicit(self, X, dx_dt, *, tolerance=1e-5):
+        """Fit implicit-expression constants and return this candidate."""
+        self.expression.fit_implicit(X, dx_dt, tolerance=tolerance)
+        self.fit_set = False
+        return self
+
+    def loss(self, X, y, *, kind="mse"):
+        """Return the lower-is-better explicit-regression loss."""
+        return self.expression.loss(X, y, kind=kind)
+
+    def score(self, X, y, *, kind="r2"):
+        """Return the higher-is-better explicit-regression score."""
+        return self.expression.score(X, y, kind=kind)
+
+    def implicit_loss(self, X, dx_dt, *, required_params=None):
+        """Return the lower-is-better implicit-regression loss."""
+        return self.expression.implicit_loss(
+            X, dx_dt, required_params=required_params
+        )
+
+    def implicit_score(self, X, dx_dt, *, required_params=None):
+        """Return the higher-is-better implicit-regression score."""
+        return self.expression.implicit_score(
+            X, dx_dt, required_params=required_params
+        )
 
     @property
     def command_array(self):
@@ -80,6 +120,41 @@ class EvolvableExpression(Chromosome):
         """Tree-based node count (counts shared sub-expressions multiple times)."""
         return self.expression.tree_complexity
 
+    @property
+    def constants(self):
+        """Numeric constants used in the simplified equation."""
+        return self.expression.constants
+
+    @property
+    def integers(self):
+        """Integer values used in the simplified equation."""
+        return self.expression.integers
+
+    @property
+    def constant_mapping(self):
+        """Map simplified constant indices to raw constant indices."""
+        return self.expression.constant_mapping
+
+    @property
+    def is_fitted(self):
+        """Whether fitting has been attempted for the current structure."""
+        return self.expression.is_fitted
+
+    @property
+    def console(self):
+        """Human-readable expression string."""
+        return self.expression.console
+
+    @property
+    def sympy(self):
+        """SymPy representation of the expression."""
+        return self.expression.sympy
+
+    @property
+    def latex(self):
+        """LaTeX representation of the expression."""
+        return self.expression.latex
+
     def get_utilized_commands(self):
         """Which raw commands are utilized by the output.
 
@@ -88,6 +163,10 @@ class EvolvableExpression(Chromosome):
         bytearray
         """
         return self.expression.get_utilized_commands()
+
+    def get_operator_counts(self, tree=True, terminals="exclude"):
+        """Count operators in the expression tree or DAG."""
+        return self.expression.get_operator_counts(tree=tree, terminals=terminals)
 
     # ------------------------------------------------------------------ #
     #  Hash / equality                                                    #

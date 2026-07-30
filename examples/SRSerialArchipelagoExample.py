@@ -33,7 +33,7 @@ def main():
         max_generations=500, fitness_threshold=1.0e-4
     )
     if result.success:
-        print(archipelago.get_best_individual().expression)
+        print(archipelago.get_best_individual())
     else:
         print("Failed.")
     print(result.ea_diagnostics)

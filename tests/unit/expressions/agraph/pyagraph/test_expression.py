@@ -5,8 +5,6 @@ import pickle
 
 import numpy as np
 import pytest
-from sklearn.utils.validation import check_is_fitted
-from sklearn.exceptions import NotFittedError
 
 from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 from bingo.expressions.agraph.pyagraph.operators import (
@@ -349,15 +347,11 @@ class TestFittedLifecycle:
         expr.fit(simple_x, y)
         assert expr.is_fitted
 
-    def test_check_is_fitted_raises_when_not_fitted(self):
+    def test_sklearn_hook_tracks_fit(self, simple_x):
         expr = AGraphExpression(equation="X0 + 1.0")
-        with pytest.raises(NotFittedError):
-            check_is_fitted(expr)
-
-    def test_check_is_fitted_passes_after_fit(self, simple_x):
-        expr = AGraphExpression(equation="X0 * 1.0")
+        assert not expr.__sklearn_is_fitted__()
         expr.fit(simple_x, 2.0 * simple_x[:, 0])
-        check_is_fitted(expr)  # should not raise
+        assert expr.__sklearn_is_fitted__()
 
     def test_raw_command_mutation_unsets_fitted(self, simple_x):
         expr = AGraphExpression(equation="X0 + 1.0")

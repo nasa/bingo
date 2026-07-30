@@ -9,6 +9,12 @@ from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.chromosomes.chromosome import Chromosome
 
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:This process .* is multi-threaded, use of fork\\(\\) may lead "
+    "to deadlocks in the child\\.:DeprecationWarning:multiprocessing\\.popen_fork"
+)
+
+
 class _Individual(Chromosome):
     def __str__(self):
         return "individual"

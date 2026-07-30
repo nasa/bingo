@@ -49,7 +49,7 @@ from ..operators import (
     TANH,
 )
 
-np.seterr(divide="ignore", invalid="ignore")
+np.seterr(divide="ignore", invalid="ignore", over="ignore")
 
 
 # ---- Terminals ----

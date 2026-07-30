@@ -6,7 +6,15 @@ import pytest
 
 from bingo.evaluation.evaluation import Evaluation
 from bingo.evaluation.fitness_function import FitnessFunction
-from bingo.symbolic_regression import AGraph
+from bingo.chromosomes.chromosome import Chromosome
+
+
+class _Individual(Chromosome):
+    def __str__(self):
+        return "individual"
+
+    def distance(self, other):
+        return 0
 
 
 def test_evaluation_has_accessor_to_fitness_function_eval_count(mocker):
@@ -31,7 +39,7 @@ class FitnessInc(FitnessFunction):
 @pytest.mark.parametrize("n_proc", [False, 2])
 def test_evaluation_finds_fitness_for_individuals_that_need_it(n_proc):
     fit_not_set_idx = [2, 4, 6, 8]
-    population = [AGraph() for _ in range(10)]
+    population = [_Individual() for _ in range(10)]
     for i, indv in enumerate(population):
         indv.fitness = i
         if i in fit_not_set_idx:
@@ -55,7 +63,7 @@ def test_evaluation_finds_fitness_for_individuals_that_need_it(n_proc):
 @pytest.mark.parametrize("n_proc", [False, 2])
 def test_evaluation_redundant_evaluation(n_proc):
     n_indv = 5
-    population = [AGraph() for _ in range(n_indv)]
+    population = [_Individual() for _ in range(n_indv)]
     for i, indv in enumerate(population):
         indv.fitness = i
         if i in [2, 3]:
@@ -76,7 +84,7 @@ def test_evaluation_redundant_evaluation(n_proc):
 @pytest.mark.parametrize("n_proc", [False, 2])
 def test_evaluation_multiprocessing(mocker, n_proc):
     n_indv = 10
-    population = [AGraph() for _ in range(n_indv)]
+    population = [_Individual() for _ in range(n_indv)]
     for i, indv in enumerate(population):
         indv.fitness = i
         indv.fit_set = False  # IMPORTANT: have to do this after setting fitness

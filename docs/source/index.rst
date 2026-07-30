@@ -12,6 +12,7 @@ symbolic regression via genetic programming.
     installation
     get_started
     high_level
+    migration
     low_level
     API Docs <_apidocs/modules>
 

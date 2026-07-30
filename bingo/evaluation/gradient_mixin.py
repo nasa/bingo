@@ -53,7 +53,7 @@ class VectorGradientMixin(GradientMixin):
 
     Parameters
     ----------
-    training_data : ExplicitTrainingData
+    training_data : TrainingData
         data that is used in fitness evaluation (passed to parent).
     metric : str
         String defining the measure of error to use. Available options are:

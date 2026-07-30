@@ -2,7 +2,7 @@
 
 ## Repository Overview
 
-Bingo is an open-source Python package developed by NASA for symbolic regression and general-purpose evolutionary optimization using genetic programming. The project implements parallel island evolution strategies with MPI support and includes optional C++ performance optimizations via BingoCpp.
+Bingo is an open-source Python package developed by NASA for symbolic regression and general-purpose evolutionary optimization using genetic programming. The project implements parallel island evolution strategies with MPI support and an optional C++ Expression backend.
 
 ## Technology Stack
 
@@ -37,12 +37,10 @@ bingo/
 │   ├── local_optimizers/           # Local optimization methods
 │   ├── selection/                  # Selection operators (Tournament, etc.)
 │   ├── stats/                      # Statistics and tracking
-│   ├── symbolic_regression/        # Symbolic regression specific code
-│   │   ├── agraph/                # Acyclic graph representation
-│   │   └── benchmarking/          # Benchmark problems
+│   ├── expressions/                # Expression representations and variation
+│   ├── symbolic_regression/        # Objectives and scikit-learn estimator
 │   ├── util/                       # Utilities
 │   └── variation/                  # Genetic operators (crossover, mutation)
-├── bingocpp/                       # C++ performance library (submodule)
 ├── tests/                          # Test suite
 ├── examples/                       # Usage examples
 ├── docs/                           # Sphinx documentation
@@ -95,7 +93,7 @@ bingo/
 ### Directory Structure & Naming
 - **Location**: `tests/` directory at project root
 - **Organization**: Mirror `bingo/` package structure in `tests/unit/`
-  - Example: `bingo/symbolic_regression/agraph/` -> `tests/unit/symbolic_regression/agraph/`
+   - Example: `bingo/expressions/agraph/` -> `tests/unit/expressions/agraph/`
 - **File Naming**: `test_*.py` (e.g., `test_agraph.py`)
 - **Function Naming**: `test_*` (descriptive usage, e.g., `test_crossover_maintains_size`)
 - **Class Naming**: `Test*` (CamelCase, e.g., `class TestAGraph:`)
@@ -124,16 +122,15 @@ bingo/
 
 ### Installation from Source
 ```bash
-git clone --recurse-submodules https://github.com/nasa/bingo.git
+git clone https://github.com/nasa/bingo.git
 cd bingo
 pip install -r requirements.txt
-./.build_bingocpp.sh  # Optional: build C++ extensions
+./.build_cppagraph.sh  # Optional: build the C++ Expression backend
 pytest tests
 ```
 
 ### Building C++ Extensions
-- BingoCpp is a git submodule providing performance optimizations
-- Built via CMake integration in setup.py
+- The C++ AGraphExpression backend is built via CMake integration in setup.py
 - Optional but recommended for performance
 - If build fails, Python fallback implementations are used
 
@@ -147,9 +144,8 @@ pytest tests
 ### Symbolic Regression
 - Primary use case: symbolic regression via genetic programming
 - **SymbolicRegressor**: scikit-learn compatible interface
-- **AGraph**: Acyclic graph representation of equations
+- **AGraphExpression**: Acyclic graph Expression representation
 - Supports explicit and implicit regression
-- Includes benchmark suite from literature (Koza, Nguyen problems)
 
 ### Evolutionary Optimization
 - **Island**: Single population evolutionary algorithm
@@ -184,13 +180,13 @@ pytest tests
 ### GitHub Actions Workflow
 - Runs on every push and pull request
 - Python 3.13 used for CI
-- Steps: checkout (with submodules) → install MPI → install deps → build BingoCpp → run tests → coverage
+- Steps: checkout → install MPI → install deps → build cppagraph → run tests → coverage
 - Must pass tests and coverage checks
 
 ### What CI Checks
 - All pytest tests pass
 - Code coverage reported to Coveralls
-- BingoCpp builds successfully (with fallback if it fails)
+- The cppagraph backend builds successfully and passes parity tests
 
 ## Security & Compliance
 

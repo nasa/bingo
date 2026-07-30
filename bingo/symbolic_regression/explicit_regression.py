@@ -3,7 +3,6 @@
 import numpy as np
 
 from ..evaluation.fitness_function import FitnessFunction
-from ..evaluation.training_data import TrainingData
 
 
 class _ExplicitObjectiveData:
@@ -43,35 +42,3 @@ class ExplicitRegression(FitnessFunction):
             expression.fit(data.X, data.y, tolerance=self._fit_tolerance)
         self.eval_count += 1
         return expression.loss(data.X, data.y, kind=self._loss)
-
-
-class ExplicitTrainingData(TrainingData):
-    """Legacy explicit training-data container retained until the API cutover."""
-
-    def __init__(self, x, y):
-        if x.ndim == 1:
-            x = x.reshape([-1, 1])
-        if x.ndim > 2:
-            raise TypeError("Explicit training x should be 2 dim array")
-        if y.ndim == 1:
-            y = y.reshape([-1, 1])
-        if y.ndim > 2:
-            raise TypeError("Explicit training y should be 2 dim array")
-        self._x = x
-        self._y = y
-
-    @property
-    def x(self):
-        """Independent data."""
-        return self._x
-
-    @property
-    def y(self):
-        """Dependent data."""
-        return self._y
-
-    def __getitem__(self, items):
-        return ExplicitTrainingData(self._x[items, :], self._y[items, :])
-
-    def __len__(self):
-        return self._x.shape[0]

@@ -16,7 +16,7 @@ First clone the repo and move into the directory:
 
 .. code-block:: console
 
-    git clone --recurse-submodules https://github.com/nasa/bingo.git
+    git clone https://github.com/nasa/bingo.git
     cd bingo
 
 Then make sure you have the requirements necessary to use Bingo:
@@ -25,11 +25,11 @@ Then make sure you have the requirements necessary to use Bingo:
 
     pip install -r requirements.txt
 
-Then build BingoCpp:
+Optionally build the C++ expression backend:
 
 .. code-block:: console
 
-    ./.build_bingocpp.sh
+    ./.build_cppagraph.sh
 
 Now you should be good to go! You can run Bingo's test suite to make sure that
 the installation process worked properly:

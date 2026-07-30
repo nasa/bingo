@@ -1,7 +1,5 @@
 """Public estimator tests for expression-backed symbolic regression."""
 
-from importlib.util import find_spec
-
 import numpy as np
 import pytest
 from sklearn.exceptions import NotFittedError
@@ -13,9 +11,10 @@ from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor
 
 
 def _set_backend_or_skip(name):
-    if name == "cpp" and find_spec("bingocpp") is None:
+    try:
+        agraph.set_backend(name)
+    except ImportError:
         pytest.skip("C++ backend unavailable locally")
-    agraph.set_backend(name)
 
 
 @pytest.fixture(params=["python", "cpp"])

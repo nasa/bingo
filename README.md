@@ -33,21 +33,23 @@ A no-fuss way of using Bingo is by using the scikit-learn wrapper:
 
 ### Setting Up the Regressor
 
-There are many options that can be set in `SymbolicRegressor`. Here we set some basic ones including
-`population_size` (the number of equations in a population), `stack_size` (the max number of nodes per equation), and `use_simplification`
-(whether to use simplification to speed up equation evaluation and for easier reading). You can see all of `SymbolicRegressor`'s
-options [here](https://nasa.github.io/bingo/_apidocs/bingo.symbolic_regression.html#module-bingo.symbolic_regression.symbolic_regressor).
+Configure `SymbolicRegressor` with its population size, minimum and maximum
+expression stack sizes, and simplification mode. The estimator uses
+Expression-native generation, fitting, and loss evaluation. See the
+[migration guide](docs/source/migration.rst) for the current public API.
+Evolution minimizes loss, while Expression scores are higher-is-better. Legacy
+AGraph/Equation checkpoints are not compatible with the Expression API.
 
 
 ```python
-from bingo.symbolic_regression.symbolic_regressor import SymbolicRegressor
-regressor = SymbolicRegressor(population_size=100, stack_size=16,
-                              use_simplification=True)
+from bingo.symbolic_regression import SymbolicRegressor
+regressor = SymbolicRegressor(
+    population_size=100,
+    min_stack_size=8,
+    max_stack_size=16,
+    simplification="cas",
+)
 ```
-
-    /home/gbomarit/Projects/Genetic_Programming/bingo/bingo/symbolic_regression/__init__.py:31: UserWarning: Could not load C++ modules No module named 'bingocpp.build.bingocpp'
-      warnings.warn(f"Could not load C++ modules {import_err}")
-
 
 ### Training Data
 Here we're just creating some dummy training data from the equation $5.0 X_0^2 + 3.5 X_0$. More on training data can be found
@@ -134,7 +136,7 @@ For those looking to develop their own features in Bingo.
 First clone the repo and move into the directory:
 
 ```sh
-git clone --recurse-submodules https://github.com/nasa/bingo.git
+git clone https://github.com/nasa/bingo.git
 cd bingo
 ```
 
@@ -151,10 +153,10 @@ or
 pip install -r requirements.txt
 ```
 
-(Optional) Then build the c++ performance library BingoCpp:
+(Optional) Build the C++ expression backend:
 
 ```sh
-./.build_bingocpp.sh
+./.build_cppagraph.sh
 ```
 
 Now you should be good to go! You can run Bingo's test suite to make sure that
@@ -173,7 +175,7 @@ export PYTHONPATH="$PYTHONPATH:/path/to/bingo/"
 and test it with:
 
 ```sh
-python -c 'import bingo; import bingocpp'
+python -c 'import bingo; from bingo.expressions import AGraphExpression'
 ```
 
 ## Contributing

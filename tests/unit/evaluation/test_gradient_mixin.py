@@ -1,179 +1,65 @@
-import pytest
+"""Tests for generic Python gradient-based fitness aggregation."""
+
 import numpy as np
+import pytest
 
-from bingo.evaluation.fitness_function import (
-    VectorBasedFunction as pyVectorBasedFunction,
-)
-from bingo.evaluation.gradient_mixin import (
-    GradientMixin as pyGradientMixin,
-    VectorGradientMixin as pyVectorGradientMixin,
-)
-from bingo.symbolic_regression.agraph.agraph import AGraph as pyAGraph
-
-try:
-    from bingocpp import (
-        GradientMixin as cppGradientMixin,
-        VectorGradientMixin as cppVectorGradientMixin,
-        VectorBasedFunction as cppVectorBasedFunction,
-        AGraph as cppAGraph,
-    )
-
-    bingocpp = True
-except ImportError:
-    bingocpp = False
-
-CPP_PARAM = pytest.param(
-    "Cpp", marks=pytest.mark.skipif(not bingocpp, reason="BingoCpp import " "failure")
-)
+from bingo.evaluation.fitness_function import VectorBasedFunction
+from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 
 
-@pytest.fixture(params=["Python", CPP_PARAM])
-def engine(request):
-    return request.param
+class _Individual:
+    def get_number_local_optimization_params(self):
+        return 2
 
 
-@pytest.fixture
-def gradient_mixin(engine):
-    if engine == "Python":
-        return pyGradientMixin
-    return cppGradientMixin
-
-
-@pytest.fixture
-def vector_gradient_mixin(engine):
-    if engine == "Python":
-        return pyVectorGradientMixin
-    return cppVectorGradientMixin
-
-
-@pytest.fixture
-def vector_based_function(engine):
-    if engine == "Python":
-        return pyVectorBasedFunction
-    return cppVectorBasedFunction
-
-
-@pytest.fixture
-def agraph(engine):
-    if engine == "Python":
-        return pyAGraph
-    return cppAGraph
-
-
-@pytest.fixture
-def dummy_individual(agraph):
-    return agraph()
-
-
-def test_gradient_mixin_cant_be_instanced(gradient_mixin):
-    with pytest.raises(TypeError):
-        _ = gradient_mixin()
-
-
-def test_vector_gradient_mixin_cant_be_instanced():
-    with pytest.raises(TypeError):
-        _ = pyVectorGradientMixin()
-
-
-def test_vector_gradient_mixin_cant_be_instanced_without_base_class():
-    class MixinWithoutVectorBasedFunction(pyVectorGradientMixin):
-        def get_fitness_vector_and_jacobian(self, individual):
-            pass
-
-    with pytest.raises(TypeError):
-        _ = MixinWithoutVectorBasedFunction()
-
-
-def test_vector_gradient_mixin_invalid_metric(vector_gradient_mixin):
-    class NewParent:
-        def __init__(self, training_data, metric):
-            pass
-
-    class VectorGradientMixinWithNewParent(vector_gradient_mixin, NewParent):
-        def get_fitness_vector_and_jacobian(self, individual):
-            pass
-
-    with pytest.raises(ValueError):
-        _ = VectorGradientMixinWithNewParent(
-            training_data=None, metric="invalid metric"
+class _GradientFitness(VectorGradientMixin, VectorBasedFunction):
+    def get_fitness_vector_and_jacobian(self, individual):
+        return np.array([-2.0, 0.0, 2.0]), np.array(
+            [[0.5, 1.0], [1.0, 2.0], [-0.5, 3.0]]
         )
 
-
-def test_gradient_mixin_get_gradient_raises_not_implemented_error(mocker):
-    mocker.patch.object(pyGradientMixin, "__abstractmethods__", new_callable=set)
-
-    gradient_mixin = pyGradientMixin()
-    with pytest.raises(NotImplementedError):
-        gradient_mixin.get_fitness_and_gradient(None)
+    def evaluate_fitness_vector(self, individual):
+        return self.get_fitness_vector_and_jacobian(individual)[0]
 
 
-def test_vector_gradient_mixin_get_jacobian_raises_not_implemented_error(mocker):
-    class VectorFitnessFunction(pyVectorGradientMixin, pyVectorBasedFunction):
-        pass
-
-    mocker.patch.object(VectorFitnessFunction, "__abstractmethods__", new_callable=set)
-
-    vector_fitness_function = VectorFitnessFunction()
-    with pytest.raises(NotImplementedError):
-        vector_fitness_function.get_fitness_vector_and_jacobian(None)
+def test_gradient_mixin_cannot_be_instantiated():
+    with pytest.raises(TypeError):
+        GradientMixin()
 
 
-@pytest.fixture
-def vector_gradient_fitness_function(vector_gradient_mixin, vector_based_function):
-    class VectorGradFitnessFunction(vector_gradient_mixin, vector_based_function):
-        def __init__(self, metric):
-            vector_gradient_mixin.__init__(self, metric=metric)
-            vector_based_function.__init__(self, metric=metric)
-
-        def evaluate_fitness_vector(self, individual):
-            return np.array([-2, 0, 2])
-
+def test_vector_gradient_mixin_requires_vector_fitness_base():
+    class _InvalidGradientFitness(VectorGradientMixin):
         def get_fitness_vector_and_jacobian(self, individual):
-            return (
-                self.evaluate_fitness_vector(individual),
-                np.array([[0.5, 1, -0.5], [1, 2, 3]]).transpose(),
-            )
+            return None
 
-    return VectorGradFitnessFunction
+    with pytest.raises(TypeError):
+        _InvalidGradientFitness()
 
 
 @pytest.mark.parametrize(
-    "metric, expected_fitness, expected_fit_grad",
+    "metric, expected_fitness, expected_gradient",
     [
         ("mae", 4 / 3, [-1 / 3, 2 / 3]),
         ("mean absolute error", 4 / 3, [-1 / 3, 2 / 3]),
         ("mse", 8 / 3, [-4 / 3, 8 / 3]),
         ("mean squared error", 8 / 3, [-4 / 3, 8 / 3]),
-        ("rmse", np.sqrt(8 / 3), [np.sqrt(3 / 8) * -2 / 3, np.sqrt(3 / 8) * 4 / 3]),
-        (
-            "root mean squared error",
-            np.sqrt(8 / 3),
-            [np.sqrt(3 / 8) * -2 / 3, np.sqrt(3 / 8) * 4 / 3],
-        ),
-        (
-            "negative nmll laplace",
-            2.695615869087813,
-            [-0.3169873,  0.6339746],
-        ),
-        (
-            "bic",
-            12.554731246931324,
-            [-1.5,  3.0],
-        ),
+        ("rmse", np.sqrt(8 / 3), [-np.sqrt(3 / 8) * 2 / 3, np.sqrt(3 / 8) * 4 / 3]),
+        ("root mean squared error", np.sqrt(8 / 3), [-np.sqrt(3 / 8) * 2 / 3, np.sqrt(3 / 8) * 4 / 3]),
+        ("negative nmll laplace", 3.244922013421868, [-0.3169873, 0.6339746]),
+        ("bic", 14.751955824267544, [-1.5, 3.0]),
     ],
 )
-def test_vector_gradient(
-    vector_gradient_fitness_function,
-    dummy_individual,
-    metric,
-    expected_fitness,
-    expected_fit_grad,
-    engine,
+def test_vector_gradient_fitness_aggregates_vector_and_jacobian(
+    metric, expected_fitness, expected_gradient
 ):
-    if engine == "Cpp" and metric in ["negative nmll laplace", "bic"]:
-        pytest.skip("Functionality not yet implemented in c++")
+    fitness, gradient = _GradientFitness(metric=metric).get_fitness_and_gradient(
+        _Individual()
+    )
 
-    vector_function = vector_gradient_fitness_function(metric)
-    fitness, gradient = vector_function.get_fitness_and_gradient(dummy_individual)
-    assert fitness == expected_fitness
-    np.testing.assert_array_almost_equal(gradient, expected_fit_grad)
+    assert fitness == pytest.approx(expected_fitness)
+    np.testing.assert_allclose(gradient, expected_gradient)
+
+
+def test_vector_gradient_mixin_rejects_unknown_metric():
+    with pytest.raises(ValueError):
+        _GradientFitness(metric="unknown")

@@ -1,90 +1,45 @@
-# Ignoring some linting rules in tests
-# pylint: disable=missing-docstring
+"""Tests for generic Python fitness aggregation."""
 
-import pytest
 import numpy as np
-from bingo.evaluation.fitness_function import (
-    FitnessFunction as pyFitnessFunction,
-    VectorBasedFunction as pyVectorBasedFunction,
-)
-from bingo.symbolic_regression.agraph.agraph import AGraph as pyAGraph
-from bingo.evaluation.training_data import TrainingData as pyTrainingData
+import pytest
 
-try:
-    from bingocpp import (
-        AGraph as cppAGraph,
-        FitnessFunction as cppFitnessFunction,
-        VectorBasedFunction as cppVectorBasedFunction,
-        TrainingData as cppTrainingData,
-    )
-
-    bingocpp = True
-except ImportError:
-    bingocpp = False
-
-CPP_PARAM = pytest.param(
-    "Cpp", marks=pytest.mark.skipif(not bingocpp, reason="BingoCpp import " "failure")
-)
+from bingo.evaluation.fitness_function import FitnessFunction, VectorBasedFunction
+from bingo.evaluation.training_data import TrainingData
 
 
-@pytest.fixture(params=["Python", CPP_PARAM])
-def engine(request):
-    return request.param
+class _Individual:
+    def get_number_local_optimization_params(self):
+        return 2
 
 
-@pytest.fixture
-def fitness_function(engine):
-    if engine == "Python":
-        return pyFitnessFunction
-    return cppFitnessFunction
+class _VectorFitness(VectorBasedFunction):
+    def evaluate_fitness_vector(self, individual):
+        return np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
 
 
-@pytest.fixture
-def vector_based_function(engine):
-    if engine == "Python":
-        return pyVectorBasedFunction
-    return cppVectorBasedFunction
+class _NanVectorFitness(VectorBasedFunction):
+    def evaluate_fitness_vector(self, individual):
+        return np.array([np.nan, -1.0, 0.0, 1.0, 2.0])
 
 
-@pytest.fixture
-def agraph(engine):
-    if engine == "Python":
-        return pyAGraph
-    return cppAGraph
-
-
-@pytest.fixture
-def training_data(engine):
-    if engine == "Python":
-        return pyTrainingData
-    return cppTrainingData
-
-
-@pytest.fixture
-def dummy_individual(agraph):
-    return agraph()
-
-
-def test_fitness_function_cant_be_instanced():
+def test_fitness_function_cannot_be_instantiated():
     with pytest.raises(TypeError):
-        _ = pyFitnessFunction()
+        FitnessFunction()
 
 
-def test_fitness_function_has_eval_count_and_data(
-    engine, mocker, fitness_function, training_data
-):
-    if engine == "Python":
-        mocker.patch.object(fitness_function, "__abstractmethods__", new_callable=set)
-        mocker.patch.object(training_data, "__abstractmethods__", new_callable=set)
-    training_data = training_data()
-    fit_func = fitness_function(training_data)
+def test_fitness_function_stores_training_data(mocker):
+    mocker.patch.object(FitnessFunction, "__abstractmethods__", new_callable=set)
+    mocker.patch.object(TrainingData, "__abstractmethods__", new_callable=set)
+    training_data = TrainingData()
 
-    assert fit_func.eval_count == 0
-    assert fit_func.training_data is training_data
+    fitness = FitnessFunction(training_data)
+
+    assert fitness.eval_count == 0
+    assert fitness.training_data is training_data
 
 
 @pytest.mark.parametrize(
-    "metric, expected_fit",
+    "metric, expected",
     [
         ("mae", 1.2),
         ("mean absolute error", 1.2),
@@ -96,73 +51,27 @@ def test_fitness_function_has_eval_count_and_data(
         ("bic", 22.483434972148757),
     ],
 )
-def test_vector_based_function_metrics(
-    engine, mocker, vector_based_function, metric, expected_fit, dummy_individual
-):
-    if engine == "Cpp" and metric in ["negative nmll laplace", "bic"]:
-        pytest.skip("Functionality not yet implemented in c++")
-
-    if engine == "Python":
-        mocker.patch.object(
-            vector_based_function, "__abstractmethods__", new_callable=set
-        )
-        mocker.patch.object(
-            dummy_individual, "get_number_local_optimization_params", return_value=2
-        )
-
-    mocker.patch.object(
-        vector_based_function, "evaluate_fitness_vector", return_value=[-2, -1, 0, 1, 2]
-    )
-    fit_func = vector_based_function(metric=metric)
-
-    assert fit_func(dummy_individual) == pytest.approx(expected_fit)
-    fit_func.evaluate_fitness_vector.assert_called_once_with(dummy_individual)
+def test_vector_fitness_aggregates_its_error_vector(metric, expected):
+    assert _VectorFitness(metric=metric)(_Individual()) == pytest.approx(expected)
 
 
-def test_vector_based_function_invalid_metric(engine, mocker, vector_based_function):
-    if engine == "Python":
-        mocker.patch.object(
-            vector_based_function, "__abstractmethods__", new_callable=set
-        )
-    mocker.patch.object(
-        vector_based_function, "evaluate_fitness_vector", return_value=[-2, -1, 0, 1, 2]
-    )
+def test_vector_fitness_rejects_unknown_metric():
     with pytest.raises(ValueError):
-        _ = vector_based_function(metric="invalid metric")
+        _VectorFitness(metric="unknown")
 
 
 @pytest.mark.parametrize(
     "metric",
     [
         "mae",
-        "mse",
-        "rmse",
         "mean absolute error",
+        "mse",
         "mean squared error",
+        "rmse",
         "root mean squared error",
         "negative nmll laplace",
         "bic",
     ],
 )
-def test_vector_based_function_with_nan(
-    engine, mocker, vector_based_function, agraph, metric, dummy_individual
-):
-    if engine == "Cpp" and metric in ["negative nmll laplace", "bic"]:
-        pytest.skip("Functionality not yet implemented in c++")
-
-    if engine == "Python":
-        mocker.patch.object(
-            vector_based_function, "__abstractmethods__", new_callable=set
-        )
-        mocker.patch.object(
-            dummy_individual, "get_number_local_optimization_params", return_value=2
-        )
-
-    mocker.patch.object(
-        vector_based_function,
-        "evaluate_fitness_vector",
-        return_value=[np.nan, -1, 0, 1, 2],
-    )
-    fit_func = vector_based_function(metric=metric)
-
-    assert np.isnan(fit_func(dummy_individual))
+def test_vector_fitness_propagates_nan(metric):
+    assert np.isnan(_NanVectorFitness(metric=metric)(_Individual()))

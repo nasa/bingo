@@ -9,8 +9,3 @@ Low-Level User Guide
     _low_level/tutorial_2
     _low_level/tutorial_3
     _low_level/tutorial_4
-
-.. toctree::
-    :caption: Other:
-
-    _low_level/physics_fitness

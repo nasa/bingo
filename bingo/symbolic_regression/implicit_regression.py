@@ -10,76 +10,53 @@ appropriate fitness evaluators, a corresponding training data container, and
 two helper functions.
 """
 
-import logging
-
 import numpy as np
 
-from ..evaluation.fitness_function import VectorBasedFunction
+from ..evaluation.fitness_function import FitnessFunction
 from ..evaluation.training_data import TrainingData
 
-LOGGER = logging.getLogger(__name__)
+class _ImplicitObjectiveData:
+    """Aligned implicit-regression arrays kept private by the objective."""
+
+    def __init__(self, X, dx_dt):
+        self.X = np.asarray(X, dtype=float)
+        if self.X.ndim == 1:
+            self.X = self.X.reshape(-1, 1)
+        if self.X.ndim != 2:
+            raise TypeError("Implicit regression X must be a 2D array")
+        self.dx_dt = np.asarray(dx_dt, dtype=float)
+        if self.dx_dt.ndim == 1:
+            self.dx_dt = self.dx_dt.reshape(-1, 1)
+        if self.dx_dt.ndim != 2:
+            raise TypeError("Implicit regression dx_dt must be a 2D array")
+        if self.X.shape != self.dx_dt.shape:
+            raise ValueError("Implicit regression X and dx_dt must have equal shape")
+
+    def __getitem__(self, items):
+        return _ImplicitObjectiveData(self.X[items], self.dx_dt[items])
+
+    def __len__(self):
+        return len(self.X)
 
 
-class ImplicitRegression(VectorBasedFunction):
-    """Implicit Regression, version 2
+class ImplicitRegression(FitnessFunction):
+    """Lower-is-better implicit-regression loss for evolvable Expressions."""
 
-    Fitness of this metric is related to the cos of angle between between
-    :math:`df_dx(x)` and :math:`dx_dt`. :math:`df_dx(x)` is calculated
-    through derivatives of the input Equation individual at training_data.x.
-    :math:`dx_dt` is from training_data.dx_dt.
-
-    Different normalization and error checking are available.
-
-    Parameters
-    ----------
-    training_data : `ImplicitTrainingData`
-        data that is used in fitness evaluation.
-    required_params : int
-        (optional) minimum number of nonzero components of dot
-    """
-
-    def __init__(self, training_data, required_params=None):
-        super().__init__(training_data)
+    def __init__(self, X, dx_dt, required_params=None):
+        super().__init__()
+        self._objective_data = _ImplicitObjectiveData(X, dx_dt)
         self._required_params = required_params
 
-    def evaluate_fitness_vector(self, individual):
-        """Evaluates the fitness of an implicit individual
-
-        Evaluates the fitness of the input Equation individual based
-        on the cos of the angle between :math:`df_dx(x)` and :math:`dx_dt`.
-        Where :math:`df_dx` comes from the equation's output w.r.t.
-        training_data.x and :math:`dx_dt` is training_data.dx_dt.
-
-        Parameters
-        ----------
-        individual : Equation
-            individual whose fitness is evaluated on `training_data`
-
-        Returns
-        -------
-        float
-            the fitness of the input Equation individual
-        """
+    def __call__(self, individual):
+        """Fit an Expression once, then return its loss on active objective data."""
+        expression = individual.expression
+        data = self._objective_data
+        if not expression.is_fitted:
+            expression.fit_implicit(data.X, data.dx_dt, tolerance=1e-5)
         self.eval_count += 1
-        _, df_dx = individual.evaluate_equation_with_x_gradient_at(
-            x=self.training_data.x
+        return expression.implicit_loss(
+            data.X, data.dx_dt, required_params=self._required_params
         )
-
-        dot_product = df_dx * self.training_data.dx_dt
-
-        if self._required_params is not None:
-            if not self._enough_parameters_used(dot_product):
-                return np.full((self.training_data.x.shape[0],), np.inf)
-
-        denominator = np.sum(np.abs(dot_product), axis=1)
-        normalized_fitness = np.sum(dot_product, axis=1) / denominator
-        normalized_fitness[~np.isfinite(denominator)] = np.inf
-        return normalized_fitness
-
-    def _enough_parameters_used(self, dot_product):
-        n_params_used = (abs(dot_product) > 1e-16).sum(1)
-        enough_params_used = np.any(n_params_used >= self._required_params)
-        return enough_params_used
 
 
 class ImplicitTrainingData(TrainingData):

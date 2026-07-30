@@ -56,40 +56,6 @@ class EvolvableExpression(Chromosome):
         return self.expression.distance(other.expression)
 
     # ------------------------------------------------------------------ #
-    #  Local optimization interface                                       #
-    # ------------------------------------------------------------------ #
-
-    def needs_local_optimization(self):
-        """Whether the expression has un-optimised constants.
-
-        Returns
-        -------
-        bool
-        """
-        return (
-            len(self.expression.constants) > 0
-            and not self.expression.__sklearn_is_fitted__()
-        )
-
-    def get_number_local_optimization_params(self):
-        """Number of optimisable constants.
-
-        Returns
-        -------
-        int
-        """
-        return len(self.expression.constants)
-
-    def set_local_optimization_params(self, params):
-        """Set the constant values.
-
-        Parameters
-        ----------
-        params : array-like of float
-        """
-        self.expression.constants = tuple(float(p) for p in params)
-
-    # ------------------------------------------------------------------ #
     #  Public expression view                                             #
     # ------------------------------------------------------------------ #
 

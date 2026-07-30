@@ -1,201 +1,76 @@
-"""Explicit Symbolic Regression
+"""Expression-backed explicit symbolic-regression objective."""
 
-Explicit symbolic regression is the search for a function, f, such that
-f(x) = y.
-
-The classes in this module encapsulate the parts of bingo evolutionary analysis
-that are unique to explicit symbolic regression. Namely, these classes are an
-appropriate fitness evaluator and a corresponding training data container.
-"""
-
-import logging
 import numpy as np
-from scipy.stats import linregress
 
-from ..evaluation.fitness_function import VectorBasedFunction
-from ..evaluation.gradient_mixin import VectorGradientMixin
+from ..evaluation.fitness_function import FitnessFunction
 from ..evaluation.training_data import TrainingData
 
-LOGGER = logging.getLogger(__name__)
+
+class _ExplicitObjectiveData:
+    """Aligned explicit-regression arrays kept private by the objective."""
+
+    def __init__(self, X, y):
+        self.X = np.asarray(X, dtype=float)
+        if self.X.ndim == 1:
+            self.X = self.X.reshape(-1, 1)
+        if self.X.ndim != 2:
+            raise TypeError("Explicit regression X must be a 2D array")
+        self.y = np.asarray(y, dtype=float).ravel()
+        if len(self.X) != len(self.y):
+            raise ValueError("Explicit regression X and y must have equal length")
+
+    def __getitem__(self, items):
+        return _ExplicitObjectiveData(self.X[items], self.y[items])
+
+    def __len__(self):
+        return len(self.X)
 
 
-class ExplicitRegression(VectorGradientMixin, VectorBasedFunction):
-    """ExplicitRegression
+class ExplicitRegression(FitnessFunction):
+    """Lower-is-better explicit-regression loss for evolvable Expressions."""
 
-    The traditional fitness evaluation for symbolic regression.
-    fitness = M(y - f(x)) where x and y are in the training_data (i.e.
-    training_data.x and training_data.y) and the function f is defined by
-    the input Equation individual.  M is an aggregation metric such as mean
-    squared error.
+    def __init__(self, X, y, loss="mse"):
+        super().__init__()
+        self._objective_data = _ExplicitObjectiveData(X, y)
+        self._loss = loss
 
-    Parameters
-    ----------
-    training_data : ExplicitTrainingData
-        data that is used in fitness evaluation.
-    metric : str
-        String defining the measure of error to use. Available options are:
-        'mean absolute error', 'mean squared error', 'root mean squared error',
-        "negative nmll laplace", and "bic"
-    relative : bool
-        Whether to use relative, pointwise normalization of errors. Default:
-        False.
-    use_linear_correction : bool
-        Whether to adjust outputs of equations by a least squares linear correction. Default: False.
-    """
-
-    def __init__(
-        self, training_data, metric="mae", relative=False, use_linear_correction=False
-    ):
-        super().__init__(training_data, metric)
-        self._relative = relative
-        self._linear_correction = use_linear_correction
-
-    def evaluate_fitness_vector(self, individual):
-        """Traditional fitness evaluation for symbolic regression
-
-        fitness = y - f(x) where x and y are in the training_data (i.e.
-        training_data.x and training_data.y) and the function f is defined by
-        the input Equation individual.
-
-        Parameters
-        ----------
-        individual : Equation
-            individual whose fitness is evaluated on `training_data`
-
-        Returns
-        -------
-        float
-            the fitness of the input Equation individual
-        """
+    def __call__(self, individual):
+        """Fit an Expression once, then return its loss on active objective data."""
+        expression = individual.expression
+        data = self._objective_data
+        if not expression.is_fitted:
+            expression.fit(data.X, data.y, tolerance=1e-5)
         self.eval_count += 1
-        f_of_x = individual.evaluate_equation_at(self.training_data.x)
-
-        if self._linear_correction:
-            try:
-                slope, intercept, _, _, _ = linregress(
-                    f_of_x.flatten(), self.training_data.y.flatten()
-                )
-                f_of_x = intercept + slope * f_of_x
-            except ValueError:
-                pass
-
-        error = f_of_x - self.training_data.y
-        if not self._relative:
-            return np.squeeze(error)
-        return np.squeeze(error / self.training_data.y)
-
-    def get_fitness_vector_and_jacobian(self, individual):
-        r"""Fitness and jacobian evaluation of individual
-
-        fitness = y - f(x) where x and y are in the training_data (i.e.
-        training_data.x and training_data.y) and the function f is defined by
-        the input Equation individual.
-
-        jacobian = [[:math:`df_1/dc_1`, :math:`df_1/dc_2`, ...],
-                    [:math:`df_2/dc_1`, :math:`df_2/dc_2`, ...],
-                    ...]
-        where :math:`f_\#` is the fitness function corresponding with the
-        #th fitness vector entry and :math:`c_\#` is the corresponding
-        constant of the individual
-
-        Parameters
-        ----------
-        individual : Equation
-            individual whose fitness will be evaluated on `training_data`
-            and whose constants will be used for evaluating the jacobian
-
-        Returns
-        -------
-        fitness_vector, jacobian :
-            the vectorized fitness of the individual and
-            the partial derivatives of each fitness function with respect
-            to the individual's constants
-        """
-        self.eval_count += 1
-        f_of_x, df_dc = individual.evaluate_equation_with_local_opt_gradient_at(
-            self.training_data.x
-        )
-
-        if self._linear_correction:
-            try:
-                slope, intercept, _, _, _ = linregress(
-                    f_of_x.flatten(), self.training_data.y.flatten()
-                )
-                f_of_x = intercept + slope * f_of_x
-                df_dc *= slope
-            except ValueError:
-                pass
-
-        error = f_of_x - self.training_data.y
-        if not self._relative:
-            return np.squeeze(error), df_dc
-        return np.squeeze(error / self.training_data.y), df_dc / self.training_data.y
+        return expression.loss(data.X, data.y, kind=self._loss)
 
 
 class ExplicitTrainingData(TrainingData):
-    """
-    ExplicitTrainingData: Training data of this type contains an input array of
-    data (x)  and an output array of data (y).  Both must be 2 dimensional
-    numpy arrays
-
-    Parameters
-    ----------
-    x : 2D numpy array
-        independent variable
-    y : 2D numpy array
-        dependent variable
-    """
+    """Legacy explicit training-data container retained until the API cutover."""
 
     def __init__(self, x, y):
         if x.ndim == 1:
-            # warnings.warn("Explicit training x should be 2 dim array, " +
-            #               "reshaping array")
             x = x.reshape([-1, 1])
         if x.ndim > 2:
             raise TypeError("Explicit training x should be 2 dim array")
-
         if y.ndim == 1:
-            # warnings.warn("Explicit training y should be 2 dim array, " +
-            #               "reshaping array")
             y = y.reshape([-1, 1])
         if y.ndim > 2:
             raise TypeError("Explicit training y should be 2 dim array")
-
         self._x = x
         self._y = y
 
     @property
     def x(self):
-        """independent x data"""
+        """Independent data."""
         return self._x
 
     @property
     def y(self):
-        """dependent y data"""
+        """Dependent data."""
         return self._y
 
     def __getitem__(self, items):
-        """gets a subset of the `ExplicitTrainingData`
-
-        Parameters
-        ----------
-        items : list or int
-            index (or indices) of the subset
-
-        Returns
-        -------
-        `ExplicitTrainingData` :
-            a Subset
-        """
-        temp = ExplicitTrainingData(self._x[items, :], self._y[items, :])
-        return temp
+        return ExplicitTrainingData(self._x[items, :], self._y[items, :])
 
     def __len__(self):
-        """gets the length of the first dimension of the data
-
-        Returns
-        -------
-        int :
-            index-able size
-        """
         return self._x.shape[0]

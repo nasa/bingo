@@ -60,7 +60,7 @@ class RandomSubsetEvaluation(Evaluation):
     ):
         super().__init__(fitness_function, redundant, multiprocess)
         self._subset_size = subset_size
-        self._full_training_data = deepcopy(fitness_function.training_data)
+        self._full_objective_data = deepcopy(fitness_function._objective_data)
 
     def __call__(self, population):
         """Evaluates the fitness of a population using random subsampling
@@ -71,9 +71,9 @@ class RandomSubsetEvaluation(Evaluation):
                      population for which fitness should be calculated
         """
         subset = np.random.choice(
-            len(self._full_training_data),
+            len(self._full_objective_data),
             self._subset_size,
             replace=False,
         )
-        self.fitness_function.training_data = self._full_training_data[subset]
+        self.fitness_function._objective_data = self._full_objective_data[subset]
         super().__call__(population)

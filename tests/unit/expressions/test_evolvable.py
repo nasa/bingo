@@ -89,45 +89,11 @@ class TestDistance:
         assert a.distance(b) > 0
 
 
-class TestLocalOptimization:
-    def test_needs_opt_when_has_constants(self):
-        indv = _make_evolvable(
-            [
-                [VARIABLE, 0, 0],
-                [CONSTANT, 0, 0],
-                [ADDITION, 0, 1],
-            ],
-            constants=(1.0,),
-        )
-        # After _update, expression has constants and is not fitted
-        assert indv.needs_local_optimization()
-
-    def test_no_opt_needed_when_no_constants(self):
-        indv = _make_evolvable([[VARIABLE, 0, 0]])
-        assert not indv.needs_local_optimization()
-
-    def test_num_params(self):
-        indv = _make_evolvable(
-            [
-                [CONSTANT, 0, 0],
-                [CONSTANT, 1, 1],
-                [ADDITION, 0, 1],
-            ],
-            constants=(1.0, 2.0),
-        )
-        assert indv.get_number_local_optimization_params() == 2
-
-    def test_set_params(self):
-        indv = _make_evolvable(
-            [
-                [VARIABLE, 0, 0],
-                [CONSTANT, 0, 0],
-                [ADDITION, 0, 1],
-            ],
-            constants=(1.0,),
-        )
-        indv.set_local_optimization_params([99.0])
-        assert indv.expression.constants == (99.0,)
+class TestNoLocalOptimizationAdapter:
+    def test_does_not_implement_local_optimization_methods(self):
+        assert "needs_local_optimization" not in EvolvableExpression.__dict__
+        assert "get_number_local_optimization_params" not in EvolvableExpression.__dict__
+        assert "set_local_optimization_params" not in EvolvableExpression.__dict__
 
 
 class TestDelegation:

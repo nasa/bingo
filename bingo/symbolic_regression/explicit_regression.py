@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ..evaluation.fitness_function import FitnessFunction
+from ._expression_regression_objective import _ExpressionRegressionObjective
 
 
 class _ExplicitObjectiveData:
@@ -25,20 +25,16 @@ class _ExplicitObjectiveData:
         return len(self.X)
 
 
-class ExplicitRegression(FitnessFunction):
+class ExplicitRegression(_ExpressionRegressionObjective):
     """Lower-is-better explicit-regression loss for evolvable Expressions."""
 
     def __init__(self, X, y, loss="mse", fit_tolerance=1e-5):
-        super().__init__()
-        self._objective_data = _ExplicitObjectiveData(X, y)
+        super().__init__(_ExplicitObjectiveData(X, y))
         self._loss = loss
         self._fit_tolerance = fit_tolerance
 
-    def __call__(self, individual):
-        """Fit an Expression once, then return its loss on active objective data."""
-        expression = individual.expression
-        data = self._objective_data
-        if not expression.is_fitted:
-            expression.fit(data.X, data.y, tolerance=self._fit_tolerance)
-        self.eval_count += 1
+    def _fit_expression(self, expression, data):
+        expression.fit(data.X, data.y, tolerance=self._fit_tolerance)
+
+    def _expression_loss(self, expression, data):
         return expression.loss(data.X, data.y, kind=self._loss)

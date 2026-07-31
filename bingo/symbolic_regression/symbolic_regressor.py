@@ -17,6 +17,7 @@ from bingo.expressions import (
     AGraphGenerator,
     AGraphMutation,
     ComponentGenerator,
+    EvolvableExpression,
 )
 from bingo.stats.pareto_front import ParetoFront
 
@@ -36,6 +37,11 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
     Expressions own numerical fitting and loss evaluation. This estimator owns
     scikit-learn validation and configures their evolutionary search.
     """
+
+    n_features_in_: int
+    archipelago_: Island
+    best_ind_: EvolvableExpression
+    best_population_: list[EvolvableExpression]
 
     def __init__(
         self,
@@ -71,12 +77,6 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.evolutionary_algorithm = evolutionary_algorithm
         self.fit_tolerance = fit_tolerance
         self.random_state = random_state
-
-        self.n_features_in_ = None
-        self.archipelago_ = None
-        self.best_ind_ = None
-        self.best_population_ = None
-        
 
     def _make_island(self, X, y, n_processes):
         component_generator = ComponentGenerator(

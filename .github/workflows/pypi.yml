@@ -1,209 +1,224 @@
-# roughly following https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/
+name: Distribution Validation and Release
 
-name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
+on:
+  push:
+    branches: [main, develop]
+    tags: ["**"]
+  workflow_dispatch:
 
-on: [push]
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
-  pip_build_test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.13
-      - name: Install MPI
-        uses: mpi4py/setup-mpi@v1
-      - name: Build using pip
-        run: |
-          pip install .[ONNX,TESTS]
-      - name: Set safe forking var
-        run: |
-          echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
-      - name: Run tests (use pip instead of repo)
-        run: |
-          cd ..
-          cp -r bingo/tests .
-          mv bingo bingo_full
-          tests/.run_tests.sh normal
-          mv bingo_full bingo
-
-
-  source-build:
-    needs: pip_build_test
-    name: Build source distribution 📦
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository and submodules
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
-    - name: Set up Python 3.x
-      uses: actions/setup-python@v2
-      with:
-        python-version: "3.x"
-    - name: Install MPI
-      uses: mpi4py/setup-mpi@v1
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install build
-    - name: Build PyPI package
-      run: |
-        python -m build
-    - name: see whats in the dist
-      run: ls dist
-    - name: Remove wheel (was built for testing purposes)
-      run: |
-        cd dist
-        rm *.whl
-        cd ..
-
-    - name: Upload sdist
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-package-source
-        path: dist/*.tar.gz
-
   build:
-    needs: pip_build_test
-    name: Build binary distributions 📦
+    name: Build distributions
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-bingo
+        with:
+          python-version: "3.13"
+          dependencies: build
+      - name: Build source distribution
+        run: python -m build --sdist --outdir dist
+      - name: Build Linux wheels
+        uses: pypa/cibuildwheel@v2.21
+        env:
+          CIBW_BUILD: "cp311-* cp312-* cp313-* cp314-*"
+          CIBW_ARCHS_LINUX: x86_64
+          CIBW_OUTPUT_DIR: dist
+      - name: Verify clean directory
+        run: git diff --exit-code
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+          retention-days: 14
 
-    - uses: pypa/cibuildwheel@v2.21
-      env:
-        CIBW_ARCHS_LINUX: "x86_64"
-
-    - name: Verify clean directory
-      run: git diff --exit-code
-      shell: bash
-
-    - name: Upload wheels
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-package-wheels
-        path: wheelhouse/*.whl
-
-
-  publish-to-pypi:
-    name: >-
-      Publish Python 🐍 distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
-    needs:
-    - build
-    - source-build
+  metadata:
+    name: Validate distribution metadata
+    needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/bingo-nasa
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Check package metadata
+        run: python -m pip install --upgrade twine && twine check dist/*
+
+  smoke-test-wheel:
+    name: Smoke test wheel (Python ${{ matrix.python-version }})
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.11"
+            wheel-tag: cp311
+          - python-version: "3.12"
+            wheel-tag: cp312
+          - python-version: "3.13"
+            wheel-tag: cp313
+          - python-version: "3.14"
+            wheel-tag: cp314
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Clean-install and import wheel
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --only-binary=:all: dist/*${{ matrix.wheel-tag }}-*.whl
+          python -c "import bingo"
+
+  smoke-test-sdist:
+    name: Smoke test source distribution
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Clean-install and import source distribution
+        run: python -m pip install --upgrade pip && python -m pip install dist/*.tar.gz && python -c "import bingo"
+
+  installed-tests:
+    name: Installed artifact tests (Python ${{ matrix.python-version }})
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.13"
+            wheel-tag: cp313
+          - python-version: "3.14"
+            wheel-tag: cp314
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-bingo
+        with:
+          python-version: ${{ matrix.python-version }}
+          dependencies: ".[ONNX,TESTS]"
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - name: Test installed wheel
+        shell: bash
+        run: |
+          python -m pip uninstall --yes bingo-nasa
+          python -m pip install --only-binary=:all: dist/*${{ matrix.wheel-tag }}-*.whl
+          mv bingo bingo-source
+          tests/.run_tests.sh normal
+
+  release-gate:
+    name: Verify release tag and artifact version
+    needs: [metadata, smoke-test-wheel, smoke-test-sdist, installed-tests]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    outputs:
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - id: version
+        name: Verify exact release tag and package version
+        shell: bash
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            prerelease=false
+          elif [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+rc[0-9]+$ ]]; then
+            prerelease=true
+          else
+            echo "Release tags must be X.Y.Z or X.Y.ZrcN, got: $tag" >&2
+            exit 1
+          fi
+          python - "$tag" dist/* <<'PY'
+          import email
+          import sys
+          import tarfile
+          import zipfile
+
+          expected, *artifacts = sys.argv[1:]
+          for artifact in artifacts:
+              if artifact.endswith(".whl"):
+                  with zipfile.ZipFile(artifact) as distribution:
+                      metadata_name = next(name for name in distribution.namelist()
+                                           if name.endswith(".dist-info/METADATA"))
+                      metadata = distribution.read(metadata_name)
+              else:
+                  with tarfile.open(artifact) as distribution:
+                      metadata_member = next(member for member in distribution
+                                             if member.name.endswith("/PKG-INFO"))
+                      metadata = distribution.extractfile(metadata_member).read()
+              version = email.message_from_bytes(metadata)["Version"]
+              if version != expected:
+                  raise SystemExit(f"{artifact} has version {version}, expected {expected}")
+          PY
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish to PyPI
+    needs: release-gate
+    runs-on: ubuntu-latest
     permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
-
+      id-token: write
     steps:
-      - name: Download all the wheels
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          name: python-package-wheels
-          path: dist/
-
-      - name: Download sdist
-        uses: actions/download-artifact@v4
+          name: distributions
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          name: python-package-source
-          path: dist/
-
-      - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-
+          packages-dir: dist
 
   github-release:
-    name: >-
-      Sign the Python 🐍 distribution 📦 with Sigstore
-      and upload them to GitHub Release
-    needs:
-    - publish-to-pypi
+    name: Sign distributions and create GitHub Release
+    needs: [release-gate, publish]
     runs-on: ubuntu-latest
-
     permissions:
-      contents: write  # IMPORTANT: mandatory for making GitHub Releases
-      id-token: write  # IMPORTANT: mandatory for sigstore
-
+      contents: write
+      id-token: write
     steps:
-    - name: Download all the wheels
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-wheels
-        path: dist/
-    - name: Download source
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-source
-        path: dist/
-    - name: Sign the dists with Sigstore
-      uses: sigstore/gh-action-sigstore-python@v3.0.0
-      with:
-        inputs: >-
-          ./dist/*.tar.gz
-          ./dist/*.whl
-    - name: Create GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: >-
-        gh release create
-        '${{ github.ref_name }}'
-        --repo '${{ github.repository }}'
-        --notes ""
-    - name: Upload artifact signatures to GitHub Release
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      # Upload to GitHub Release using the `gh` CLI.
-      # `dist/` contains the built packages, and the
-      # sigstore-produced signatures and certificates.
-      run: >-
-        gh release upload
-        '${{ github.ref_name }}' dist/**
-        --repo '${{ github.repository }}'
-
-
-  publish-to-testpypi:
-    name: Publish Python 🐍 distribution 📦 to TestPyPI
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'  # publish to testPyPI on main and develop branches
-    needs:
-      - build
-      - source-build
-    runs-on: ubuntu-latest
-
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/bingo-nasa
-
-    permissions:
-      id-token: write  # IMPORTANT: mandatory for trusted publishing
-
-    steps:
-    - name: Download all the wheels
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-wheels
-        path: dist/
-    - name: Download source
-      uses: actions/download-artifact@v4
-      with:
-        name: python-package-source
-        path: dist/
-    - name: Publish distribution 📦 to TestPyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://test.pypi.org/legacy/
-        verbose: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - name: Sign distributions with Sigstore
+        uses: sigstore/gh-action-sigstore-python@v3.0.0
+        with:
+          inputs: dist/*.tar.gz dist/*.whl
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/** --generate-notes ${{ needs.release-gate.outputs.prerelease == 'true' && '--prerelease' || '' }}

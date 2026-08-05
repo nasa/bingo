@@ -1,11 +1,9 @@
 ![Bingo Logo](media/logo.png)
 
-master: [![Build Status](https://github.com/nasa/bingo/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/nasa/bingo/actions?query=branch%3Adevelop)
-[![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=master)](https://coveralls.io/github/nasa/bingo?branch=develop) 
+master: [![Build Status](https://github.com/nasa/bingo/actions/workflows/validation.yml/badge.svg?branch=main)](https://github.com/nasa/bingo/actions?query=branch%3Amain)
 
-develop: 
-[![Build Status](https://github.com/nasa/bingo/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/nasa/bingo/actions?query=branch%3Adevelop)
-[![Coverage Status](https://coveralls.io/repos/github/nasa/bingo/badge.svg?branch=develop)](https://coveralls.io/github/nasa/bingo?branch=develop) 
+develop:
+[![Build Status](https://github.com/nasa/bingo/actions/workflows/validation.yml/badge.svg?branch=develop)](https://github.com/nasa/bingo/actions?query=branch%3Adevelop)
 
 ## Description
 Bingo is an open source package for performing symbolic regression, though it 

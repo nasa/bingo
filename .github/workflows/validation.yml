@@ -1,0 +1,67 @@
+name: Validation
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-bingo
+        with:
+          python-version: "3.13"
+          dependencies: ".[ONNX,TESTS]"
+      - name: Install pylint
+        run: python -m pip install pylint==4.0.6
+      - name: Lint Bingo
+        run: pylint --fail-under 9.6 bingo/
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-bingo
+        with:
+          python-version: ${{ matrix.python-version }}
+          dependencies: ".[ONNX,TESTS]"
+      - name: Run full test suite with coverage
+        if: matrix.python-version == '3.13'
+        run: tests/.run_tests.sh coverage
+      - name: Publish coverage summary
+        if: matrix.python-version == '3.13'
+        run: |
+          coverage report --format=markdown >> "$GITHUB_STEP_SUMMARY"
+          coverage xml -o coverage.xml
+          coverage json -o coverage.json
+      - name: Upload coverage report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-python-3.13
+          path: |
+            coverage.xml
+            coverage.json
+          retention-days: 14
+      - name: Run full test suite
+        if: matrix.python-version == '3.14'
+        run: tests/.run_tests.sh normal

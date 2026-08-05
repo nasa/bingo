@@ -1,40 +1,66 @@
-name: Docs
-on: [push, pull_request]
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "bingo/**"
+      - "pyproject.toml"
+      - "setup.py"
+      - "MANIFEST.in"
+      - "requirements.txt"
+      - "doc_requirements.txt"
+      - ".github/**"
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-docs:
+  validate:
+    name: Validate documentation
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
-          submodules: recursive
-      - name: Setup Python 3.x
-        uses: actions/setup-python@v2
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-bingo
         with:
-          python-version: "3.x"
+          python-version: "3.13"
+          dependencies: ".[ONNX]"
       - name: Install pandoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install pandoc
+        run: sudo apt-get update && sudo apt-get install --yes pandoc
       - name: Install doc requirements
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r doc_requirements.txt
-      - name: Install MPI
-        uses: mpi4py/setup-mpi@v1
-      - name : Install Bingo requirements (for tutorials)
-        run: |
-          pip install -r requirements.txt
-      - name: Set safe forking var
-        run: |
-          echo "RDMAV_FORK_SAFE=1" >> $GITHUB_ENV
+        run: python -m pip install -r doc_requirements.txt
       - name: Build docs
-        run: |
-          sphinx-apidoc -f -o docs/source/_apidocs bingo
-          sphinx-build -b html docs/source/ docs/build/html
-      - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
-        if: github.ref == 'refs/heads/main'
+        run: sphinx-apidoc -f -o docs/source/_apidocs bingo && sphinx-build -b html docs/source/ docs/build/html
+
+  deploy:
+    name: Deploy documentation
+    if: github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-bingo
+        with:
+          python-version: "3.13"
+          dependencies: ".[ONNX]"
+      - name: Install pandoc and documentation requirements
+        run: sudo apt-get update && sudo apt-get install --yes pandoc && python -m pip install -r doc_requirements.txt
+      - name: Build docs
+        run: sphinx-apidoc -f -o docs/source/_apidocs bingo && sphinx-build -b html docs/source/ docs/build/html
+      - name: Deploy to GitHub Pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/build/html

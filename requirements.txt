@@ -15,4 +15,3 @@ pytest-mock>=1.10.0
 pytest-timeout>=1.4.2
 pytest-cov
 coverage
-coveralls

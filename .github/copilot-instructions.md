@@ -7,7 +7,7 @@ Bingo is an open-source Python package developed by NASA for symbolic regression
 ## Technology Stack
 
 ### Primary Language & Version
-- **Python**: >=3.9 (supports 3.9, 3.10, 3.11, 3.12)
+- **Python**: >=3.11 (supports 3.11, 3.12, 3.13, 3.14)
 - **C++**: Used for performance-critical components via pybind11
 
 ### Core Dependencies
@@ -52,7 +52,7 @@ bingo/
 ### Python Style
 - Follow **PEP 8** conventions
 - Use **numpy-style docstrings** (configured in `.pydocstyle`)
-- Maintain compatibility with Python 3.9+
+- Maintain compatibility with Python 3.11+
 - Use type hints where appropriate but not required
 
 ### Linting & Code Quality
@@ -172,21 +172,24 @@ pytest tests
 - Don't add dependencies without strong justification
 - Don't modify working code unnecessarily
 - Don't remove or skip existing tests
-- Don't use Python features requiring >3.9 without updating requirements
+- Don't use Python features requiring >3.11 without updating requirements
 - Don't commit sensitive data or credentials
 
 ## CI/CD
 
 ### GitHub Actions Workflow
-- Runs on every push and pull request
-- Python 3.13 used for CI
-- Steps: checkout → install MPI → install deps → build cppagraph → run tests → coverage
-- Must pass tests and coverage checks
+- Validation runs on pull requests and pushes to `main` and `develop`.
+- Linting runs with Python 3.13 and `pylint --fail-under 9.6`.
+- Tests run on Python 3.13 with coverage and Python 3.14 without coverage.
+- The Python 3.13 job publishes Markdown coverage to the GitHub job summary and uploads XML and JSON coverage artifacts for 14 days.
+- Documentation, examples, performance benchmarks, and distribution validation run in separate workflows.
 
 ### What CI Checks
 - All pytest tests pass
-- Code coverage reported to Coveralls
-- The cppagraph backend builds successfully and passes parity tests
+- Pylint meets the configured score threshold
+- Documentation builds successfully when its workflow is triggered
+- Distribution artifacts build, pass metadata validation, and install successfully on supported Python versions
+- The cppagraph parity tests run as part of the test suite when the extension is available
 
 ## Security & Compliance
 

@@ -86,7 +86,7 @@ jobs:
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          python -m pip install --only-binary=:all: dist/*${{ matrix.wheel-tag }}-*.whl
+          python -m pip install --only-binary=:all: dist/*${{ matrix.wheel-tag }}-*manylinux*.whl
           python -c "import bingo"
 
   smoke-test-sdist:
@@ -132,7 +132,7 @@ jobs:
         shell: bash
         run: |
           python -m pip uninstall --yes bingo-nasa
-          python -m pip install --only-binary=:all: dist/*${{ matrix.wheel-tag }}-*.whl
+          python -m pip install --only-binary=:all: dist/*${{ matrix.wheel-tag }}-*manylinux*.whl
           mv bingo bingo-source
           tests/.run_tests.sh normal
 

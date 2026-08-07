@@ -29,10 +29,11 @@ jobs:
         run: python -m build --sdist --outdir dist
       - name: Build Linux wheels
         uses: pypa/cibuildwheel@v4.2.0
+        with:
+          output-dir: dist
         env:
           CIBW_BUILD: "cp311-* cp312-* cp313-* cp314-*"
           CIBW_ARCHS_LINUX: x86_64
-          CIBW_OUTPUT_DIR: dist
       - name: Verify clean directory
         run: git diff --exit-code
       - name: Upload distributions

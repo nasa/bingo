@@ -3,22 +3,12 @@
 # pylint: disable=missing-docstring
 import numpy as np
 
-from mpi4py import MPI
-from mpitest_util import mpi_assert_true, run_t_in_module
-
-from bingo.evolutionary_optimizers.parallel_archipelago import \
-    ParallelArchipelago
 from bingo.evolutionary_algorithms.mu_plus_lambda import MuPlusLambda
-from bingo.evolutionary_optimizers.island import Island
 from bingo.selection.tournament import Tournament
 from bingo.chromosomes.multiple_values import SinglePointCrossover, \
     SinglePointMutation, MultipleValueChromosomeGenerator
 from bingo.evaluation.fitness_function import FitnessFunction
 from bingo.evaluation.evaluation import Evaluation
-
-COMM = MPI.COMM_WORLD
-COMM_RANK = COMM.Get_rank()
-COMM_SIZE = COMM.Get_size()
 
 POPULATION_SIZE = 100
 OFFSPRING_SIZE = 100
@@ -47,17 +37,6 @@ def generator():
     return MultipleValueChromosomeGenerator(np.random.random, 5)
 
 
-def multi_process_parallel_archipelago():
-    island = Island(evo_alg(), generator(), POPULATION_SIZE)
-    return ParallelArchipelago(island, non_blocking=False)
-
-
-def get_total_population(parallel_archipelago):
-    island_population = parallel_archipelago.island.population
-    total_population = COMM.allgather(island_population)
-    return np.array(total_population).flatten()
-
-
 def test_parallel_archipelago_and_multiprocessing_eval():
     assertions = []
 
@@ -81,4 +60,22 @@ def test_parallel_archipelago_and_multiprocessing_eval():
 
 
 if __name__ == "__main__":
+    from mpi4py import MPI
+    from mpitest_util import mpi_assert_true, run_t_in_module
+
+    from bingo.evolutionary_optimizers.island import Island
+    from bingo.evolutionary_optimizers.parallel_archipelago import \
+        ParallelArchipelago
+
+    COMM = MPI.COMM_WORLD
+
+    def multi_process_parallel_archipelago():
+        island = Island(evo_alg(), generator(), POPULATION_SIZE)
+        return ParallelArchipelago(island, non_blocking=False)
+
+    def get_total_population(parallel_archipelago):
+        island_population = parallel_archipelago.island.population
+        total_population = COMM.allgather(island_population)
+        return np.array(total_population).flatten()
+
     run_t_in_module(__name__)

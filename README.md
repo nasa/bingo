@@ -98,13 +98,13 @@ print("best individual is:", best_individual)
 
 ### Predicting Data with the Best Individual
 
-You can use the regressor's `.predict(X)` or the best individual's underlying
-expression's `.predict(X)` to get predictions for `X`.
+You can use the regressor's `.predict(X)` or the best individual's `.predict(X)`
+to get predictions for `X`.
 
 
 ```python
 pred_y = regressor.predict(X)
-pred_y = best_individual.expression.predict(X)
+pred_y = best_individual.predict(X)
 
 plt.scatter(X, y)
 plt.plot(X, pred_y, 'r')

@@ -10,7 +10,24 @@ from bingo.expressions.agraph.pyagraph.operators import (
     ADDITION,
     SUBTRACTION,
     MULTIPLICATION,
+    DIVISION,
+    POWER,
+    SAFE_POWER,
+    SQUARE,
+    CUBE,
+    SQRT,
+    ABS,
+    EXPONENTIAL,
+    LOGARITHM,
     SIN,
+    COS,
+    TAN,
+    ARCSIN,
+    ARCCOS,
+    ARCTAN,
+    SINH,
+    COSH,
+    TANH,
 )
 from bingo.expressions.agraph.pyagraph.evaluation import evaluation
 
@@ -104,6 +121,236 @@ class TestEvaluateWithDerivative:
         expected_grad = np.zeros_like(simple_x)
         expected_grad[:, 0] = 1.0
         np.testing.assert_array_almost_equal(df_dx, expected_grad)
+
+
+def _finite_difference_hessian(stack, x, constants, integers, step=1e-6):
+    num_constants = len(constants)
+    hessian = np.empty((x.shape[0], num_constants, num_constants))
+    for const_index in range(num_constants):
+        constants_plus = list(constants)
+        constants_minus = list(constants)
+        constants_plus[const_index] += step
+        constants_minus[const_index] -= step
+        _, gradient_plus = evaluation.evaluate_with_derivative(
+            stack, x, tuple(constants_plus), integers, False
+        )
+        _, gradient_minus = evaluation.evaluate_with_derivative(
+            stack, x, tuple(constants_minus), integers, False
+        )
+        hessian[:, :, const_index] = (gradient_plus - gradient_minus) / (2.0 * step)
+    return hessian
+
+
+class TestEvaluateWithConstHessian:
+    def test_constant_terminal(self, simple_x):
+        stack = np.array([[CONSTANT, 0, 0]], dtype=np.uint8)
+
+        f_of_x, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (2.0,), ()
+        )
+
+        np.testing.assert_allclose(f_of_x, 2.0)
+        np.testing.assert_allclose(gradient, 1.0)
+        np.testing.assert_allclose(hessian, 0.0)
+
+    def test_analytic_mixed_constant_hessian(self, simple_x):
+        # f(C0, C1) = C0 * C1 + C0**2
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 0],
+                [MULTIPLICATION, 0, 1],
+                [SQUARE, 0, 0],
+                [ADDITION, 2, 3],
+            ],
+            dtype=np.uint8,
+        )
+
+        f_of_x, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (2.0, 3.0), ()
+        )
+
+        np.testing.assert_allclose(f_of_x, 10.0)
+        np.testing.assert_allclose(gradient, [[7.0, 2.0]] * len(simple_x))
+        expected_hessian = np.array([[2.0, 1.0], [1.0, 0.0]])
+        np.testing.assert_allclose(hessian, [expected_hessian] * len(simple_x))
+        np.testing.assert_allclose(hessian, hessian.swapaxes(1, 2))
+
+    def test_shared_subexpression_matches_finite_difference(self, simple_x):
+        # f(C0, C1) = sin(C0 * C1) + C0 * C1
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 0],
+                [MULTIPLICATION, 0, 1],
+                [SIN, 2, 0],
+                [ADDITION, 3, 2],
+            ],
+            dtype=np.uint8,
+        )
+        constants = (0.8, 1.1)
+
+        _, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, constants, ()
+        )
+        _, expected_gradient = evaluation.evaluate_with_derivative(
+            stack, simple_x, constants, (), False
+        )
+        expected_hessian = _finite_difference_hessian(stack, simple_x, constants, ())
+
+        np.testing.assert_allclose(gradient, expected_gradient)
+        np.testing.assert_allclose(hessian, expected_hessian, rtol=1e-5, atol=1e-6)
+
+    @pytest.mark.parametrize(
+        "operator, constant",
+        [
+            (SQUARE, 1.3),
+            (CUBE, 1.3),
+            (SQRT, -1.3),
+            (ABS, -1.3),
+            (EXPONENTIAL, 0.4),
+            (LOGARITHM, -1.3),
+            (SIN, 0.4),
+            (COS, 0.4),
+            (TAN, 0.4),
+            (ARCSIN, 0.4),
+            (ARCCOS, 0.4),
+            (ARCTAN, 0.4),
+            (SINH, 0.4),
+            (COSH, 0.4),
+            (TANH, 0.4),
+        ],
+    )
+    def test_unary_operators_match_finite_difference(
+        self, simple_x, operator, constant
+    ):
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [operator, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+
+        _, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (constant,), ()
+        )
+        _, expected_gradient = evaluation.evaluate_with_derivative(
+            stack, simple_x, (constant,), (), False
+        )
+        expected_hessian = _finite_difference_hessian(
+            stack, simple_x, (constant,), ()
+        )
+
+        np.testing.assert_allclose(gradient, expected_gradient)
+        np.testing.assert_allclose(hessian, expected_hessian, rtol=1e-5, atol=1e-6)
+
+    @pytest.mark.parametrize(
+        "operator, constants",
+        [
+            (ADDITION, (1.3, -0.7)),
+            (SUBTRACTION, (1.3, -0.7)),
+            (MULTIPLICATION, (1.3, -0.7)),
+            (DIVISION, (1.3, 0.7)),
+            (POWER, (1.3, 0.7)),
+            (SAFE_POWER, (-1.3, 0.7)),
+        ],
+    )
+    def test_binary_operators_match_finite_difference(
+        self, simple_x, operator, constants
+    ):
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 0],
+                [operator, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
+
+        _, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, constants, ()
+        )
+        _, expected_gradient = evaluation.evaluate_with_derivative(
+            stack, simple_x, constants, (), False
+        )
+        expected_hessian = _finite_difference_hessian(stack, simple_x, constants, ())
+
+        np.testing.assert_allclose(gradient, expected_gradient)
+        np.testing.assert_allclose(hessian, expected_hessian, rtol=1e-5, atol=1e-6)
+        np.testing.assert_allclose(hessian, hessian.swapaxes(1, 2))
+
+    def test_power_with_fixed_integer_exponent_has_finite_hessian(self, simple_x):
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [INTEGER, 0, 0],
+                [POWER, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
+
+        _, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (-2.0,), (2,)
+        )
+
+        np.testing.assert_allclose(gradient, -4.0)
+        np.testing.assert_allclose(hessian, 2.0)
+
+    def test_constant_free_expression_has_empty_derivatives(self, simple_x):
+        stack = np.array([[VARIABLE, 0, 0]], dtype=np.uint8)
+
+        f_of_x, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (), ()
+        )
+
+        np.testing.assert_allclose(f_of_x, simple_x[:, 0:1])
+        assert gradient.shape == (len(simple_x), 0)
+        assert hessian.shape == (len(simple_x), 0, 0)
+
+    def test_integer_terminal_has_empty_derivatives(self, simple_x):
+        stack = np.array([[INTEGER, 0, 0]], dtype=np.uint8)
+
+        f_of_x, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (), (7,)
+        )
+
+        np.testing.assert_allclose(f_of_x, 7.0)
+        assert gradient.shape == (len(simple_x), 0)
+        assert hessian.shape == (len(simple_x), 0, 0)
+
+    def test_singular_power_preserves_nan_derivatives(self, simple_x):
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [CONSTANT, 1, 0],
+                [POWER, 0, 1],
+            ],
+            dtype=np.uint8,
+        )
+
+        _, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (0.0, 2.0), ()
+        )
+
+        assert np.isnan(gradient).all()
+        assert np.isnan(hessian).all()
+
+    def test_logarithm_at_zero_preserves_existing_nan_hessian(self, simple_x):
+        stack = np.array(
+            [
+                [CONSTANT, 0, 0],
+                [LOGARITHM, 0, 0],
+            ],
+            dtype=np.uint8,
+        )
+
+        _, gradient, hessian = evaluation.evaluate_with_const_hessian(
+            stack, simple_x, (0.0,), ()
+        )
+
+        assert np.isposinf(gradient).all()
+        assert np.isnan(hessian).all()
 
     def test_x_gradient_of_sum(self, simple_x):
         # f(x) = X0 + X1  =>  df/dX0 = 1, df/dX1 = 1

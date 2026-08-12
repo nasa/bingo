@@ -13,7 +13,11 @@ import numpy as np
 import scipy.optimize
 from sympy import sympify
 
-from .evaluation import evaluate, evaluate_with_derivative
+from .evaluation import (
+    evaluate,
+    evaluate_with_const_hessian,
+    evaluate_with_derivative,
+)
 from .evaluation.cached_evaluation import CachedEvaluator
 from .operators import (
     VARIABLE,
@@ -466,6 +470,34 @@ class AGraphExpression:
             nc = len(self._constants)
             nan = np.full((x.shape[0], nc), np.nan)
             return nan, nan.copy()
+
+    def _evaluate_with_const_hessian(self, x):
+        """Evaluate the expression with constant gradient and Hessian.
+
+        Returns
+        -------
+        tuple of (Mx1 array, MxL array, MxLxL array)
+            ``(f(x), df/dc, d2f/dc2)`` where ``L = len(constants)``.
+        """
+        if self._modified:
+            self._update()
+        try:
+            return evaluate_with_const_hessian(
+                self._command_array,
+                x,
+                self._constants,
+                self._integers,
+            )
+        except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
+            warnings.warn(f"{err} in const hessian evaluation")
+            num_samples = x.shape[0]
+            num_constants = len(self._constants)
+            nan_value = np.full((num_samples, 1), np.nan)
+            nan_gradient = np.full((num_samples, num_constants), np.nan)
+            nan_hessian = np.full(
+                (num_samples, num_constants, num_constants), np.nan
+            )
+            return nan_value, nan_gradient, nan_hessian
 
     # ------------------------------------------------------------------ #
     #  sklearn-like interface                                             #

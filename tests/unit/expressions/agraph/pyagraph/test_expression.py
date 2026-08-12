@@ -174,6 +174,29 @@ class TestEvaluation:
         np.testing.assert_array_almost_equal(f, 2.0 * simple_x[:, 0:1])
         np.testing.assert_array_almost_equal(df_dc, simple_x[:, 0:1])
 
+    def test_evaluate_with_const_hessian(self, manual_expr, simple_x):
+        f_of_x, gradient, hessian = manual_expr._evaluate_with_const_hessian(simple_x)
+
+        np.testing.assert_allclose(f_of_x, 2.0 * simple_x[:, 0:1])
+        np.testing.assert_allclose(gradient, simple_x[:, 0:1])
+        np.testing.assert_allclose(hessian, 0.0)
+
+    def test_const_hessian_numerical_failure_returns_nan(self, manual_expr, simple_x, mocker):
+        mocker.patch(
+            "bingo.expressions.agraph.pyagraph.expression."
+            "evaluate_with_const_hessian",
+            side_effect=FloatingPointError("invalid operation"),
+        )
+
+        with pytest.warns(UserWarning, match="const hessian evaluation"):
+            f_of_x, gradient, hessian = manual_expr._evaluate_with_const_hessian(
+                simple_x
+            )
+
+        assert np.isnan(f_of_x).all()
+        assert np.isnan(gradient).all()
+        assert np.isnan(hessian).all()
+
 
 # ------------------------------------------------------------------ #
 #  sklearn interface                                                  #

@@ -289,6 +289,87 @@ def reverse_eval_function(
     REVERSE_EVAL_MAP[node](reverse_index, param1, param2, forward_eval, reverse_eval)
 
 
+def get_operator_partials(  # pylint: disable=too-many-return-statements,too-many-branches
+    node, result_index, param1, param2, forward_eval
+):
+    """Get first and second partial derivatives of one command.
+
+    The returned values correspond to the command result differentiated with
+    respect to its first and second operands. Terminal nodes return ``None``
+    for every partial. Unary operators return ``None`` for derivatives that
+    involve the unused second operand.
+    """
+    if node in (VARIABLE, CONSTANT, INTEGER):
+        return None, None, None, None, None
+
+    first = forward_eval[param1]
+    result = forward_eval[result_index]
+
+    if node == ADDITION:
+        return 1.0, 1.0, 0.0, 0.0, 0.0
+    if node == SUBTRACTION:
+        return 1.0, -1.0, 0.0, 0.0, 0.0
+    if node == MULTIPLICATION:
+        second = forward_eval[param2]
+        return second, first, 0.0, 1.0, 0.0
+    if node == DIVISION:
+        second = forward_eval[param2]
+        return (
+            1.0 / second,
+            -result / second,
+            0.0,
+            -1.0 / (second**2),
+            2.0 * result / (second**2),
+        )
+    if node in (POWER, SAFE_POWER):
+        second = forward_eval[param2]
+        logarithm_base = first if node == POWER else np.abs(first)
+        return (
+            result * second / first,
+            result * np.log(logarithm_base),
+            result * second * (second - 1.0) / (first**2),
+            result * (second * np.log(logarithm_base) + 1.0) / first,
+            result * np.log(logarithm_base) ** 2,
+        )
+    if node == SQUARE:
+        return 2.0 * first, None, 2.0, None, None
+    if node == CUBE:
+        return 3.0 * first**2, None, 6.0 * first, None, None
+    if node == SQRT:
+        return 0.5 * np.sign(first) / result, None, -0.25 / result**3, None, None
+    if node == ABS:
+        return np.sign(first), None, 0.0, None, None
+    if node == EXPONENTIAL:
+        return result, None, result, None, None
+    if node == LOGARITHM:
+        return 1.0 / first, None, -1.0 / first**2, None, None
+    if node == SIN:
+        return np.cos(first), None, -np.sin(first), None, None
+    if node == COS:
+        return -np.sin(first), None, -np.cos(first), None, None
+    if node == TAN:
+        first_partial = 1.0 / np.cos(first) ** 2
+        return first_partial, None, 2.0 * np.tan(first) * first_partial, None, None
+    if node == ARCSIN:
+        denominator = np.sqrt(1.0 - first**2)
+        return 1.0 / denominator, None, first / denominator**3, None, None
+    if node == ARCCOS:
+        denominator = np.sqrt(1.0 - first**2)
+        return -1.0 / denominator, None, -first / denominator**3, None, None
+    if node == ARCTAN:
+        denominator = 1.0 + first**2
+        return 1.0 / denominator, None, -2.0 * first / denominator**2, None, None
+    if node == SINH:
+        return np.cosh(first), None, np.sinh(first), None, None
+    if node == COSH:
+        return np.sinh(first), None, np.cosh(first), None, None
+    if node == TANH:
+        first_partial = 1.0 / np.cosh(first) ** 2
+        return first_partial, None, -2.0 * np.tanh(first) * first_partial, None, None
+
+    raise ValueError(f"Unknown operator node: {node}")
+
+
 # ---- Maps ----
 
 FORWARD_EVAL_MAP = {

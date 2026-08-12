@@ -6,6 +6,7 @@ import pickle
 import numpy as np
 import pytest
 
+from bingo.expressions.agraph.evolvable import EvolvableExpression
 from bingo.expressions.agraph.pyagraph.expression import AGraphExpression
 from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
@@ -185,6 +186,75 @@ class TestSklearnInterface:
         pred = x0_plus_c0.predict(simple_x)
         assert pred.ndim == 1
         np.testing.assert_array_almost_equal(pred, simple_x[:, 0] + 10.0)
+
+    def test_predict_with_batched_constants(self):
+        expr = AGraphExpression(equation="1.0 + 1.0 * X0 + X1 + X2")
+        X = np.arange(60.0).reshape(20, 3)
+        constants = np.vstack((np.arange(10.0), np.arange(10.0, 20.0)))
+
+        predictions = expr.predict(X, constants=constants)
+
+        expected = (
+            constants[0][np.newaxis, :]
+            + X[:, 0, np.newaxis] * constants[1][np.newaxis, :]
+            + X[:, 1, np.newaxis]
+            + X[:, 2, np.newaxis]
+        )
+        assert predictions.shape == (20, 10)
+        np.testing.assert_allclose(predictions, expected)
+
+    def test_predict_with_unbatched_constants(self, x0_plus_c0, simple_x):
+        predictions = x0_plus_c0.predict(simple_x, constants=np.array([2.0]))
+
+        assert predictions.shape == (3,)
+        np.testing.assert_allclose(predictions, simple_x[:, 0] + 2.0)
+
+    def test_predict_with_constants_does_not_modify_expression(
+        self, x0_plus_c0, simple_x
+    ):
+        original_constants = x0_plus_c0.constants
+        original_raw_constants = x0_plus_c0.raw_constants
+
+        x0_plus_c0.predict(simple_x, constants=np.array([[1.0, 2.0]]))
+
+        assert x0_plus_c0.constants == original_constants
+        assert x0_plus_c0.raw_constants == original_raw_constants
+
+    @pytest.mark.parametrize(
+        "constants",
+        (
+            np.array(1.0),
+            np.ones((1, 1, 1)),
+            np.array([1.0, 2.0]),
+            np.ones((2, 1)),
+        ),
+    )
+    def test_predict_rejects_invalid_constants(self, x0_plus_c0, simple_x, constants):
+        with pytest.raises(ValueError):
+            x0_plus_c0.predict(simple_x, constants=constants)
+
+    def test_predict_with_batched_constants_without_expression_constants(
+        self, simple_x
+    ):
+        expr = AGraphExpression(equation="X0")
+
+        predictions = expr.predict(simple_x, constants=np.empty((0, 4)))
+
+        assert predictions.shape == (3, 4)
+        np.testing.assert_allclose(
+            predictions, np.repeat(simple_x[:, [0]], 4, axis=1)
+        )
+        with pytest.raises(ValueError):
+            expr.predict(simple_x, constants=np.array([1.0]))
+
+    def test_evolvable_expression_forwards_batched_constants(self, simple_x):
+        individual = EvolvableExpression(AGraphExpression(equation="X0 + 1.0"))
+
+        predictions = individual.predict(simple_x, constants=np.array([[2.0, 3.0]]))
+
+        np.testing.assert_allclose(
+            predictions, simple_x[:, [0]] + np.array([[2.0, 3.0]])
+        )
 
     def test_gradient_returns_predictions_and_input_derivative(
         self, x0_plus_c0, simple_x

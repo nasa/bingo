@@ -59,9 +59,11 @@ class EvolvableExpression(Chromosome):
     #  Public expression facade                                           #
     # ------------------------------------------------------------------ #
 
-    def predict(self, X):
-        """Predict target values for *X*."""
-        return self.expression.predict(X)
+    def predict(self, X, *, constants=None):
+        """Predict target values for *X* with optional temporary constants."""
+        if constants is None:
+            return self.expression.predict(X)
+        return self.expression.predict(X, constants=constants)
 
     def gradient(self, X):
         """Return predictions and their gradients with respect to *X*."""

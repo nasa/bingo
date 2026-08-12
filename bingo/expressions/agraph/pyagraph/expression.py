@@ -394,31 +394,38 @@ class AGraphExpression:
     #  Evaluation                                                         #
     # ------------------------------------------------------------------ #
 
-    def _evaluate(self, x):
+    def _evaluate(self, x, constants=None, output_dimension=1):
         """Evaluate the expression at *x*.
 
         Parameters
         ----------
         x : MxD array of numeric
             Input data.
+        constants : tuple of numeric or numpy arrays, optional
+            Numeric constants used for this evaluation. If omitted, the
+            expression's stored simplified constants are used.
+        output_dimension : int, optional
+            Number of output columns to return if evaluation fails. Default 1.
 
         Returns
         -------
-        Mx1 array of numeric
+        Mx1 or MxB array of numeric
             f(x)
         """
         if self._modified:
             self._update()
+        if constants is None:
+            constants = self._constants
         try:
             return evaluate(
                 self._command_array,
                 x,
-                self._constants,
+                constants,
                 self._integers,
             )
         except (ArithmeticError, OverflowError, ValueError, FloatingPointError) as err:
             warnings.warn(f"{err} in expression evaluation")
-            return np.full((x.shape[0], 1), np.nan)
+            return np.full((x.shape[0], output_dimension), np.nan)
 
     def _evaluate_with_x_gradient(self, x):
         """Evaluate the expression and its gradient w.r.t. *x*.
@@ -471,21 +478,57 @@ class AGraphExpression:
     #  sklearn-like interface                                             #
     # ------------------------------------------------------------------ #
 
-    def predict(self, X):
+    def predict(self, X, *, constants=None):
         """Predict target values for *X*.
 
         Parameters
         ----------
         X : array-like, shape (M, D)
             Input data.
+        constants : array-like, shape (L,) or (L, B), optional
+            Temporary simplified constant values, where ``L`` is the number of
+            constants in the expression. A one-dimensional array produces the
+            usual one-dimensional prediction. A constant-major two-dimensional
+            array evaluates ``B`` constant sets in parallel and produces one
+            prediction column per set. This does not modify the expression's
+            stored constants. Batched constants are currently supported only by
+            the PyAGraph backend; C++ backend parity is deferred.
 
         Returns
         -------
-        numpy array, shape (M,)
-            Predictions.
+        numpy array, shape (M,) or (M, B)
+            Predictions. The output is two-dimensional only when ``constants``
+            is two-dimensional.
+
+        Raises
+        ------
+        ValueError
+            If ``constants`` is not one- or two-dimensional, or does not have
+            one row per simplified expression constant.
         """
         X = np.atleast_2d(np.asarray(X, dtype=float))
-        return self._evaluate(X).ravel()
+        if constants is None:
+            return self._evaluate(X).ravel()
+
+        if self._modified:
+            self._update()
+        constants = np.asarray(constants, dtype=float)
+        n_constants = len(self._constants)
+        if constants.ndim not in (1, 2):
+            raise ValueError("constants must be a one- or two-dimensional array")
+        if constants.shape[0] != n_constants:
+            raise ValueError(
+                "constants must have one entry per simplified expression constant"
+            )
+        if constants.ndim == 1:
+            return self._evaluate(X, tuple(constants)).ravel()
+
+        predictions = self._evaluate(
+            X, tuple(constants), output_dimension=constants.shape[1]
+        )
+        if n_constants == 0:
+            return np.repeat(predictions, constants.shape[1], axis=1)
+        return predictions
 
     def gradient(self, X):
         """Predictions and the gradient of the output with respect to inputs.

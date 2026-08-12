@@ -310,6 +310,18 @@ void bind_expression(py::module_& m) {
         .def("_evaluate_with_const_gradient",
              &AGraphExpression::evaluate_with_const_gradient,
              py::arg("x"))
+        .def("_evaluate_with_const_hessian",
+             [](AGraphExpression& self, const RowMatrixXd& x) {
+                 auto result = self.evaluate_with_const_hessian(x);
+                 const auto l = static_cast<py::ssize_t>(result.gradient.cols());
+                 auto hessian = py::array_t<double>({x.rows(), l, l});
+                 auto hessian_view = hessian.mutable_unchecked<3>();
+                 for (Eigen::Index row = 0; row < x.rows(); ++row)
+                     for (py::ssize_t j = 0; j < l; ++j)
+                         for (py::ssize_t k = 0; k < l; ++k)
+                             hessian_view(row, j, k) = result.hessian(row, j * l + k);
+                 return py::make_tuple(result.value, result.gradient, hessian);
+             }, py::arg("x"))
 
         // ---- sklearn interface ----
 

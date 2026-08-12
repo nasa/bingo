@@ -266,6 +266,18 @@ TEST(ExpressionEvaluation, WithConstGradient) {
     EXPECT_NEAR(df_dc(2, 0), 5.0, 1e-10);  // X0 at row 2
 }
 
+TEST(ExpressionEvaluation, WithConstHessian) {
+    auto expr = make_shared_subgraph(3.0);
+    auto x = make_simple_x();
+    auto result = expr.evaluate_with_const_hessian(x);
+
+    for (Eigen::Index row = 0; row < x.rows(); ++row) {
+        EXPECT_NEAR(result.value(row, 0), std::pow(x(row, 0) + 3.0, 2), 1e-12);
+        EXPECT_NEAR(result.gradient(row, 0), 2.0 * (x(row, 0) + 3.0), 1e-12);
+        EXPECT_NEAR(result.hessian(row, 0), 2.0, 1e-12);
+    }
+}
+
 // ================================================================
 //  Test: sklearn interface
 // ================================================================

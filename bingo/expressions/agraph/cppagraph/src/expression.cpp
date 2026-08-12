@@ -303,6 +303,21 @@ AGraphExpression::evaluate_with_const_gradient(const RowMatrixXd& x) {
     }
 }
 
+ConstHessianResult AGraphExpression::evaluate_with_const_hessian(
+        const RowMatrixXd& x) {
+    if (modified_) update();
+    try {
+        return cppagraph::evaluate_with_const_hessian(
+            command_array_, x, constants_, integers_);
+    } catch (...) {
+        const Eigen::Index nc = static_cast<Eigen::Index>(constants_.size());
+        const double nan = std::numeric_limits<double>::quiet_NaN();
+        return {RowMatrixXd::Constant(x.rows(), 1, nan),
+                RowMatrixXd::Constant(x.rows(), nc, nan),
+                RowMatrixXd::Constant(x.rows(), nc * nc, nan)};
+    }
+}
+
 // ================================================================
 //  sklearn-like interface
 // ================================================================

@@ -49,6 +49,7 @@ from ._cppagraph import (  # type: ignore[import-not-found]
     # Evaluation engine
     evaluate,
     evaluate_with_derivative,
+    evaluate_with_const_hessian,
     CachedEvaluator,
     # Simplification / stack reduction
     get_utilized_commands,
@@ -103,6 +104,7 @@ __all__ = [
     # Evaluation engine
     "evaluate",
     "evaluate_with_derivative",
+    "evaluate_with_const_hessian",
     "CachedEvaluator",
     # Simplification / stack reduction
     "get_utilized_commands",

@@ -123,6 +123,9 @@ public:
     std::pair<RowMatrixXd, RowMatrixXd>
     evaluate_with_const_gradient(const RowMatrixXd& x);
 
+    /** (f(x), df/dc, d2f/dc2), with row-major flattened Hessian matrices. */
+    ConstHessianResult evaluate_with_const_hessian(const RowMatrixXd& x);
+
     // ---- sklearn-like interface ------------------------------------ //
 
     /** Predict target values for X.  Returns (M,) column. */

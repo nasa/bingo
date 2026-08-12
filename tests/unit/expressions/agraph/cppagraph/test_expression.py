@@ -153,6 +153,14 @@ class TestEvaluation:
         np.testing.assert_array_almost_equal(f, 2.0 * simple_x[:, 0:1])
         np.testing.assert_array_almost_equal(df_dc, simple_x[:, 0:1])
 
+    def test_evaluate_with_const_hessian(self, manual_expr, simple_x):
+        value, gradient, hessian = manual_expr._evaluate_with_const_hessian(
+            simple_x
+        )
+        np.testing.assert_allclose(value, 2.0 * simple_x[:, 0:1])
+        np.testing.assert_allclose(gradient, simple_x[:, 0:1])
+        np.testing.assert_allclose(hessian, 0.0)
+
 
 # ------------------------------------------------------------------ #
 #  sklearn interface                                                  #

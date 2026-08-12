@@ -79,7 +79,34 @@ void bind_evaluation(py::module_& m) {
         "    True for df/dx, False for df/dc.\n\n"
         "Returns\n"
         "-------\n"
-        "tuple of ((M, 1), (M, D) or (M, L)) float64 arrays");
+         "tuple of ((M, 1), (M, D) or (M, L)) float64 arrays");
+
+    m.def("evaluate_with_const_hessian",
+        [](py::array_t<uint8_t, py::array::c_style | py::array::forcecast> stack_arr,
+           const RowMatrixXd& x, const std::vector<double>& constants,
+           const std::vector<int>& integers) {
+            auto buf = stack_arr.request();
+            if (buf.ndim != 2 || buf.shape[1] != 3)
+                throw std::invalid_argument("stack must be Nx3 uint8 array");
+            Eigen::Map<const StackMatrix> stack(
+                static_cast<const uint8_t*>(buf.ptr), buf.shape[0], 3);
+            ConstHessianResult result;
+            try {
+                result = evaluate_with_const_hessian(stack, x, constants, integers);
+            } catch (const std::domain_error& err) {
+                PyErr_SetString(PyExc_ZeroDivisionError, err.what());
+                throw py::error_already_set();
+            }
+            const auto l = static_cast<py::ssize_t>(constants.size());
+            auto hessian = py::array_t<double>({x.rows(), l, l});
+            auto hessian_view = hessian.mutable_unchecked<3>();
+            for (Eigen::Index row = 0; row < x.rows(); ++row)
+                for (py::ssize_t j = 0; j < l; ++j)
+                    for (py::ssize_t k = 0; k < l; ++k)
+                        hessian_view(row, j, k) = result.hessian(row, j * l + k);
+            return py::make_tuple(result.value, result.gradient, hessian);
+        },
+        py::arg("stack"), py::arg("x"), py::arg("constants"), py::arg("integers"));
 
     // ---- CachedEvaluator class ----
 

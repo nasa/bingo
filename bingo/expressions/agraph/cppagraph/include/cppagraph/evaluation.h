@@ -32,6 +32,17 @@ using StackMatrix =
 /// Per-row forward-evaluation buffer.
 using ForwardBuffer = std::vector<RowMatrixXd>;
 
+/** Result of constant-gradient and Hessian evaluation.
+ *
+ * hessian stores each per-sample LxL matrix flattened row-major into an
+ * Mx(L*L) matrix, where L is the number of constants.
+ */
+struct ConstHessianResult {
+    RowMatrixXd value;
+    RowMatrixXd gradient;
+    RowMatrixXd hessian;
+};
+
 // -----------------------------------------------------------------
 //  Public API  (mirrors pyagraph.evaluation.evaluate / evaluate_with_derivative)
 // -----------------------------------------------------------------
@@ -68,6 +79,13 @@ std::pair<RowMatrixXd, RowMatrixXd> evaluate_with_derivative(
     const std::vector<double>& constants,
     const std::vector<int>& integers,
     bool wrt_x);
+
+/** Evaluate f(x), df/dc, and d2f/dc2. */
+ConstHessianResult evaluate_with_const_hessian(
+    const StackMatrix& stack,
+    const RowMatrixXd& x,
+    const std::vector<double>& constants,
+    const std::vector<int>& integers);
 
 // -----------------------------------------------------------------
 //  Internal helpers (exposed for CachedEvaluator & testing)

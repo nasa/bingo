@@ -389,6 +389,70 @@ TEST(Derivative, XGradientOfSin) {
 }
 
 // ================================================================
+//  Constant Hessian tests
+// ================================================================
+
+TEST(ConstHessian, MixedConstants) {
+    // f(C0, C1) = C0 * C1 + C0^2
+    auto x = simple_x();
+    auto stack = make_stack({
+        {1, 0, 0}, {1, 1, 0}, {5, 0, 1}, {9, 0, 0}, {3, 2, 3},
+    });
+    auto result = evaluate_with_const_hessian(stack, x, {2.0, 3.0}, {});
+
+    for (Eigen::Index row = 0; row < x.rows(); ++row) {
+        EXPECT_NEAR(result.value(row, 0), 10.0, 1e-12);
+        EXPECT_NEAR(result.gradient(row, 0), 7.0, 1e-12);
+        EXPECT_NEAR(result.gradient(row, 1), 2.0, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 0), 2.0, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 1), 1.0, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 2), 1.0, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 3), 0.0, 1e-12);
+    }
+}
+
+TEST(ConstHessian, SharedSubexpression) {
+    // f(C0, C1) = sin(C0 * C1) + C0 * C1
+    auto x = simple_x();
+    auto stack = make_stack({
+        {1, 0, 0}, {1, 1, 0}, {5, 0, 1}, {15, 2, 0}, {3, 3, 2},
+    });
+    auto result = evaluate_with_const_hessian(stack, x, {0.8, 1.1}, {});
+    const double product = 0.8 * 1.1;
+    const double scale = 1.0 + std::cos(product);
+    const double curvature = -std::sin(product);
+
+    for (Eigen::Index row = 0; row < x.rows(); ++row) {
+        EXPECT_NEAR(result.gradient(row, 0), 1.1 * scale, 1e-12);
+        EXPECT_NEAR(result.gradient(row, 1), 0.8 * scale, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 0), 1.1 * 1.1 * curvature, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 1), scale + product * curvature, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 2), scale + product * curvature, 1e-12);
+        EXPECT_NEAR(result.hessian(row, 3), 0.8 * 0.8 * curvature, 1e-12);
+    }
+}
+
+TEST(ConstHessian, ConstantFreeExpressionHasEmptyDerivatives) {
+    auto x = simple_x();
+    auto stack = make_stack({{0, 0, 0}});
+    auto result = evaluate_with_const_hessian(stack, x, {}, {});
+    EXPECT_EQ(result.gradient.rows(), x.rows());
+    EXPECT_EQ(result.gradient.cols(), 0);
+    EXPECT_EQ(result.hessian.rows(), x.rows());
+    EXPECT_EQ(result.hessian.cols(), 0);
+}
+
+TEST(ConstHessian, ScalarDivisionByZeroThrows) {
+    auto x = simple_x();
+    auto stack = make_stack({
+        {1, 0, 0}, {1, 1, 0}, {6, 0, 1},
+    });
+    EXPECT_THROW(
+        evaluate_with_const_hessian(stack, x, {1.0, 0.0}, {}),
+        std::domain_error);
+}
+
+// ================================================================
 //  CachedEvaluator tests
 // ================================================================
 

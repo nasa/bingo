@@ -14,6 +14,10 @@ from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     ADDITION,
+    MULTIPLICATION,
+    POWER,
+    LOGARITHM,
+    SQUARE,
 )
 
 
@@ -54,6 +58,65 @@ def test_gradient_contract(backend, simple_x):
     expected = np.zeros_like(simple_x)
     expected[:, 0] = 1.0
     np.testing.assert_allclose(df_dx, expected)
+
+
+def test_const_hessian_contract(backend, simple_x):
+    # f(C0, C1) = C0 * C1 + C0**2
+    Expr = agraph.get_expression_class()
+    expr = Expr(simplification="reduce")
+    expr.raw_command_array = np.array(
+        [
+            [CONSTANT, 0, 0],
+            [CONSTANT, 1, 0],
+            [MULTIPLICATION, 0, 1],
+            [SQUARE, 0, 0],
+            [ADDITION, 2, 3],
+        ],
+        dtype=np.uint8,
+    )
+    expr.raw_constants = (2.0, 3.0)
+
+    value, gradient, hessian = expr._evaluate_with_const_hessian(simple_x)
+    np.testing.assert_allclose(value, 10.0)
+    np.testing.assert_allclose(gradient, [[7.0, 2.0]] * len(simple_x))
+    np.testing.assert_allclose(
+        hessian, [np.array([[2.0, 1.0], [1.0, 0.0]])] * len(simple_x)
+    )
+
+
+@pytest.mark.parametrize(
+    "stack, constants, value, gradient, hessian",
+    [
+        (
+            [[CONSTANT, 0, 0], [LOGARITHM, 0, 0]],
+            (0.0,),
+            -np.inf,
+            np.inf,
+            np.nan,
+        ),
+        (
+            [[CONSTANT, 0, 0], [CONSTANT, 1, 0], [POWER, 0, 1]],
+            (0.0, 2.0),
+            0.0,
+            np.nan,
+            np.nan,
+        ),
+    ],
+)
+def test_const_hessian_nonfinite_contract(
+    backend, simple_x, stack, constants, value, gradient, hessian
+):
+    Expr = agraph.get_expression_class()
+    expr = Expr(simplification="reduce")
+    expr.raw_command_array = np.array(stack, dtype=np.uint8)
+    expr.raw_constants = constants
+
+    actual_value, actual_gradient, actual_hessian = expr._evaluate_with_const_hessian(
+        simple_x
+    )
+    np.testing.assert_allclose(actual_value, value)
+    np.testing.assert_allclose(actual_gradient, gradient)
+    np.testing.assert_allclose(actual_hessian, hessian)
 
 
 def test_loss_vocabulary_and_values(backend, simple_x):

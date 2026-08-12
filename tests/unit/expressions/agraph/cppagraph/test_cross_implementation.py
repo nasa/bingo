@@ -386,6 +386,26 @@ class TestAGraphExpressionCrossCheck:
         cpp_pred = cpp_expr.predict(x)
         np.testing.assert_allclose(cpp_pred, py_pred, rtol=1e-12, atol=1e-12)
 
+    @pytest.mark.parametrize(
+        "eq",
+        EQUATIONS,
+        ids=["add", "sin", "multiply", "affine", "sum", "divide"],
+    )
+    def test_batched_constant_predict_matches(self, eq):
+        x = np.array([[0.2, 0.3], [0.4, 0.5], [0.6, 0.7]])
+        py_expr = PyAGraphExpression(equation=eq)
+        cpp_expr = CppAGraphExpression(equation=eq)
+        constants = np.linspace(
+            0.2, 1.1, len(py_expr.constants) * 4
+        ).reshape(len(py_expr.constants), 4)
+
+        py_pred = py_expr.predict(x, constants=constants)
+        cpp_pred = cpp_expr.predict(x, constants=constants)
+
+        np.testing.assert_allclose(
+            cpp_pred, py_pred, rtol=1e-12, atol=1e-12, equal_nan=True
+        )
+
     @pytest.mark.parametrize("eq", EQUATIONS)
     def test_command_array_matches(self, eq):
         py_expr = PyAGraphExpression(equation=eq)
@@ -523,3 +543,41 @@ class TestRandomExpressionCrossCheck:
             n_match += 1
 
         assert n_match >= 900, f"Too few valid expressions: {n_match}"
+
+    def test_batched_predict_random(self):
+        rng = np.random.default_rng(24680)
+        x = _make_safe_x(rng, n_samples=12, n_vars=2)
+        n_match = 0
+
+        for _ in range(250):
+            stack, constants, integers = _random_stack(rng, n_rows=10)
+            py_expr = PyAGraphExpression(simplification="reduce")
+            cpp_expr = CppAGraphExpression(simplification="reduce")
+            for expression in (py_expr, cpp_expr):
+                expression.raw_command_array = stack
+                expression.raw_constants = constants
+                expression.raw_integers = integers
+
+            try:
+                n_constants = len(py_expr.constants)
+                constant_batch = rng.uniform(0.1, 0.8, (n_constants, 5))
+                py_result = py_expr.predict(x, constants=constant_batch)
+            except Exception:
+                continue
+
+            cpp_result = cpp_expr.predict(x, constants=constant_batch)
+            np.testing.assert_array_equal(
+                np.isfinite(cpp_result), np.isfinite(py_result)
+            )
+            finite = np.isfinite(py_result)
+            if finite.any():
+                np.testing.assert_allclose(
+                    cpp_result[finite],
+                    py_result[finite],
+                    rtol=1e-10,
+                    atol=1e-10,
+                    err_msg=f"batched predict mismatch on stack:\n{stack}",
+                )
+            n_match += 1
+
+        assert n_match >= 225, f"Too few valid expressions: {n_match}"

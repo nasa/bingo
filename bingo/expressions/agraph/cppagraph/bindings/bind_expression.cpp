@@ -302,7 +302,8 @@ void bind_expression(py::module_& m) {
 
         // ---- Evaluation ----
 
-        .def("_evaluate", &AGraphExpression::evaluate,
+        .def("_evaluate",
+             py::overload_cast<const RowMatrixXd&>(&AGraphExpression::evaluate),
              py::arg("x"))
         .def("_evaluate_with_x_gradient",
              &AGraphExpression::evaluate_with_x_gradient,
@@ -325,7 +326,59 @@ void bind_expression(py::module_& m) {
 
         // ---- sklearn interface ----
 
-        .def("predict", &AGraphExpression::predict, py::arg("X"))
+        .def("predict",
+            [](AGraphExpression& self,
+               const RowMatrixXd& X,
+               py::object constants) -> py::object {
+                if (constants.is_none())
+                    return py::cast(self.predict(X));
+
+                auto values = py::array_t<
+                    double,
+                    py::array::c_style | py::array::forcecast>::ensure(constants);
+                if (!values)
+                    throw py::type_error("constants must be numeric array-like");
+                auto buffer = values.request();
+                if (buffer.ndim != 1 && buffer.ndim != 2) {
+                    throw py::value_error(
+                        "constants must be a one- or two-dimensional array");
+                }
+
+                const auto n_constants = static_cast<py::ssize_t>(
+                    self.constants().size());
+                if (buffer.shape[0] != n_constants) {
+                    throw py::value_error(
+                        "constants must have one entry per simplified "
+                        "expression constant");
+                }
+
+                if (buffer.ndim == 1) {
+                    const auto* data = static_cast<const double*>(buffer.ptr);
+                    std::vector<double> temporary_constants(
+                        data, data + buffer.shape[0]);
+                    Eigen::VectorXd predictions;
+                    {
+                        py::gil_scoped_release release;
+                        predictions = self.predict(X, temporary_constants);
+                    }
+                    return py::cast(std::move(predictions));
+                }
+
+                Eigen::Map<const RowMatrixXd> constant_batch(
+                    static_cast<const double*>(buffer.ptr),
+                    buffer.shape[0], buffer.shape[1]);
+                RowMatrixXd predictions;
+                {
+                    py::gil_scoped_release release;
+                    predictions = self.predict(X, constant_batch);
+                }
+                return py::cast(std::move(predictions));
+            },
+            py::arg("X"), py::kw_only(), py::arg("constants") = py::none(),
+            "Predict with stored constants or temporary simplified constants.\n\n"
+            "A constant-major (L, B) array returns one prediction column per "
+            "constant set. C-contiguous float64 arrays use the zero-copy "
+            "input path.")
 
         .def("gradient", &AGraphExpression::gradient, py::arg("X"))
 

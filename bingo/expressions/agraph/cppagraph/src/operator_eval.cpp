@@ -39,13 +39,37 @@ static inline void ensure_shape(ReverseBuf& rev, int idx,
     }
 }
 
+static inline std::pair<Eigen::Index, Eigen::Index> broadcast_factors(
+        const RowMatrixXd& value, Eigen::Index rows, Eigen::Index cols) {
+    if ((value.rows() != 1 && value.rows() != rows) ||
+        (value.cols() != 1 && value.cols() != cols)) {
+        throw std::invalid_argument("incompatible evaluation shapes");
+    }
+    return {value.rows() == rows ? 1 : rows,
+            value.cols() == cols ? 1 : cols};
+}
+
 // Same for the forward buffer entries that may be scalar.
-static inline RowMatrixXd as_matrix(const RowMatrixXd& v,
+static inline RowMatrixXd as_matrix(const RowMatrixXd& value,
                                      Eigen::Index rows, Eigen::Index cols) {
-    if (v.rows() == rows && v.cols() == cols) return v;
-    if (v.size() == 1)
-        return RowMatrixXd::Constant(rows, cols, v(0, 0));
-    return v;  // let Eigen handle broadcasting errors
+    if (value.rows() == rows && value.cols() == cols) return value;
+    auto [row_factor, col_factor] = broadcast_factors(value, rows, cols);
+    return value.replicate(row_factor, col_factor);
+}
+
+template <typename Operation>
+static inline RowMatrixXd binary_forward(
+        uint8_t param1, uint8_t param2,
+        const ForwardBuf& forward, Operation operation) {
+    const auto& left = forward[param1];
+    const auto& right = forward[param2];
+    const Eigen::Index rows = std::max(left.rows(), right.rows());
+    const Eigen::Index cols = std::max(left.cols(), right.cols());
+    auto [left_rows, left_cols] = broadcast_factors(left, rows, cols);
+    auto [right_rows, right_cols] = broadcast_factors(right, rows, cols);
+    return operation(
+        left.replicate(left_rows, left_cols).array(),
+        right.replicate(right_rows, right_cols).array());
 }
 
 /// Compute the broadcast shape from rev[ri] and one forward entry.
@@ -109,11 +133,10 @@ static RowMatrixXd add_fwd(uint8_t p1, uint8_t p2,
                             const std::vector<double>& /*c*/,
                             const std::vector<int>& /*i*/,
                             const ForwardBuf& fwd) {
-    const auto& a = fwd[p1];
-    const auto& b = fwd[p2];
-    Eigen::Index rows = std::max(a.rows(), b.rows());
-    Eigen::Index cols = std::max(a.cols(), b.cols());
-    return as_matrix(a, rows, cols) + as_matrix(b, rows, cols);
+    return binary_forward(
+        p1, p2, fwd, [](const auto& left, const auto& right) {
+            return left + right;
+        });
 }
 
 static void add_rev(int ri, uint8_t p1, uint8_t p2,
@@ -132,11 +155,10 @@ static RowMatrixXd sub_fwd(uint8_t p1, uint8_t p2,
                             const std::vector<double>& /*c*/,
                             const std::vector<int>& /*i*/,
                             const ForwardBuf& fwd) {
-    const auto& a = fwd[p1];
-    const auto& b = fwd[p2];
-    Eigen::Index rows = std::max(a.rows(), b.rows());
-    Eigen::Index cols = std::max(a.cols(), b.cols());
-    return as_matrix(a, rows, cols) - as_matrix(b, rows, cols);
+    return binary_forward(
+        p1, p2, fwd, [](const auto& left, const auto& right) {
+            return left - right;
+        });
 }
 
 static void sub_rev(int ri, uint8_t p1, uint8_t p2,
@@ -155,11 +177,10 @@ static RowMatrixXd mul_fwd(uint8_t p1, uint8_t p2,
                             const std::vector<double>& /*c*/,
                             const std::vector<int>& /*i*/,
                             const ForwardBuf& fwd) {
-    const auto& a = fwd[p1];
-    const auto& b = fwd[p2];
-    Eigen::Index rows = std::max(a.rows(), b.rows());
-    Eigen::Index cols = std::max(a.cols(), b.cols());
-    return as_matrix(a, rows, cols).array() * as_matrix(b, rows, cols).array();
+    return binary_forward(
+        p1, p2, fwd, [](const auto& left, const auto& right) {
+            return left * right;
+        });
 }
 
 static void mul_rev(int ri, uint8_t p1, uint8_t p2,
@@ -180,11 +201,10 @@ static RowMatrixXd div_fwd(uint8_t p1, uint8_t p2,
                             const std::vector<double>& /*c*/,
                             const std::vector<int>& /*i*/,
                             const ForwardBuf& fwd) {
-    const auto& a = fwd[p1];
-    const auto& b = fwd[p2];
-    Eigen::Index rows = std::max(a.rows(), b.rows());
-    Eigen::Index cols = std::max(a.cols(), b.cols());
-    return as_matrix(a, rows, cols).array() / as_matrix(b, rows, cols).array();
+    return binary_forward(
+        p1, p2, fwd, [](const auto& left, const auto& right) {
+            return left / right;
+        });
 }
 
 static void div_rev(int ri, uint8_t p1, uint8_t p2,
@@ -209,11 +229,10 @@ static RowMatrixXd pow_fwd(uint8_t p1, uint8_t p2,
                             const std::vector<double>& /*c*/,
                             const std::vector<int>& /*i*/,
                             const ForwardBuf& fwd) {
-    const auto& a = fwd[p1];
-    const auto& b = fwd[p2];
-    Eigen::Index rows = std::max(a.rows(), b.rows());
-    Eigen::Index cols = std::max(a.cols(), b.cols());
-    return as_matrix(a, rows, cols).array().pow(as_matrix(b, rows, cols).array());
+    return binary_forward(
+        p1, p2, fwd, [](const auto& left, const auto& right) {
+            return left.pow(right);
+        });
 }
 
 static void pow_rev(int ri, uint8_t p1, uint8_t p2,
@@ -237,11 +256,10 @@ static RowMatrixXd safe_pow_fwd(uint8_t p1, uint8_t p2,
                                  const std::vector<double>& /*c*/,
                                  const std::vector<int>& /*i*/,
                                  const ForwardBuf& fwd) {
-    const auto& a = fwd[p1];
-    const auto& b = fwd[p2];
-    Eigen::Index rows = std::max(a.rows(), b.rows());
-    Eigen::Index cols = std::max(a.cols(), b.cols());
-    return as_matrix(a, rows, cols).array().abs().pow(as_matrix(b, rows, cols).array());
+    return binary_forward(
+        p1, p2, fwd, [](const auto& left, const auto& right) {
+            return left.abs().pow(right);
+        });
 }
 
 static void safe_pow_rev(int ri, uint8_t p1, uint8_t p2,
@@ -634,6 +652,21 @@ RowMatrixXd forward_eval_one(
     if (node >= NUM_OPS)
         throw std::out_of_range("Unknown operator id " + std::to_string(node));
     return FWD_TABLE[node](param1, param2, x, constants, integers, fwd);
+}
+
+RowMatrixXd forward_eval_one_batched(
+        uint8_t node, uint8_t param1, uint8_t param2,
+        const RowMatrixXd& x,
+        Eigen::Ref<const RowMatrixXd> constants,
+        const std::vector<int>& integers,
+        const ForwardBuf& fwd) {
+    if (node >= NUM_OPS)
+        throw std::out_of_range("Unknown operator id " + std::to_string(node));
+    if (node == static_cast<uint8_t>(Op::CONSTANT))
+        return constants.row(param1);
+    static const std::vector<double> unused_constants;
+    return FWD_TABLE[node](
+        param1, param2, x, unused_constants, integers, fwd);
 }
 
 void reverse_eval_one(

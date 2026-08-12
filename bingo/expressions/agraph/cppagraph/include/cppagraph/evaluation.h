@@ -62,6 +62,13 @@ RowMatrixXd evaluate(
     const std::vector<double>& constants,
     const std::vector<int>& integers);
 
+/** Evaluate with constant-major LxB temporary constants, returning MxB. */
+RowMatrixXd evaluate(
+    const StackMatrix& stack,
+    const RowMatrixXd& x,
+    Eigen::Ref<const RowMatrixXd> constants,
+    const std::vector<int>& integers);
+
 /**
  * Evaluate and compute derivative via reverse-mode autodiff.
  *

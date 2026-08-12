@@ -107,6 +107,15 @@ A standalone mathematical model that represents a candidate symbolic
 relationship and owns fitting, scoring, prediction, and derivative operations.
 _Avoid_: equation regressor
 
+**Batched constant prediction**:
+Prediction over multiple temporary constant sets for one Expression and one
+input dataset. Constants use constant-major shape `(L, B)`, with one constant
+set per column, and produce predictions shaped `(M, B)`. It is distinct from
+batching input samples, does not include derivative or scoring operations, and
+does not alter the Expression's constants or fitted state. `L` counts constants
+in the simplified Expression and follows their simplified order.
+_Avoid_: batched constant evaluation, input minibatching
+
 **Explicit regression**:
 Symbolic regression that searches for an Expression whose predicted output
 matches a target value for each input.

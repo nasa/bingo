@@ -115,6 +115,16 @@ public:
     /** Evaluate f(x).  Returns NaN matrix on arithmetic error. */
     RowMatrixXd evaluate(const RowMatrixXd& x);
 
+    /** Evaluate f(x) with one temporary simplified constant vector. */
+    RowMatrixXd evaluate(
+        const RowMatrixXd& x,
+        const std::vector<double>& constants);
+
+    /** Evaluate f(x) with constant-major LxB temporary constants. */
+    RowMatrixXd evaluate(
+        const RowMatrixXd& x,
+        Eigen::Ref<const RowMatrixXd> constants);
+
     /** (f(x), df/dx).  Returns NaN matrices on error. */
     std::pair<RowMatrixXd, RowMatrixXd>
     evaluate_with_x_gradient(const RowMatrixXd& x);
@@ -130,6 +140,16 @@ public:
 
     /** Predict target values for X.  Returns (M,) column. */
     Eigen::VectorXd predict(const RowMatrixXd& X);
+
+    /** Predict with one temporary simplified constant vector. */
+    Eigen::VectorXd predict(
+        const RowMatrixXd& X,
+        const std::vector<double>& constants);
+
+    /** Predict with constant-major LxB temporary constants. */
+    RowMatrixXd predict(
+        const RowMatrixXd& X,
+        Eigen::Ref<const RowMatrixXd> constants);
 
     /** Predictions and gradient w.r.t. inputs: (f(x), df/dx).
      *

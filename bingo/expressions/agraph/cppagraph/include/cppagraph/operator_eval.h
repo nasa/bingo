@@ -39,6 +39,16 @@ RowMatrixXd forward_eval_one(
     const std::vector<int>& integers,
     const ForwardBuf& fwd);
 
+/** Evaluate one row with constant-major LxB temporary constants. */
+RowMatrixXd forward_eval_one_batched(
+    uint8_t node,
+    uint8_t param1,
+    uint8_t param2,
+    const RowMatrixXd& x,
+    Eigen::Ref<const RowMatrixXd> constants,
+    const std::vector<int>& integers,
+    const ForwardBuf& fwd);
+
 /**
  * Evaluate one row of the command stack (reverse / derivative pass).
  *

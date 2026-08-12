@@ -6,15 +6,19 @@ the compiled extension is unavailable locally (CI builds it and requires the
 cases to pass).
 """
 
+import warnings
+
 import numpy as np
 import pytest
 
 import bingo.expressions.agraph as agraph
+from bingo.expressions.agraph.evolvable import EvolvableExpression
 from bingo.expressions.agraph.pyagraph.operators import (
     VARIABLE,
     CONSTANT,
     ADDITION,
     MULTIPLICATION,
+    DIVISION,
     POWER,
     LOGARITHM,
     SQUARE,
@@ -48,6 +52,170 @@ def test_predictions_match_contract(backend, simple_x):
     expr = Expr(equation="X_0 + 10.0")
     preds = expr.predict(simple_x)
     np.testing.assert_allclose(preds, simple_x[:, 0] + 10.0)
+
+
+def test_temporary_constant_prediction_contract(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(simplification="reduce")
+    expr.raw_command_array = np.array(
+        [
+            [VARIABLE, 0, 0],
+            [CONSTANT, 0, 0],
+            [MULTIPLICATION, 0, 1],
+            [CONSTANT, 1, 0],
+            [ADDITION, 2, 3],
+        ],
+        dtype=np.uint8,
+    )
+    expr.raw_constants = (2.0, 3.0)
+    original_constants = expr.constants
+    original_raw_constants = expr.raw_constants
+    original_fittedness = expr.is_fitted
+
+    constants = np.array([[4.0, 5.0], [10.0, 20.0]])
+    predictions = expr.predict(simple_x, constants=constants)
+
+    expected = simple_x[:, :1] * constants[0] + constants[1]
+    assert predictions.shape == (len(simple_x), 2)
+    np.testing.assert_allclose(predictions, expected)
+    assert expr.constants == original_constants
+    assert expr.raw_constants == original_raw_constants
+    assert expr.is_fitted == original_fittedness
+
+
+def test_temporary_constant_prediction_preserves_input_rank(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    vector_result = expr.predict(simple_x, constants=np.array([4.0]))
+    matrix_result = expr.predict(simple_x, constants=np.array([[4.0]]))
+
+    assert vector_result.shape == (len(simple_x),)
+    assert matrix_result.shape == (len(simple_x), 1)
+    np.testing.assert_allclose(vector_result, matrix_result[:, 0])
+
+
+def test_empty_constant_batch_contract(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    predictions = expr.predict(simple_x, constants=np.empty((1, 0)))
+
+    assert predictions.shape == (len(simple_x), 0)
+
+
+def test_empty_sample_batch_contract(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    predictions = expr.predict(
+        simple_x[:0], constants=np.array([[2.0, 3.0]])
+    )
+
+    assert predictions.shape == (0, 2)
+
+
+def test_batched_prediction_accepts_numeric_array_like(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    predictions = expr.predict(simple_x, constants=[[2.0, 3.0]])
+
+    np.testing.assert_allclose(
+        predictions, simple_x[:, :1] + np.array([[2.0, 3.0]])
+    )
+
+
+def test_constant_free_batched_prediction_contract(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0")
+
+    predictions = expr.predict(simple_x, constants=np.empty((0, 3)))
+
+    assert predictions.shape == (len(simple_x), 3)
+    np.testing.assert_allclose(predictions, np.repeat(simple_x[:, :1], 3, axis=1))
+
+
+def test_constant_only_batched_prediction_contract(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="10.0")
+
+    predictions = expr.predict(simple_x, constants=np.array([[2.0, 3.0]]))
+
+    np.testing.assert_allclose(predictions, [[2.0, 3.0]] * len(simple_x))
+
+
+def test_nonfinite_batched_prediction_is_column_local(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(simplification="reduce")
+    expr.raw_command_array = np.array(
+        [
+            [VARIABLE, 0, 0],
+            [CONSTANT, 0, 0],
+            [DIVISION, 0, 1],
+        ],
+        dtype=np.uint8,
+    )
+    expr.raw_constants = (1.0,)
+
+    with warnings.catch_warnings(record=True) as caught_warnings:
+        predictions = expr.predict(
+            simple_x, constants=np.array([[1.0, 0.0, 2.0]])
+        )
+
+    assert not caught_warnings
+    np.testing.assert_allclose(predictions[:, 0], simple_x[:, 0])
+    assert np.isinf(predictions[:, 1]).all()
+    np.testing.assert_allclose(predictions[:, 2], simple_x[:, 0] / 2.0)
+
+
+def test_nonfinite_temporary_constants_propagate_by_column(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    predictions = expr.predict(
+        simple_x, constants=np.array([[np.nan, np.inf, -np.inf]])
+    )
+
+    assert np.isnan(predictions[:, 0]).all()
+    assert np.isposinf(predictions[:, 1]).all()
+    assert np.isneginf(predictions[:, 2]).all()
+
+
+def test_temporary_constants_are_keyword_only(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    with pytest.raises(TypeError):
+        expr.predict(simple_x, np.array([2.0]))
+
+
+def test_evolvable_expression_forwards_batched_constants(backend, simple_x):
+    Expr = agraph.get_expression_class()
+    individual = EvolvableExpression(Expr(equation="X_0 + 10.0"))
+
+    predictions = individual.predict(
+        simple_x, constants=np.array([[2.0, 3.0]])
+    )
+
+    np.testing.assert_allclose(
+        predictions, simple_x[:, :1] + np.array([[2.0, 3.0]])
+    )
+
+
+@pytest.mark.parametrize(
+    "constants",
+    [np.array(1.0), np.zeros((1, 1, 1)), np.zeros(2), np.zeros((2, 3))],
+    ids=["scalar", "rank-3", "wrong-vector-size", "wrong-matrix-rows"],
+)
+def test_temporary_constant_prediction_validates_shape(
+    backend, simple_x, constants
+):
+    Expr = agraph.get_expression_class()
+    expr = Expr(equation="X_0 + 10.0")
+
+    with pytest.raises(ValueError):
+        expr.predict(simple_x, constants=constants)
 
 
 def test_gradient_contract(backend, simple_x):

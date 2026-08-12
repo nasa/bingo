@@ -112,6 +112,35 @@ RowMatrixXd evaluate(
     return reshape_output(fwd.back(), constants, x.rows());
 }
 
+RowMatrixXd evaluate(
+        const StackMatrix& stack,
+        const RowMatrixXd& x,
+        Eigen::Ref<const RowMatrixXd> constants,
+        const std::vector<int>& integers) {
+    const Eigen::Index batch_size = constants.cols();
+    if (batch_size == 0)
+        return RowMatrixXd(x.rows(), 0);
+
+    const Eigen::Index n = stack.rows();
+    ForwardBuffer forward(n);
+    for (Eigen::Index row = 0; row < n; ++row) {
+        forward[row] = forward_eval_one_batched(
+            stack(row, 0), stack(row, 1), stack(row, 2),
+            x, constants, integers, forward);
+    }
+
+    const auto& output = forward.back();
+    if (output.rows() == x.rows() && output.cols() == batch_size)
+        return output;
+    if ((output.rows() != 1 && output.rows() != x.rows()) ||
+        (output.cols() != 1 && output.cols() != batch_size)) {
+        throw std::invalid_argument("incompatible evaluation output shape");
+    }
+    const Eigen::Index row_factor = output.rows() == x.rows() ? 1 : x.rows();
+    const Eigen::Index col_factor = output.cols() == batch_size ? 1 : batch_size;
+    return output.replicate(row_factor, col_factor);
+}
+
 std::pair<RowMatrixXd, RowMatrixXd> evaluate_with_derivative(
         const StackMatrix& stack,
         const RowMatrixXd& x,

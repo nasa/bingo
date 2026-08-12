@@ -521,10 +521,10 @@ class AGraphExpression:
             Temporary simplified constant values, where ``L`` is the number of
             constants in the expression. A one-dimensional array produces the
             usual one-dimensional prediction. A constant-major two-dimensional
-            array evaluates ``B`` constant sets in parallel and produces one
-            prediction column per set. This does not modify the expression's
-            stored constants. Batched constants are currently supported only by
-            the PyAGraph backend; C++ backend parity is deferred.
+            array evaluates ``B`` constant sets in one vectorized prediction and
+            produces one prediction column per set. This does not modify the expression's
+            stored constants. C-contiguous ``float64`` arrays provide the
+            zero-copy input path in the C++ backend.
 
         Returns
         -------

@@ -273,6 +273,41 @@ RowMatrixXd AGraphExpression::evaluate(const RowMatrixXd& x) {
     }
 }
 
+RowMatrixXd AGraphExpression::evaluate(
+        const RowMatrixXd& x,
+        const std::vector<double>& constants) {
+    if (modified_) update();
+    if (constants.size() != constants_.size()) {
+        throw std::invalid_argument(
+            "constants must have one entry per simplified expression constant");
+    }
+    try {
+        return cppagraph::evaluate(
+            command_array_, x, constants, integers_);
+    } catch (...) {
+        return RowMatrixXd::Constant(
+            x.rows(), 1, std::numeric_limits<double>::quiet_NaN());
+    }
+}
+
+RowMatrixXd AGraphExpression::evaluate(
+        const RowMatrixXd& x,
+        Eigen::Ref<const RowMatrixXd> constants) {
+    if (modified_) update();
+    if (constants.rows() != static_cast<Eigen::Index>(constants_.size())) {
+        throw std::invalid_argument(
+            "constants must have one entry per simplified expression constant");
+    }
+    try {
+        return cppagraph::evaluate(
+            command_array_, x, constants, integers_);
+    } catch (...) {
+        return RowMatrixXd::Constant(
+            x.rows(), constants.cols(),
+            std::numeric_limits<double>::quiet_NaN());
+    }
+}
+
 std::pair<RowMatrixXd, RowMatrixXd>
 AGraphExpression::evaluate_with_x_gradient(const RowMatrixXd& x) {
     if (modified_) update();
@@ -324,6 +359,18 @@ ConstHessianResult AGraphExpression::evaluate_with_const_hessian(
 
 Eigen::VectorXd AGraphExpression::predict(const RowMatrixXd& X) {
     return evaluate(X).col(0);
+}
+
+Eigen::VectorXd AGraphExpression::predict(
+        const RowMatrixXd& X,
+        const std::vector<double>& constants) {
+    return evaluate(X, constants).col(0);
+}
+
+RowMatrixXd AGraphExpression::predict(
+        const RowMatrixXd& X,
+        Eigen::Ref<const RowMatrixXd> constants) {
+    return evaluate(X, constants);
 }
 
 std::pair<Eigen::VectorXd, RowMatrixXd>

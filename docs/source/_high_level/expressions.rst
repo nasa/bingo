@@ -31,6 +31,23 @@ predictions:
 
     predictions = expr.predict(X)
 
+Temporary simplified constants can be supplied without modifying the
+expression. A one-dimensional constant vector produces ordinary predictions;
+a constant-major ``(L, B)`` array evaluates ``B`` constant sets in one batched
+prediction and returns ``(M, B)``:
+
+.. code-block:: python
+
+    constant_sets = np.array([
+        [2.0, 3.0, 4.0],  # first simplified constant
+        [5.0, 6.0, 7.0],  # second simplified constant
+    ])
+    predictions = expr.predict(X, constants=constant_sets)
+
+For the C++ backend, C-contiguous ``float64`` constant arrays use the zero-copy
+input path. Derivative and scoring operations continue to use the expression's
+stored constants.
+
 ``gradient`` additionally returns the derivative of the output with respect to
 the inputs — the surface implicit regression is built on:
 

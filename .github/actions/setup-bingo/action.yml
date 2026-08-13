@@ -38,3 +38,6 @@ runs:
     - name: Enable safe MPI forking
       shell: bash
       run: echo "RDMAV_FORK_SAFE=1" >> "$GITHUB_ENV"
+    - name: Use portable MPI transport
+      shell: bash
+      run: echo "UCX_TLS=self,tcp" >> "$GITHUB_ENV"

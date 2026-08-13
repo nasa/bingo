@@ -7,7 +7,19 @@ set -e
 for i in examples/*.ipynb
 do
   echo "Running Notebook: $i"
-  jupyter nbconvert --stdout --execute --to python $i > /dev/null
+  for attempt in 1 2 3
+  do
+    if jupyter nbconvert --stdout --execute --to python $i > /dev/null
+    then
+      break
+    fi
+    if [ "$attempt" -eq 3 ]
+    then
+      echo "Notebook failed after $attempt attempts" >&2
+      exit 1
+    fi
+    echo "Notebook execution failed; retrying ($attempt/3)"
+  done
   echo "Success"
   echo ""
 done

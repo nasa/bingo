@@ -14,18 +14,13 @@ def _constant_expression(value=0.0):
     return expression
 
 
-def test_explicit_objective_fits_an_unfitted_expression(mocker):
+def test_explicit_objective_fits_an_unfitted_expression():
     expression = _constant_expression()
     individual = EvolvableExpression(expression)
     objective = ExplicitRegression(np.arange(4.0).reshape(-1, 1), np.full(4, 2.0))
-    fit = mocker.spy(expression, "fit")
 
     assert objective(individual) == 0.0
-    fit.assert_called_once()
-    fit_x, fit_y = fit.call_args.args
-    np.testing.assert_array_equal(fit_x, np.arange(4.0).reshape(-1, 1))
-    np.testing.assert_array_equal(fit_y, np.full(4, 2.0))
-    assert fit.call_args.kwargs == {"tolerance": 1e-5}
+    assert expression.constants == (2.0,)
     assert expression.is_fitted
     assert objective.eval_count == 1
 

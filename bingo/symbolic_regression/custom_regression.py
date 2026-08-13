@@ -45,9 +45,7 @@ class CustomRegression(_ExpressionRegressionObjective):
         """Fit and rank an individual, committing only after successful ranking."""
         expression = individual.expression
         data = self._objective_data
-        if expression.is_fitted:
-            loss = self._expression_loss(expression, data)
-        elif not expression.constants:
+        if expression.is_fitted or not expression.constants:
             loss = self._expression_loss(expression, data)
         else:
             constants = self._fit_constants(expression, data)

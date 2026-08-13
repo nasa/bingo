@@ -105,6 +105,40 @@ def test_estimate_retries_invalid_proposal_components():
     assert calls == 2
 
 
+def test_estimate_propagates_user_fitter_exceptions():
+    expression = _constant_expression(1.0)
+
+    def failing_fitter(*_):
+        raise RuntimeError("fitter failed")
+
+    with pytest.raises(RuntimeError, match="fitter failed"):
+        SmcEvidenceEstimator(fitter=failing_fitter).estimate(
+            expression,
+            ObjectiveData(np.arange(5.0).reshape(-1, 1), np.full(5, 2.0)),
+            explicit_residuals(),
+        )
+
+    assert expression.constants == (1.0,)
+    assert not expression.is_fitted
+
+
+def test_estimate_propagates_user_measure_exceptions():
+    expression = _constant_expression(1.0)
+
+    def failing_measure(*_):
+        raise RuntimeError("measure failed")
+
+    with pytest.raises(RuntimeError, match="measure failed"):
+        SmcEvidenceEstimator().estimate(
+            expression,
+            ObjectiveData(np.arange(5.0).reshape(-1, 1), np.full(5, 2.0)),
+            failing_measure,
+        )
+
+    assert expression.constants == (1.0,)
+    assert not expression.is_fitted
+
+
 def test_estimate_regularizes_indefinite_laplace_curvature():
     measure = ResidualMeasure(
         lambda *_: np.ones(5),
@@ -165,6 +199,18 @@ def test_fixed_seed_reproduces_evidence_and_can_return_posterior():
     assert first_result.map_constants == second_result.map_constants
     assert first_result.posterior is not None
     assert not hasattr(first, "posterior")
+
+
+def test_fixed_seed_ignores_raw_constants():
+    first = _constant_expression(1.0)
+    second = _constant_expression(1.0)
+    second.raw_constants = (1.0, 2.0)
+    estimator = SmcEvidenceEstimator(seed=11)
+
+    np.testing.assert_array_equal(
+        estimator._generator(first).integers(2**32, size=10),
+        estimator._generator(second).integers(2**32, size=10),
+    )
 
 
 @pytest.mark.skipif(CppAGraphExpression is None, reason="C++ expression unavailable")

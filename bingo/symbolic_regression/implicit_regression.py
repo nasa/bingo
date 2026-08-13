@@ -27,7 +27,25 @@ class _ImplicitObjectiveData(ObjectiveData):
 
 
 class ImplicitRegression(CustomRegression):
-    """Lower-is-better implicit-regression loss for evolvable Expressions."""
+    """Lower-is-better implicit-regression loss for evolvable Expressions.
+
+    Parameters
+    ----------
+    X : array-like
+        State values with samples along the first axis.
+    dx_dt : array-like
+        State derivatives aligned with and shaped like ``X``.
+    required_params : int, optional
+        Minimum number of active state derivatives required to avoid a trivial
+        implicit solution.
+
+    Raises
+    ------
+    TypeError
+        If ``X`` or ``dx_dt`` cannot be represented as two-dimensional arrays.
+    ValueError
+        If ``X`` and ``dx_dt`` have unequal shapes.
+    """
 
     def __init__(self, X, dx_dt, required_params=None):
         data = _ImplicitObjectiveData(X, dx_dt)

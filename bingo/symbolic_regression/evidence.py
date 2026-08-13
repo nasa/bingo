@@ -14,12 +14,35 @@ from scipy.stats import invgamma, multivariate_normal
 from .fitting import FitResult, ScipyFitter
 
 
+class _UserCodeError(Exception):
+    """Mark an exception raised by a user-provided fitter or measure."""
+
+    def __init__(self, error):
+        super().__init__(str(error))
+        self.error = error
+
+
 @dataclass(frozen=True)
 class EvidenceResult:
     """The outcome of an Evidence estimation attempt.
 
     ``smc_nmll`` is higher-is-better. Failed estimates have negative infinite
     NMLL and do not contain a MAP estimate.
+
+    Parameters
+    ----------
+    smc_nmll : float
+        Higher-is-better normalized marginal log likelihood.
+    map_constants : tuple of float or None
+        Posterior MAP Expression constants when estimation succeeds.
+    success : bool
+        Whether sampling and Evidence calculation succeeded.
+    message : str, optional
+        Failure or status message.
+    diagnostics : dict, optional
+        Estimator diagnostics.
+    posterior : object, optional
+        Posterior samples when explicitly requested.
     """
 
     smc_nmll: float
@@ -31,7 +54,18 @@ class EvidenceResult:
 
 
 def smc_nmll_loss(result):
-    """Adapt an Evidence result to Bingo's lower-is-better Loss convention."""
+    """Adapt an Evidence result to Bingo's lower-is-better Loss convention.
+
+    Parameters
+    ----------
+    result : EvidenceResult
+        Evidence estimation outcome.
+
+    Returns
+    -------
+    float
+        The negated NMLL, or infinity when estimation failed.
+    """
     if not result.success or not np.isfinite(result.smc_nmll):
         return np.inf
     return -result.smc_nmll
@@ -78,7 +112,27 @@ class SmcEvidenceEstimator:
         self.fitter = fitter if fitter is not None else ScipyFitter("least_squares")
 
     def estimate(self, expression, data, residual_measure):
-        """Estimate evidence, installing posterior MAP constants on success."""
+        """Estimate evidence, installing posterior MAP constants on success.
+
+        Parameters
+        ----------
+        expression : Expression
+            Expression whose constants are estimated.
+        data : ObjectiveData
+            Aligned data consumed by ``residual_measure``.
+        residual_measure : callable
+            Returns residuals for an Expression, data, and candidate constants.
+
+        Returns
+        -------
+        EvidenceResult
+            The Evidence estimate and optional posterior samples.
+
+        Raises
+        ------
+        Exception
+            Any exception raised by a user-supplied fitter or residual measure.
+        """
         try:
             from smcpy import (
                 AdaptiveSampler,
@@ -94,6 +148,8 @@ class SmcEvidenceEstimator:
             proposal, diagnostics = self._generate_proposal(
                 expression, data, residual_measure, MultivarIndependent
             )
+        except _UserCodeError as error:
+            raise error.error from error
         except (TypeError, ValueError, np.linalg.LinAlgError, RuntimeError) as error:
             return self._failure("proposal error", error)
 
@@ -154,6 +210,8 @@ class SmcEvidenceEstimator:
             smc_nmll = float(marginal_log_likes[-1] - marginal_log_likes[phi_index])
             if not np.isfinite(smc_nmll) or not np.all(np.isfinite(map_constants)):
                 raise ValueError("SMC returned non-finite evidence or MAP constants")
+        except _UserCodeError as error:
+            raise error.error from error
         except Exception as error:  # SMCPy exposes several backend-specific errors.
             return self._failure("sample error", error, diagnostics)
 
@@ -180,7 +238,7 @@ class SmcEvidenceEstimator:
                     scale=0.01, size=len(expression.constants)
                 )
             try:
-                result = self.fitter(trial, data, residual_measure)
+                result = self._call_user_code(self.fitter, trial, data, residual_measure)
                 if not isinstance(result, FitResult):
                     raise TypeError("evidence proposal fitter must return a FitResult")
                 constants = np.asarray(result.constants, dtype=float)
@@ -216,7 +274,10 @@ class SmcEvidenceEstimator:
 
     @staticmethod
     def _residuals(expression, data, measure, constants):
-        residuals = np.asarray(measure(expression, data, constants), dtype=float)
+        residuals = np.asarray(
+            SmcEvidenceEstimator._call_user_code(measure, expression, data, constants),
+            dtype=float,
+        )
         if residuals.ndim != 1 or not np.all(np.isfinite(residuals)):
             raise ValueError("residual measure must return finite one-dimensional values")
         return residuals
@@ -227,7 +288,9 @@ class SmcEvidenceEstimator:
             jacobian = self._numerical_jacobian(expression, data, measure, constants)
         else:
             try:
-                jacobian = np.asarray(jacobian(expression, data, constants), dtype=float)
+                jacobian = np.asarray(
+                    self._call_user_code(jacobian, expression, data, constants), dtype=float
+                )
             except AttributeError:
                 jacobian = self._numerical_jacobian(
                     expression, data, measure, constants
@@ -239,7 +302,10 @@ class SmcEvidenceEstimator:
         if residual_hessian is not None:
             try:
                 hessians = np.asarray(
-                    residual_hessian(expression, data, constants), dtype=float
+                    self._call_user_code(
+                        residual_hessian, expression, data, constants
+                    ),
+                    dtype=float,
                 )
             except AttributeError:
                 hessians = None
@@ -264,6 +330,13 @@ class SmcEvidenceEstimator:
             lambda values: self._residuals(expression, data, measure, values), constants
         )
 
+    @staticmethod
+    def _call_user_code(callable_, *args):
+        try:
+            return callable_(*args)
+        except Exception as error:
+            raise _UserCodeError(error) from error
+
     def _generator(self, expression):
         if self.seed is None:
             return np.random.default_rng()
@@ -282,7 +355,6 @@ class SmcEvidenceEstimator:
         return (
             repr(commands.shape).encode()
             + commands.tobytes()
-            + len(expression.raw_constants).to_bytes(8, "little")
             + integers.tobytes()
         )
 

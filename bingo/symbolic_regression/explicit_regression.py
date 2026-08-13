@@ -21,7 +21,26 @@ class _ExplicitObjectiveData(ObjectiveData):
 
 
 class ExplicitRegression(CustomRegression):
-    """Lower-is-better explicit-regression loss for evolvable Expressions."""
+    """Lower-is-better explicit-regression loss for evolvable Expressions.
+
+    Parameters
+    ----------
+    X : array-like
+        Predictor values with samples along the first axis.
+    y : array-like
+        Target values aligned with ``X``.
+    loss : str, optional
+        Named Expression loss used for ranking.
+    fit_tolerance : float, optional
+        Convergence tolerance for Levenberg-Marquardt fitting.
+
+    Raises
+    ------
+    TypeError
+        If ``X`` cannot be represented as a two-dimensional array.
+    ValueError
+        If ``X`` and ``y`` have unequal sample counts.
+    """
 
     def __init__(self, X, y, loss="mse", fit_tolerance=1e-5):
         data = _ExplicitObjectiveData(X, y)

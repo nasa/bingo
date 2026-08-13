@@ -32,14 +32,13 @@ def test_implicit_objective_fits_and_returns_expression_loss(mocker):
     x = np.arange(4.0).reshape(-1, 1)
     dx_dt = np.ones((4, 1))
     objective = ImplicitRegression(x, dx_dt)
-    fit = mocker.spy(expression, "fit_implicit")
+    fit_implicit = mocker.spy(expression, "fit_implicit")
 
     loss = objective(individual)
-    fit.assert_called_once()
-    fit_x, fit_dx_dt = fit.call_args.args
+    fit_implicit.assert_called_once()
+    fit_x, fit_dx_dt = fit_implicit.call_args.args
     np.testing.assert_array_equal(fit_x, x)
     np.testing.assert_array_equal(fit_dx_dt, dx_dt)
-    assert fit.call_args.kwargs == {"tolerance": 1e-5}
     assert loss == expression.implicit_loss(x, dx_dt)
     assert expression.is_fitted
 

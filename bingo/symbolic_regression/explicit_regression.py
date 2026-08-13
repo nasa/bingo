@@ -3,9 +3,10 @@
 import numpy as np
 
 from ._expression_regression_objective import _ExpressionRegressionObjective
+from .objective_data import ObjectiveData
 
 
-class _ExplicitObjectiveData:
+class _ExplicitObjectiveData(ObjectiveData):
     """Aligned explicit-regression arrays kept private by the objective."""
 
     def __init__(self, X, y):
@@ -15,21 +16,34 @@ class _ExplicitObjectiveData:
         if self.X.ndim != 2:
             raise TypeError("Explicit regression X must be a 2D array")
         self.y = np.asarray(y, dtype=float).ravel()
-        if len(self.X) != len(self.y):
-            raise ValueError("Explicit regression X and y must have equal length")
-
-    def __getitem__(self, items):
-        return _ExplicitObjectiveData(self.X[items], self.y[items])
-
-    def __len__(self):
-        return len(self.X)
+        super().__init__(self.X, self.y)
 
 
 class ExplicitRegression(_ExpressionRegressionObjective):
-    """Lower-is-better explicit-regression loss for evolvable Expressions."""
+    """Lower-is-better explicit-regression loss for evolvable Expressions.
+
+    Parameters
+    ----------
+    X : array-like
+        Predictor values with samples along the first axis.
+    y : array-like
+        Target values aligned with ``X``.
+    loss : str, optional
+        Named Expression loss used for ranking.
+    fit_tolerance : float, optional
+        Convergence tolerance for Levenberg-Marquardt fitting.
+
+    Raises
+    ------
+    TypeError
+        If ``X`` cannot be represented as a two-dimensional array.
+    ValueError
+        If ``X`` and ``y`` have unequal sample counts.
+    """
 
     def __init__(self, X, y, loss="mse", fit_tolerance=1e-5):
-        super().__init__(_ExplicitObjectiveData(X, y))
+        data = _ExplicitObjectiveData(X, y)
+        super().__init__(data)
         self._loss = loss
         self._fit_tolerance = fit_tolerance
 

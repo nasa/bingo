@@ -55,16 +55,6 @@ class MultipleValueChromosome(Chromosome):
         dist = sum(v1 != v2 for v1, v2 in zip(self.values, other.values))
         return dist
 
-    def get_number_local_optimization_params(self):
-        raise NotImplementedError
-
-    def needs_local_optimization(self):
-        raise NotImplementedError
-
-    def set_local_optimization_params(self, params):
-        raise NotImplementedError
-
-
 class MultipleValueChromosomeGenerator(Generator):
     """Generation of a population of Multi-Value chromosomes
 

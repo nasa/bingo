@@ -3,9 +3,10 @@
 import numpy as np
 
 from ._expression_regression_objective import _ExpressionRegressionObjective
+from .objective_data import ObjectiveData
 
 
-class _ImplicitObjectiveData:
+class _ImplicitObjectiveData(ObjectiveData):
     """Aligned implicit-regression arrays kept private by the objective."""
 
     def __init__(self, X, dx_dt):
@@ -21,23 +22,37 @@ class _ImplicitObjectiveData:
             raise TypeError("Implicit regression dx_dt must be a 2D array")
         if self.X.shape != self.dx_dt.shape:
             raise ValueError("Implicit regression X and dx_dt must have equal shape")
-
-    def __getitem__(self, items):
-        return _ImplicitObjectiveData(self.X[items], self.dx_dt[items])
-
-    def __len__(self):
-        return len(self.X)
+        super().__init__(self.X, self.dx_dt)
 
 
 class ImplicitRegression(_ExpressionRegressionObjective):
-    """Lower-is-better implicit-regression loss for evolvable Expressions."""
+    """Lower-is-better implicit-regression loss for evolvable Expressions.
+
+    Parameters
+    ----------
+    X : array-like
+        State values with samples along the first axis.
+    dx_dt : array-like
+        State derivatives aligned with and shaped like ``X``.
+    required_params : int, optional
+        Minimum number of active state derivatives required to avoid a trivial
+        implicit solution.
+
+    Raises
+    ------
+    TypeError
+        If ``X`` or ``dx_dt`` cannot be represented as two-dimensional arrays.
+    ValueError
+        If ``X`` and ``dx_dt`` have unequal shapes.
+    """
 
     def __init__(self, X, dx_dt, required_params=None):
-        super().__init__(_ImplicitObjectiveData(X, dx_dt))
+        data = _ImplicitObjectiveData(X, dx_dt)
+        super().__init__(data)
         self._required_params = required_params
 
     def _fit_expression(self, expression, data):
-        expression.fit_implicit(data.X, data.dx_dt, tolerance=1e-5)
+        expression.fit_implicit(data.X, data.dx_dt)
 
     def _expression_loss(self, expression, data):
         return expression.implicit_loss(

@@ -7,6 +7,16 @@ To install Bingo, simply use pip:
 
     pip install bingo-nasa
 
+Evidence Estimation
+-------------------
+
+Install the optional Evidence-estimation dependency when using
+``SmcEvidenceEstimator``:
+
+.. code-block:: console
+
+    pip install "bingo-nasa[evidence]"
+
 To use parallel island evolution, install the MPI extra:
 
 .. code-block:: console

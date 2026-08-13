@@ -104,6 +104,26 @@ jobs:
       - name: Clean-install and import source distribution
         run: python -m pip install --upgrade pip && python -m pip install dist/*.tar.gz && python -c "import bingo"
 
+  smoke-test-evidence-extra:
+    name: Smoke test Evidence extra
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: distributions
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Clean-install and import Evidence extra
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          wheel=$(printf '%s\n' dist/*cp313-*manylinux*.whl)
+          python -m pip install --only-binary=:all: "${wheel}[evidence]"
+          python -c "import bingo.symbolic_regression; import smcpy"
+
   installed-tests:
     name: Installed artifact tests (Python ${{ matrix.python-version }})
     needs: build
@@ -114,8 +134,10 @@ jobs:
         include:
           - python-version: "3.13"
             wheel-tag: cp313
+            dependencies: ".[MPI,ONNX,TESTS,evidence]"
           - python-version: "3.14"
             wheel-tag: cp314
+            dependencies: ".[MPI,ONNX,TESTS,evidence]"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -123,7 +145,7 @@ jobs:
       - uses: ./.github/actions/setup-bingo
         with:
           python-version: ${{ matrix.python-version }}
-          dependencies: ".[MPI,ONNX,TESTS]"
+          dependencies: ${{ matrix.dependencies }}
       - uses: actions/download-artifact@v4
         with:
           name: distributions
@@ -138,7 +160,7 @@ jobs:
 
   release-gate:
     name: Verify release tag and artifact version
-    needs: [metadata, smoke-test-wheel, smoke-test-sdist, installed-tests]
+    needs: [metadata, smoke-test-wheel, smoke-test-sdist, smoke-test-evidence-extra, installed-tests]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     outputs:

@@ -51,7 +51,7 @@ their current observable behavior.
   exposing SciPy result objects as the public contract.
 - [ ] Existing LM explicit fitting, implicit least-squares fitting,
   `required_params`, score/Loss direction, and `SymbolicRegressor` behavior are
-  unchanged after the preset Objectives adopt the shared machinery.
+  unchanged; preset Objectives continue to delegate fitting to their Expression.
 - [ ] Custom callable portability is documented: serial workflows accept any
   compatible callable, while multiprocessing and checkpoints require
   pickleable callables.

@@ -17,7 +17,6 @@ Bingo is an open-source Python package developed by NASA for symbolic regression
 - `sympy`: Symbolic mathematics
 - `scikit-learn>=1.1`: Machine learning utilities
 - `dill>=0.2.9`: Serialization
-- `smcpy>=0.1.4`: Statistical methods
 - `pybind11`: Python-C++ bindings
 
 ### Build System
@@ -34,7 +33,6 @@ bingo/
 │   ├── evaluation/                 # Fitness evaluation
 │   ├── evolutionary_algorithms/    # EA implementations
 │   ├── evolutionary_optimizers/    # Optimization strategies (Island, Archipelago)
-│   ├── local_optimizers/           # Local optimization methods
 │   ├── selection/                  # Selection operators (Tournament, etc.)
 │   ├── stats/                      # Statistics and tracking
 │   ├── expressions/                # Expression representations and variation
@@ -74,7 +72,7 @@ bingo/
 - **Variation strategies**: 
   - `VarOr`: Mutation OR crossover OR replication
   - `VarAnd`: Mutation AND crossover
-- **Fitness evaluation**: Vector-based with aggregation metrics (MAE, RMSE, MSE, etc.)
+- **Fitness evaluation**: Fitness functions return scalar lower-is-better values
 
 ### Code Organization Principles
 - Each module should have a clear, single responsibility
@@ -216,8 +214,8 @@ pytest tests
 6. Add usage examples if applicable
 
 ### Adding a New Fitness Function
-1. Create class inheriting from `FitnessFunction` or `VectorBasedFunction`
-2. Implement `evaluate_fitness_vector(self, individual)` method
+1. Create a class inheriting from `FitnessFunction`
+2. Implement `__call__(self, individual)` to return a scalar lower-is-better value
 3. Add docstring explaining the metric
 4. Add tests in `tests/unit/evaluation/`
 

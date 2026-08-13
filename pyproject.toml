@@ -26,7 +26,6 @@ dependencies = [
     "dill",
     "sympy",
     "scikit-learn",
-    "smcpy",
     "pybind11[global]",
 ]
 classifiers = [
@@ -43,6 +42,7 @@ Documentation = "https://nasa.github.io/bingo/"
 Repository = "https://github.com/nasa/bingo"
 
 [project.optional-dependencies]
+evidence = ["smcpy"]
 MPI = ["mpi4py>=4.0"]
 ONNX = ["onnx"]
 TESTS = [

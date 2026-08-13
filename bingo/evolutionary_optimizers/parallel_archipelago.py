@@ -12,7 +12,16 @@ import logging
 
 import numpy as np
 import dill
-from mpi4py import MPI
+
+try:
+    from mpi4py import MPI
+except ModuleNotFoundError as error:
+    if error.name != "mpi4py":
+        raise
+    raise ImportError(
+        "ParallelArchipelago requires the MPI extra. "
+        'Install it with `pip install "bingo-nasa[MPI]"`.'
+    ) from error
 
 from .archipelago import Archipelago
 from ..util.log import INFO, DETAILED_INFO

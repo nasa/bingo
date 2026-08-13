@@ -123,7 +123,7 @@ jobs:
       - uses: ./.github/actions/setup-bingo
         with:
           python-version: ${{ matrix.python-version }}
-          dependencies: ".[ONNX,TESTS]"
+          dependencies: ".[MPI,ONNX,TESTS]"
       - uses: actions/download-artifact@v4
         with:
           name: distributions

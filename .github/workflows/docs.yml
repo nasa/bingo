@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/setup-bingo
         with:
           python-version: "3.13"
-          dependencies: ".[ONNX]"
+          dependencies: ".[MPI,ONNX]"
       - name: Install pandoc
         run: sudo apt-get update && sudo apt-get install --yes pandoc
       - name: Install doc requirements
@@ -54,7 +54,7 @@ jobs:
       - uses: ./.github/actions/setup-bingo
         with:
           python-version: "3.13"
-          dependencies: ".[ONNX]"
+          dependencies: ".[MPI,ONNX]"
       - name: Install pandoc and documentation requirements
         run: sudo apt-get update && sudo apt-get install --yes pandoc && python -m pip install -r doc_requirements.txt
       - name: Build docs

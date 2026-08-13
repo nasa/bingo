@@ -134,8 +134,10 @@ jobs:
         include:
           - python-version: "3.13"
             wheel-tag: cp313
+            dependencies: ".[MPI,ONNX,TESTS,evidence]"
           - python-version: "3.14"
             wheel-tag: cp314
+            dependencies: ".[MPI,ONNX,TESTS,evidence]"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -143,7 +145,7 @@ jobs:
       - uses: ./.github/actions/setup-bingo
         with:
           python-version: ${{ matrix.python-version }}
-          dependencies: ".[MPI,ONNX,TESTS]"
+          dependencies: ${{ matrix.dependencies }}
       - uses: actions/download-artifact@v4
         with:
           name: distributions

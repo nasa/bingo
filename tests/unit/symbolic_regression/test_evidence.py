@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 import builtins
+import importlib.util
 import multiprocessing
 
 import numpy as np
@@ -16,6 +17,12 @@ from bingo.symbolic_regression import (
     explicit_residuals,
 )
 from bingo.symbolic_regression.evidence import smc_nmll_loss
+
+
+requires_smcpy = pytest.mark.skipif(
+    importlib.util.find_spec("smcpy") is None,
+    reason="requires the optional evidence dependency",
+)
 
 try:
     from bingo.expressions.agraph.cppagraph import AGraphExpression as CppAGraphExpression
@@ -39,6 +46,7 @@ def _estimate_constant_evidence(_):
     return result.smc_nmll, result.map_constants
 
 
+@requires_smcpy
 def test_estimate_returns_unsuccessful_result_when_proposal_cannot_be_built():
     expression = _constant_expression(1.0)
     estimator = SmcEvidenceEstimator()
@@ -57,6 +65,7 @@ def test_estimate_returns_unsuccessful_result_when_proposal_cannot_be_built():
     assert not expression.is_fitted
 
 
+@requires_smcpy
 def test_estimate_installs_only_posterior_map_constants_after_sampling():
     expression = _constant_expression(1.0)
     estimator = SmcEvidenceEstimator(num_particles=20, mcmc_steps=2, seed=4)
@@ -74,6 +83,7 @@ def test_estimate_installs_only_posterior_map_constants_after_sampling():
     assert result.posterior is None
 
 
+@requires_smcpy
 def test_failed_estimation_maps_to_infinite_ranking_loss():
     result = SmcEvidenceEstimator().estimate(
         _constant_expression(),
@@ -84,6 +94,7 @@ def test_failed_estimation_maps_to_infinite_ranking_loss():
     assert smc_nmll_loss(result) == np.inf
 
 
+@requires_smcpy
 def test_estimate_retries_invalid_proposal_components():
     expression = _constant_expression(1.0)
     calls = 0
@@ -105,6 +116,7 @@ def test_estimate_retries_invalid_proposal_components():
     assert calls == 2
 
 
+@requires_smcpy
 def test_estimate_propagates_user_fitter_exceptions():
     expression = _constant_expression(1.0)
 
@@ -122,6 +134,7 @@ def test_estimate_propagates_user_fitter_exceptions():
     assert not expression.is_fitted
 
 
+@requires_smcpy
 def test_estimate_propagates_user_measure_exceptions():
     expression = _constant_expression(1.0)
 
@@ -139,6 +152,7 @@ def test_estimate_propagates_user_measure_exceptions():
     assert not expression.is_fitted
 
 
+@requires_smcpy
 def test_estimate_regularizes_indefinite_laplace_curvature():
     measure = ResidualMeasure(
         lambda *_: np.ones(5),
@@ -178,6 +192,7 @@ def test_missing_smcpy_returns_unsuccessful_result(mocker):
     assert result.smc_nmll == -np.inf
 
 
+@requires_smcpy
 def test_fixed_seed_reproduces_evidence_and_can_return_posterior():
     data = ObjectiveData(np.arange(5.0).reshape(-1, 1), np.full(5, 2.0))
     first = _constant_expression(1.0)
@@ -214,6 +229,7 @@ def test_fixed_seed_ignores_raw_constants():
 
 
 @pytest.mark.skipif(CppAGraphExpression is None, reason="C++ expression unavailable")
+@requires_smcpy
 def test_fixed_seed_is_backend_neutral():
     data = ObjectiveData(np.arange(5.0).reshape(-1, 1), np.full(5, 2.0))
     python_result = SmcEvidenceEstimator(num_particles=20, mcmc_steps=2, seed=8).estimate(
@@ -229,6 +245,7 @@ def test_fixed_seed_is_backend_neutral():
     assert python_result.map_constants == cpp_result.map_constants
 
 
+@requires_smcpy
 def test_fixed_seed_reproduces_evidence_in_multiprocessing():
     with multiprocessing.get_context("spawn").Pool(2) as pool:
         results = pool.map(_estimate_constant_evidence, range(2))
@@ -236,6 +253,7 @@ def test_fixed_seed_reproduces_evidence_in_multiprocessing():
     assert results[0] == results[1]
 
 
+@requires_smcpy
 def test_none_seed_permits_nonreproducible_sampling():
     data = ObjectiveData(np.arange(5.0).reshape(-1, 1), np.full(5, 2.0))
     first = SmcEvidenceEstimator(num_particles=20, mcmc_steps=2, seed=None).estimate(

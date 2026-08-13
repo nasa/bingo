@@ -54,9 +54,11 @@ Expression users should use ``ExplicitRegression``, ``ImplicitRegression``, or
 ``ScipyFitter`` for configurable SciPy fitting. For Evidence estimation, use
 ``SmcEvidenceEstimator`` and install the optional ``evidence`` dependency.
 
-Generic ``VectorBasedFunction`` metrics ``"negative nmll laplace"`` and
-``"bic"`` have been removed. Expression ``loss(..., "laplace_nmll")`` remains
-available for Laplace normalized marginal log-likelihood.
+``VectorBasedFunction``, ``GradientMixin``, and ``VectorGradientMixin`` have
+been removed. Implement custom objectives by subclassing ``FitnessFunction``
+and returning a scalar lower-is-better fitness value. Expression
+``loss(..., "laplace_nmll")`` remains available for Laplace normalized marginal
+log-likelihood.
 
 Loss and serialization
 ----------------------

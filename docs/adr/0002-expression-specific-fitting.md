@@ -8,10 +8,11 @@ and fittedness; preserving a second generic protocol would duplicate those
 semantics without a demonstrated non-expression use case.
 
 `ExplicitRegression` and `ImplicitRegression` remain opinionated public
-objectives. Advanced workflows use `CustomRegression`, which independently
-selects a fitting policy, fitting measure, and ranking loss over aligned
-Objective data. Evidence estimation is separate from fitting, although a
-successful estimator may atomically install posterior MAP constants.
+objectives and delegate their default fitting to `Expression.fit()` and
+`Expression.fit_implicit()`. Advanced workflows use `CustomRegression`, which
+independently selects a fitting policy, fitting measure, and ranking loss over
+aligned Objective data. Evidence estimation is separate from fitting, although
+a successful estimator may atomically install posterior MAP constants.
 
 ## Consequences
 

@@ -2,8 +2,7 @@
 
 import numpy as np
 
-from .custom_regression import CustomRegression
-from .fitting import ScipyFitter, implicit_residuals
+from ._expression_regression_objective import _ExpressionRegressionObjective
 from .objective_data import ObjectiveData
 
 
@@ -26,7 +25,7 @@ class _ImplicitObjectiveData(ObjectiveData):
         super().__init__(self.X, self.dx_dt)
 
 
-class ImplicitRegression(CustomRegression):
+class ImplicitRegression(_ExpressionRegressionObjective):
     """Lower-is-better implicit-regression loss for evolvable Expressions.
 
     Parameters
@@ -49,14 +48,13 @@ class ImplicitRegression(CustomRegression):
 
     def __init__(self, X, dx_dt, required_params=None):
         data = _ImplicitObjectiveData(X, dx_dt)
-        super().__init__(
-            data,
-            ScipyFitter("least_squares"),
-            implicit_residuals(),
-            lambda expression, objective_data: expression.implicit_loss(
-                objective_data.X,
-                objective_data.dx_dt,
-                required_params=required_params,
-            ),
-        )
+        super().__init__(data)
         self._required_params = required_params
+
+    def _fit_expression(self, expression, data):
+        expression.fit_implicit(data.X, data.dx_dt)
+
+    def _expression_loss(self, expression, data):
+        return expression.implicit_loss(
+            data.X, data.dx_dt, required_params=self._required_params
+        )

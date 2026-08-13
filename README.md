@@ -25,6 +25,12 @@ can be used as a general purpose evolutionary optimization package.
 pip install bingo-nasa
 ```
 
+Parallel island evolution requires the MPI extra:
+
+```sh
+pip install "bingo-nasa[MPI]"
+```
+
 ## Usage Example
 A no-fuss way of using Bingo is by using the scikit-learn wrapper:
 `SymbolicRegressor`. Let's setup a test case to show how it works.
@@ -143,6 +149,10 @@ or
 ```sh
 pip install -r requirements.txt
 ```
+
+The source-checkout requirements include MPI support for development and the
+full test suite. To install only the parallel capability from a package release,
+use `pip install "bingo-nasa[MPI]"`.
 
 (Optional) Build the C++ expression backend:
 

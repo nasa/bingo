@@ -17,6 +17,12 @@ Install the optional Evidence-estimation dependency when using
 
     pip install "bingo-nasa[evidence]"
 
+To use parallel island evolution, install the MPI extra:
+
+.. code-block:: console
+
+    pip install "bingo-nasa[MPI]"
+
 Source Code
 -----------
 
@@ -34,6 +40,10 @@ Then make sure you have the requirements necessary to use Bingo:
 .. code-block:: console
 
     pip install -r requirements.txt
+
+The source-checkout requirements include MPI support for development and the
+full test suite. For a package installation with only parallel evolution added,
+use ``pip install "bingo-nasa[MPI]"``.
 
 Optionally build the C++ expression backend:
 

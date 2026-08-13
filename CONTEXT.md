@@ -8,6 +8,14 @@ Bingo evolves and simplifies symbolic mathematical expressions for regression an
 A Python version allowed by Bingo's package metadata. Versions 3.11 and 3.12 are installation-compatible but unverified.
 _Avoid_: supported Python
 
+**Serial installation**:
+An installation that provides Bingo's non-parallel functionality without an MPI runtime or Python bindings.
+_Avoid_: MPI-default installation
+
+**Parallel evolution**:
+Evolution through `ParallelArchipelago`, installed through Bingo's `MPI` optional dependency. It remains separately validated with MPI even though it is absent from a serial installation.
+_Avoid_: default evolution mode, serial archipelago
+
 **CI-verified Python**:
 A Python version covered by Bingo's required continuous-integration validation. Bingo's support guarantee begins with Python 3.13.
 _Avoid_: installation-compatible Python

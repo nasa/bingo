@@ -35,7 +35,7 @@ jobs:
     - uses: ./.github/actions/setup-bingo
       with:
         python-version: "3.13"
-        dependencies: ".[ONNX]"
+        dependencies: ".[MPI,ONNX]"
     - name: Install example dependencies
       run: python -m pip install jupyter nbconvert matplotlib
     - name: Run examples

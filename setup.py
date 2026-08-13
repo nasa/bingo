@@ -184,7 +184,6 @@ setup(
         "bingo.expressions.agraph.pyagraph.evaluation",
         "bingo.expressions.agraph.pyagraph.simplification",
         "bingo.expressions.agraph.cppagraph",
-        "bingo.local_optimizers",
         "bingo.selection",
         "bingo.stats",
         "bingo.symbolic_regression",

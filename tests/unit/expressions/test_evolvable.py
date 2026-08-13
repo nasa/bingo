@@ -107,13 +107,6 @@ class TestDistance:
         assert a.distance(b) > 0
 
 
-class TestNoLocalOptimizationAdapter:
-    def test_does_not_implement_local_optimization_methods(self):
-        assert "needs_local_optimization" not in EvolvableExpression.__dict__
-        assert "get_number_local_optimization_params" not in EvolvableExpression.__dict__
-        assert "set_local_optimization_params" not in EvolvableExpression.__dict__
-
-
 class TestDelegation:
     def test_user_facing_facade(self, backend):
         expression = agraph.get_expression_class()(

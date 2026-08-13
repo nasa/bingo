@@ -17,7 +17,6 @@ Bingo is an open-source Python package developed by NASA for symbolic regression
 - `sympy`: Symbolic mathematics
 - `scikit-learn>=1.1`: Machine learning utilities
 - `dill>=0.2.9`: Serialization
-- `smcpy>=0.1.4`: Statistical methods
 - `pybind11`: Python-C++ bindings
 
 ### Build System
@@ -34,7 +33,6 @@ bingo/
 │   ├── evaluation/                 # Fitness evaluation
 │   ├── evolutionary_algorithms/    # EA implementations
 │   ├── evolutionary_optimizers/    # Optimization strategies (Island, Archipelago)
-│   ├── local_optimizers/           # Local optimization methods
 │   ├── selection/                  # Selection operators (Tournament, etc.)
 │   ├── stats/                      # Statistics and tracking
 │   ├── expressions/                # Expression representations and variation

@@ -7,11 +7,6 @@ from bingo.evaluation.fitness_function import FitnessFunction, VectorBasedFuncti
 from bingo.evaluation.training_data import TrainingData
 
 
-class _Individual:
-    def get_number_local_optimization_params(self):
-        return 2
-
-
 class _VectorFitness(VectorBasedFunction):
     def evaluate_fitness_vector(self, individual):
         return np.array([-2.0, -1.0, 0.0, 1.0, 2.0])
@@ -47,12 +42,10 @@ def test_fitness_function_stores_training_data(mocker):
         ("mean squared error", 2.0),
         ("rmse", np.sqrt(2.0)),
         ("root mean squared error", np.sqrt(2.0)),
-        ("negative nmll laplace", 6.0868339),
-        ("bic", 22.483434972148757),
     ],
 )
 def test_vector_fitness_aggregates_its_error_vector(metric, expected):
-    assert _VectorFitness(metric=metric)(_Individual()) == pytest.approx(expected)
+    assert _VectorFitness(metric=metric)(object()) == pytest.approx(expected)
 
 
 def test_vector_fitness_rejects_unknown_metric():
@@ -69,9 +62,7 @@ def test_vector_fitness_rejects_unknown_metric():
         "mean squared error",
         "rmse",
         "root mean squared error",
-        "negative nmll laplace",
-        "bic",
     ],
 )
 def test_vector_fitness_propagates_nan(metric):
-    assert np.isnan(_NanVectorFitness(metric=metric)(_Individual()))
+    assert np.isnan(_NanVectorFitness(metric=metric)(object()))

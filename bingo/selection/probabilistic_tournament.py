@@ -14,10 +14,8 @@ from ..util.argument_validation import argument_validation
 class ProbabilisticTournament(Selection):
     """Tournament selection using probabilistic model selection
 
-    Individuals are chosen with a probability equal to the relative vale of 
-    their fitness.  When used in conjunction with `NormalizedMarginalLikelihood`
-    this results in selection with Bayesian Model Selection (Based on the 
-    Fractional Bayes Factor)
+    Individuals are chosen with a probability equal to the relative value of
+    their fitness.
 
     Parameters
     ----------

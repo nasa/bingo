@@ -1,9 +1,4 @@
-"""Mixin classes used to extend fitness functions to be able to use
-gradient- and jacobian-based continuous local optimization methods.
-
-This module defines the basis of gradient and jacobian partial derivatives
-of fitness functions used in bingo evolutionary analyses.
-"""
+"""Mixin classes that add gradient and Jacobian fitness aggregation."""
 
 from abc import ABCMeta, abstractmethod
 import numpy as np
@@ -12,8 +7,6 @@ from .fitness_function import (
     mean_absolute_error,
     mean_squared_error,
     root_mean_squared_error,
-    negative_nmll_laplace,
-    bic,
 )
 
 
@@ -46,7 +39,7 @@ class GradientMixin(metaclass=ABCMeta):
 
 
 class VectorGradientMixin(GradientMixin):
-    """Mixin for using gradients and jacobians in vector based fitness functions
+    """Mixin for using gradients and Jacobians in vector based fitness functions
 
     An abstract base class/mixin used to implement the gradients and jacobians
     of vector based fitness functions.
@@ -58,7 +51,7 @@ class VectorGradientMixin(GradientMixin):
     metric : str
         String defining the measure of error to use. Available options are:
         'mean absolute error', 'mean squared error',
-        'root mean squared error', "negative nmll laplace", and "bic"
+        'root mean squared error'
     """
 
     def __init__(self, training_data=None, metric="mae"):
@@ -77,14 +70,6 @@ class VectorGradientMixin(GradientMixin):
             self._metric_derivative = (
                 VectorGradientMixin._root_mean_squared_error_derivative
             )
-        elif metric in ["negative nmll laplace"]:
-            self._metric = negative_nmll_laplace
-            self._metric_derivative = (
-                VectorGradientMixin._negative_nmll_laplace_derivative
-            )
-        elif metric in ["bic"]:
-            self._metric = bic
-            self._metric_derivative = VectorGradientMixin._bic_derivative
         else:
             raise ValueError("Invalid metric for vector gradient mixin")
 
@@ -155,20 +140,3 @@ class VectorGradientMixin(GradientMixin):
             / np.sqrt(np.mean(np.square(fitness_vector)))
             * np.mean(fitness_vector * fitness_partials, axis=1)
         )
-
-    @staticmethod
-    def _negative_nmll_laplace_derivative(fitness_vector, fitness_partials):
-        n = len(fitness_vector)
-        b = 1 / np.sqrt(n)
-        dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
-        mse = np.mean(np.square(fitness_vector))
-        dll = -0.5 * n / mse * dmse
-        dnmll = (1 - b) * dll
-        return -dnmll
-
-    @staticmethod
-    def _bic_derivative(fitness_vector, fitness_partials):
-        n = len(fitness_vector)
-        mse = np.mean(np.square(fitness_vector))
-        dmse = 2 * np.mean(fitness_vector * fitness_partials, axis=1)
-        return n / mse * dmse

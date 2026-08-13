@@ -7,11 +7,6 @@ from bingo.evaluation.fitness_function import VectorBasedFunction
 from bingo.evaluation.gradient_mixin import GradientMixin, VectorGradientMixin
 
 
-class _Individual:
-    def get_number_local_optimization_params(self):
-        return 2
-
-
 class _GradientFitness(VectorGradientMixin, VectorBasedFunction):
     def get_fitness_vector_and_jacobian(self, individual):
         return np.array([-2.0, 0.0, 2.0]), np.array(
@@ -45,15 +40,13 @@ def test_vector_gradient_mixin_requires_vector_fitness_base():
         ("mean squared error", 8 / 3, [-4 / 3, 8 / 3]),
         ("rmse", np.sqrt(8 / 3), [-np.sqrt(3 / 8) * 2 / 3, np.sqrt(3 / 8) * 4 / 3]),
         ("root mean squared error", np.sqrt(8 / 3), [-np.sqrt(3 / 8) * 2 / 3, np.sqrt(3 / 8) * 4 / 3]),
-        ("negative nmll laplace", 3.244922013421868, [-0.3169873, 0.6339746]),
-        ("bic", 14.751955824267544, [-1.5, 3.0]),
     ],
 )
 def test_vector_gradient_fitness_aggregates_vector_and_jacobian(
     metric, expected_fitness, expected_gradient
 ):
     fitness, gradient = _GradientFitness(metric=metric).get_fitness_and_gradient(
-        _Individual()
+        object()
     )
 
     assert fitness == pytest.approx(expected_fitness)

@@ -14,5 +14,3 @@ dependencies:
   - pip
   - h5py
   - pandas
-  - pip:
-    - smcpy

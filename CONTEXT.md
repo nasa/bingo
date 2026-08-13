@@ -131,8 +131,9 @@ components with magnitude greater than $10^{-16}$; otherwise its loss is
 infinite.
 
 **Objective data**:
-Private, indexable aligned arrays retained by a regression objective so Bingo
-can evaluate a common subset of samples across a population.
+An indexable collection of aligned arrays retained privately by a regression
+objective. Indexing selects the same samples from every array so Bingo can use
+a common subset across a population.
 _Avoid_: public training-data API
 
 **Score**:
@@ -147,16 +148,43 @@ A lower-is-better objective used by Bingo fitness evaluation. Laplace NMLL
 loss is the negation of the corresponding score. Non-finite expression
 evaluation returns an infinite loss.
 
+**Expression fitting**:
+Selection of an Expression's constants by a fitting policy chosen by the
+regression objective. A fitting policy may optimize residuals, an Expression
+loss, or a user-defined fitting measure.
+_Avoid_: chromosome local optimization
+
+**Fitting measure**:
+The vector- or scalar-valued quantity a fitting policy optimizes to select an
+Expression's constants. It is independent of the measure used to rank evolved
+Expressions unless the user deliberately chooses the same measure for both.
+_Avoid_: fitness function, ranking loss
+
 **LM fitting**:
-Constant fitting that always minimizes an Expression's ordinary residual vector.
-It is independent of the loss used to rank evolved Expressions.
+Expression fitting that minimizes the ordinary residual vector using the
+Levenberg-Marquardt method.
+
+**Evidence estimation**:
+Estimation of an Expression model's evidence and parameter uncertainty. It may
+use a fitted Expression to construct a proposal and may install a successful
+posterior MAP estimate, but it is not Expression fitting. Posterior samples are
+retained only when explicitly requested.
+_Avoid_: SMC optimization, local optimization
+
+**Laplace NMLL**:
+Higher-is-better normalized marginal log-likelihood estimated by the closed-form
+Laplace approximation. Its canonical identifier is ``laplace_nmll``.
+
+**SMC NMLL**:
+Higher-is-better normalized marginal log-likelihood estimated by sequential
+Monte Carlo. Its canonical identifier is ``smc_nmll``.
 
 **Fitted expression**:
-An Expression with no optimizable constants, or one whose applicable fitting
-method has been attempted for its current raw structure. Numerical
-non-convergence does not unset this state; a raw structural change does.
-Fittedness is independent of the data subset used for the fitting attempt.
-Direct constant assignment does not establish fittedness.
+An Expression with no optimizable constants, or one whose objective-selected
+fitting policy has produced validated constants for its current raw structure.
+Numerical non-convergence may still establish fittedness from the best finite
+constants; a raw structural change unsets it. Fittedness is independent of the
+data subset used for fitting. Direct constant assignment does not establish it.
 Serialization preserves fittedness exactly.
 
 **Relative MSE**:

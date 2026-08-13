@@ -97,7 +97,16 @@ def explicit_residuals():
         _, derivative = trial._evaluate_with_const_gradient(np.atleast_2d(X))
         return derivative
 
-    return ResidualMeasure(value, jacobian=jacobian)
+    def residual_hessian(expression, data, constants):
+        X, _ = data.arrays
+        trial = expression.copy()
+        trial.constants = constants
+        _, _, hessian = trial._evaluate_with_const_hessian(np.atleast_2d(X))
+        return hessian
+
+    return ResidualMeasure(
+        value, jacobian=jacobian, residual_hessian=residual_hessian
+    )
 
 
 def implicit_residuals(*, required_params=None):

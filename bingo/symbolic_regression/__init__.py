@@ -1,6 +1,7 @@
 """Public symbolic-regression objectives and scikit-learn estimator."""
 
 from .custom_regression import CustomRegression
+from .evidence import EvidenceResult, SmcEvidenceEstimator
 from .explicit_regression import ExplicitRegression
 from .fitting import (
     FitResult,
@@ -19,6 +20,8 @@ from .symbolic_regressor import SymbolicRegressor
 __all__ = [
     "SymbolicRegressor",
     "CustomRegression",
+    "SmcEvidenceEstimator",
+    "EvidenceResult",
     "ExplicitRegression",
     "ImplicitRegression",
     "ObjectiveData",

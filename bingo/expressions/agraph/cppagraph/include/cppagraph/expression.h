@@ -227,6 +227,12 @@ public:
      */
     bool is_fitted();
 
+    /** Validate and atomically install fitted constants. */
+    void commit_fit(std::vector<double> constants);
+
+    /** Clear fittedness without changing constants or raw structure. */
+    void clear_fit();
+
     /** Lifecycle state access for serialization and raw-state reconstruction. */
     bool fit_attempted() const;
     void set_fit_attempted(bool v);

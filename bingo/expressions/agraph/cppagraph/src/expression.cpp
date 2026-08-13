@@ -384,10 +384,6 @@ void AGraphExpression::fit(const RowMatrixXd& X,
                            double tolerance, int max_iter) {
     validate_explicit_data(X, y);
     if (modified_) update();
-    // A fitting attempt establishes the fitted state for the current raw
-    // structure, even when the solver does not numerically converge.
-    fit_attempted_ = true;
-
     if (constants_.empty()) return;
 
     const Eigen::Index m = X.rows();
@@ -459,10 +455,11 @@ void AGraphExpression::fit(const RowMatrixXd& X,
             }
         }
     } catch (...) {
-        // Don't crash on bad fits — keep current params.
+        // Preserve the prior lifecycle when the solver cannot produce a result.
+        return;
     }
 
-    set_constants(std::vector<double>(
+    commit_fit(std::vector<double>(
         params.data(), params.data() + params.size()));
 }
 
@@ -471,11 +468,9 @@ void AGraphExpression::fit_implicit(const RowMatrixXd& X,
                                     double tolerance, int max_iter) {
     validate_implicit_data(X, dx_dt);
     if (modified_) update();
-    // A fitting attempt establishes the fitted state regardless of convergence.
-    fit_attempted_ = true;
-
     if (constants_.empty()) return;
 
+    const auto original_constants = constants_;
     const Eigen::Index n =
         static_cast<Eigen::Index>(constants_.size());
 
@@ -555,10 +550,12 @@ void AGraphExpression::fit_implicit(const RowMatrixXd& X,
             }
         }
     } catch (...) {
-        // Don't crash on bad fits — keep current params.
+        set_constants(original_constants);
+        return;
     }
 
-    set_constants(std::vector<double>(
+    set_constants(original_constants);
+    commit_fit(std::vector<double>(
         params.data(), params.data() + params.size()));
 }
 
@@ -684,6 +681,25 @@ double AGraphExpression::implicit_score(const RowMatrixXd& X,
 bool AGraphExpression::is_fitted() {
     if (modified_) update();
     return fit_attempted_ || constants_.empty();
+}
+
+void AGraphExpression::commit_fit(std::vector<double> constants) {
+    if (modified_) update();
+    if (constants.size() != constants_.size()) {
+        throw std::invalid_argument(
+            "constants must have one entry per simplified expression constant");
+    }
+    if (!std::all_of(constants.begin(), constants.end(),
+                     [](double value) { return std::isfinite(value); })) {
+        throw std::invalid_argument("fitted constants must be finite");
+    }
+    set_constants(std::move(constants));
+    fit_attempted_ = true;
+}
+
+void AGraphExpression::clear_fit() {
+    if (modified_) update();
+    if (!constants_.empty()) fit_attempted_ = false;
 }
 
 bool AGraphExpression::fit_attempted() const {

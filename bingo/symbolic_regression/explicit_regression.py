@@ -3,9 +3,10 @@
 import numpy as np
 
 from ._expression_regression_objective import _ExpressionRegressionObjective
+from .objective_data import ObjectiveData
 
 
-class _ExplicitObjectiveData:
+class _ExplicitObjectiveData(ObjectiveData):
     """Aligned explicit-regression arrays kept private by the objective."""
 
     def __init__(self, X, y):
@@ -15,14 +16,7 @@ class _ExplicitObjectiveData:
         if self.X.ndim != 2:
             raise TypeError("Explicit regression X must be a 2D array")
         self.y = np.asarray(y, dtype=float).ravel()
-        if len(self.X) != len(self.y):
-            raise ValueError("Explicit regression X and y must have equal length")
-
-    def __getitem__(self, items):
-        return _ExplicitObjectiveData(self.X[items], self.y[items])
-
-    def __len__(self):
-        return len(self.X)
+        super().__init__(self.X, self.y)
 
 
 class ExplicitRegression(_ExpressionRegressionObjective):

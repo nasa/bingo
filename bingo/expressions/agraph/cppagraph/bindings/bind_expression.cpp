@@ -447,7 +447,22 @@ void bind_expression(py::module_& m) {
             py::arg("required_params") = py::none())
 
         .def_property_readonly("is_fitted",
-             &AGraphExpression::is_fitted)
+              &AGraphExpression::is_fitted)
+
+        .def("commit_fit",
+             [](AGraphExpression& self, py::object constants) -> AGraphExpression& {
+                 self.commit_fit(iterable_to_double_vec(constants));
+                 return self;
+             },
+             py::arg("constants"),
+             py::return_value_policy::reference_internal)
+
+        .def("clear_fit",
+             [](AGraphExpression& self) -> AGraphExpression& {
+                 self.clear_fit();
+                 return self;
+             },
+             py::return_value_policy::reference_internal)
 
         .def("__sklearn_is_fitted__",
              &AGraphExpression::is_fitted)

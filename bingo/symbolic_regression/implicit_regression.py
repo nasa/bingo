@@ -3,9 +3,10 @@
 import numpy as np
 
 from ._expression_regression_objective import _ExpressionRegressionObjective
+from .objective_data import ObjectiveData
 
 
-class _ImplicitObjectiveData:
+class _ImplicitObjectiveData(ObjectiveData):
     """Aligned implicit-regression arrays kept private by the objective."""
 
     def __init__(self, X, dx_dt):
@@ -21,12 +22,7 @@ class _ImplicitObjectiveData:
             raise TypeError("Implicit regression dx_dt must be a 2D array")
         if self.X.shape != self.dx_dt.shape:
             raise ValueError("Implicit regression X and dx_dt must have equal shape")
-
-    def __getitem__(self, items):
-        return _ImplicitObjectiveData(self.X[items], self.dx_dt[items])
-
-    def __len__(self):
-        return len(self.X)
+        super().__init__(self.X, self.dx_dt)
 
 
 class ImplicitRegression(_ExpressionRegressionObjective):

@@ -611,8 +611,6 @@ class AGraphExpression:
         y = np.asarray(y, dtype=float).ravel()
         if X.shape[0] != y.size:
             raise ValueError("X and y must have the same number of samples")
-        self._fit_attempted = True
-
         if len(self.constants) == 0:
             return self
 
@@ -620,12 +618,10 @@ class AGraphExpression:
         cached = CachedEvaluator(self._command_array, X, self._integers)
 
         def residuals(params):
-            self.constants = params
-            return cached.forward_eval(self._constants).ravel() - y
+            return cached.forward_eval(tuple(params)).ravel() - y
 
         def jacobian(params):
-            self.constants = params
-            _, jac = cached.forward_eval_with_const_derivative(self._constants)
+            _, jac = cached.forward_eval_with_const_derivative(tuple(params))
             return jac
 
         try:
@@ -636,7 +632,7 @@ class AGraphExpression:
                 method="lm",
                 tol=tolerance,
             )
-            self.constants = result.x
+            self.commit_fit(result.x)
         except Exception:  # noqa: broad-except — don't crash on bad fits
             pass
 
@@ -671,12 +667,11 @@ class AGraphExpression:
         dx_dt = np.atleast_2d(np.asarray(dx_dt, dtype=float))
         if X.shape != dx_dt.shape:
             raise ValueError("X and dx_dt must have the same shape")
-        self._fit_attempted = True
-
         if len(self.constants) == 0:
             return self
 
         x0 = np.array(self.constants, dtype=float)
+        original_constants = self.constants
 
         def residuals(params):
             self.constants = params
@@ -689,9 +684,10 @@ class AGraphExpression:
                 ftol=tolerance,
                 xtol=tolerance,
             )
-            self.constants = result.x
+            self.constants = original_constants
+            self.commit_fit(result.x)
         except Exception:  # noqa: broad-except — don't crash on bad fits
-            pass
+            self.constants = original_constants
 
         return self
 
@@ -882,6 +878,29 @@ class AGraphExpression:
     def _set_fit_attempted(self, value):
         """Restore the fitted lifecycle after constructing from raw state."""
         self._fit_attempted = bool(value)
+
+    def commit_fit(self, constants):
+        """Atomically install validated fitted constants for this structure."""
+        if self._modified:
+            self._update()
+        constants = tuple(float(value) for value in constants)
+        if len(constants) != len(self._constants):
+            raise ValueError(
+                "constants must have one entry per simplified expression constant"
+            )
+        if not np.all(np.isfinite(constants)):
+            raise ValueError("fitted constants must be finite")
+        self.constants = constants
+        self._fit_attempted = True
+        return self
+
+    def clear_fit(self):
+        """Clear fittedness without changing constants or raw structure."""
+        if self._modified:
+            self._update()
+        if self._constants:
+            self._fit_attempted = False
+        return self
 
     # ------------------------------------------------------------------ #
     #  Simplification / utility                                           #

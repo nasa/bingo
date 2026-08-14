@@ -244,4 +244,4 @@ jobs:
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" dist/** --generate-notes ${{ needs.release-gate.outputs.prerelease == 'true' && '--prerelease' || '' }}
+        run: gh release create "$GITHUB_REF_NAME" dist/** --repo "$GITHUB_REPOSITORY" --generate-notes ${{ needs.release-gate.outputs.prerelease == 'true' && '--prerelease' || '' }}

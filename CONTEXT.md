@@ -110,6 +110,18 @@ Example dialogue:
 
 ## Symbolic Regression
 
+**Named variables**:
+Optional user-provided input symbols attached to an Expression so rendered equations use those symbols instead of positional defaults like `X0`. They also define the variable set an Expression generator may target.
+_Avoid_: display aliases, parse-only variable hints
+
+**Variable schema**:
+The exact ordered tuple of input symbols attached to an Expression or generator. Its length must exactly match the intended input dimension whenever naming metadata establishes that dimension.
+_Avoid_: partial variable list, loose display names
+
+**Named parameters**:
+Parse-time symbols in an equation string that stand for optimizable constants. They become Expression constants during parsing and are not retained as part of the rendered Expression.
+_Avoid_: persistent parameter labels, fitted constant names
+
 **Expression**:
 A standalone mathematical model that represents a candidate symbolic
 relationship and owns fitting, scoring, prediction, and derivative operations.

@@ -418,6 +418,14 @@ class TestAGraphExpressionCrossCheck:
         cpp_expr = CppAGraphExpression(equation=eq)
         assert py_expr.constants == pytest.approx(cpp_expr.constants)
 
+    def test_named_variables_match_across_backends(self):
+        py_expr = PyAGraphExpression(equation="a + sin(x)", variables=("a", "x"))
+        cpp_expr = CppAGraphExpression(equation="a + sin(x)", variables=("a", "x"))
+        assert py_expr.variables == cpp_expr.variables == ("a", "x")
+        assert str(py_expr) == str(cpp_expr)
+        assert py_expr.latex == cpp_expr.latex
+        assert str(py_expr.sympy) == str(cpp_expr.sympy)
+
     @pytest.mark.parametrize("eq", EQUATIONS)
     def test_complexity_matches(self, eq):
         py_expr = PyAGraphExpression(equation=eq)

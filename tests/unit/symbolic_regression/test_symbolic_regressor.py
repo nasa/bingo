@@ -34,6 +34,7 @@ def test_exposes_expression_generation_and_regression_parameters():
         simplification="reduce",
         loss="mae",
         fit_tolerance=1e-7,
+        variables=("a", "x"),
     )
 
     params = estimator.get_params()
@@ -42,6 +43,7 @@ def test_exposes_expression_generation_and_regression_parameters():
     assert params["simplification"] == "reduce"
     assert params["loss"] == "mae"
     assert params["fit_tolerance"] == 1e-7
+    assert params["variables"] == ("a", "x")
     assert {"stack_size", "use_simplification", "metric", "clo_alg", "clo_threshold"}.isdisjoint(params)
 
 
@@ -57,6 +59,14 @@ def test_fit_validates_inputs_tracks_features_and_predict_validates_features():
         estimator.predict(np.ones((2, 2)))
     with pytest.raises(ValueError):
         SymbolicRegressor().fit(X, y[:-1])
+
+
+def test_fit_rejects_variable_schema_with_wrong_length():
+    X = np.arange(8.0).reshape(-1, 1)
+    y = 2.0 * X.ravel() + 1.0
+
+    with pytest.raises(ValueError, match="exact length"):
+        SymbolicRegressor(variables=("a", "x")).fit(X, y)
 
 
 def test_predict_before_fit_raises_not_fitted_error():
@@ -89,3 +99,24 @@ def test_evolves_expression_and_uses_sklearn_score_contract(backend):
         estimator.get_best_individual().loss(X, y, kind="mae")
     )
     assert estimator.score(X, y) == pytest.approx(r2_score(y, predictions))
+
+
+def test_fit_propagates_variable_names_to_evolved_expressions(backend):
+    X = np.linspace(-2.0, 2.0, 12).reshape(-1, 1)
+    y = 2.0 * X.ravel() + 1.0
+    estimator = SymbolicRegressor(
+        population_size=12,
+        min_stack_size=3,
+        max_stack_size=5,
+        operators=["+", "*"],
+        simplification="reduce",
+        generations=2,
+        variables=("time",),
+        random_state=0,
+    )
+
+    estimator.fit(X, y)
+
+    best_expression = estimator.get_best_individual().expression
+    assert best_expression.variables == ("time",)
+    assert "X0" not in str(best_expression)

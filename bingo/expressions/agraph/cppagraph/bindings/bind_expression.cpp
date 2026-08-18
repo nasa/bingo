@@ -16,6 +16,7 @@
 
 #include "cppagraph/expression.h"
 
+#include <algorithm>
 #include <cstring>
 
 namespace py = pybind11;
@@ -72,11 +73,88 @@ py::tuple vec_to_int_tuple(const std::vector<int>& v) {
     return t;
 }
 
+/// std::vector<string> → Python tuple of str
+py::tuple vec_to_str_tuple(const std::vector<std::string>& v) {
+    py::tuple t(v.size());
+    for (size_t i = 0; i < v.size(); ++i)
+        t[i] = py::str(v[i]);
+    return t;
+}
+
 /// Python iterable → std::vector<double>
 std::vector<double> iterable_to_double_vec(py::object obj) {
     std::vector<double> v;
     for (auto item : obj) v.push_back(item.cast<double>());
     return v;
+}
+
+/// Python iterable → std::vector<string>
+std::vector<std::string> iterable_to_string_vec(py::object obj) {
+    std::vector<std::string> v;
+    for (auto item : obj) v.push_back(item.cast<std::string>());
+    return v;
+}
+
+Eigen::Index required_variable_dimension(const StackMatrix& cmd) {
+    Eigen::Index required = 0;
+    for (Eigen::Index row = 0; row < cmd.rows(); ++row) {
+        if (cmd(row, 0) == 0) {
+            required = std::max(required, static_cast<Eigen::Index>(cmd(row, 1)) + 1);
+        }
+    }
+    return required;
+}
+
+py::object get_parsing_helper(const char* name) {
+    auto parsing = py::module_::import("bingo.expressions.agraph.pyagraph.parsing");
+    return parsing.attr(name);
+}
+
+py::object validate_variable_names(py::object names) {
+    return get_parsing_helper("validate_variable_names")(names);
+}
+
+py::object validate_parameter_names(py::object parameters, py::object variables) {
+    return get_parsing_helper("validate_parameter_names")(
+        parameters, py::arg("variables") = variables);
+}
+
+py::object validate_variable_schema_length(py::object names, Eigen::Index required) {
+    return get_parsing_helper("validate_variable_schema_length")(names, required);
+}
+
+void set_variable_names_from_python(AGraphExpression& self, py::object names) {
+    if (names.is_none()) {
+        self.set_variable_names(std::nullopt);
+        return;
+    }
+    self.set_variable_names(iterable_to_string_vec(names));
+}
+
+py::object optional_variable_names_to_python(const AGraphExpression& self) {
+    if (!self.variable_names().has_value()) {
+        return py::none();
+    }
+    return vec_to_str_tuple(*self.variable_names());
+}
+
+py::object format_expression(
+        const char* fmt,
+        const StackMatrix& cmd,
+        const std::vector<double>& constants,
+        const std::vector<int>& integers,
+        const std::optional<std::vector<std::string>>& variable_names) {
+    auto formatting = py::module_::import("bingo.expressions.agraph.pyagraph.formatting");
+    py::object variable_names_obj = py::none();
+    if (variable_names.has_value()) {
+        variable_names_obj = vec_to_str_tuple(*variable_names);
+    }
+    return formatting.attr("get_formatted_string")(
+        fmt,
+        stack_to_numpy(cmd),
+        vec_to_float_tuple(constants),
+        vec_to_int_tuple(integers),
+        variable_names_obj);
 }
 
 /// Python iterable → std::vector<int>
@@ -111,15 +189,23 @@ void bind_expression(py::module_& m) {
         .def(py::init(
             [](py::object equation,
                const std::string& simplification,
-               bool propagate_constants) {
+               bool propagate_constants,
+               py::object variables,
+               py::object parameters) {
+                py::object validated_variables = validate_variable_names(variables);
+                validate_parameter_names(parameters, validated_variables);
+                if (equation.is_none() && !parameters.is_none()) {
+                    throw py::value_error(
+                        "parameters are parse-only and require an equation");
+                }
                 AGraphExpression expr(simplification,
                                       propagate_constants);
                 if (!equation.is_none()) {
-                    auto parsing = py::module_::import(
-                        "bingo.expressions.agraph.pyagraph.parsing");
-                    auto result = parsing.attr(
+                    auto result = get_parsing_helper(
                         "eq_string_to_command_array_and_constants")(
-                        py::str(equation));
+                        py::str(equation),
+                        py::arg("variables") = validated_variables,
+                        py::arg("parameters") = parameters);
                     auto tup = result.cast<py::tuple>();
 
                     // Command array
@@ -135,12 +221,15 @@ void bind_expression(py::module_& m) {
                     expr.set_raw_integers(
                         iterable_to_int_vec(tup[2]));
                 }
+                set_variable_names_from_python(expr, validated_variables);
                 return expr;
             }),
             py::arg("equation") = py::none(),
             py::kw_only(),
             py::arg("simplification") = "cas",
-            py::arg("propagate_constants") = false)
+            py::arg("propagate_constants") = false,
+            py::arg("variables") = py::none(),
+            py::arg("parameters") = py::none())
 
         // ---- Raw layer ----
 
@@ -253,51 +342,55 @@ void bind_expression(py::module_& m) {
             &AGraphExpression::propagate_constants,
             &AGraphExpression::set_propagate_constants)
 
+        .def_property(
+            "variables",
+            [](AGraphExpression& self) {
+                return optional_variable_names_to_python(self);
+            },
+            [](AGraphExpression& self, py::object value) {
+                py::object validated = self.raw_command_array().rows() == 0
+                    ? validate_variable_names(value)
+                    : validate_variable_schema_length(
+                        value, required_variable_dimension(self.raw_command_array()));
+                set_variable_names_from_python(self, validated);
+            })
+
         // ---- Format properties (delegate to pyagraph) ----
 
         .def_property_readonly("console",
             [](AGraphExpression& self) {
                 auto& cmd = self.command_array();
-                auto formatting = py::module_::import(
-                    "bingo.expressions.agraph.pyagraph"
-                    ".formatting");
-                return formatting.attr(
-                    "get_formatted_string")(
+                return format_expression(
                     "console",
-                    stack_to_numpy(cmd),
-                    vec_to_float_tuple(self.constants()),
-                    vec_to_int_tuple(self.integers()));
+                    cmd,
+                    self.constants(),
+                    self.integers(),
+                    self.variable_names());
             })
 
         .def_property_readonly("sympy",
             [](AGraphExpression& self) {
                 auto& cmd = self.command_array();
-                auto formatting = py::module_::import(
-                    "bingo.expressions.agraph.pyagraph"
-                    ".formatting");
                 auto sympy_mod =
                     py::module_::import("sympy");
-                auto s = formatting.attr(
-                    "get_formatted_string")(
+                auto s = format_expression(
                     "sympy",
-                    stack_to_numpy(cmd),
-                    vec_to_float_tuple(self.constants()),
-                    vec_to_int_tuple(self.integers()));
+                    cmd,
+                    self.constants(),
+                    self.integers(),
+                    self.variable_names());
                 return sympy_mod.attr("sympify")(s);
             })
 
         .def_property_readonly("latex",
             [](AGraphExpression& self) {
                 auto& cmd = self.command_array();
-                auto formatting = py::module_::import(
-                    "bingo.expressions.agraph.pyagraph"
-                    ".formatting");
-                return formatting.attr(
-                    "get_formatted_string")(
+                return format_expression(
                     "latex",
-                    stack_to_numpy(cmd),
-                    vec_to_float_tuple(self.constants()),
-                    vec_to_int_tuple(self.integers()));
+                    cmd,
+                    self.constants(),
+                    self.integers(),
+                    self.variable_names());
             })
 
         // ---- Evaluation ----
@@ -517,30 +610,24 @@ void bind_expression(py::module_& m) {
         .def("__str__",
             [](AGraphExpression& self) {
                 auto& cmd = self.command_array();
-                auto formatting = py::module_::import(
-                    "bingo.expressions.agraph.pyagraph"
-                    ".formatting");
-                return formatting.attr(
-                    "get_formatted_string")(
+                return format_expression(
                     "console",
-                    stack_to_numpy(cmd),
-                    vec_to_float_tuple(self.constants()),
-                    vec_to_int_tuple(self.integers()))
+                    cmd,
+                    self.constants(),
+                    self.integers(),
+                    self.variable_names())
                     .cast<std::string>();
             })
 
         .def("__repr__",
             [](AGraphExpression& self) {
                 auto& cmd = self.command_array();
-                auto formatting = py::module_::import(
-                    "bingo.expressions.agraph.pyagraph"
-                    ".formatting");
-                auto s = formatting.attr(
-                    "get_formatted_string")(
+                auto s = format_expression(
                     "console",
-                    stack_to_numpy(cmd),
-                    vec_to_float_tuple(self.constants()),
-                    vec_to_int_tuple(self.integers()))
+                    cmd,
+                    self.constants(),
+                    self.integers(),
+                    self.variable_names())
                     .cast<std::string>();
                 return "AGraphExpression(" + s + ")";
             })
@@ -568,6 +655,9 @@ void bind_expression(py::module_& m) {
                     self.constants() != self.raw_constants()) {
                     state["_constants"] =
                         vec_to_float_tuple(self.constants());
+                }
+                if (self.variable_names().has_value()) {
+                    state["_variables"] = vec_to_str_tuple(*self.variable_names());
                 }
                 return state;
             })
@@ -598,6 +688,11 @@ void bind_expression(py::module_& m) {
                 self.set_raw_integers(
                     iterable_to_int_vec(
                         state["_raw_integers"]));
+
+                if (state.contains("_variables")) {
+                    self.set_variable_names(
+                        iterable_to_string_vec(state["_variables"]));
+                }
 
                 // Backward compat: older pickles encoded fittedness by the
                 // mere presence of "_constants".

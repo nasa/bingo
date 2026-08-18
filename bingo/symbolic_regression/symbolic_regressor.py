@@ -36,6 +36,13 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
 
     Expressions own numerical fitting and loss evaluation. This estimator owns
     scikit-learn validation and configures their evolutionary search.
+
+    Parameters
+    ----------
+    variables : tuple of str, optional
+        Exact-length input variable schema used when generating and formatting
+        evolved expressions. Named rendering then uses these symbols instead of
+        positional defaults like ``X0``.
     """
 
     n_features_in_: int
@@ -60,6 +67,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         max_evals=int(1e19),
         evolutionary_algorithm=None,
         fit_tolerance=1.0e-5,
+        variables=None,
         random_state=None,
     ):
         self.population_size = population_size
@@ -76,6 +84,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
         self.max_evals = max_evals
         self.evolutionary_algorithm = evolutionary_algorithm
         self.fit_tolerance = fit_tolerance
+        self.variables = variables
         self.random_state = random_state
 
     def _make_island(self, X, y, n_processes):
@@ -90,6 +99,7 @@ class SymbolicRegressor(RegressorMixin, BaseEstimator):
             self.max_stack_size,
             component_generator,
             simplification=self.simplification,
+            variables=self.variables,
             random_state=self.random_state,
         )
         crossover = AGraphCrossover(

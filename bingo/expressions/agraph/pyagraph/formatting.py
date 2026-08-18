@@ -231,7 +231,13 @@ def _wrap(child_str, child_op, parent_op, position, eq_format):
 # ------------------------------------------------------------------ #
 
 
-def get_formatted_string(eq_format, command_array, constants, integers):
+def get_formatted_string(
+    eq_format,
+    command_array,
+    constants,
+    integers,
+    variable_names=None,
+):
     """Build a formatted string from a command array.
 
     Parameters
@@ -244,6 +250,8 @@ def get_formatted_string(eq_format, command_array, constants, integers):
         Numeric constants in the equation.
     integers : tuple of int
         Integer values in the equation.
+    variable_names : tuple of str, optional
+        Persistent variable schema for named rendering.
 
     Returns
     -------
@@ -262,6 +270,7 @@ def get_formatted_string(eq_format, command_array, constants, integers):
             format_dict,
             constants,
             integers,
+            variable_names,
             is_srepr,
             eq_format,
         )
@@ -277,6 +286,7 @@ def _get_formatted_element_string(
     format_dict,
     constants,
     integers,
+    variable_names,
     is_srepr=False,
     eq_format="console",
 ):
@@ -284,9 +294,15 @@ def _get_formatted_element_string(
 
     # ---- terminals ----
     if node == VARIABLE:
+        if variable_names is not None and param1 < len(variable_names):
+            name = variable_names[param1]
+        elif variable_names is not None:
+            name = f"X[{param1}]"
+        else:
+            name = f"X{param1}"
         if is_srepr:
-            return f"Symbol('X{param1}')"
-        return f"X{param1}"
+            return f"Symbol({name!r})"
+        return name
     if node == CONSTANT:
         if param1 >= len(constants):
             if is_srepr:

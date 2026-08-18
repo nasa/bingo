@@ -258,6 +258,14 @@ void AGraphExpression::set_propagate_constants(bool v) {
     propagate_constants_ = v;
 }
 
+const std::optional<std::vector<std::string>>& AGraphExpression::variable_names() const {
+    return variable_names_;
+}
+
+void AGraphExpression::set_variable_names(std::optional<std::vector<std::string>> names) {
+    variable_names_ = std::move(names);
+}
+
 // ================================================================
 //  Evaluation
 // ================================================================
@@ -753,6 +761,7 @@ int AGraphExpression::distance(const AGraphExpression& other) const {
 
 AGraphExpression AGraphExpression::copy() const {
     AGraphExpression out(simplification_, propagate_constants_);
+    out.variable_names_ = variable_names_;
     out.raw_command_array_ = raw_command_array_;
     out.raw_constants_ = raw_constants_;
     out.raw_integers_ = raw_integers_;

@@ -12,6 +12,7 @@ from bingo.chromosomes.generator import Generator
 from . import get_expression_class
 from .evolvable import EvolvableExpression
 from .pyagraph import CONSTANT
+from .pyagraph.parsing import validate_variable_schema_length
 
 
 class AGraphGenerator(Generator):
@@ -43,6 +44,7 @@ class AGraphGenerator(Generator):
         max_size,
         component_generator,
         simplification="cas",
+        variables=None,
         random_state=None,
     ):
         if min_size < 1:
@@ -54,6 +56,9 @@ class AGraphGenerator(Generator):
         self.max_size = max_size
         self.component_generator = component_generator
         self._simplification = simplification
+        self._variables = validate_variable_schema_length(
+            variables, self.component_generator.input_x_dimension
+        )
 
     def __call__(self):
         """Generate a random :class:`EvolvableExpression`.
@@ -73,7 +78,10 @@ class AGraphGenerator(Generator):
                 cmd[1] = cmd[2] = idx
             command_array[i] = cmd
 
-        expr = get_expression_class()(simplification=self._simplification)
+        expr = get_expression_class()(
+            simplification=self._simplification,
+            variables=self._variables,
+        )
         expr.raw_command_array = command_array
         expr.raw_constants = tuple(raw_constants)
         return EvolvableExpression(expr)

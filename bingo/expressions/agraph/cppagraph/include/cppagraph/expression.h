@@ -109,6 +109,8 @@ public:
     const std::string& simplification() const;
     bool propagate_constants() const;
     void set_propagate_constants(bool v);
+    const std::optional<std::vector<std::string>>& variable_names() const;
+    void set_variable_names(std::optional<std::vector<std::string>> names);
 
     // ---- Evaluation ------------------------------------------------ //
 
@@ -295,6 +297,7 @@ private:
     // Simplification mode
     std::string simplification_;
     bool propagate_constants_;
+    std::optional<std::vector<std::string>> variable_names_;
 
     // Raw (GA-facing) data
     StackMatrix raw_command_array_;

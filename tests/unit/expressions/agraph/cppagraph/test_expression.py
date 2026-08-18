@@ -79,6 +79,10 @@ class TestConstruction:
         assert len(expr.integers) == 1
         assert expr.integers[0] == 7
 
+    def test_named_constructor_parses_and_renders_variables(self):
+        expr = AGraphExpression(equation="a + sin(x)", variables=("a", "x"))
+        assert str(expr) == "a + sin(x)"
+
 
 # ------------------------------------------------------------------ #
 #  Properties                                                         #
@@ -118,6 +122,17 @@ class TestProperties:
         assert expr.integers == (7,)
         _ = expr.mutable_raw_command_array
         assert expr.integers == (7,)
+
+    def test_variables_property_can_name_existing_expression(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        expr.variables = ("a", "x")
+        assert expr.variables == ("a", "x")
+        assert str(expr) == "a + x"
+
+    def test_variables_property_validates_exact_length(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        with pytest.raises(ValueError, match="exact length"):
+            expr.variables = ("a",)
 
 
 # ------------------------------------------------------------------ #
@@ -250,6 +265,12 @@ class TestCopyPickle:
             restored.predict(simple_x), x0_plus_c0.predict(simple_x)
         )
 
+    def test_copy_and_pickle_preserve_variable_names(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        expr.variables = ("a", "x")
+        assert expr.copy().variables == ("a", "x")
+        assert pickle.loads(pickle.dumps(expr)).variables == ("a", "x")
+
     def test_deepcopy_is_independent(self, manual_expr):
         clone = copy.deepcopy(manual_expr)
         clone.constants = (99.0,)
@@ -276,6 +297,14 @@ class TestHashEquality:
         a = AGraphExpression(equation="X0 + 1.0")
         b = AGraphExpression(equation="X0 * 1.0")
         assert a != b
+
+    def test_variable_names_do_not_affect_hash_or_equality(self):
+        a = AGraphExpression(equation="X0 + X1")
+        b = AGraphExpression(equation="X0 + X1")
+        a.variables = ("a", "x")
+        b.variables = ("u", "v")
+        assert a == b
+        assert hash(a) == hash(b)
 
 
 # ------------------------------------------------------------------ #
@@ -340,6 +369,17 @@ class TestFormatting:
     def test_sympy_string(self, x0_plus_c0):
         s = str(x0_plus_c0.sympy)
         assert len(s) > 0
+
+    def test_named_variables_apply_to_all_renderers(self):
+        expr = AGraphExpression(equation="a + x", variables=("a", "x"))
+        assert str(expr) == "a + x"
+        assert expr.latex == "a + x"
+        assert str(expr.sympy) == "a + x"
+
+    def test_named_mode_fallback_uses_bracketed_variable(self):
+        expr = AGraphExpression(variables=("a", "x"))
+        expr.raw_command_array = np.array([[VARIABLE, 2, 2]], dtype=np.uint8)
+        assert str(expr) == "X[2]"
 
 
 # ------------------------------------------------------------------ #

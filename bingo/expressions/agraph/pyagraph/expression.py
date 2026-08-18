@@ -26,7 +26,13 @@ from .operators import (
 )
 from .simplification import get_utilized_commands, reduce, simplify as cas_simplify
 from .formatting import get_formatted_string
-from .parsing import eq_string_to_command_array_and_constants
+from .parsing import (
+    eq_string_to_command_array_and_constants,
+    get_required_variable_dimension,
+    validate_parameter_names,
+    validate_variable_names,
+    validate_variable_schema_length,
+)
 
 
 # ---------- score / loss vocabulary ----------
@@ -173,17 +179,28 @@ class AGraphExpression:
     _VALID_SIMPLIFICATIONS = frozenset({"reduce", "cas"})
 
     def __init__(
-        self, equation=None, *, simplification="cas", propagate_constants=False
+        self,
+        equation=None,
+        *,
+        simplification="cas",
+        propagate_constants=False,
+        variables=None,
+        parameters=None,
     ):
         if simplification not in self._VALID_SIMPLIFICATIONS:
             raise ValueError(
                 f"simplification must be one of "
                 f"{self._VALID_SIMPLIFICATIONS!r}, got {simplification!r}"
             )
+        variable_names = validate_variable_names(variables)
+        validate_parameter_names(parameters, variables=variable_names)
+        if equation is None and parameters is not None:
+            raise ValueError("parameters are parse-only and require an equation")
         self._simplification = simplification
         self._propagate_constants = propagate_constants
         self._constant_mapping = ()
         self._hash = None
+        self._variables = variable_names
 
         # ``_fit_attempted`` records whether an applicable fitting method has
         # been run for the *current raw structure*.  Combined with the
@@ -193,7 +210,9 @@ class AGraphExpression:
         self._fit_attempted = False
 
         if equation is not None:
-            cmd, consts, ints = eq_string_to_command_array_and_constants(str(equation))
+            cmd, consts, ints = eq_string_to_command_array_and_constants(
+                str(equation), variables=variable_names, parameters=parameters
+            )
             self._raw_command_array = cmd
             self._raw_constants = consts
             self._raw_integers = ints
@@ -257,6 +276,21 @@ class AGraphExpression:
         self._raw_integers = tuple(int(v) for v in value)
         self._notify_modification()
 
+    @property
+    def variables(self):
+        """Optional exact-length variable schema used for named rendering."""
+        return self._variables
+
+    @variables.setter
+    def variables(self, value):
+        variable_names = validate_variable_names(value)
+        if self._raw_command_array.shape[0] != 0:
+            required_dimension = get_required_variable_dimension(self._raw_command_array)
+            variable_names = validate_variable_schema_length(
+                variable_names, required_dimension
+            )
+        self._variables = variable_names
+
     # -- Simplified (evaluation-facing) layer ----------------------------- #
 
     @property
@@ -315,6 +349,11 @@ class AGraphExpression:
     def propagate_constants(self):
         """Whether setting simplified constants also updates raw constants."""
         return self._propagate_constants
+
+    @property
+    def simplification(self):
+        """Simplification strategy used for the derived evaluation stack."""
+        return self._simplification
 
     @propagate_constants.setter
     def propagate_constants(self, value):
@@ -392,6 +431,7 @@ class AGraphExpression:
             self._command_array,
             self._constants,
             self._integers,
+            self._variables,
         )
 
     # ------------------------------------------------------------------ #
@@ -1131,6 +1171,8 @@ class AGraphExpression:
             state["_simplification"] = self._simplification
         if self._propagate_constants:
             state["_propagate_constants"] = True
+        if self._variables is not None:
+            state["_variables"] = self._variables
         return state
 
     def __setstate__(self, state):
@@ -1145,6 +1187,7 @@ class AGraphExpression:
         self._raw_integers = state.get("_raw_integers", ())
         self._simplification = state.get("_simplification", "cas")
         self._propagate_constants = state.get("_propagate_constants", False)
+        self._variables = state.get("_variables")
         # Backward compat: older pickles encoded fittedness by the mere
         # presence of "_constants".
         self._fit_attempted = state.get("_fit_attempted", "_constants" in state)
@@ -1180,6 +1223,7 @@ class AGraphExpression:
         new._constants = tuple(self._constants)
         new._integers = tuple(self._integers)
         new._constant_mapping = tuple(self._constant_mapping)
+        new._variables = self._variables
         new._fit_attempted = self._fit_attempted
         new._modified = self._modified
         new._hash = None

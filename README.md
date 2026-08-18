@@ -42,7 +42,9 @@ expression stack sizes, and simplification mode. The estimator uses
 Expression-native generation, fitting, and loss evaluation. See the
 [migration guide](docs/source/migration.rst) for the current public API.
 Evolution minimizes loss, while Expression scores are higher-is-better. Legacy
-AGraph/Equation checkpoints are not compatible with the Expression API.
+AGraph/Equation checkpoints are not compatible with the Expression API. If you
+want evolved equations to render with domain names instead of positional names,
+pass an exact-length variable schema through `variables=`.
 
 
 ```python
@@ -52,6 +54,7 @@ regressor = SymbolicRegressor(
     min_stack_size=8,
     max_stack_size=16,
     simplification="cas",
+    variables=("x",),
 )
 ```
 
@@ -64,6 +67,9 @@ X_0 = np.linspace(-10, 10, num=30).reshape((-1, 1))
 X = np.array(X_0)
 y = (5.0 * X_0 ** 2 + 3.5 * X_0).ravel()
 ```
+
+With `variables=("x",)`, any evolved one-dimensional expression now renders
+with `x` instead of `X0`.
 
 
 ```python

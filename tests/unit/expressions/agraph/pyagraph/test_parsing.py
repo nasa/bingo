@@ -112,6 +112,42 @@ class TestComplexExpressions:
         assert cmd[-1, 0] == MULTIPLICATION
 
 
+class TestNamedParsing:
+    def test_named_variables_parse_to_variable_indices(self):
+        cmd, consts, ints = eq_string_to_command_array_and_constants(
+            "a + sin(x)", variables=("a", "x")
+        )
+        assert cmd[0, 0] == VARIABLE
+        assert cmd[0, 1] == 0
+        assert any(row[0] == VARIABLE and row[1] == 1 for row in cmd)
+
+    def test_named_parameter_reuse_shares_constant_index(self):
+        cmd, consts, ints = eq_string_to_command_array_and_constants(
+            "a + C*sin(x) + C",
+            variables=("a", "x"),
+            parameters=("C",),
+        )
+        constant_rows = cmd[cmd[:, 0] == CONSTANT]
+        assert len(consts) == 1
+        assert consts == (1.0,)
+        assert {int(row[1]) for row in constant_rows} == {0}
+
+    def test_named_parameters_follow_first_appearance_order(self):
+        _, consts, _ = eq_string_to_command_array_and_constants(
+            "a + B*sin(x) + C",
+            variables=("a", "x"),
+            parameters=("B", "C"),
+        )
+        assert consts == (1.0, 1.0)
+
+    def test_named_mode_allows_legacy_shaped_custom_names(self):
+        cmd, _, _ = eq_string_to_command_array_and_constants(
+            "X0 + sin(x)", variables=("X0", "x")
+        )
+        assert cmd[0, 0] == VARIABLE
+        assert cmd[0, 1] == 0
+
+
 class TestRoundTrip:
     def test_console_round_trip(self):
         """Parse -> console format -> parse should produce equivalent arrays."""
@@ -132,3 +168,29 @@ class TestErrors:
     def test_inf_complex(self):
         with pytest.raises(RuntimeError, match="inf/complex"):
             eq_string_to_command_array_and_constants("oo")
+
+    def test_named_mode_rejects_unknown_variable(self):
+        with pytest.raises(RuntimeError, match="Unknown token y"):
+            eq_string_to_command_array_and_constants(
+                "a + y", variables=("a", "x")
+            )
+
+    def test_named_mode_rejects_unknown_parameter(self):
+        with pytest.raises(RuntimeError, match="Unknown token D"):
+            eq_string_to_command_array_and_constants(
+                "a + C + D",
+                variables=("a",),
+                parameters=("C",),
+            )
+
+    def test_named_mode_rejects_legacy_tokens_outside_symbol_table(self):
+        with pytest.raises(RuntimeError, match="Unknown token X0"):
+            eq_string_to_command_array_and_constants(
+                "X0 + sin(x)", variables=("a", "x")
+            )
+
+    def test_parameters_require_unique_non_overlapping_names(self):
+        with pytest.raises(ValueError, match="must not overlap"):
+            eq_string_to_command_array_and_constants(
+                "a + C", variables=("a",), parameters=("a",)
+            )

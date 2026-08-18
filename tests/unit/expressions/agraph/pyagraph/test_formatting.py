@@ -85,6 +85,16 @@ class TestConsoleFormat:
         assert s == "X1"
         assert "_" not in s
 
+    def test_named_variables_render_in_console(self):
+        stack = np.array([[VARIABLE, 1, 1]], dtype=np.uint8)
+        s = get_formatted_string("console", stack, (), (), ("a", "x"))
+        assert s == "x"
+
+    def test_named_mode_fallback_uses_bracketed_variable(self):
+        stack = np.array([[VARIABLE, 2, 2]], dtype=np.uint8)
+        s = get_formatted_string("console", stack, (), (), ("a", "x"))
+        assert s == "X[2]"
+
 
 # ------------------------------------------------------------------ #
 #  Console — precedence-aware parenthesization                        #

@@ -41,6 +41,10 @@ class TestInit:
         gen = AGraphGenerator(5, 5, component_gen)
         assert gen.min_size == 5 and gen.max_size == 5
 
+    def test_variables_must_match_component_dimension(self, component_gen):
+        with pytest.raises(ValueError, match="exact length"):
+            AGraphGenerator(5, 5, component_gen, variables=("a", "x"))
+
 
 class TestGeneration:
     def test_returns_evolvable_expression(self, generator):
@@ -112,6 +116,13 @@ class TestGeneration:
                     idx = int(row[1])
                     assert idx < len(rc), "CONSTANT index out of range in raw_constants"
                     assert isinstance(rc[idx], float)
+
+    def test_generated_expressions_receive_variable_schema(self, component_gen):
+        gen = AGraphGenerator(
+            5, 5, component_gen, variables=("a", "x", "z"), random_state=0
+        )
+        individual = gen()
+        assert individual.expression.variables == ("a", "x", "z")
 
 
 class TestSimplificationParam:

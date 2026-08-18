@@ -80,6 +80,25 @@ class TestConstruction:
         assert len(expr.integers) == 1
         assert expr.integers[0] == 7
 
+    def test_named_constructor_parses_and_renders_variables(self):
+        expr = AGraphExpression(equation="a + sin(x)", variables=("a", "x"))
+        assert str(expr) == "a + sin(x)"
+
+    def test_named_parameters_parse_to_numeric_constants(self):
+        expr = AGraphExpression(
+            equation="a + C*sin(x)",
+            variables=("a", "x"),
+            parameters=("C",),
+        )
+        assert expr.constants == (1.0,)
+        rendered = str(expr)
+        assert "a" in rendered
+        assert "1.0*sin(x)" in rendered
+
+    def test_parameters_require_equation(self):
+        with pytest.raises(ValueError, match="parse-only"):
+            AGraphExpression(parameters=("C",))
+
 
 # ------------------------------------------------------------------ #
 #  Properties                                                         #
@@ -138,6 +157,21 @@ class TestProperties:
         _ = expr.mutable_raw_command_array
         # no-op mutation, just verify re-update keeps integer 7
         assert expr.integers == (7,)
+
+    def test_variables_property_can_name_existing_expression(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        expr.variables = ("a", "x")
+        assert expr.variables == ("a", "x")
+        assert str(expr) == "a + x"
+
+    def test_variables_property_validates_exact_length(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        with pytest.raises(ValueError, match="exact length"):
+            expr.variables = ("a",)
+
+    def test_empty_expression_can_carry_variable_schema(self):
+        expr = AGraphExpression(variables=("a", "x"))
+        assert expr.variables == ("a", "x")
 
 
 # ------------------------------------------------------------------ #
@@ -521,6 +555,17 @@ class TestFormatting:
         assert "X_0" not in s
         assert "X_1" not in s
 
+    def test_named_variables_apply_to_all_renderers(self):
+        expr = AGraphExpression(equation="a + x", variables=("a", "x"))
+        assert str(expr) == "a + x"
+        assert expr.latex == "a + x"
+        assert str(expr.sympy) == "a + x"
+
+    def test_named_mode_fallback_uses_bracketed_variable(self):
+        expr = AGraphExpression(variables=("a", "x"))
+        expr.raw_command_array = np.array([[VARIABLE, 2, 2]], dtype=np.uint8)
+        assert str(expr) == "X[2]"
+
 
 # ------------------------------------------------------------------ #
 #  Hash / equality                                                    #
@@ -545,6 +590,14 @@ class TestHashEquality:
     def test_not_equal_to_non_expression(self, x0_plus_c0):
         assert x0_plus_c0 != "not an expression"
 
+    def test_variable_names_do_not_affect_hash_or_equality(self):
+        e1 = AGraphExpression(equation="X0 + X1")
+        e2 = AGraphExpression(equation="X0 + X1")
+        e1.variables = ("a", "x")
+        e2.variables = ("u", "v")
+        assert e1 == e2
+        assert hash(e1) == hash(e2)
+
 
 # ------------------------------------------------------------------ #
 #  Copy / distance                                                    #
@@ -563,6 +616,13 @@ class TestCopyDistance:
         copied = copy.deepcopy(x0_plus_c0)
         assert copied is not x0_plus_c0
         np.testing.assert_array_equal(copied.command_array, x0_plus_c0.command_array)
+
+    def test_deepcopy_preserves_variable_names(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        expr.variables = ("a", "x")
+        copied = copy.deepcopy(expr)
+        assert copied.variables == ("a", "x")
+        assert str(copied) == "a + x"
 
     def test_distance_same(self, x0_plus_c0):
         assert x0_plus_c0.distance(x0_plus_c0) == 0
@@ -586,6 +646,13 @@ class TestSerialization:
             restored._evaluate(simple_x),
             x0_plus_c0._evaluate(simple_x),
         )
+
+    def test_pickle_preserves_variable_names(self):
+        expr = AGraphExpression(equation="X0 + X1")
+        expr.variables = ("a", "x")
+        restored = pickle.loads(pickle.dumps(expr))
+        assert restored.variables == ("a", "x")
+        assert str(restored) == "a + x"
 
     def test_pickle_preserves_unfitted_state(self):
         expr = AGraphExpression(equation="X0 + 1.0")

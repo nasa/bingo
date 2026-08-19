@@ -54,28 +54,27 @@ regressor = SymbolicRegressor(
     min_stack_size=8,
     max_stack_size=16,
     simplification="cas",
-    variables=("x",),
+    variables=("r",),
+    random_state=0,
 )
 ```
+With `variables=("r",)`, expressions render with the variable name `r` instead of the default `X0`.
 
 ### Training Data
 Here we're just creating some dummy training data from the equation $5.0 X_0^2 + 3.5 X_0$. More on training data can be found
 in the [data formatting guide](https://nasa.github.io/bingo/_high_level/data_formatting.html).
 ```python
 import numpy as np
-X_0 = np.linspace(-10, 10, num=30).reshape((-1, 1))
-X = np.array(X_0)
-y = (5.0 * X_0 ** 2 + 3.5 * X_0).ravel()
+r = np.linspace(-10, 10, num=30).reshape((-1, 1))
+X = np.array(r)
+y = (5.0 * r ** 2 + 3.5 * r).ravel()
 ```
-
-With `variables=("x",)`, any evolved one-dimensional expression now renders
-with `x` instead of `X0`.
 
 
 ```python
 import matplotlib.pyplot as plt
 plt.scatter(X, y)
-plt.xlabel("X_0")
+plt.xlabel("r")
 plt.ylabel("y")
 plt.title("Training Data")
 plt.show()
@@ -105,7 +104,7 @@ best_individual = regressor.get_best_individual()
 print("best individual is:", best_individual)
 ```
 
-    best individual is: X_0 + (5.0)((0.4999999999999999)(X_0) + (X_0)(X_0))
+    best individual is: r*(3.4999999999970037 + 4.9999999999944125*r)
 
 
 ### Predicting Data with the Best Individual
@@ -120,7 +119,7 @@ pred_y = best_individual.predict(X)
 
 plt.scatter(X, y)
 plt.plot(X, pred_y, 'r')
-plt.xlabel("X_0")
+plt.xlabel("r")
 plt.ylabel("y")
 plt.legend(["Actual", "Predicted"])
 plt.show()

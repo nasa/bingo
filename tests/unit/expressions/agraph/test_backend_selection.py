@@ -182,3 +182,20 @@ class TestGeneratorBackend:
         set_backend("cpp")
         cpp_indv = gen()
         assert type(cpp_indv.expression) is CppAGraphExpression
+
+    def test_generator_preserves_variable_names_on_active_backend(self, component_gen):
+        set_backend("python")
+        py_indv = AGraphGenerator(
+            3, 6, component_gen, variables=("a", "x"), random_state=0
+        )()
+        assert py_indv.expression.variables == ("a", "x")
+
+        if not CPP_AVAILABLE:
+            return
+
+        set_backend("cpp")
+        cpp_indv = AGraphGenerator(
+            3, 6, component_gen, variables=("a", "x"), random_state=0
+        )()
+        assert type(cpp_indv.expression) is CppAGraphExpression
+        assert cpp_indv.expression.variables == ("a", "x")

@@ -83,7 +83,8 @@ class HallOfFame:
             return False
         if not self:
             return True
-        if item_key <= self._keys[-1] or len(self) < self._max_size:
+        # A full archive keeps earlier individuals when the cutoff is tied.
+        if item_key < self._keys[-1] or len(self) < self._max_size:
             return self._not_similar(item)
         return False
 

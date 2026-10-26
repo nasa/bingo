@@ -663,36 +663,44 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 <div class="highlight"><pre>
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:175: RuntimeWarning: overflow encountered in exp
   return np.exp(forward_eval[param1])
-/tmp/ipykernel_3976/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
+/tmp/ipykernel_3898/3026084833.py:19: RuntimeWarning: overflow encountered in multiply
   derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:111: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:99: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:100: RuntimeWarning: overflow encountered in multiply
-  reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in multiply
   return forward_eval[param1] * forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:179: RuntimeWarning: overflow encountered in multiply
   reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
 /opt/hostedtoolcache/Python/3.14.8/x64/lib/python3.14/site-packages/scipy/optimize/_minpack_py.py:498: RuntimeWarning: overflow encountered in matmul
   cov_x = invR @ invR.T
-/tmp/ipykernel_3976/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
-  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:111: RuntimeWarning: overflow encountered in divide
-  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:105: RuntimeWarning: overflow encountered in divide
-  return forward_eval[param1] / forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:111: RuntimeWarning: overflow encountered in scalar divide
   reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:100: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:111: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:99: RuntimeWarning: overflow encountered in multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:95: RuntimeWarning: overflow encountered in scalar multiply
   return forward_eval[param1] * forward_eval[param2]
-/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:99: RuntimeWarning: overflow encountered in scalar multiply
-  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
+/tmp/ipykernel_3898/3026084833.py:19: RuntimeWarning: overflow encountered in subtract
+  derivative_fitness_vector = self.g - self.c * v / self.m - dv_dt
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:105: RuntimeWarning: overflow encountered in scalar divide
+  return forward_eval[param1] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:109: RuntimeWarning: overflow encountered in scalar divide
+  reverse_eval[param1] += reverse_eval[reverse_index] / forward_eval[param2]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:100: RuntimeWarning: overflow encountered in scalar multiply
   reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
 /home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:179: RuntimeWarning: overflow encountered in scalar multiply
   reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:99: RuntimeWarning: overflow encountered in scalar multiply
+  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:179: RuntimeWarning: overflow encountered in add
+  reverse_eval[param1] += reverse_eval[reverse_index] * forward_eval[reverse_index]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:111: RuntimeWarning: overflow encountered in divide
+  reverse_eval[reverse_index] * forward_eval[reverse_index] / forward_eval[param2]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:100: RuntimeWarning: overflow encountered in add
+  reverse_eval[param2] += reverse_eval[reverse_index] * forward_eval[param1]
+/home/runner/work/bingo/bingo/bingo/symbolic_regression/agraph/evaluation_backend/operator_eval.py:105: RuntimeWarning: overflow encountered in divide
+  return forward_eval[param1] / forward_eval[param2]
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -701,7 +709,7 @@ our case <span class="math notranslate nohighlight">\(x=t\)</span> and <span cla
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(3.12616265247687e+22), time=11.954805, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.010066560316849112), detrimental_crossover_rate=np.float64(0.412673964464492), beneficial_mutation_rate=np.float64(0.044781033915047744), detrimental_mutation_rate=np.float64(0.5512018439249259), beneficial_crossover_mutation_rate=np.float64(0.01240694789081886), detrimental_crossover_mutation_rate=np.float64(0.4774193548387097)))
+OptimizeResult(success=False, status=2, message=&#39;The maximum number of generational steps (1000) occurred&#39;, ngen=1000, fitness=np.float64(2.058453130557698e+22), time=11.466941, ea_diagnostics=EaDiagnosticsSummary(beneficial_crossover_rate=np.float64(0.011488511488511488), detrimental_crossover_rate=np.float64(0.3906648906648907), beneficial_mutation_rate=np.float64(0.0441970310391363), detrimental_mutation_rate=np.float64(0.5242914979757085), beneficial_crossover_mutation_rate=np.float64(0.013474494706448507), detrimental_crossover_mutation_rate=np.float64(0.4509143407122233)))
 </pre></div></div>
 </div>
 </section>
@@ -850,7 +858,7 @@ OptimizeResult(success=False, status=2, message=&#39;The maximum number of gener
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       

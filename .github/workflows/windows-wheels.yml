@@ -1,0 +1,79 @@
+name: Windows Wheel Trial
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Windows x64 wheel (Python ${{ matrix.python-version }})
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python-version: "3.11"
+            wheel-tag: cp311
+          - python-version: "3.12"
+            wheel-tag: cp312
+          - python-version: "3.13"
+            wheel-tag: cp313
+          - python-version: "3.14"
+            wheel-tag: cp314
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Build and test installed wheel
+        uses: pypa/cibuildwheel@v4.2.0
+        with:
+          output-dir: wheelhouse
+        env:
+          CIBW_BUILD: "${{ matrix.wheel-tag }}-win_amd64"
+          CIBW_ARCHS_WINDOWS: AMD64
+          CIBW_ENVIRONMENT_WINDOWS: 'CMAKE_GENERATOR="Visual Studio 17 2022"'
+          CIBW_TEST_REQUIRES: "pytest pytest-mock"
+          CIBW_TEST_SOURCES: >-
+            tests/unit/expressions/agraph/cppagraph
+            tests/unit/expressions/agraph/test_backend_parity.py
+            tests/integration/test_serial_install.py
+          CIBW_TEST_COMMAND: >-
+            python -c "from bingo.expressions.agraph.cppagraph import AGraphExpression"
+            && python -m pytest -q
+            tests/unit/expressions/agraph/cppagraph
+            tests/unit/expressions/agraph/test_backend_parity.py
+            tests/integration/test_serial_install.py
+      - name: Install wheel validation tools
+        run: python -m pip install uv twine
+      - name: Validate metadata and clean uv installation
+        shell: bash
+        run: |
+          wheels=(wheelhouse/*${{ matrix.wheel-tag }}-${{ matrix.wheel-tag }}-win_amd64.whl)
+          if [[ ${#wheels[@]} -ne 1 || ! -f "${wheels[0]}" ]]; then
+            echo "Expected exactly one Windows wheel for ${{ matrix.wheel-tag }}" >&2
+            exit 1
+          fi
+          python -m twine check "${wheels[0]}"
+          uv venv --python "$(python -c 'import sys; print(sys.executable)')" wheel-test-venv
+          uv pip install --python wheel-test-venv/Scripts/python.exe --only-binary=:all: "${wheels[0]}"
+          cd "$RUNNER_TEMP"
+          "$GITHUB_WORKSPACE"/wheel-test-venv/Scripts/python.exe -c "import numpy as np; from bingo.expressions.agraph.cppagraph import AGraphExpression; expr = AGraphExpression('X_0 + 1'); np.testing.assert_allclose(expr.predict(np.array([[1.0], [2.0]])).ravel(), [2.0, 3.0]); print('Windows C++ wheel works with uv')"
+      - name: Verify clean directory
+        run: git diff --exit-code
+      - name: Upload validated wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-wheel-${{ matrix.wheel-tag }}
+          path: wheelhouse/*${{ matrix.wheel-tag }}-${{ matrix.wheel-tag }}-win_amd64.whl
+          if-no-files-found: error
+          retention-days: 14

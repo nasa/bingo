@@ -65,6 +65,9 @@ target_include_directories(cppagraph_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_link_libraries(cppagraph_core PUBLIC Eigen3::Eigen)
+if(MSVC)
+    target_compile_definitions(cppagraph_core PRIVATE _USE_MATH_DEFINES)
+endif()
 
 # ---------------------------------------------------------------------------
 # pybind11 Python extension module  (_cppagraph)

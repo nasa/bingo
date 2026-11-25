@@ -2,6 +2,10 @@ name: Windows Wheel Trial
 
 on:
   workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/windows-wheels.yml
 
 permissions:
   contents: read

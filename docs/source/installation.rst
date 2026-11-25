@@ -10,10 +10,16 @@ To install Bingo, simply use pip:
 Experimental Windows Wheels
 ---------------------------
 
-Windows x64 wheels can be built using the manually triggered **Windows Wheel
-Trial** GitHub Actions workflow. It builds wheels for Python 3.11 through 3.14,
+Windows x64 wheels can be built using the **Windows Wheel Trial** GitHub Actions
+workflow. It builds wheels for Python 3.11 through 3.14,
 tests the installed C++ backend and Python/C++ parity, and verifies a clean
 installation with uv. This workflow does not publish to PyPI.
+
+Until the workflow is available on the default branch, a temporary trigger
+also runs the trial when ``.github/workflows/windows-wheels.yml`` changes in a
+push to ``develop``. Open the resulting run under **Actions**; no merge to the
+default branch is needed for this trial. Remove this temporary push trigger
+once the workflow is available for manual dispatch on the default branch.
 
 After the workflow changes are pushed to GitHub and available on the default
 branch, select **Actions > Windows Wheel Trial > Run workflow** and choose the

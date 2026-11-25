@@ -65,7 +65,7 @@ The release workflow verifies that every built distribution's normalized version
 _Avoid_: inferred release version
 
 **Published wheel coverage**:
-Bingo publishes Linux x86_64 wheels for Python 3.11 through 3.14 and an sdist. Every wheel receives a clean-install smoke test; the Python 3.13 and 3.14 wheels additionally run the full installed-artifact suite. The sdist receives a clean-install smoke test on Python 3.13.
+Bingo publishes Linux x86_64 and Windows x64 wheels for Python 3.11 through 3.14 and an sdist. Every wheel receives a clean-install smoke test; the Linux Python 3.13 and 3.14 wheels additionally run the full installed-artifact suite. Each Windows wheel runs C++ backend/parity and serial installation tests plus a binary-only uv installation check. The sdist receives a clean-install smoke test on Python 3.13.
 _Avoid_: untested published wheel
 
 **Manual CI dispatch**:

@@ -39,13 +39,40 @@ jobs:
       - name: Upload distributions
         uses: actions/upload-artifact@v4
         with:
+          name: linux-distributions
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  build-windows:
+    name: Build and validate Windows wheels
+    uses: ./.github/workflows/windows-wheels.yml
+
+  assemble-distributions:
+    name: Assemble validated distributions
+    needs: [build, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-distributions
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: windows-wheel-*
+          merge-multiple: true
+          path: dist
+      - name: Upload combined distributions
+        uses: actions/upload-artifact@v4
+        with:
           name: distributions
           path: dist/*
+          if-no-files-found: error
           retention-days: 14
 
   metadata:
     name: Validate distribution metadata
-    needs: build
+    needs: assemble-distributions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -60,7 +87,7 @@ jobs:
 
   smoke-test-wheel:
     name: Smoke test wheel (Python ${{ matrix.python-version }})
-    needs: build
+    needs: assemble-distributions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -91,7 +118,7 @@ jobs:
 
   smoke-test-sdist:
     name: Smoke test source distribution
-    needs: build
+    needs: assemble-distributions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -106,7 +133,7 @@ jobs:
 
   smoke-test-evidence-extra:
     name: Smoke test Evidence extra
-    needs: build
+    needs: assemble-distributions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -126,7 +153,7 @@ jobs:
 
   installed-tests:
     name: Installed artifact tests (Python ${{ matrix.python-version }})
-    needs: build
+    needs: assemble-distributions
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

@@ -7,39 +7,46 @@ To install Bingo, simply use pip:
 
     pip install bingo-nasa
 
-Experimental Windows Wheels
----------------------------
+Windows Wheels
+--------------
 
-Windows x64 wheels can be built using the **Windows Wheel Trial** GitHub Actions
-workflow. It builds wheels for Python 3.11 through 3.14,
-tests the installed C++ backend and Python/C++ parity, and verifies a clean
-installation with uv. This workflow does not publish to PyPI.
+The release workflow builds Windows x64 wheels for Python 3.11 through 3.14
+alongside Linux wheels and the source distribution. Each Windows wheel passes
+C++ backend and Python/C++ parity tests, serial installation checks, metadata
+validation, and a clean binary-only installation with uv before publication.
+The Windows wheels are included in the same tag-gated PyPI publication and
+signed GitHub Release as the Linux distributions.
 
-Until the workflow is available on the default branch, a temporary trigger
-also runs the trial when ``.github/workflows/windows-wheels.yml`` changes in a
-push to ``develop``. Open the resulting run under **Actions**; no merge to the
-default branch is needed for this trial. Remove this temporary push trigger
-once the workflow is available for manual dispatch on the default branch.
+Once a release containing Windows wheels is published, install it without
+Visual Studio C++ Build Tools:
 
-After the workflow changes are pushed to GitHub and available on the default
-branch, select **Actions > Windows Wheel Trial > Run workflow** and choose the
-branch to build. Download and unzip the successful run's
+.. code-block:: console
+
+    uv add bingo-nasa
+
+The reusable **Windows Wheels** GitHub Actions workflow also supports manual
+builds without publication. Once it is available on the default branch, select
+**Actions > Windows Wheels > Run workflow** and choose the branch to build.
+Alternatively, run **Distribution Validation and Release** manually to build
+and validate distributions for both platforms without publishing them.
+Download and unzip the successful run's
 ``windows-wheel-cp312`` artifact for Python 3.12, or the corresponding artifact
 for another Python version. Artifacts are retained for 14 days.
 
 In a new directory on Windows, install the downloaded wheel without compiling:
 
-.. code-block:: powershell
+.. code-block:: console
 
     uv venv --python 3.12
-    # Replace this path with the actual downloaded wheel filename.
-    uv pip install --only-binary=:all: "C:\path\to\downloaded.whl"
+    uv pip install --python .\.venv\Scripts\python.exe --only-binary=:all: "C:\path\to\downloaded.whl"
     .\.venv\Scripts\python.exe -c "from bingo.expressions.agraph.cppagraph import AGraphExpression; print('C++ backend loaded')"
 
+Replace the wheel path above with the actual downloaded filename. The explicit
+``--python`` selects the new environment rather than an active Conda environment.
 Use a wheel matching your Python version: ``cp311`` for Python 3.11,
 ``cp312`` for 3.12, ``cp313`` for 3.13, or ``cp314`` for 3.14. These wheels
 target 64-bit x86 Windows (``win_amd64``), not ARM64 or 32-bit Windows.
-They are experimental artifacts of the selected branch, not necessarily the
+Downloaded workflow wheels are artifacts of the selected branch, not necessarily the
 same version as a published release. Installing a wheel does not require
 Visual Studio C++ Build Tools.
 
